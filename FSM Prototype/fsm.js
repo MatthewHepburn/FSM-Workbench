@@ -10,12 +10,11 @@ var svg = d3.select('body')
 
 // set up initial nodes and links
 //  - nodes are known by 'id', not by index in array.
-//  - reflexive edges are indicated on the node (as a bold black circle).
 //  - links are always source < target; edge directions are set by 'left' and 'right'.
 var nodes = [
-    {id: 0, reflexive: false},
-    {id: 1, reflexive: true },
-    {id: 2, reflexive: false}
+    {id: 0, accepting: false},
+    {id: 1, accepting: true },
+    {id: 2, accepting: false}
   ],
   lastNodeId = 2,
   links = [
@@ -136,10 +135,10 @@ function restart() {
   // NB: the function arg is crucial here! nodes are known by id, not by index!
   circle = circle.data(nodes, function(d) { return d.id; });
 
-  // update existing nodes (reflexive & selected visual states)
+  // update existing nodes (accepting & selected visual states)
   circle.selectAll('circle')
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-    .classed('reflexive', function(d) { return d.reflexive; });
+    .classed('accepting', function(d) { return d.accepting; });
 
   // add new nodes
   var g = circle.enter().append('svg:g');
@@ -149,7 +148,8 @@ function restart() {
     .attr('r', 20)
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
-    .classed('reflexive', function(d) { return d.reflexive; })
+    .classed('accepting', function(d) { return d.accepting; })
+    .attr("id", function(d) { return d.id; })
     .on('mouseover', function(d) {
       if(!mousedown_node || d === mousedown_node) return;
       // enlarge target node
@@ -248,7 +248,6 @@ function mousedown() {
 
   // because :active only works in WebKit?
   svg.classed('active', true);
-  console.log(d3.event);
 
   if(d3.event.ctrlKey ||d3.event.button != 0 || mousedown_node || mousedown_link) return;
 
@@ -261,7 +260,7 @@ function mousedown() {
 
   // insert new node at point
   var point = d3.mouse(this),
-      node = {id: ++lastNodeId, reflexive: false};
+      node = {id: ++lastNodeId, accepting: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
@@ -349,8 +348,8 @@ function keydown() {
       break;
     case 82: // R
       if(selected_node) {
-        // toggle node reflexivity
-        selected_node.reflexive = !selected_node.reflexive;
+        // toggle whether node is accepting
+        selected_node.accepting = !selected_node.accepting;
       } else if(selected_link) {
         // set link direction to right only
         selected_link.left = false;
@@ -384,15 +383,17 @@ function stateContext(){
     contextMenuShowing = false
     return;
   }
+  // Get the id of the clicked state:
+  var id = d3.event.target.id
+
   var canvas = d3.select(".canvas")
   contextMenuShowing = true;
   mousePosition = d3.mouse(svg.node());
-  console.log(mousePosition);
   menu = canvas.append("div")
                 .attr("class", "contextmenu")
                 .style("left", mousePosition[0] + "px")
                 .style("top", mousePosition[1] + "px");
-  stateMenuContents(menu, 1);
+  stateMenuContents(menu, id);
 
   // Disable system menu on right-clicking the context menu
   menu.on("contextmenu", function(){d3.event.preventDefault()})
@@ -406,7 +407,6 @@ function stateContext(){
       menu.node().offsetWidth,
       menu.node().offsetHeight
   ];
-
   if (popupSize[0] + mousePosition[0] > canvasSize[0]) {
       menu.style("left","auto");
       menu.style("right",0);
@@ -434,10 +434,13 @@ function stateMenuContents(menu, id){
 }
 
 function toggleAccepting(){
-  console.log(d3.event);
   var id = d3.event.toElement.dataset.id;
-  console.log(id)
-  alert("TOGGLE " + id);
+  // Change state in nodes
+  state = nodes[id]
+  state.accepting = !state.accepting;
+  // Update is now needed:
+  restart()
+
 }
 
 function renameState(){

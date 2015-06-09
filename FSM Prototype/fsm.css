@@ -40,7 +40,7 @@ circle.node {
   cursor: pointer;
 }
 
-circle.node.reflexive {
+circle.node.accepting {
   stroke: #000 !important;
   stroke-width: 2.5px;
 }
