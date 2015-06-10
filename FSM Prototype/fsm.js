@@ -12,9 +12,9 @@ var svg = d3.select('body')
 //  - nodes are known by 'id', not by index in array.
 //  - links are always source < target; edge directions are set by 'left' and 'right'.
 var nodes = [
-    {id: 0, accepting: false},
-    {id: 1, accepting: true },
-    {id: 2, accepting: false}
+    {id: 0, accepting: false, name: "foo"},
+    {id: 1, accepting: true, name: "bar" },
+    {id: 2, accepting: false, name: "2"}
   ],
   lastNodeId = 2,
   links = [
@@ -162,7 +162,6 @@ function restart() {
     })
     .on('mousedown', function(d) {
       if(d3.event.ctrlKey|| d3.event.button != 0) return;
-
       // select node
       mousedown_node = d;
       if(mousedown_node === selected_node) selected_node = null;
@@ -222,7 +221,24 @@ function restart() {
       selected_link = link;
       selected_node = null;
       restart();
+    })
+
+    
+  // Add a concentric circle to accepting nodes. It has class "accepting-ring"
+    d3.selectAll('.node').each(function(d) 
+        {   console.log(d.accepting)
+            if (d.accepting) {
+                var id = d.id           
+                d3.select(this.parentNode).append('svg:circle')
+                    .attr('r', 14)
+                    .attr('class', "accepting-ring")
+                    .attr('id', "ar"+id)
+                    .style('stroke', "black")
+                    .style('stroke-width', 2)
+                    .style('fill-opacity', 0);
+        }     
     });
+      
 
   // show node IDs
   g.append('svg:text')
@@ -230,6 +246,8 @@ function restart() {
       .attr('y', 4)
       .attr('class', 'id')
       .text(function(d) { return d.id; });
+
+
 
   // remove old nodes
   circle.exit().remove();
@@ -437,6 +455,10 @@ function toggleAccepting(){
   var id = d3.event.toElement.dataset.id;
   // Change state in nodes
   state = nodes[id]
+  //Remove concentric ring if we are toggling off:
+  if (state.accepting){
+    d3.selectAll("#ar"+id).remove();
+  } 
   state.accepting = !state.accepting;
   // Update is now needed:
   restart()
