@@ -37,7 +37,7 @@ var eventHandler = {
                 resetMouseVars();
                 return;
             }
-            
+
             // add link to graph (update if exists)
             // NB: links are strictly source < target; arrows separately specified by booleans
             var source, target, direction;
@@ -74,7 +74,68 @@ var eventHandler = {
             selected_node = null;
             restart();
         }
-}
+    },
+    //Provides right-click functionality for states.
+    stateContextMenu: function() {
+        d3.event.preventDefault();
+
+        //If menu already present, dismiss it.
+        if (contextMenuShowing) {
+            d3.select(".contextmenu").remove();
+            contextMenuShowing = false
+            return;
+        }
+        // Get the id of the clicked state:
+        var id = d3.event.target.id
+
+        var canvas = d3.select(".canvas")
+        contextMenuShowing = true;
+        mousePosition = d3.mouse(svg.node());
+        menu = canvas.append("div")
+            .attr("class", "contextmenu")
+            .style("left", mousePosition[0] + "px")
+            .style("top", mousePosition[1] + "px");
+
+        menu.append("p")
+            .classed("button toggleaccepting", true)
+            .text("Toggle accepting")
+            .attr("data-id", id)
+
+        d3.select(".toggleaccepting").on("click", toggleAccepting);
+
+        menu.append("p")
+            .classed("button renamestate", true)
+            .text("Rename state")
+            .attr("data-id", id)
+            
+        d3.select(".renamestate").on("click", renameState)
+
+        // Disable system menu on right-clicking the context menu
+        menu.on("contextmenu", function() {
+            d3.event.preventDefault()
+        })
+
+        canvasSize = [
+            canvas.node().offsetWidth,
+            canvas.node().offsetHeight
+        ];
+
+        popupSize = [
+            menu.node().offsetWidth,
+            menu.node().offsetHeight
+        ];
+        if (popupSize[0] + mousePosition[0] > canvasSize[0]) {
+            menu.style("left", "auto");
+            menu.style("right", 0);
+        }
+
+        if (popupSize[1] + mousePosition[1] > canvasSize[1]) {
+            menu.style("top", "auto");
+            menu.style("bottom", 0);
+        }
+
+    }
+
 }
 
 
@@ -309,7 +370,7 @@ function restart() {
 
     // add listeners
     d3.selectAll(".node")
-        .on('contextmenu', stateContext);
+        .on('contextmenu', eventHandler.stateContextMenu);
 }
 
 function mousedown() {
@@ -445,68 +506,6 @@ function keyup() {
     }
 }
 
-// Right-click functionality for states.
-function stateContext() {
-
-    d3.event.preventDefault();
-
-    //If menu already present, dismiss it.
-    if (contextMenuShowing) {
-        d3.select(".contextmenu").remove();
-        contextMenuShowing = false
-        return;
-    }
-    // Get the id of the clicked state:
-    var id = d3.event.target.id
-
-    var canvas = d3.select(".canvas")
-    contextMenuShowing = true;
-    mousePosition = d3.mouse(svg.node());
-    menu = canvas.append("div")
-        .attr("class", "contextmenu")
-        .style("left", mousePosition[0] + "px")
-        .style("top", mousePosition[1] + "px");
-    stateMenuContents(menu, id);
-
-    // Disable system menu on right-clicking the context menu
-    menu.on("contextmenu", function() {
-        d3.event.preventDefault()
-    })
-
-    canvasSize = [
-        canvas.node().offsetWidth,
-        canvas.node().offsetHeight
-    ];
-
-    popupSize = [
-        menu.node().offsetWidth,
-        menu.node().offsetHeight
-    ];
-    if (popupSize[0] + mousePosition[0] > canvasSize[0]) {
-        menu.style("left", "auto");
-        menu.style("right", 0);
-    }
-
-    if (popupSize[1] + mousePosition[1] > canvasSize[1]) {
-        menu.style("top", "auto");
-        menu.style("bottom", 0);
-    }
-}
-
-function stateMenuContents(menu, id) {
-    menu.append("p")
-        .classed("button toggleaccepting", true)
-        .text("Toggle accepting")
-        .attr("data-id", id)
-    d3.select(".toggleaccepting").on("click", toggleAccepting);
-
-    menu.append("p")
-        .classed("button renamestate", true)
-        .text("Rename state")
-        .attr("data-id", id)
-    d3.select(".renamestate").on("click", renameState)
-    return
-}
 
 function toggleAccepting() {
     var id = d3.event.toElement.dataset.id;
