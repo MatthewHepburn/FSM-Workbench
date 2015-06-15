@@ -82,7 +82,7 @@ var eventHandler = {
         //If menu already present, dismiss it.
         if (contextMenuShowing) {
             d3.select(".contextmenu").remove();
-            contextMenuShowing = false
+            contextMenuShowing = false;
             return;
         }
         // Get the id of the clicked state:
@@ -91,6 +91,15 @@ var eventHandler = {
         var canvas = d3.select(".canvas")
         contextMenuShowing = true;
         mousePosition = d3.mouse(svg.node());
+
+        display.createStateContextMenu(canvas, id, mousePosition);
+
+    }
+
+}
+
+var display = {
+    createStateContextMenu: function(canvas, id, mousePosition) {
         menu = canvas.append("div")
             .attr("class", "contextmenu")
             .style("left", mousePosition[0] + "px")
@@ -133,6 +142,10 @@ var eventHandler = {
             menu.style("top", "auto");
             menu.style("bottom", 0);
         }
+    },
+    dismissStateContextMenu: function(){
+        d3.select(".contextmenu").remove();
+        contextMenuShowing = false;
 
     }
 
@@ -339,7 +352,7 @@ function restart() {
     d3.selectAll('.node').each(function(d) {
         console.log(d.accepting)
         var id = d.id
-        if (d.accepting & ! document.getElementById("ar"+id)) {            
+        if (d.accepting & !document.getElementById("ar" + id)) {
             d3.select(this.parentNode).append('svg:circle')
                 .attr('r', 14)
                 .attr('class', "accepting-ring")
@@ -513,18 +526,22 @@ function toggleAccepting() {
     var id = d3.event.toElement.dataset.id;
     // Change state in nodes
     state = nodes[id]
-        //Remove concentric ring if we are toggling off:
+    //Remove concentric ring if we are toggling off:
     if (state.accepting) {
         d3.selectAll("#ar" + id).remove();
     }
     state.accepting = !state.accepting;
+    //Dismiss the context menu
+    display.dismissStateContextMenu();
+
     // Update is now needed:
-    restart()
+    restart();
 
 }
 
 function renameState() {
-    alert("not implemented yet!")
+    alert("not implemented yet!");
+    display.dismissStateContextMenu();
 }
 
 // app starts here
