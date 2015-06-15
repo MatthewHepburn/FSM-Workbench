@@ -107,7 +107,7 @@ var eventHandler = {
             .classed("button renamestate", true)
             .text("Rename state")
             .attr("data-id", id)
-            
+
         d3.select(".renamestate").on("click", renameState)
 
         // Disable system menu on right-clicking the context menu
@@ -338,15 +338,17 @@ function restart() {
     // Add a concentric circle to accepting nodes. It has class "accepting-ring"
     d3.selectAll('.node').each(function(d) {
         console.log(d.accepting)
-        if (d.accepting) {
-            var id = d.id
+        var id = d.id
+        if (d.accepting & ! document.getElementById("ar"+id)) {            
             d3.select(this.parentNode).append('svg:circle')
                 .attr('r', 14)
                 .attr('class', "accepting-ring")
                 .attr('id', "ar" + id)
                 .style('stroke', "black")
                 .style('stroke-width', 2)
-                .style('fill-opacity', 0);
+                .style('fill-opacity', 0)
+                // Make pointer events pass through the inner circle, to the node below.
+                .style('pointer-events', 'none');
         }
     });
 
