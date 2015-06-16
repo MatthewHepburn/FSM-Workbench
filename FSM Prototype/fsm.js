@@ -372,7 +372,7 @@ function restart() {
         .attr('y', 4)
         .attr('class', 'id')
         .text(function(d) {
-            return d.id;
+            return d.name;
         });
 
 
