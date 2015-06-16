@@ -290,8 +290,8 @@ function tick() {
             dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
             normX = deltaX / dist,
             normY = deltaY / dist,
-            sourcePadding = d.left ? 17 : 12,
-            targetPadding = d.right ? 17 : 12,
+            sourcePadding = 20,
+            targetPadding = 22,
             sourceX = d.source.x + (sourcePadding * normX),
             sourceY = d.source.y + (sourcePadding * normY),
             targetX = d.target.x - (targetPadding * normX),
@@ -306,10 +306,10 @@ function tick() {
             })[0];
 
         if (exists){
-            return display.bezierCurve(d.source.x, d.source.y, d.target.x, d.target.y);
+            return display.bezierCurve(sourceX, sourceY, targetX, targetY);
         }
         else{
-            return display.line(d.source.x, d.source.y, d.target.x, d.target.y);
+            return display.line(sourceX, sourceY, targetX, targetY);
         }
     });
 
