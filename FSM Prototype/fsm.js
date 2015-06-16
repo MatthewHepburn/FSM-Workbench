@@ -137,34 +137,49 @@ var display = {
         contextMenuShowing = false;
     },
     bezierCurve: function(x1, y1, x2, y2){
-        //Calculate vector from P1 to P2
+        // Calculate vector from P1 to P2
         var vx = x2 - x1;
         var vy = y2 - y1;
 
-        //Find suitable control points by rotating v left 90deg and scaling 
+        // Find suitable control points by rotating v left 90deg and scaling 
         var vlx = -0.15 * vy;
         var vly = 0.15 * vx;
 
-        //Can now define the control points by adding vl to P1 and P2
+        // Can now define the control points by adding vl to P1 and P2
         var c1x = x1+ vlx;
         var c1y = y1 + vly;
 
         var c2x = x2 + vlx;
         var c2y = y2 + vly;
 
-        //Define strings to use to define the path
-        var P1 = x1 +"," + y1;
-        var P2 = x2 +"," + y2;
+        // We need an explicit midpoint to allow a direction arrow to be placed
+        var m1x = c1x + 0.5 * vx;
+        var m1y = c1y + 0.5 * vy
+
+        // Define strings to use to define the path
+        var P1 = x1 + "," + y1;
+        var M1 = m1x + ","+ m1y; 
+        var P2 = x2 + "," + y2;
         var C1 = c1x + ',' + c1y;
         var C2 = c2x + ',' + c2y;
 
-        return ("M" + P1 + " C" + C1 + " " + C2 + " " + P2);
+        return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
     },
+    // Returns a path for a line with a node at the midpoint
     line: function(x1, y1, x2, y2){
+        // define vector v from P1 to halfway to P2
+        var vx = 0.5 * (x2 - x1);
+        var vy = 0.5 * (y2 - y1);
+
+        // midpoint is then:
+        var midx = x1 + vx;
+        var midy = y1 + vy;
+
         var P1 = x1 +"," + y1;
+        var M = midx + "," + midy
         var P2 = x2 +"," + y2;
 
-        return ("M" + P1 + " L" + P2);
+        return ("M" + P1 + " L" + M + " L" + P2);
     }
 
 }
@@ -221,24 +236,13 @@ var force = d3.layout.force()
 // define arrow markers for graph links
 svg.append('svg:defs').append('svg:marker')
     .attr('id', 'end-arrow')
-    .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 6)
-    .attr('markerWidth', 3)
-    .attr('markerHeight', 3)
+    .attr('viewBox', '0 -10 20 20')
+    .attr('refX', 7)
+    .attr('markerWidth', 5)
+    .attr('markerHeight', 5)
     .attr('orient', 'auto')
     .append('svg:path')
-    .attr('d', 'M0,-5L10,0L0,5')
-    .attr('fill', '#000');
-
-svg.append('svg:defs').append('svg:marker')
-    .attr('id', 'start-arrow')
-    .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 4)
-    .attr('markerWidth', 3)
-    .attr('markerHeight', 3)
-    .attr('orient', 'auto')
-    .append('svg:path')
-    .attr('d', 'M10,-5L0,0L10,5')
+    .attr('d', 'M0,-10L20,0L0,10')
     .attr('fill', '#000');
 
 // line displayed when dragging new nodes
@@ -293,7 +297,8 @@ function tick() {
         else{
             return display.line(sourceX, sourceY, targetX, targetY);
         }
-    });
+    })
+    .style("stroke-width", 2);
 
     circle.attr('transform', function(d) {
         return 'translate(' + d.x + ',' + d.y + ')';
@@ -309,7 +314,7 @@ function restart() {
     path.classed('selected', function(d) {
             return d === selected_link;
         })        
-        .style('marker-end', 'url(#end-arrow)');
+        .style('marker-mid', 'url(#end-arrow)');
 
     // add new links
     path.enter().append('svg:path')
@@ -317,7 +322,7 @@ function restart() {
         .classed('selected', function(d) {
             return d === selected_link;
         })
-        .style('marker-end','url(#end-arrow)')
+        .style('marker-mid','url(#end-arrow)')
         .on('mousedown', function(d) {
             eventHandler.addLinkMouseDown(d)
         });
