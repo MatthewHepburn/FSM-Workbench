@@ -40,32 +40,21 @@ var eventHandler = {
 
             // add link to graph (update if exists)
             // NB: links are strictly source < target; arrows separately specified by booleans
-            var source, target, direction;
-            if (mousedown_node.id < mouseup_node.id) {
-                source = mousedown_node;
-                target = mouseup_node;
-                direction = 'right';
-            } else {
-                source = mouseup_node;
-                target = mousedown_node;
-                direction = 'left';
-            }
-
+            var source, target;
+            source = mousedown_node;
+            target = mouseup_node;
+            
+            //Check if link already exists. Create it if it doesn't.
             var link;
             link = links.filter(function(l) {
                 return (l.source === source && l.target === target);
             })[0];
 
-            if (link) {
-                link[direction] = true;
-            } else {
+            if (!link){
                 link = {
                     source: source,
-                    target: target,
-                    left: false,
-                    right: false
+                    target: target
                 };
-                link[direction] = true;
                 links.push(link);
             }
 
@@ -194,7 +183,6 @@ var svg = d3.select('body')
 
 // set up initial nodes and links
 //  - nodes are known by 'id', not by index in array.
-//  - links are always source < target; edge directions are set by 'left' and 'right'.
 var nodes = [{
         id: 0,
         accepting: false,
@@ -211,20 +199,14 @@ var nodes = [{
     lastNodeId = 2,
     links = [{
         source: nodes[0],
-        target: nodes[1],
-        left: false,
-        right: true
+        target: nodes[1]
     }, {
         source: nodes[1],
-        target: nodes[2],
-        left: false,
-        right: true
+        target: nodes[2]
     },
     {
         source: nodes[1],
-        target: nodes[0],
-        left: false,
-        right: true
+        target: nodes[0]
     }];
 
 // init D3 force layout
@@ -326,14 +308,8 @@ function restart() {
     // update existing links
     path.classed('selected', function(d) {
             return d === selected_link;
-        })
-        .style('marker-start', function(d) {
-            return d.left ? 'url(#start-arrow)' : '';
-        })
-        .style('marker-end', function(d) {
-            return d.right ? 'url(#end-arrow)' : '';
-        });
-
+        })        
+        .style('marker-end', 'url(#end-arrow)');
 
     // add new links
     path.enter().append('svg:path')
@@ -341,12 +317,7 @@ function restart() {
         .classed('selected', function(d) {
             return d === selected_link;
         })
-        .style('marker-start', function(d) {
-            return d.left ? 'url(#start-arrow)' : '';
-        })
-        .style('marker-end', function(d) {
-            return d.right ? 'url(#end-arrow)' : '';
-        })
+        .style('marker-end','url(#end-arrow)')
         .on('mousedown', function(d) {
             eventHandler.addLinkMouseDown(d)
         });
@@ -526,22 +497,6 @@ function keydown() {
             }
             selected_link = null;
             selected_node = null;
-            restart();
-            break;
-        case 66: // B
-            if (selected_link) {
-                // set link direction to both left and right
-                selected_link.left = true;
-                selected_link.right = true;
-            }
-            restart();
-            break;
-        case 76: // L
-            if (selected_link) {
-                // set link direction to left only
-                selected_link.left = true;
-                selected_link.right = false;
-            }
             restart();
             break;
         case 82: // R
