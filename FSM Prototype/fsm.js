@@ -147,34 +147,35 @@ var display = {
         d3.select(".contextmenu").remove();
         contextMenuShowing = false;
     },
-    drawBezierLine: function(x1, y1, x2, y2){
+    bezierCurve: function(x1, y1, x2, y2){
         //Calculate vector from P1 to P2
         var vx = x2 - x1;
         var vy = y2 - y1;
 
-        //Find suitable control points by rotating v left 90deg and scaling 30%
-        var vlx = -0.3 * vy;
-        var vly = 0.3 * vx;
+        //Find suitable control points by rotating v left 90deg and scaling 
+        var vlx = -0.15 * vy;
+        var vly = 0.15 * vx;
 
         //Can now define the control points by adding vl to P1 and P2
         var c1x = x1+ vlx;
         var c1y = y1 + vly;
 
-        var c2x = x2 + vlx
+        var c2x = x2 + vlx;
         var c2y = y2 + vly;
 
         //Define strings to use to define the path
-        var P1 = x1 +"," + y1
-        var P2 = x2 +"," + y2
-        var C1 = c1x + ',' + c1y
-        var C2 = c2x + ',' + c2y
+        var P1 = x1 +"," + y1;
+        var P2 = x2 +"," + y2;
+        var C1 = c1x + ',' + c1y;
+        var C2 = c2x + ',' + c2y;
 
-        svg.append('svg:path')
-            .attr('d', "M" + P1 + " C" + C1 + " " + C2 + " " + P2)
-            .attr('fill', "none")
-            .attr('stroke', "#777")
-            .attr('stroke-width', 3);
+        return ("M" + P1 + " C" + C1 + " " + C2 + " " + P2);
+    },
+    line: function(x1, y1, x2, y2){
+        var P1 = x1 +"," + y1;
+        var P2 = x2 +"," + y2;
 
+        return ("M" + P1 + " L" + P2);
     }
 
 }
@@ -216,6 +217,12 @@ var nodes = [{
     }, {
         source: nodes[1],
         target: nodes[2],
+        left: false,
+        right: true
+    },
+    {
+        source: nodes[1],
+        target: nodes[0],
         left: false,
         right: true
     }];
@@ -289,7 +296,21 @@ function tick() {
             sourceY = d.source.y + (sourcePadding * normY),
             targetX = d.target.x - (targetPadding * normX),
             targetY = d.target.y - (targetPadding * normY);
-        return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+
+        // Determing if there is a link in the other direction. 
+        // If there is, we will use a bezier curve to allow both to be visible
+        var sourceId = d.source.id
+        var targetId = d.target.id
+        exists = links.filter(function(l) {
+                return (l.source.id === targetId && l.target.id === sourceId);
+            })[0];
+
+        if (exists){
+            return display.bezierCurve(d.source.x, d.source.y, d.target.x, d.target.y);
+        }
+        else{
+            return display.line(d.source.x, d.source.y, d.target.x, d.target.y);
+        }
     });
 
     circle.attr('transform', function(d) {
