@@ -274,14 +274,16 @@ function tick() {
         var deltaX = d.target.x - d.source.x,
             deltaY = d.target.y - d.source.y,
             dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-            normX = deltaX / dist,
-            normY = deltaY / dist,
-            sourcePadding = 20,
-            targetPadding = 22,
-            sourceX = d.source.x + (sourcePadding * normX),
-            sourceY = d.source.y + (sourcePadding * normY),
-            targetX = d.target.x - (targetPadding * normX),
-            targetY = d.target.y - (targetPadding * normY);
+            
+            //Define unit vectors
+            unitX = deltaX / dist,
+            unitY = deltaY / dist,
+
+            padding = 18,
+            sourceX = d.source.x + (padding * unitX),
+            sourceY = d.source.y + (padding * unitY),
+            targetX = d.target.x - (padding * unitX),
+            targetY = d.target.y - (padding * unitY);
 
         // Determing if there is a link in the other direction. 
         // If there is, we will use a bezier curve to allow both to be visible
