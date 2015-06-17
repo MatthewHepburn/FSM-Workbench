@@ -43,7 +43,7 @@ var eventHandler = {
             var source, target;
             source = mousedown_node;
             target = mouseup_node;
-            
+
             //Check if link already exists. Create it if it doesn't.
             var link;
             link = links.filter(function(l) {
@@ -142,7 +142,7 @@ var display = {
         var vx = x2 - x1;
         var vy = y2 - y1;
 
-        // Find suitable control points by rotating v left 90deg and scaling 
+        // Find suitable control points by rotating v left 90deg and scaling
         var vlx = -0.15 * vy;
         var vly = 0.15 * vx;
 
@@ -159,7 +159,7 @@ var display = {
 
         // Define strings to use to define the path
         var P1 = x1 + "," + y1;
-        var M1 = m1x + ","+ m1y; 
+        var M1 = m1x + ","+ m1y;
         var P2 = x2 + "," + y2;
         var C1 = c1x + ',' + c1y;
         var C2 = c2x + ',' + c2y;
@@ -182,7 +182,7 @@ var display = {
 
         return ("M" + P1 + " L" + M + " L" + P2);
     },
-    getLinkLabelPosition: function(x1, y1, x2, y2, isBezier){  
+    getLinkLabelPosition: function(x1, y1, x2, y2, isBezier){
         //Function takes the location of two nodes (x1, y1) and (x2, y2) and
         //returns a suitable position for the link between them.
         var cx = 0.5 * (x1 + x2);
@@ -195,7 +195,7 @@ var display = {
         var vx = x2 - x1;
         var vy = y2 - y1;
 
-        // Find suitable offset by getting a vector perpendicular to V 
+        // Find suitable offset by getting a vector perpendicular to V
         var vpx = -1 * vy;
         var vpy = vx;
 
@@ -267,7 +267,8 @@ var force = d3.layout.force()
     .links(links)
     .size([width, height])
     .linkDistance(150)
-    .charge(-800)
+    .charge(-500)
+    .gravity(0.05) //gravity is attraction to the centre, not downwards.
     .on('tick', tick)
 
 // define arrow markers for graph links
@@ -291,7 +292,7 @@ var drag_line = svg.append('svg:path')
 var path = svg.append('svg:g').selectAll('path'),
     circle = svg.append('svg:g').selectAll('g'),
     linkLabels = svg.selectAll(".linklabel")
- 
+
 
 // mouse event vars
 var selected_node = null,
@@ -313,7 +314,7 @@ function tick() {
         var deltaX = d.target.x - d.source.x,
             deltaY = d.target.y - d.source.y,
             dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-            
+
             //Define unit vectors
             unitX = deltaX / dist,
             unitY = deltaY / dist,
@@ -324,7 +325,7 @@ function tick() {
             targetX = d.target.x - (padding * unitX),
             targetY = d.target.y - (padding * unitY);
 
-        // Determine if there is a link in the other direction. 
+        // Determine if there is a link in the other direction.
         // If there is, we will use a bezier curve to allow both to be visible
         var sourceId = d.source.id
         var targetId = d.target.id
@@ -343,7 +344,7 @@ function tick() {
 
     // Move the input labels
     linkLabels.attr('transform', function(d) {
-        // Determine if there is a link in the other direction. 
+        // Determine if there is a link in the other direction.
         // We need this as labels will be placed differently for curved links.
         var sourceId = d.source.id
         var targetId = d.target.id
@@ -371,7 +372,7 @@ function restart() {
     // update existing links
     path.classed('selected', function(d) {
             return d === selected_link;
-        })        
+        })
         .style('marker-mid', 'url(#end-arrow)');
 
     // add new links
@@ -418,7 +419,7 @@ function restart() {
                 }
                 return labelString;
             }
-            
+
         })
         .attr('class', 'linklabel')
         .attr('text-anchor', 'middle') // This causes text to be centred on the position of the label.
