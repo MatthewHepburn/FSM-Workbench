@@ -181,6 +181,39 @@ var display = {
         var P2 = x2 +"," + y2;
 
         return ("M" + P1 + " L" + M + " L" + P2);
+    },
+    getLinkLabelPosition: function(x1, y1, x2, y2, isBezier){  
+        //Function takes the location of two nodes (x1, y1) and (x2, y2) and
+        //returns a suitable position for the link between them.
+        var cx = 0.5 * (x1 + x2);
+        var cy = 0.5 * (y2 + y1);
+
+        var dx = x2 - x1;
+        var dy = y2 - y1;
+
+        //Find vector V from P1 to P2
+        var vx = x2 - x1;
+        var vy = y2 - y1;
+
+        // Find suitable offset by getting a vector perpendicular to V 
+        var vpx = -1 * vy;
+        var vpy = vx;
+
+        //find angle of the line relative to x axis. From -180 to 180.
+        var angle = (Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI)
+        if (Math.abs(angle) > 90){
+            angle = angle - 180 //don't want text upside down
+        }
+
+        if (!isBezier){
+            var scale = 0.10
+            return {x:cx + scale * vpx , y:cy + scale * vpy, rotation:angle};
+
+        }
+        else{
+            var scale = 0.20
+            return {x:cx + scale * vpx , y:cy + scale * vpy, rotation:angle};
+        }
     }
 
 }
@@ -234,7 +267,7 @@ var force = d3.layout.force()
     .links(links)
     .size([width, height])
     .linkDistance(150)
-    .charge(-500)
+    .charge(-800)
     .on('tick', tick)
 
 // define arrow markers for graph links
@@ -310,9 +343,18 @@ function tick() {
 
     // Move the input labels
     linkLabels.attr('transform', function(d) {
-        var x = 0.5 * (d.source.x + d.target.x);
-        var y = 0.5 * (d.source.y + d.target.y);
-        return 'translate(' + x + ',' + y + ')';
+        // Determine if there is a link in the other direction. 
+        // We need this as labels will be placed differently for curved links.
+        var sourceId = d.source.id
+        var targetId = d.target.id
+        exists = links.filter(function(l) {
+                return (l.source.id === targetId && l.target.id === sourceId);
+            })[0];
+        exists = Boolean(exists)
+
+        var position = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, exists)
+
+        return 'translate(' + position.x + ',' + position.y + ') rotate('+position.rotation +')';
     });
 
     // Draw the nodes in their new positions
@@ -379,6 +421,7 @@ function restart() {
             
         })
         .attr('class', 'linklabel')
+        .attr('text-anchor', 'middle') // This causes text to be centred on the position of the label.
 
     // add new nodes
     var g = circle.enter().append('svg:g');
