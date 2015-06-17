@@ -53,7 +53,8 @@ var eventHandler = {
             if (!link){
                 link = {
                     source: source,
-                    target: target
+                    target: target,
+                    input: []
                 };
                 links.push(link);
             }
@@ -214,14 +215,17 @@ var nodes = [{
     lastNodeId = 2,
     links = [{
         source: nodes[0],
-        target: nodes[1]
+        target: nodes[1],
+        input: ["a", "b"]
     }, {
         source: nodes[1],
-        target: nodes[2]
+        target: nodes[2],
+        input: ["a", "b", "c"]
     },
     {
         source: nodes[1],
-        target: nodes[0]
+        target: nodes[0],
+        input: ["a"]
     }];
 
 // init D3 force layout
@@ -252,7 +256,9 @@ var drag_line = svg.append('svg:path')
 
 // handles to link and node element groups
 var path = svg.append('svg:g').selectAll('path'),
-    circle = svg.append('svg:g').selectAll('g');
+    circle = svg.append('svg:g').selectAll('g'),
+    linkLabels = svg.selectAll(".linklabel")
+ 
 
 // mouse event vars
 var selected_node = null,
@@ -285,7 +291,7 @@ function tick() {
             targetX = d.target.x - (padding * unitX),
             targetY = d.target.y - (padding * unitY);
 
-        // Determing if there is a link in the other direction. 
+        // Determine if there is a link in the other direction. 
         // If there is, we will use a bezier curve to allow both to be visible
         var sourceId = d.source.id
         var targetId = d.target.id
@@ -302,6 +308,14 @@ function tick() {
     })
     .style("stroke-width", 2);
 
+    // Move the input labels
+    linkLabels.attr('transform', function(d) {
+        var x = 0.5 * (d.source.x + d.target.x);
+        var y = 0.5 * (d.source.y + d.target.y);
+        return 'translate(' + x + ',' + y + ')';
+    });
+
+    // Draw the nodes in their new positions
     circle.attr('transform', function(d) {
         return 'translate(' + d.x + ',' + d.y + ')';
     });
@@ -347,6 +361,24 @@ function restart() {
         .classed('accepting', function(d) {
             return d.accepting;
         });
+
+    // Add link labels
+    linkLabels = linkLabels.data(links);
+    linkLabels.enter().append('svg:text')
+        .text(function(d){
+            //Funtion to turn array of symbols into the label string
+            if (d.input.length == 0){
+                return ""
+            } else {
+                var labelString = String(d.input[0])
+                for (i = 1; i < d.input.length; i++){
+                    labelString += ", " + d.input[i];
+                }
+                return labelString;
+            }
+            
+        })
+        .attr('class', 'linklabel')
 
     // add new nodes
     var g = circle.enter().append('svg:g');
