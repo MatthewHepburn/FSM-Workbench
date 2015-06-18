@@ -65,6 +65,22 @@ var eventHandler = {
             restart();
         }
     },
+    renameState: function() {
+        //Get the id of the targeted node
+        var id = d3.event.toElement.dataset.id;
+        // create a form over the targeted node
+        svg.append("foreignObject")
+            .attr("width", 50)
+            .attr("height", 20)
+            .attr("x", "100")
+            .attr("y", 200)
+        .append("xhtml:body")
+            .style("font", "14px 'Helvetica Neue'")
+            .html("<form><input type='text' name='state name'></form>");
+            
+
+        display.dismissStateContextMenu();
+    }, 
     //Provides right-click functionality for states.
     stateContextMenu: function() {
         d3.event.preventDefault();
@@ -107,7 +123,7 @@ var display = {
             .text("Rename state")
             .attr("data-id", id)
 
-        d3.select(".renamestate").on("click", renameState)
+        d3.select(".renamestate").on("click", eventHandler.renameState)
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
@@ -215,7 +231,6 @@ var display = {
             return {x:cx + scale * vpx , y:cy + scale * vpy, rotation:angle};
         }
     }
-
 }
 
 
@@ -628,13 +643,10 @@ function toggleAccepting() {
 
 }
 
-function renameState() {
-    alert("not implemented yet!");
-    display.dismissStateContextMenu();
-}
+
 
 // app starts here
-svg.on('mousedown', mousedown)
+svg//.on('mousedown', mousedown)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
 d3.select(window)
