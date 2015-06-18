@@ -483,6 +483,8 @@ function restart() {
     // remove old nodes
     circle.exit().remove();
 
+    linkLabels.exit().remove();
+
     // set the graph in motion
     force.start();
 
