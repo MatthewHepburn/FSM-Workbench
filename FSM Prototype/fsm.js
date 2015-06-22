@@ -612,7 +612,7 @@ function keyup() {
 
 
 function toggleAccepting() {
-    var id = d3.event.toElement.dataset.id;
+    var id = d3.event.currentTarget.dataset.id;
     // Change state in nodes
     state = nodes[id]
     //Remove concentric ring if we are toggling off:
