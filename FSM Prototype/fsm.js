@@ -513,7 +513,6 @@ function restart() {
 
     // Add a concentric circle to accepting nodes. It has class "accepting-ring"
     d3.selectAll('.node').each(function(d) {
-        console.log(d.accepting)
         var id = d.id
         if (d.accepting & !document.getElementById("ar" + id)) {
             d3.select(this.parentNode).append('svg:circle')
@@ -652,6 +651,10 @@ function keydown() {
     switch (d3.event.keyCode) {
         case 8: // backspace
         case 46: // delete
+            // Do nothing if the rename menu is open
+            if(renameMenuShowing){
+                break;
+            }
             if (selected_node) {
                 nodes.splice(nodes.indexOf(selected_node), 1);
                 spliceLinksForNode(selected_node);
