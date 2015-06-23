@@ -65,6 +65,27 @@ var eventHandler = {
             restart();
         }
     },
+    renameState: function() {
+        //Get the id of the targeted node
+        var id = d3.event.currentTarget.dataset.id;
+        var d = d3.select("[id='"+id+"']").data()[0];
+        console.log(d);
+        // create a form over the targeted node
+        svg.append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", d.x + 30)
+            .attr("y", d.y - 10)
+        .append("xhtml:body")
+            .style("font", "14px 'Helvetica Neue'")
+            .style("user-select", "text")
+            .style("webkit-user-select", "text")
+            .style("z-index", 3)
+            .html("<form><input type='text' name='state name' value='name'></form>");
+            
+
+        display.dismissStateContextMenu();
+    }, 
     //Provides right-click functionality for states.
     stateContextMenu: function() {
         d3.event.preventDefault();
@@ -107,7 +128,7 @@ var display = {
             .text("Rename state")
             .attr("data-id", id)
 
-        d3.select(".renamestate").on("click", renameState)
+        d3.select(".renamestate").on("click", eventHandler.renameState)
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
@@ -215,7 +236,6 @@ var display = {
             return {x:cx + scale * vpx , y:cy + scale * vpy, rotation:angle};
         }
     }
-
 }
 
 
@@ -559,7 +579,7 @@ function spliceLinksForNode(node) {
 var lastKeyDown = -1;
 
 function keydown() {
-    d3.event.preventDefault();
+    //d3.event.preventDefault();
 
     if (lastKeyDown !== -1) return;
     lastKeyDown = d3.event.keyCode;
@@ -628,13 +648,10 @@ function toggleAccepting() {
 
 }
 
-function renameState() {
-    alert("not implemented yet!");
-    display.dismissStateContextMenu();
-}
+
 
 // app starts here
-svg.on('mousedown', mousedown)
+svg//.on('mousedown', mousedown)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
 d3.select(window)
