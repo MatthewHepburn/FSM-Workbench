@@ -87,6 +87,9 @@ var eventHandler = {
             .style("z-index", 3)
             .html("<form><input class='renameinput' id='node"+id+"' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
 
+        // give form focus
+        document.getElementById('node'+id).focus();
+
         renameMenuShowing = true;
         display.dismissStateContextMenu();
     },
