@@ -50,7 +50,7 @@ var eventHandler = {
                 return (l.source === source && l.target === target);
             })[0];
 
-            if (!link){
+            if (!link) {
                 link = {
                     source: source,
                     target: target,
@@ -66,9 +66,12 @@ var eventHandler = {
         }
     },
     renameState: function() {
+        if (renameMenuShowing) {
+            display.dismissRenameMenu()
+        }
         //Get the id of the targeted node
         var id = d3.event.currentTarget.dataset.id;
-        var d = d3.select("[id='"+id+"']").data()[0];
+        var d = d3.select("[id='" + id + "']").data()[0];
         console.log(d);
         // create a form over the targeted node
         svg.append("foreignObject")
@@ -76,16 +79,17 @@ var eventHandler = {
             .attr("height", 50)
             .attr("x", d.x + 30)
             .attr("y", d.y - 10)
-        .append("xhtml:body")
+            .attr("class", "rename")
+            .append("xhtml:body")
             .style("font", "14px 'Helvetica Neue'")
             .style("user-select", "text")
             .style("webkit-user-select", "text")
             .style("z-index", 3)
             .html("<form><input type='text' name='state name' value='name'></form>");
-            
 
+        renameMenuShowing = true;
         display.dismissStateContextMenu();
-    }, 
+    },
     //Provides right-click functionality for states.
     stateContextMenu: function() {
         d3.event.preventDefault();
@@ -154,11 +158,15 @@ var display = {
             menu.style("bottom", 0);
         }
     },
-    dismissStateContextMenu: function(){
+    dismissStateContextMenu: function() {
         d3.select(".contextmenu").remove();
         contextMenuShowing = false;
     },
-    bezierCurve: function(x1, y1, x2, y2){
+    dismissRenameMenu: function() {
+        d3.select(".rename").remove();
+        renameMenuShowing = false;
+    },
+    bezierCurve: function(x1, y1, x2, y2) {
         // Calculate vector from P1 to P2
         var vx = x2 - x1;
         var vy = y2 - y1;
@@ -168,7 +176,7 @@ var display = {
         var vly = 0.15 * vx;
 
         // Can now define the control points by adding vl to P1 and P2
-        var c1x = x1+ vlx;
+        var c1x = x1 + vlx;
         var c1y = y1 + vly;
 
         var c2x = x2 + vlx;
@@ -180,7 +188,7 @@ var display = {
 
         // Define strings to use to define the path
         var P1 = x1 + "," + y1;
-        var M1 = m1x + ","+ m1y;
+        var M1 = m1x + "," + m1y;
         var P2 = x2 + "," + y2;
         var C1 = c1x + ',' + c1y;
         var C2 = c2x + ',' + c2y;
@@ -188,7 +196,7 @@ var display = {
         return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
     },
     // Returns a path for a line with a node at the midpoint
-    line: function(x1, y1, x2, y2){
+    line: function(x1, y1, x2, y2) {
         // define vector v from P1 to halfway to P2
         var vx = 0.5 * (x2 - x1);
         var vy = 0.5 * (y2 - y1);
@@ -197,13 +205,13 @@ var display = {
         var midx = x1 + vx;
         var midy = y1 + vy;
 
-        var P1 = x1 +"," + y1;
+        var P1 = x1 + "," + y1;
         var M = midx + "," + midy
-        var P2 = x2 +"," + y2;
+        var P2 = x2 + "," + y2;
 
         return ("M" + P1 + " L" + M + " L" + P2);
     },
-    getLinkLabelPosition: function(x1, y1, x2, y2, isBezier){
+    getLinkLabelPosition: function(x1, y1, x2, y2, isBezier) {
         //Function takes the location of two nodes (x1, y1) and (x2, y2) and
         //returns a suitable position for the link between them.
         var cx = 0.5 * (x1 + x2);
@@ -222,19 +230,32 @@ var display = {
 
         //find angle of the line relative to x axis. From -180 to 180.
         var angle = (Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI)
-        if (Math.abs(angle) > 90){
+        if (Math.abs(angle) > 90) {
             angle = angle - 180 //don't want text upside down
         }
 
-        if (!isBezier){
+        if (!isBezier) {
             var scale = 0.10
-            return {x:cx + scale * vpx , y:cy + scale * vpy, rotation:angle};
+            return {
+                x: cx + scale * vpx,
+                y: cy + scale * vpy,
+                rotation: angle
+            };
 
-        }
-        else{
+        } else {
             var scale = 0.20
-            return {x:cx + scale * vpx , y:cy + scale * vpy, rotation:angle};
+            return {
+                x: cx + scale * vpx,
+                y: cy + scale * vpy,
+                rotation: angle
+            };
         }
+    }
+}
+
+var controller = {
+    renameSubmit: function() {
+        alert("TO DO")
     }
 }
 
@@ -274,8 +295,7 @@ var nodes = [{
         source: nodes[1],
         target: nodes[2],
         input: ["a", "b", "c"]
-    },
-    {
+    }, {
         source: nodes[1],
         target: nodes[0],
         input: ["a"]
@@ -331,36 +351,35 @@ function resetMouseVars() {
 function tick() {
     // draw directed edges with proper padding from node centers
     path.attr('d', function(d) {
-        var deltaX = d.target.x - d.source.x,
-            deltaY = d.target.y - d.source.y,
-            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+            var deltaX = d.target.x - d.source.x,
+                deltaY = d.target.y - d.source.y,
+                dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
 
-            //Define unit vectors
-            unitX = deltaX / dist,
-            unitY = deltaY / dist,
+                //Define unit vectors
+                unitX = deltaX / dist,
+                unitY = deltaY / dist,
 
-            padding = 18,
-            sourceX = d.source.x + (padding * unitX),
-            sourceY = d.source.y + (padding * unitY),
-            targetX = d.target.x - (padding * unitX),
-            targetY = d.target.y - (padding * unitY);
+                padding = 18,
+                sourceX = d.source.x + (padding * unitX),
+                sourceY = d.source.y + (padding * unitY),
+                targetX = d.target.x - (padding * unitX),
+                targetY = d.target.y - (padding * unitY);
 
-        // Determine if there is a link in the other direction.
-        // If there is, we will use a bezier curve to allow both to be visible
-        var sourceId = d.source.id
-        var targetId = d.target.id
-        exists = links.filter(function(l) {
+            // Determine if there is a link in the other direction.
+            // If there is, we will use a bezier curve to allow both to be visible
+            var sourceId = d.source.id
+            var targetId = d.target.id
+            exists = links.filter(function(l) {
                 return (l.source.id === targetId && l.target.id === sourceId);
             })[0];
 
-        if (exists){
-            return display.bezierCurve(sourceX, sourceY, targetX, targetY);
-        }
-        else{
-            return display.line(sourceX, sourceY, targetX, targetY);
-        }
-    })
-    .style("stroke-width", 2);
+            if (exists) {
+                return display.bezierCurve(sourceX, sourceY, targetX, targetY);
+            } else {
+                return display.line(sourceX, sourceY, targetX, targetY);
+            }
+        })
+        .style("stroke-width", 2);
 
     // Move the input labels
     linkLabels.attr('transform', function(d) {
@@ -369,13 +388,13 @@ function tick() {
         var sourceId = d.source.id
         var targetId = d.target.id
         exists = links.filter(function(l) {
-                return (l.source.id === targetId && l.target.id === sourceId);
-            })[0];
+            return (l.source.id === targetId && l.target.id === sourceId);
+        })[0];
         exists = Boolean(exists)
 
         var position = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, exists)
 
-        return 'translate(' + position.x + ',' + position.y + ') rotate('+position.rotation +')';
+        return 'translate(' + position.x + ',' + position.y + ') rotate(' + position.rotation + ')';
     });
 
     // Draw the nodes in their new positions
@@ -401,7 +420,7 @@ function restart() {
         .classed('selected', function(d) {
             return d === selected_link;
         })
-        .style('marker-mid','url(#end-arrow)')
+        .style('marker-mid', 'url(#end-arrow)')
         .on('mousedown', function(d) {
             eventHandler.addLinkMouseDown(d)
         });
@@ -428,13 +447,13 @@ function restart() {
     // Add link labels
     linkLabels = linkLabels.data(links);
     linkLabels.enter().append('svg:text')
-        .text(function(d){
+        .text(function(d) {
             //Funtion to turn array of symbols into the label string
-            if (d.input.length == 0){
+            if (d.input.length == 0) {
                 return ""
             } else {
                 var labelString = String(d.input[0])
-                for (i = 1; i < d.input.length; i++){
+                for (i = 1; i < d.input.length; i++) {
                     labelString += ", " + d.input[i];
                 }
                 return labelString;
@@ -584,6 +603,12 @@ function keydown() {
     if (lastKeyDown !== -1) return;
     lastKeyDown = d3.event.keyCode;
 
+    //return / enter
+    if (d3.event.keyCode == 13) {
+        // Prevent default form submit
+        d3.event.preventDefault();
+    }
+
     // ctrl
     if (d3.event.keyCode === 17) {
         circle.call(force.drag);
@@ -635,7 +660,7 @@ function toggleAccepting() {
     var id = d3.event.currentTarget.dataset.id;
     // Change state in nodes
     state = nodes[id]
-    //Remove concentric ring if we are toggling off:
+        //Remove concentric ring if we are toggling off:
     if (state.accepting) {
         d3.selectAll("#ar" + id).remove();
     }
@@ -651,11 +676,12 @@ function toggleAccepting() {
 
 
 // app starts here
-svg//.on('mousedown', mousedown)
+svg //.on('mousedown', mousedown)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
 d3.select(window)
     .on('keydown', keydown)
     .on('keyup', keyup);
 var contextMenuShowing = false;
+var renameMenuShowing = false;
 restart();
