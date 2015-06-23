@@ -85,7 +85,7 @@ var eventHandler = {
             .style("user-select", "text")
             .style("webkit-user-select", "text")
             .style("z-index", 3)
-            .html("<form><input class='renameinput' id='node"+id+"' type='text' name='state name' value='" + currentName + "'></form>");
+            .html("<form><input class='renameinput' id='node"+id+"' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
 
         renameMenuShowing = true;
         display.dismissStateContextMenu();
