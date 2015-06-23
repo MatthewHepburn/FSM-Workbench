@@ -72,7 +72,7 @@ var eventHandler = {
         //Get the id of the targeted node
         var id = d3.event.currentTarget.dataset.id;
         var d = d3.select("[id='" + id + "']").data()[0];
-        console.log(d);
+        var currentName = d.name
         // create a form over the targeted node
         svg.append("foreignObject")
             .attr("width", 80)
@@ -85,7 +85,7 @@ var eventHandler = {
             .style("user-select", "text")
             .style("webkit-user-select", "text")
             .style("z-index", 3)
-            .html("<form><input type='text' name='state name' value='name'></form>");
+            .html("<form><input class='renameinput' id='node"+id+"' type='text' name='state name' value='" + currentName + "'></form>");
 
         renameMenuShowing = true;
         display.dismissStateContextMenu();
@@ -255,7 +255,22 @@ var display = {
 
 var controller = {
     renameSubmit: function() {
-        alert("TO DO")
+        var menu = d3.select('.renameinput')[0][0];
+        var value = menu.value
+        var id = menu.id
+        var type = id.slice(0,4);
+
+        // Process differently if it is a node or link rename
+        if (type == "node"){
+            var nodeID = id.slice(4)
+            var d = d3.select("[id='" + nodeID + "']").data()[0];
+            d.name = value;
+            //Change the displayed label to the new name
+            var label = svg.select("#nodename"+nodeID);
+            label.text(value)            
+            
+        }
+        display.dismissRenameMenu()
     }
 }
 
@@ -512,7 +527,10 @@ function restart() {
     g.append('svg:text')
         .attr('x', 0)
         .attr('y', 4)
-        .attr('class', 'id')
+        .attr('class', 'nodename')
+        .attr('id', function(d){
+            return "nodename"+d.id;
+        })
         .text(function(d) {
             return d.name;
         });
@@ -607,6 +625,10 @@ function keydown() {
     if (d3.event.keyCode == 13) {
         // Prevent default form submit
         d3.event.preventDefault();
+        //Call the rename handler if there is a rename menu showing.
+        if (renameMenuShowing){
+            controller.renameSubmit()
+        }
     }
 
     // ctrl
