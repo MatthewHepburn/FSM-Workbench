@@ -31,6 +31,10 @@ path.link.dragline {
   pointer-events: none;
 }
 
+path.link:hover{
+  stroke-width: 6px !important;
+}
+
 path.link.hidden {
   stroke-width: 0;
 }
