@@ -67,16 +67,21 @@ var eventHandler = {
     },
     renameState: function() {
         //Get the id of the targeted node
-        var id = d3.event.toElement.dataset.id;
+        var id = d3.event.currentTarget.dataset.id;
+        var d = d3.select("[id='"+id+"']").data()[0];
+        console.log(d);
         // create a form over the targeted node
         svg.append("foreignObject")
-            .attr("width", 50)
-            .attr("height", 20)
-            .attr("x", "100")
-            .attr("y", 200)
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", d.x + 30)
+            .attr("y", d.y - 10)
         .append("xhtml:body")
             .style("font", "14px 'Helvetica Neue'")
-            .html("<form><input type='text' name='state name'></form>");
+            .style("user-select", "text")
+            .style("webkit-user-select", "text")
+            .style("z-index", 3)
+            .html("<form><input type='text' name='state name' value='name'></form>");
             
 
         display.dismissStateContextMenu();
@@ -574,7 +579,7 @@ function spliceLinksForNode(node) {
 var lastKeyDown = -1;
 
 function keydown() {
-    d3.event.preventDefault();
+    //d3.event.preventDefault();
 
     if (lastKeyDown !== -1) return;
     lastKeyDown = d3.event.keyCode;
@@ -627,7 +632,7 @@ function keyup() {
 
 
 function toggleAccepting() {
-    var id = d3.event.toElement.dataset.id;
+    var id = d3.event.currentTarget.dataset.id;
     // Change state in nodes
     state = nodes[id]
     //Remove concentric ring if we are toggling off:
