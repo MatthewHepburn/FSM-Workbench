@@ -73,6 +73,9 @@ var eventHandler = {
         var id = d3.event.currentTarget.dataset.id;
         var d = d3.select("[id='" + id + "']").data()[0];
         var currentName = d.name
+        if (currentName == undefined){
+            currentName = "";
+        }
         // create a form over the targeted node
         svg.append("foreignObject")
             .attr("width", 80)
@@ -701,7 +704,7 @@ function toggleAccepting() {
 
 
 // app starts here
-svg //.on('mousedown', mousedown)
+svg.on('mousedown', mousedown)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
 d3.select(window)
