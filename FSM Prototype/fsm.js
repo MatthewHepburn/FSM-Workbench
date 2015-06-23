@@ -572,6 +572,11 @@ function mousedown() {
         return;
     }
 
+    // If rename menu is showing, do nothing
+    if(renameMenuShowing){
+        return;
+    }
+
     // insert new node at point
     var point = d3.mouse(this),
         node = {
