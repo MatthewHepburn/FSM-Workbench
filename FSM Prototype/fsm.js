@@ -54,7 +54,8 @@ var eventHandler = {
                 link = {
                     source: source,
                     target: target,
-                    input: []
+                    input: [],
+                    id: ++lastLinkId
                 };
                 links.push(link);
             }
@@ -64,6 +65,26 @@ var eventHandler = {
             selected_node = null;
             restart();
         }
+    },
+    // Provides right-click funtionality for links
+    linkContextMenu: function() {
+        d3.event.preventDefault();
+
+        //If menu already present, dismiss it.
+        if (contextMenuShowing) {
+            d3.select(".contextmenu").remove();
+            contextMenuShowing = false;
+            return;
+        }
+        // Get the id of the clicked link:
+        var id = d3.event.target.id.slice(4);
+
+        var canvas = d3.select(".canvas")
+        contextMenuShowing = true;
+        mousePosition = d3.mouse(svg.node());
+
+        display.createLinkContextMenu(canvas, id, mousePosition);
+
     },
     renameState: function() {
         if (renameMenuShowing) {
@@ -94,7 +115,7 @@ var eventHandler = {
         document.getElementById('node'+id).focus();
 
         renameMenuShowing = true;
-        display.dismissStateContextMenu();
+        display.dismissContextMenu();
     },
     //Provides right-click functionality for states.
     stateContextMenu: function() {
@@ -120,6 +141,50 @@ var eventHandler = {
 }
 
 var display = {
+    createLinkContextMenu: function(canvas, id, mousePosition) {
+        menu = canvas.append("div")
+            .attr("class", "contextmenu")
+            .style("left", mousePosition[0] + "px")
+            .style("top", mousePosition[1] + "px");
+
+        menu.append("p")
+            .classed("button changeconditions", true)
+            .text("Change condtitions")
+            .attr("data-id", id)
+
+        d3.select(".changeconditions").on("click", controller.changeLinkConditions);
+
+        menu.append("p")
+            .classed("button deletelink", true)
+            .text("Delete link")
+            .attr("data-id", id)
+
+        d3.select(".deletelink").on("click", controller.deleteLink);
+
+        // Disable system menu on right-clicking the context menu
+        menu.on("contextmenu", function() {
+            d3.event.preventDefault()
+        })
+
+        canvasSize = [
+            canvas.node().offsetWidth,
+            canvas.node().offsetHeight
+        ];
+
+        popupSize = [
+            menu.node().offsetWidth,
+            menu.node().offsetHeight
+        ];
+        if (popupSize[0] + mousePosition[0] > canvasSize[0]) {
+            menu.style("left", "auto");
+            menu.style("right", 0);
+        }
+
+        if (popupSize[1] + mousePosition[1] > canvasSize[1]) {
+            menu.style("top", "auto");
+            menu.style("bottom", 0);
+        }
+    },
     createStateContextMenu: function(canvas, id, mousePosition) {
         menu = canvas.append("div")
             .attr("class", "contextmenu")
@@ -164,7 +229,7 @@ var display = {
             menu.style("bottom", 0);
         }
     },
-    dismissStateContextMenu: function() {
+    dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
         contextMenuShowing = false;
     },
@@ -260,6 +325,12 @@ var display = {
 }
 
 var controller = {
+    changeLinkConditions: function(){
+        alert("Not Implemented yet!")
+    },
+    deleteLink: function(){
+        alert("Not Implemented yet!")
+    },
     renameSubmit: function() {
         var menu = d3.select('.renameinput')[0][0];
         var value = menu.value
@@ -311,16 +382,20 @@ var nodes = [{
     links = [{
         source: nodes[0],
         target: nodes[1],
-        input: ["a", "b"]
+        input: ["a", "b"],
+        id:0
     }, {
         source: nodes[1],
         target: nodes[2],
-        input: ["a", "b", "c"]
+        input: ["a", "b", "c"],
+        id:1
     }, {
         source: nodes[1],
         target: nodes[0],
-        input: ["a"]
-    }];
+        input: ["a"],
+        id:2
+    }],
+    lastLinkId = 2;
 
 // init D3 force layout
 var force = d3.layout.force()
@@ -400,7 +475,10 @@ function tick() {
                 return display.line(sourceX, sourceY, targetX, targetY);
             }
         })
-        .style("stroke-width", 2);
+        .style("stroke-width", 2)
+        .attr("id", function(d){
+            return "link"+d.id;
+        })
 
     // Move the input labels
     linkLabels.attr('transform', function(d) {
@@ -553,6 +631,9 @@ function restart() {
     // add listeners
     d3.selectAll(".node")
         .on('contextmenu', eventHandler.stateContextMenu);
+
+    d3.selectAll(".link")
+        .on('contextmenu', eventHandler.linkContextMenu);
 }
 
 function mousedown() {
@@ -702,7 +783,7 @@ function toggleAccepting() {
     }
     state.accepting = !state.accepting;
     //Dismiss the context menu
-    display.dismissStateContextMenu();
+    display.dismissContextMenu();
 
     // Update is now needed:
     restart();
