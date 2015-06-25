@@ -423,6 +423,20 @@ var query = {
         }
         return d;
     },
+    getNodeData: function(id){
+        var d;
+        for (i in nodes) {
+            if (nodes[i].id == id) {
+                d = nodes[i];
+                break;
+            }
+        }
+        if (d == undefined) {
+            alert("Error in query.getNodeData - nodeID id not found");
+        }
+        return d;
+
+    },    
     isBezier: function(id) {
         // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
 
@@ -443,16 +457,39 @@ var query = {
 
 var model = {
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
-    fullInput: ["a", "b", "c"], // The complete input the machine is processing, this should not be changed during simulation.
-    currentInput: ["a", "b", "c"], // This will have symbols removed as they are processed.
+    fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
+    currentInput: ["a", "a"], // This will have symbols removed as they are processed.
+    accepts: function(input){
+        // Given input in the form ["a", "b", "c"], determines if the current machine accepts it.
+        // NOTE: this resets the model variables.
+        model.fullInput = input;
+        model.currentInput = input;
+        model.currentStates = [0];
+        // Simulate until input is consumed
+        while (this.currentInput.length > 0){
+            if (this.currentStates == []){
+                return false;
+            }
+            this.step();
+        }
+        // When input is consumed, check if any of the current states are accepting;
+        for (i = 0; i < this.currentStates.length; i++){
+            var state = query.getNodeData(this.currentStates[i]);
+            if (state.accepting){
+                return true;
+            }
+        }
+        return false;
+    },
     step: function(){
         // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
         var curSymbol = model.currentInput.shift();
         var newStates = [];
 
-        for (stateID in model.currentStates){
-            for (i in links){
-                var link = links[i];
+        for (i = 0; i < model.currentStates.length; i++){
+            var stateID = model.currentStates[i];  // For every state in currentStates, test every link.
+            for (j in links){
+                var link = links[j];
                 if(link.source.id == stateID){// See if link starts from currently considered node.
                     if (link.input.indexOf(curSymbol) > -1 || link.input.indexOf("Epsilon") > -1){ // See if this transition is legal.
                         //Add link target to newStates if it isn't there already
@@ -463,10 +500,7 @@ var model = {
                 } 
             }
         }
-
         model.currentStates = newStates;
-
-
     }
 }
 
