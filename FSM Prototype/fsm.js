@@ -105,10 +105,6 @@ var eventHandler = {
             .attr("y", d.y - 10)
             .attr("class", "rename")
             .append("xhtml:body")
-            .style("font", "14px 'Helvetica Neue'")
-            .style("user-select", "text")
-            .style("webkit-user-select", "text")
-            .style("z-index", 3)
             .html("<form><input class='renameinput' id='node"+id+"' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
 
         // give form focus
