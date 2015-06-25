@@ -86,6 +86,41 @@ var eventHandler = {
         display.createLinkContextMenu(canvas, id, mousePosition);
 
     },
+     renameLink: function() {
+        if (renameMenuShowing) {
+            display.dismissRenameMenu()
+        }
+        //Get the id of the targeted link
+        var id = d3.event.currentTarget.dataset.id;
+        //Get the data associated with the link
+        var d = d3.select("[id='" + id + "']").data()[0];
+
+        var current = String(d.input)
+        if (current == undefined){
+            current = "";
+        }
+
+        //Calculate the position to put the form
+        var labelPos = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, query.isBezier(id));
+        var formX = labelPos.x;
+        var formY = labelPos.y - 10;
+
+        // create a form over the targeted node
+        svg.append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", formX)
+            .attr("y", formY)
+            .attr("class", "rename")
+            .append("xhtml:body")
+            .html("<form><input class='renameinput' id='link"+id+"' type='text' size='2', name='link condtitions' value='" + current + "'></form>");
+
+        // give form focus
+        document.getElementById('node'+id).focus();
+
+        renameMenuShowing = true;
+        display.dismissContextMenu();
+    },
     renameState: function() {
         if (renameMenuShowing) {
             display.dismissRenameMenu()
@@ -148,7 +183,7 @@ var display = {
             .text("Change condtitions")
             .attr("data-id", id)
 
-        d3.select(".changeconditions").on("click", controller.changeLinkConditions);
+        d3.select(".changeconditions").on("click", eventHandler.renameLink);
 
         menu.append("p")
             .classed("button deletelink", true)
@@ -321,9 +356,6 @@ var display = {
 }
 
 var controller = {
-    changeLinkConditions: function(){
-        alert("Not Implemented yet!")
-    },
     deleteLink: function(){
         alert("Not Implemented yet!")
     },
@@ -347,6 +379,35 @@ var controller = {
     }
 }
 
+var query = {
+    isBezier: function(id){
+        // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
+        
+        // Get link data from link ID
+        var d;
+        for (i in links){
+            if (links[i].id == id){
+                d = links[i];
+                break;
+            }
+        }
+
+        if (d == undefined){
+            alert ("Error in query.isBezier - link id not found")
+            return false;
+        }
+
+        var sourceId = d.source.id
+        var targetId = d.target.id
+
+        exists = links.filter(function(l) {
+            return (l.source.id === targetId && l.target.id === sourceId);
+        })[0]; //True if link exists in other direction - from target to source.
+
+        return exists;
+
+    }
+}
 
 
 // set up SVG for D3
@@ -459,13 +520,7 @@ function tick() {
 
             // Determine if there is a link in the other direction.
             // If there is, we will use a bezier curve to allow both to be visible
-            var sourceId = d.source.id
-            var targetId = d.target.id
-            exists = links.filter(function(l) {
-                return (l.source.id === targetId && l.target.id === sourceId);
-            })[0];
-
-            if (exists) {
+            if (query.isBezier(d.id)) {
                 return display.bezierCurve(sourceX, sourceY, targetX, targetY);
             } else {
                 return display.line(sourceX, sourceY, targetX, targetY);
@@ -475,6 +530,7 @@ function tick() {
         .attr("id", function(d){
             return "link"+d.id;
         })
+
 
     // Move the input labels
     linkLabels.attr('transform', function(d) {
