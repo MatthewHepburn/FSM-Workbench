@@ -86,7 +86,7 @@ var eventHandler = {
         display.createLinkContextMenu(canvas, id, mousePosition);
 
     },
-     renameLink: function() {
+    renameLink: function() {
         if (renameMenuShowing) {
             display.dismissRenameMenu()
         }
@@ -96,7 +96,7 @@ var eventHandler = {
         var d = query.getLinkData(id);
 
         var current = String(d.input)
-        if (current == undefined){
+        if (current == undefined) {
             current = "";
         }
 
@@ -113,10 +113,10 @@ var eventHandler = {
             .attr("y", formY)
             .attr("class", "rename")
             .append("xhtml:body")
-            .html("<form><input class='renameinput' id='link"+id+"' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+            .html("<form><input class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
 
         // give form focus
-        document.getElementById('link'+id).focus();
+        document.getElementById('link' + id).focus();
 
         renameMenuShowing = true;
         display.dismissContextMenu();
@@ -129,7 +129,7 @@ var eventHandler = {
         var id = d3.event.currentTarget.dataset.id;
         var d = d3.select("[id='" + id + "']").data()[0];
         var currentName = d.name
-        if (currentName == undefined){
+        if (currentName == undefined) {
             currentName = "";
         }
         // create a form over the targeted node
@@ -140,10 +140,10 @@ var eventHandler = {
             .attr("y", d.y - 10)
             .attr("class", "rename")
             .append("xhtml:body")
-            .html("<form><input class='renameinput' id='node"+id+"' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
+            .html("<form><input class='renameinput' id='node" + id + "' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
 
         // give form focus
-        document.getElementById('node'+id).focus();
+        document.getElementById('node' + id).focus();
 
         renameMenuShowing = true;
         display.dismissContextMenu();
@@ -356,48 +356,69 @@ var display = {
 }
 
 var controller = {
-    deleteLink: function(){
+    deleteLink: function() {
         alert("Not Implemented yet!")
     },
     renameSubmit: function() {
         var menu = d3.select('.renameinput')[0][0];
         var value = menu.value
         var id = menu.id
-        var type = id.slice(0,4);
+        var type = id.slice(0, 4);
 
         // Process differently if it is a node or link rename
-        if (type == "node"){
+        if (type == "node") {
             var nodeID = id.slice(4)
             var d = d3.select("[id='" + nodeID + "']").data()[0];
             d.name = value;
             //Change the displayed label to the new name
-            var label = svg.select("#nodename"+nodeID);
-            label.text(value)            
-            
+            var label = svg.select("#nodename" + nodeID);
+            label.text(value)
+        }
+        if (type == "link") {
+            var linkID = id.slice(4);
+            var d = query.getLinkData(linkID);
+            //Strip whitespace:
+            value = value.replace(/ /g, "");
+            //Split on comma and store
+            d.input = value.split(',');
+            //Change the label
+            var label = svg.select("#linklabel" + linkID);
+            label.text(function(d) {
+                //Funtion to turn array of symbols into the label string
+                if (d.input.length == 0) {
+                    return ""
+                } else {
+                    var labelString = String(d.input[0])
+                    for (i = 1; i < d.input.length; i++) {
+                        labelString += ", " + d.input[i];
+                    }
+                    return labelString;
+                }
+            })
         }
         display.dismissRenameMenu()
     }
 }
 
 var query = {
-    getLinkData: function(id){
+    getLinkData: function(id) {
         var d;
-        for (i in links){
-            if (links[i].id == id){
+        for (i in links) {
+            if (links[i].id == id) {
                 d = links[i];
                 break;
             }
         }
-        if (d == undefined){
-            alert ("Error in query.getLinkData - link id not found");
+        if (d == undefined) {
+            alert("Error in query.getLinkData - link id not found");
         }
         return d;
     },
-    isBezier: function(id){
+    isBezier: function(id) {
         // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
-        
+
         // Get link data from link ID
-        var d = query.getLinkData(id)    
+        var d = query.getLinkData(id)
 
         var sourceId = d.source.id
         var targetId = d.target.id
@@ -442,17 +463,17 @@ var nodes = [{
         source: nodes[0],
         target: nodes[1],
         input: ["a", "b"],
-        id:0
+        id: 0
     }, {
         source: nodes[1],
         target: nodes[2],
         input: ["a", "b", "c"],
-        id:1
+        id: 1
     }, {
         source: nodes[1],
         target: nodes[0],
         input: ["a"],
-        id:2
+        id: 2
     }],
     lastLinkId = 2;
 
@@ -529,8 +550,8 @@ function tick() {
             }
         })
         .style("stroke-width", 2)
-        .attr("id", function(d){
-            return "link"+d.id;
+        .attr("id", function(d) {
+            return "link" + d.id;
         })
 
 
@@ -548,6 +569,9 @@ function tick() {
         var position = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, exists)
 
         return 'translate(' + position.x + ',' + position.y + ') rotate(' + position.rotation + ')';
+    });
+    linkLabels.attr('id', function(d) {
+        return "linklabel" + d.id;
     });
 
     // Draw the nodes in their new positions
@@ -665,8 +689,8 @@ function restart() {
         .attr('x', 0)
         .attr('y', 4)
         .attr('class', 'nodename')
-        .attr('id', function(d){
-            return "nodename"+d.id;
+        .attr('id', function(d) {
+            return "nodename" + d.id;
         })
         .text(function(d) {
             return d.name;
@@ -707,7 +731,7 @@ function mousedown() {
     }
 
     // If rename menu is showing, do nothing
-    if(renameMenuShowing){
+    if (renameMenuShowing) {
         return;
     }
 
@@ -771,7 +795,7 @@ function keydown() {
         // Prevent default form submit
         d3.event.preventDefault();
         //Call the rename handler if there is a rename menu showing.
-        if (renameMenuShowing){
+        if (renameMenuShowing) {
             controller.renameSubmit()
         }
     }
@@ -787,7 +811,7 @@ function keydown() {
         case 8: // backspace
         case 46: // delete
             // Do nothing if the rename menu is open
-            if(renameMenuShowing){
+            if (renameMenuShowing) {
                 break;
             }
             if (selected_node) {
