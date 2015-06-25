@@ -93,7 +93,7 @@ var eventHandler = {
         //Get the id of the targeted link
         var id = d3.event.currentTarget.dataset.id;
         //Get the data associated with the link
-        var d = d3.select("[id='" + id + "']").data()[0];
+        var d = query.getLinkData(id);
 
         var current = String(d.input)
         if (current == undefined){
@@ -102,8 +102,8 @@ var eventHandler = {
 
         //Calculate the position to put the form
         var labelPos = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, query.isBezier(id));
-        var formX = labelPos.x;
-        var formY = labelPos.y - 10;
+        var formX = labelPos.x - 40;
+        var formY = labelPos.y + 15;
 
         // create a form over the targeted node
         svg.append("foreignObject")
@@ -113,10 +113,10 @@ var eventHandler = {
             .attr("y", formY)
             .attr("class", "rename")
             .append("xhtml:body")
-            .html("<form><input class='renameinput' id='link"+id+"' type='text' size='2', name='link condtitions' value='" + current + "'></form>");
+            .html("<form><input class='renameinput' id='link"+id+"' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
 
         // give form focus
-        document.getElementById('node'+id).focus();
+        document.getElementById('link'+id).focus();
 
         renameMenuShowing = true;
         display.dismissContextMenu();
@@ -380,10 +380,7 @@ var controller = {
 }
 
 var query = {
-    isBezier: function(id){
-        // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
-        
-        // Get link data from link ID
+    getLinkData: function(id){
         var d;
         for (i in links){
             if (links[i].id == id){
@@ -391,11 +388,16 @@ var query = {
                 break;
             }
         }
-
         if (d == undefined){
-            alert ("Error in query.isBezier - link id not found")
-            return false;
+            alert ("Error in query.getLinkData - link id not found");
         }
+        return d;
+    },
+    isBezier: function(id){
+        // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
+        
+        // Get link data from link ID
+        var d = query.getLinkData(id)    
 
         var sourceId = d.source.id
         var targetId = d.target.id
