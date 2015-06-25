@@ -441,6 +441,35 @@ var query = {
     }
 }
 
+var model = {
+    currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
+    fullInput: ["a", "b", "c"], // The complete input the machine is processing, this should not be changed during simulation.
+    currentInput: ["a", "b", "c"], // This will have symbols removed as they are processed.
+    step: function(){
+        // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
+        var curSymbol = model.currentInput.shift();
+        var newStates = [];
+
+        for (stateID in model.currentStates){
+            for (i in links){
+                var link = links[i];
+                if(link.source.id == stateID){// See if link starts from currently considered node.
+                    if (link.input.indexOf(curSymbol) > -1 || link.input.indexOf("Epsilon") > -1){ // See if this transition is legal.
+                        //Add link target to newStates if it isn't there already
+                        if (newStates.indexOf(link.target.id) == -1){
+                            newStates.push(link.target.id)
+                        }
+                    }
+                } 
+            }
+        }
+
+        model.currentStates = newStates;
+
+
+    }
+}
+
 
 // set up SVG for D3
 var width = 960,
