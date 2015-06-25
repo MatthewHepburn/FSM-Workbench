@@ -268,6 +268,15 @@ var display = {
         d3.select(".rename").remove();
         renameMenuShowing = false;
     },
+    drawStart: function(x, y) {
+        var length = 200;
+        var start = String((x - length) + "," +y);
+        var end = String(x + "," + y)
+        svg.append('svg:path')
+            .attr('class', 'link start')
+            .attr('d', "M" + start + " L" + end);
+
+    },
     bezierCurve: function(x1, y1, x2, y2) {
         // Calculate vector from P1 to P2
         var vx = x2 - x1;
@@ -448,15 +457,22 @@ var svg = d3.select('body')
 var nodes = [{
         id: 0,
         accepting: false,
-        name: "foo"
+        name: "foo",
+        x: 200,
+        y: 250,
+        fixed: true
     }, {
         id: 1,
         accepting: true,
-        name: "bar"
+        name: "bar",
+        x: 200,
+        y: 300
     }, {
         id: 2,
         accepting: false,
-        name: "2"
+        name: "2",
+        x: 150,
+        y: 200
     }],
     lastNodeId = 2,
     links = [{
@@ -578,6 +594,17 @@ function tick() {
     circle.attr('transform', function(d) {
         return 'translate(' + d.x + ',' + d.y + ')';
     });
+
+    // Move the start line
+    d3.select(".start").attr('d', function(){
+        var node0 = d3.select("[id='0']").data()[0];
+        var length = 100;
+        var start = String((node0.x - length - 20) + "," + node0.y);
+        var end = String(node0.x - 27 + "," + node0.y)
+        return "M" + start + " L" + end;
+    })
+        .style("marker-end", 'url(#end-arrow)')
+        .style("stroke-width", "2px");
 }
 
 // update graph (called when needed)
@@ -681,7 +708,7 @@ function restart() {
                 // Make pointer events pass through the inner circle, to the node below.
                 .style('pointer-events', 'none');
         }
-    });
+    });    
 
 
     // show node IDs
@@ -880,3 +907,6 @@ d3.select(window)
 var contextMenuShowing = false;
 var renameMenuShowing = false;
 restart();
+// Add a start arrow to node 0
+var node0 = d3.select("[id='0']").data()[0];
+display.drawStart(node0.x, node0.y);
