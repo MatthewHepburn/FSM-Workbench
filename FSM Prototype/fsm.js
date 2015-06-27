@@ -1,3 +1,134 @@
+var model = {
+    nodes: {},
+    links: {},
+    currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
+    fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
+    currentInput: ["a", "a"], // This will have symbols removed as they are processed.
+    accepts: function(input){
+        // Given input in the form ["a", "b", "c"], determines if the current machine accepts it.
+        // NOTE: this resets the model variables.
+        model.fullInput = input;
+        model.currentInput = input;
+        model.currentStates = [0];
+        // Simulate until input is consumed
+        while (this.currentInput.length > 0){
+            if (this.currentStates == []){
+                return false;
+            }
+            this.step();
+        }
+        // When input is consumed, check if any of the current states are accepting;
+        for (i = 0; i < this.currentStates.length; i++){
+            var state = query.getNodeData(this.currentStates[i]);
+            if (state.accepting){
+                return true;
+            }
+        }
+        return false;
+    },
+    readJSON: function(){
+        // Need to read in nodes + links separately as links refer directly to nodes
+        var body = document.querySelector('.canvas');
+        model.nodes = JSON.parse(body.dataset.nodes);
+        model.links = JSON.parse(body.dataset.links);
+
+        // Turn IDs in model.links into references to the nodes they refer to.
+        // Also set the lastLinkID used.
+        var maxLinkID = 0;
+        for(i=0; i<model.links.length; i++){
+            var link = model.links[i];
+            if (Math.max(link.source, link.target) > maxLinkID){
+                maxLinkID = Math.max(link.source, link.target);
+            }
+            link.source = query.getNodeData(link.source)
+            link.target = query.getNodeData(link.target)
+        }
+        model.lastLinkID = maxLinkID;
+
+        // Set lastNodeID:
+        var maxNodeID = 0
+        for (i = 0; i < model.nodes.length; i++){
+            if (model.nodes[i].id > maxNodeID){
+                maxNodeID = model.nodes[i].id
+            }
+        }
+        model.lastNodeID = maxNodeID;
+        return true;
+
+    },
+    step: function(){
+        // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
+        var curSymbol = model.currentInput.shift();
+        var newStates = [];
+
+        for (i = 0; i < model.currentStates.length; i++){
+            var stateID = model.currentStates[i];  // For every state in currentStates, test every link.
+            for (j in model.links){
+                var link = model.links[j];
+                if(link.source.id == stateID){// See if link starts from currently considered node.
+                    if (link.input.indexOf(curSymbol) > -1 || link.input.indexOf("Epsilon") > -1){ // See if this transition is legal.
+                        //Add link target to newStates if it isn't there already
+                        if (newStates.indexOf(link.target.id) == -1){
+                            newStates.push(link.target.id)
+                        }
+                    }
+                } 
+            }
+        }
+        model.currentStates = newStates;
+    }
+}
+
+var query = {
+    getLinkData: function(id) {
+        var d;
+        for (i in model.links) {
+            if (model.links[i].id == id) {
+                d = model.links[i];
+                break;
+            }
+        }
+        if (d == undefined) {
+            alert("Error in query.getLinkData - link id not found");
+        }
+        return d;
+    },
+    getNodeData: function(id){
+        var d;
+        for (i in model.nodes) {
+            if (model.nodes[i].id == id) {
+                d = model.nodes[i];
+                break;
+            }
+        }
+        if (d == undefined) {
+            alert("Error in query.getNodeData - nodeID id not found");
+        }
+        return d;
+
+    },    
+    isBezier: function(id) {
+        // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
+
+        // Get link data from link ID
+        var d = query.getLinkData(id)
+
+        var sourceId = d.source.id
+        var targetId = d.target.id
+
+        exists = model.links.filter(function(l) {
+            return (l.source.id === targetId && l.target.id === sourceId);
+        })[0]; //True if link exists in other direction - from target to source.
+
+        return exists;
+
+    }
+}
+// Read in data as soon as model and query methods are created.
+if (model.readJSON()){
+    console.log("JSON parse complete");
+}
+
 var eventHandler = {
     addLinkMouseDown: function(d) {
         if (d3.event.ctrlKey) return;
@@ -46,7 +177,7 @@ var eventHandler = {
 
             //Check if link already exists. Create it if it doesn't.
             var link;
-            link = links.filter(function(l) {
+            link = model.links.filter(function(l) {
                 return (l.source === source && l.target === target);
             })[0];
 
@@ -55,9 +186,9 @@ var eventHandler = {
                     source: source,
                     target: target,
                     input: [],
-                    id: ++lastLinkId
+                    id: ++model.lastLinkID
                 };
-                links.push(link);
+                model.links.push(link);
             }
 
             // select new link
@@ -409,101 +540,6 @@ var controller = {
     }
 }
 
-var query = {
-    getLinkData: function(id) {
-        var d;
-        for (i in links) {
-            if (links[i].id == id) {
-                d = links[i];
-                break;
-            }
-        }
-        if (d == undefined) {
-            alert("Error in query.getLinkData - link id not found");
-        }
-        return d;
-    },
-    getNodeData: function(id){
-        var d;
-        for (i in nodes) {
-            if (nodes[i].id == id) {
-                d = nodes[i];
-                break;
-            }
-        }
-        if (d == undefined) {
-            alert("Error in query.getNodeData - nodeID id not found");
-        }
-        return d;
-
-    },    
-    isBezier: function(id) {
-        // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
-
-        // Get link data from link ID
-        var d = query.getLinkData(id)
-
-        var sourceId = d.source.id
-        var targetId = d.target.id
-
-        exists = links.filter(function(l) {
-            return (l.source.id === targetId && l.target.id === sourceId);
-        })[0]; //True if link exists in other direction - from target to source.
-
-        return exists;
-
-    }
-}
-
-var model = {
-    currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
-    fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
-    currentInput: ["a", "a"], // This will have symbols removed as they are processed.
-    accepts: function(input){
-        // Given input in the form ["a", "b", "c"], determines if the current machine accepts it.
-        // NOTE: this resets the model variables.
-        model.fullInput = input;
-        model.currentInput = input;
-        model.currentStates = [0];
-        // Simulate until input is consumed
-        while (this.currentInput.length > 0){
-            if (this.currentStates == []){
-                return false;
-            }
-            this.step();
-        }
-        // When input is consumed, check if any of the current states are accepting;
-        for (i = 0; i < this.currentStates.length; i++){
-            var state = query.getNodeData(this.currentStates[i]);
-            if (state.accepting){
-                return true;
-            }
-        }
-        return false;
-    },
-    step: function(){
-        // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
-        var curSymbol = model.currentInput.shift();
-        var newStates = [];
-
-        for (i = 0; i < model.currentStates.length; i++){
-            var stateID = model.currentStates[i];  // For every state in currentStates, test every link.
-            for (j in links){
-                var link = links[j];
-                if(link.source.id == stateID){// See if link starts from currently considered node.
-                    if (link.input.indexOf(curSymbol) > -1 || link.input.indexOf("Epsilon") > -1){ // See if this transition is legal.
-                        //Add link target to newStates if it isn't there already
-                        if (newStates.indexOf(link.target.id) == -1){
-                            newStates.push(link.target.id)
-                        }
-                    }
-                } 
-            }
-        }
-        model.currentStates = newStates;
-    }
-}
-
 
 // set up SVG for D3
 var width = 960,
@@ -515,51 +551,12 @@ var svg = d3.select('body')
     .attr('width', width)
     .attr('height', height);
 
-// set up initial nodes and links
-//  - nodes are known by 'id', not by index in array.
-var nodes = [{
-        id: 0,
-        accepting: false,
-        name: "foo",
-        x: 200,
-        y: 250,
-        fixed: true
-    }, {
-        id: 1,
-        accepting: true,
-        name: "bar",
-        x: 200,
-        y: 300
-    }, {
-        id: 2,
-        accepting: false,
-        name: "2",
-        x: 150,
-        y: 200
-    }],
-    lastNodeId = 2,
-    links = [{
-        source: nodes[0],
-        target: nodes[1],
-        input: ["a", "b"],
-        id: 0
-    }, {
-        source: nodes[1],
-        target: nodes[2],
-        input: ["a", "b", "c"],
-        id: 1
-    }, {
-        source: nodes[1],
-        target: nodes[0],
-        input: ["a"],
-        id: 2
-    }],
-    lastLinkId = 2;
+
 
 // init D3 force layout
 var force = d3.layout.force()
-    .nodes(nodes)
-    .links(links)
+    .nodes(model.nodes)
+    .links(model.links)
     .size([width, height])
     .linkDistance(150)
     .charge(-500)
@@ -640,7 +637,7 @@ function tick() {
         // We need this as labels will be placed differently for curved links.
         var sourceId = d.source.id
         var targetId = d.target.id
-        exists = links.filter(function(l) {
+        exists = model.links.filter(function(l) {
             return (l.source.id === targetId && l.target.id === sourceId);
         })[0];
         exists = Boolean(exists)
@@ -673,7 +670,7 @@ function tick() {
 // update graph (called when needed)
 function restart() {
     // path (link) group
-    path = path.data(links);
+    path = path.data(model.links);
 
     // update existing links
     path.classed('selected', function(d) {
@@ -698,7 +695,7 @@ function restart() {
 
     // circle (node) group
     // NB: the function arg is crucial here! nodes are known by id, not by index!
-    circle = circle.data(nodes, function(d) {
+    circle = circle.data(model.nodes, function(d) {
         return d.id;
     });
 
@@ -712,7 +709,7 @@ function restart() {
         });
 
     // Add link labels
-    linkLabels = linkLabels.data(links);
+    linkLabels = linkLabels.data(model.links);
     linkLabels.enter().append('svg:text')
         .text(function(d) {
             //Funtion to turn array of symbols into the label string
@@ -828,12 +825,12 @@ function mousedown() {
     // insert new node at point
     var point = d3.mouse(this),
         node = {
-            id: ++lastNodeId,
+            id: ++model.lastNodeID,
             accepting: false
         };
     node.x = point[0];
     node.y = point[1];
-    nodes.push(node);
+    model.nodes.push(node);
 
     restart();
 }
@@ -863,11 +860,11 @@ function mouseup() {
 }
 
 function spliceLinksForNode(node) {
-    var toSplice = links.filter(function(l) {
+    var toSplice = model.links.filter(function(l) {
         return (l.source === node || l.target === node);
     });
     toSplice.map(function(l) {
-        links.splice(links.indexOf(l), 1);
+        model.links.splice(model.links.indexOf(l), 1);
     });
 }
 
@@ -905,10 +902,10 @@ function keydown() {
                 break;
             }
             if (selected_node) {
-                nodes.splice(nodes.indexOf(selected_node), 1);
+                model.nodes.splice(model.nodes.indexOf(selected_node), 1);
                 spliceLinksForNode(selected_node);
             } else if (selected_link) {
-                links.splice(links.indexOf(selected_link), 1);
+                model.links.splice(model.links.indexOf(selected_link), 1);
             }
             selected_link = null;
             selected_node = null;
@@ -944,7 +941,7 @@ function keyup() {
 function toggleAccepting() {
     var id = d3.event.currentTarget.dataset.id;
     // Change state in nodes
-    state = nodes[id]
+    state = model.nodes[id]
         //Remove concentric ring if we are toggling off:
     if (state.accepting) {
         d3.selectAll("#ar" + id).remove();
