@@ -1,6 +1,12 @@
 var model = {
     nodes: {},
     links: {},
+    question: {
+        type: "does-accept",
+        lengths: [2,4,4,6],
+        text: "For each of the lengths given, give a sequence that the Finite State Machine will accept."
+    },
+    editable: true,
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
     currentInput: ["a", "a"], // This will have symbols removed as they are processed.
@@ -38,7 +44,9 @@ var model = {
         }
         var linksStr = "data-links='" + JSON.stringify(linksTmp) + "'";
         console.log(linksStr)
-        
+        var questionStr = "data-question='" + JSON.stringify(model.question) + "'";
+        console.log(linksStr)
+
     },
     readJSON: function(){
         // Need to read in nodes + links separately as links refer directly to nodes
@@ -69,6 +77,26 @@ var model = {
         model.lastNodeID = maxNodeID;
         return true;
 
+    },
+    setupQuestion: function(){
+        // Function uses data in model.question to setup the question environment
+        var types = ["satisfy-regex","deterministic-satisfy-regex","satisfy-list","deterministic-satisfy-list","give-regex",
+                    "give-list","select-states","convert-nfa", "does-accept", "none"];
+        if (types.indexOf(model.question.type) == -1){
+            alert(model.question.type + " is not a valid question type.");
+            return;
+        }
+        // Set editable flag:
+        if (["satisfy-regex","deterministic-satisfy-regex","satisfy-list","deterministic-satisfy-list","convert-nfa","none"].indexOf(model.question.type) == -1){
+            model.editable = false; 
+        } else {
+            model.editable = true;
+        }
+        // Stop here if type is "none"
+        if (model.question.type == "none"){
+            return;
+        }
+        display.askQuestion(model.question.text);
     },
     step: function(){
         // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
@@ -317,6 +345,9 @@ var eventHandler = {
 }
 
 var display = {
+    askQuestion: function(questionString){
+        document.querySelector(".question").innerHTML = questionString;
+    },
     createLinkContextMenu: function(canvas, id, mousePosition) {
         menu = canvas.append("div")
             .attr("class", "contextmenu")
