@@ -4,7 +4,8 @@ var model = {
     question: {
         type: "give-list",
         lengths: [2,4,6],
-        text: "For each of the lengths given, give a sequence that the Finite State Machine will accept."
+        text: "For each of the lengths given, give a sequence that the Finite State Machine will accept.",
+        alphabetType: "char"
     },
     editable: true,
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
@@ -170,10 +171,21 @@ var query = {
 model.readJSON();
 
 var checkAnswer = {
-    //Node this method of checking answers individually does not allow you to ask for 
-    //multiple strings of different length. Maybe rethink.
     giveList: function(index){
-        alert(index);
+        var forms = document.querySelectorAll(".qform");
+        var answers = []
+        for (i = 0; i < forms.length; i++){
+            answers[i] = forms[i].value;
+            if (answers[i].length != model.question.lengths[i]){
+                forms[i].classList.add("incorrect")
+                var message = document.createElement("p")
+                message.innerHTML = "Incorrect length - expected " + model.question.lengths[i] + " but got " + answers[i].length +"."
+                message.classList.add("feedback")
+                forms[i].parentNode.appendChild(message)
+                continue;
+            }
+            forms[i].classList.add("correct")
+        }
     }
 }
 
@@ -357,15 +369,14 @@ var display = {
         div.innerHTML = model.question.text;
         //Add forms if recquired by the question:
         if (model.question.type == "give-list"){
-            var forms = "";
+            var form = "<form>";
             for (i = 0; i < model.question.lengths.length; i++){
                 var numChars = model.question.lengths[i]
-                var line = "<form>" + numChars + " symbols: <input type='text' class='qform', id ='qf" + i +"'>"
-                line = line + "<button type='submit' formaction='javascript:checkAnswer.giveList(" + i +  ")'>Check</button><br/></form>"
-                forms = forms + line; 
+                var line = "<div>" + numChars + " symbols: <input type='text' class='qform', id ='qf" + i +"'></div>"
+                form = form + line; 
             }
-            
-            div.innerHTML += forms;
+            form = form + "<button type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></form>";
+            div.innerHTML += form;
         }
 
     },
