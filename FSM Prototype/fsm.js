@@ -26,6 +26,20 @@ var model = {
         }
         return false;
     },
+    generateJSON: function(){
+        var nodesStr = "data-nodes='" + JSON.stringify(model.nodes) + "'";
+        console.log(nodesStr);
+        //create a clone of model.links. VERY hacky but apparantly not bad for efficiency
+        var linksTmp = JSON.parse(JSON.stringify(model.links));
+        //change source + target of links to be node IDs:
+        for (i = 0; i < linksTmp.length; i++){
+            linksTmp[i].source = linksTmp[i].source.id;
+            linksTmp[i].target = linksTmp[i].target.id;
+        }
+        var linksStr = "data-links='" + JSON.stringify(linksTmp) + "'";
+        console.log(linksStr)
+        
+    },
     readJSON: function(){
         // Need to read in nodes + links separately as links refer directly to nodes
         var body = document.querySelector('.canvas');
