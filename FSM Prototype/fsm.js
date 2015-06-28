@@ -2,7 +2,7 @@ var model = {
     nodes: {},
     links: {},
     question: {
-        type: "does-accept",
+        type: "give-list",
         lengths: [2,4,4,6],
         text: "For each of the lengths given, give a sequence that the Finite State Machine will accept."
     },
@@ -118,6 +118,12 @@ var model = {
             }
         }
         model.currentStates = newStates;
+    }
+}
+
+var checkAnswer = {
+    giveList: function(index){
+        alert(index);
     }
 }
 
@@ -345,8 +351,23 @@ var eventHandler = {
 }
 
 var display = {
-    askQuestion: function(questionString){
-        document.querySelector(".question").innerHTML = questionString;
+    askQuestion: function(){
+        //Display question string 
+        var div = document.querySelector(".question")
+        div.innerHTML = model.question.text;
+        //Add forms if recquired by the question:
+        if (model.question.type == "give-list"){
+            var forms = "";
+            for (i = 0; i < model.question.lengths.length; i++){
+                var numChars = model.question.lengths[i]
+                var line = "<form>" + numChars + " symbols: <input type='text' class='qform', id ='qf" + i +"'>"
+                line = line + "<button type='submit' formaction='javascript:checkAnswer.giveList(" + i +  ")'>Check</button><br/></form>"
+                forms = forms + line; 
+            }
+            
+            div.innerHTML += forms;
+        }
+
     },
     createLinkContextMenu: function(canvas, id, mousePosition) {
         menu = canvas.append("div")
