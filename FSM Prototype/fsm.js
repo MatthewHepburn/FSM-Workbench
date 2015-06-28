@@ -3,7 +3,7 @@ var model = {
     links: {},
     question: {
         type: "give-list",
-        lengths: [2,4,4,6],
+        lengths: [2,4,6],
         text: "For each of the lengths given, give a sequence that the Finite State Machine will accept."
     },
     editable: true,
@@ -121,12 +121,6 @@ var model = {
     }
 }
 
-var checkAnswer = {
-    giveList: function(index){
-        alert(index);
-    }
-}
-
 var query = {
     getLinkData: function(id) {
         var d;
@@ -173,8 +167,14 @@ var query = {
     }
 }
 // Read in data as soon as model and query methods are created.
-if (model.readJSON()){
-    console.log("JSON parse complete");
+model.readJSON();
+
+var checkAnswer = {
+    //Node this method of checking answers individually does not allow you to ask for 
+    //multiple strings of different length. Maybe rethink.
+    giveList: function(index){
+        alert(index);
+    }
 }
 
 var eventHandler = {
@@ -1024,6 +1024,7 @@ function toggleAccepting() {
 
 
 // app starts here
+display.askQuestion();
 svg.on('mousedown', mousedown)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
