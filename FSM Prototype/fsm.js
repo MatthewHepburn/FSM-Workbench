@@ -3,7 +3,7 @@ var model = {
     links: {},
     question: {
         type: "give-list",
-        lengths: [2,4,6],
+        lengths: [3,5,7],
         text: "For each of the lengths given, give a sequence that the Finite State Machine will accept.",
         alphabetType: "char"
     },
@@ -172,10 +172,21 @@ model.readJSON();
 
 var checkAnswer = {
     giveList: function(index){
+        //First, remove feedback from previous attempt:
+        d3.selectAll(".feedback").remove();
         var forms = document.querySelectorAll(".qform");
         var answers = []
-        for (i = 0; i < forms.length; i++){
+        for (num = 0; num < forms.length; num++){
+            // Needed to avoid JS closure strangeness
+            var i = num
             answers[i] = forms[i].value;
+            // Handle string parsing differently for char/symbol modes:
+            if (model.question.alphabetType == "symbol"){
+                answers[i] = answers[i].split(',');
+            } else {
+                answers[i] = answers[i].split('');
+            }
+            // Check that the answer is the correct length
             if (answers[i].length != model.question.lengths[i]){
                 forms[i].classList.add("incorrect")
                 var message = document.createElement("p")
@@ -184,7 +195,17 @@ var checkAnswer = {
                 forms[i].parentNode.appendChild(message)
                 continue;
             }
-            forms[i].classList.add("correct")
+            
+            if (!model.accepts(answers[i])){
+                forms[i].classList.add("incorrect")
+                var message = document.createElement("p")
+                message.innerHTML = "Incorrect - input not accepted by machine."
+                message.classList.add("feedback")
+                forms[i].parentNode.appendChild(message)
+                continue;
+            }
+            forms[i].classList.remove("incorrect");
+            forms[i].classList.add("correct");
         }
     }
 }
