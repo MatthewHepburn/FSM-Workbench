@@ -1,4 +1,5 @@
 var model = {
+    toolMode: "none",
     nodes: {},
     links: {},
     question: {
@@ -395,7 +396,17 @@ var eventHandler = {
     },
     //Function to handle clicks to the control palette:
     toolSelect: function() {
+        //Clear previous selection:
+        d3.select(".control-rect.selected").classed("selected", false);
         console.log(d3.event)
+        var newMode = d3.event.target.id
+        // If current mode is the same as the new mode, deselect it:
+        if (model.toolMode == newMode){
+            model.toolMode = "none";
+        } else {
+            model.toolMode = newMode
+            d3.select("#"+newMode).classed("selected", true);
+        }
     }
 
 }
@@ -419,26 +430,35 @@ var display = {
 
     },
     drawControlPalette: function(){
+        var bwidth = 40; //button width
+        var strokeWidth = 2;
+        var margin = 10;
         var g = svg.append("g")
                     .classed("controls", true);
-        g.append("image")
-            .attr("x", 2)
-            .attr("y", 3)
-            .attr("width", 24)
-            .attr("height", 24)
-            .attr("xlink:href", "Icons/Arrow_northeast.svg")
-            .attr("class", "control-img");
-        g.append("rect")
-            .attr("width", 30)
-            .attr("height", 30)
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("fill", "#101010")
-            .attr("fill-opacity", 0)
-            .attr("style", "stroke-width:2;stroke:rgb(0,0,0)")
-            .classed("control-rect", true)
-            .attr("id", "linetool")
-            .on("click", eventHandler.toolSelect);
+        var tools = ["linetool","texttool"]
+        // create a button for each tool in tools
+        for (i = 0; i < tools.length; i++){
+            g.append("image")
+                .attr("x", 0.5 * margin)
+                .attr("y", 0.5 * margin + (i * bwidth))
+                .attr("width", bwidth - margin)
+                .attr("height", bwidth - margin)
+                .attr("xlink:href", "Icons/"+ tools[i] +".svg")
+                .attr("class", "control-img");
+            g.append("rect")
+                .attr("width", bwidth)
+                .attr("height", bwidth)
+                .attr("x", 0)
+                .attr("y", i * bwidth)
+                .attr("fill", "#101010")
+                .attr("fill-opacity", 0)
+                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
+                .classed("control-rect", true)
+                .attr("id", tools[i])
+                .on("click", eventHandler.toolSelect);
+            }
+
+        // 2nd button
 
             
     },
