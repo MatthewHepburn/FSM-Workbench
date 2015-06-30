@@ -1,6 +1,8 @@
 svg {
+  margin-top: 20px;
   background-color: #FFF;
   cursor: default;
+  border: solid black 1px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -91,4 +93,13 @@ text.nodename {
 
 .feedback {
   display: inline;
+}
+
+.control-rect {
+  pointer-events: all;
+  z-index: 3;
+}
+
+.control-rect.selected{
+  fill-opacity: 0.2;
 }

@@ -392,7 +392,10 @@ var eventHandler = {
         mousePosition = d3.mouse(svg.node());
 
         display.createStateContextMenu(canvas, id, mousePosition);
-
+    },
+    //Function to handle clicks to the control palette:
+    toolSelect: function() {
+        console.log(d3.event)
     }
 
 }
@@ -414,6 +417,30 @@ var display = {
             div.innerHTML += form;
         }
 
+    },
+    drawControlPalette: function(){
+        var g = svg.append("g")
+                    .classed("controls", true);
+        g.append("image")
+            .attr("x", 2)
+            .attr("y", 3)
+            .attr("width", 24)
+            .attr("height", 24)
+            .attr("xlink:href", "Icons/Arrow_northeast.svg")
+            .attr("class", "control-img");
+        g.append("rect")
+            .attr("width", 30)
+            .attr("height", 30)
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("fill", "#101010")
+            .attr("fill-opacity", 0)
+            .attr("style", "stroke-width:2;stroke:rgb(0,0,0)")
+            .classed("control-rect", true)
+            .attr("id", "linetool")
+            .on("click", eventHandler.toolSelect);
+
+            
     },
     createLinkContextMenu: function(canvas, id, mousePosition) {
         menu = canvas.append("div")
@@ -660,6 +687,7 @@ var width = 960,
 
 var svg = d3.select('body')
     .append('svg')
+    .attr("id", "main-svg")
     .attr('width', width)
     .attr('height', height);
 
@@ -914,20 +942,23 @@ function restart() {
 }
 
 function mousedown() {
-    // prevent I-bar on drag
-    //d3.event.preventDefault();
-
-    // because :active only works in WebKit?
-    svg.classed('active', true);
-
-    if (d3.event.ctrlKey || d3.event.button != 0 || mousedown_node || mousedown_link) return;
-
     // Dismiss context menu if it is present
     if (contextMenuShowing) {
         d3.select(".contextmenu").remove();
         contextMenuShowing = false;
         return;
     }
+    // if click was on element other than background, do nothing further.
+    if (d3.event.target.id != "main-svg"){
+        return
+    }
+
+    // because :active only works in WebKit?
+    svg.classed('active', true);
+
+    if (d3.event.ctrlKey || d3.event.button != 0 || mousedown_node || mousedown_link) return;
+
+
 
     // If rename menu is showing, do nothing
     if (renameMenuShowing) {
@@ -1071,6 +1102,7 @@ function toggleAccepting() {
 
 // app starts here
 display.askQuestion();
+display.drawControlPalette();
 svg.on('mousedown', mousedown)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
