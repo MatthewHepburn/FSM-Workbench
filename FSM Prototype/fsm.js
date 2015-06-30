@@ -3,7 +3,7 @@ var model = {
     links: {},
     question: {
         type: "give-list",
-        lengths: [3,5,7],
+        lengths: [3,3,5,7],
         text: "For each of the lengths given, give a sequence that the Finite State Machine will accept.",
         alphabetType: "char"
     },
@@ -14,8 +14,9 @@ var model = {
     accepts: function(input){
         // Given input in the form ["a", "b", "c"], determines if the current machine accepts it.
         // NOTE: this resets the model variables.
-        model.fullInput = input;
-        model.currentInput = input;
+        // Use JSON.parse/JSON.stringify as native deep-copy
+        model.fullInput = JSON.parse(JSON.stringify(input));
+        model.currentInput = JSON.parse(JSON.stringify(input));
         model.currentStates = [0];
         // Simulate until input is consumed
         while (this.currentInput.length > 0){
@@ -176,6 +177,7 @@ var checkAnswer = {
         d3.selectAll(".feedback").remove();
         var forms = document.querySelectorAll(".qform");
         var answers = []
+    loop1:
         for (num = 0; num < forms.length; num++){
             // Needed to avoid JS closure strangeness
             var i = num
@@ -195,7 +197,19 @@ var checkAnswer = {
                 forms[i].parentNode.appendChild(message)
                 continue;
             }
-            
+            // Check that a unique string has been provided:
+            for (j = i - 1; j > -1; j--){
+                if (JSON.stringify(answers[i]) == JSON.stringify(answers[j])){
+                    forms[i].classList.add("incorrect")
+                    var message = document.createElement("p")
+                    message.innerHTML = "Input not unique, same as #" + (j + 1) + "."
+                    message.classList.add("feedback")
+                    forms[i].parentNode.appendChild(message)
+                    continue loop1;
+                }
+            }
+
+            // Check that FSM accepts answer
             if (!model.accepts(answers[i])){
                 forms[i].classList.add("incorrect")
                 var message = document.createElement("p")
