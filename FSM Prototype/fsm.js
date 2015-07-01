@@ -35,6 +35,22 @@ var model = {
         }
         return false;
     },
+    deleteLink: function(id){
+        // Check that editing is allowed.
+        if (model.editable == false){
+            return;
+        }
+        for (i = 0; i < model.links.length; i++){
+            if (model.links[i].id == id){
+                model.links.splice(i, 1);
+                selected_link = null;                
+                d3.select("#linklabel"+id).remove();
+                restart();
+                return;
+            }
+        }
+        
+    },
     deleteNode: function(id){
         // Check that editing is allowed and that node0 is not target:
         if (model.editable == false || id == 0){
@@ -305,6 +321,10 @@ var eventHandler = {
             display.renameLinkForm(d.id);
             return
         }
+        if (model.toolMode == "deletetool"){
+            model.deleteLink(d.id);
+            return;
+        }
 
     },
     clickNode: function(d) {
@@ -525,7 +545,7 @@ var display = {
             .text("Delete link")
             .attr("data-id", id)
 
-        d3.select(".deletelink").on("click", controller.deleteLink);
+        d3.select(".deletelink").on("click", function(d){model.deletelink(d.id)});
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
@@ -758,9 +778,6 @@ var display = {
 }
 
 var controller = {
-    deleteLink: function() {
-        alert("Not Implemented yet!")
-    },
     renameSubmit: function() {
         var menu = d3.select('.renameinput')[0][0];
         //Check menu is present
@@ -937,7 +954,7 @@ function tick() {
 // update graph (called when needed)
 function restart() {
     // path (link) group
-    path = path.data(model.links);
+    path = path.data(model.links, function(d){return d.id});
 
     // update existing links
     path.classed('selected', function(d) {
@@ -952,7 +969,6 @@ function restart() {
             return d === selected_link;
         })
         .style('marker-mid', 'url(#end-arrow)')
-        .on('click', function(d) {eventHandler.clickLink(d)})
         .on('mousedown', function(d) {
             eventHandler.addLinkMouseDown(d)
         });
@@ -990,7 +1006,6 @@ function restart() {
                 }
                 return labelString;
             }
-
         })
         .attr('class', 'linklabel')
         .attr('text-anchor', 'middle') // This causes text to be centred on the position of the label.
@@ -1059,8 +1074,6 @@ function restart() {
     // remove old nodes
     circle.exit().remove();
 
-    linkLabels.exit().remove();
-
     // set the graph in motion
     force.start();
 
@@ -1069,7 +1082,9 @@ function restart() {
         .on('contextmenu', eventHandler.stateContextMenu);
 
     d3.selectAll(".link")
+        .on('click', function(d){eventHandler.clickLink(d)})
         .on('contextmenu', eventHandler.linkContextMenu);
+        
 }
 
 
@@ -1144,7 +1159,7 @@ function keydown() {
                 model.nodes.splice(model.nodes.indexOf(selected_node), 1);
                 spliceLinksForNode(selected_node);
             } else if (selected_link) {
-                model.links.splice(model.links.indexOf(selected_link), 1);
+                model.deleteLink(selected_link.id);
             }
             selected_link = null;
             selected_node = null;
