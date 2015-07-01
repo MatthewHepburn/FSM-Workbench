@@ -121,6 +121,25 @@ var model = {
             }
         }
         model.currentStates = newStates;
+    },
+    toggleAccepting: function(id) {
+        //Check editing is allowed:
+        if (model.editable == false){
+            return;
+        }
+        // Change state in nodes
+        var state = model.nodes[id]
+        //Remove concentric ring if we are toggling off:
+        if (state.accepting) {
+            d3.selectAll("#ar" + id).remove();
+        }
+        state.accepting = !state.accepting;
+        //Dismiss the context menu
+        display.dismissContextMenu();
+
+        // Update is now needed:
+        restart();
+
     }
 }
 
@@ -226,6 +245,53 @@ var checkAnswer = {
 }
 
 var eventHandler = {
+    clickBackground: function() {
+    // Dismiss context menu if it is present
+    if (contextMenuShowing) {
+        d3.select(".contextmenu").remove();
+        contextMenuShowing = false;
+        return;
+    }
+    // if click was on element other than background, do nothing further.
+    if (d3.event.target.id != "main-svg"){
+        return
+    }  
+
+    // because :active only works in WebKit?
+    svg.classed('active', true);    
+
+    if (d3.event.ctrlKey || d3.event.button != 0 || mousedown_node || mousedown_link) return;
+
+    // If not in nodetool mode, do nothing:
+    if (model.toolMode != "nodetool"){
+        return;
+    }
+
+
+    // If rename menu is showing, do nothing
+    if (renameMenuShowing) {
+        return;
+    }
+
+    // insert new node at point
+    var point = d3.mouse(this),
+        node = {
+            id: ++model.lastNodeID,
+            accepting: false
+        };
+    node.x = point[0];
+    node.y = point[1];
+    model.nodes.push(node);
+
+    restart();
+    },
+    clickNode: function(d) {
+        if (model.toolMode == "acceptingtool"){
+            model.toggleAccepting(d.id)
+            return;
+        }
+
+    },
     addLinkMouseDown: function(d) {
         if (d3.event.ctrlKey) return;
         // select link
@@ -911,6 +977,9 @@ function restart() {
         .attr("id", function(d) {
             return d.id;
         })
+        .on('click', function(d) {
+            eventHandler.clickNode(d)
+        })
         .on('mousedown', function(d) {
             eventHandler.createLink(d, "mousedown")
         })
@@ -967,42 +1036,7 @@ function restart() {
         .on('contextmenu', eventHandler.linkContextMenu);
 }
 
-function mousedown() {
-    // Dismiss context menu if it is present
-    if (contextMenuShowing) {
-        d3.select(".contextmenu").remove();
-        contextMenuShowing = false;
-        return;
-    }
-    // if click was on element other than background, do nothing further.
-    if (d3.event.target.id != "main-svg"){
-        return
-    }
 
-    // because :active only works in WebKit?
-    svg.classed('active', true);
-
-    if (d3.event.ctrlKey || d3.event.button != 0 || mousedown_node || mousedown_link) return;
-
-
-
-    // If rename menu is showing, do nothing
-    if (renameMenuShowing) {
-        return;
-    }
-
-    // insert new node at point
-    var point = d3.mouse(this),
-        node = {
-            id: ++model.lastNodeID,
-            accepting: false
-        };
-    node.x = point[0];
-    node.y = point[1];
-    model.nodes.push(node);
-
-    restart();
-}
 
 function mousemove() {
     if (!mousedown_node) return;
@@ -1106,30 +1140,10 @@ function keyup() {
     }
 }
 
-
-function toggleAccepting() {
-    var id = d3.event.currentTarget.dataset.id;
-    // Change state in nodes
-    state = model.nodes[id]
-        //Remove concentric ring if we are toggling off:
-    if (state.accepting) {
-        d3.selectAll("#ar" + id).remove();
-    }
-    state.accepting = !state.accepting;
-    //Dismiss the context menu
-    display.dismissContextMenu();
-
-    // Update is now needed:
-    restart();
-
-}
-
-
-
 // app starts here
 display.askQuestion();
 display.drawControlPalette();
-svg.on('mousedown', mousedown)
+svg.on('mousedown', eventHandler.clickBackground)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
 d3.select(window)
