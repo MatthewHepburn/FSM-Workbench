@@ -91,7 +91,7 @@ var model = {
         }
         // Set editable flag:
         if (["satisfy-regex","deterministic-satisfy-regex","satisfy-list","deterministic-satisfy-list","convert-nfa","none"].indexOf(model.question.type) == -1){
-            model.editable = false; 
+            model.editable = false;
         } else {
             model.editable = true;
         }
@@ -117,7 +117,7 @@ var model = {
                             newStates.push(link.target.id)
                         }
                     }
-                } 
+                }
             }
         }
         model.currentStates = newStates;
@@ -151,7 +151,7 @@ var query = {
         }
         return d;
 
-    },    
+    },
     isBezier: function(id) {
         // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
 
@@ -413,7 +413,7 @@ var eventHandler = {
 
 var display = {
     askQuestion: function(){
-        //Display question string 
+        //Display question string
         var div = document.querySelector(".question")
         div.innerHTML = model.question.text;
         //Add forms if recquired by the question:
@@ -422,7 +422,7 @@ var display = {
             for (i = 0; i < model.question.lengths.length; i++){
                 var numChars = model.question.lengths[i]
                 var line = "<div>" + numChars + " symbols: <input type='text' class='qform', id ='qf" + i +"'></div>"
-                form = form + line; 
+                form = form + line;
             }
             form = form + "<button type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></form>";
             div.innerHTML += form;
@@ -435,7 +435,14 @@ var display = {
         var margin = 10;
         var g = svg.append("g")
                     .classed("controls", true);
-        var tools = ["linetool","texttool"]
+        var tools = ["nodetool", "linetool","texttool", "acceptingtool", "deletetool"];
+        var tooltips = {
+        	nodetool:"Create new states",
+        	linetool:"Link states together",
+        	texttool:"Change link inputs and rename states",
+        	acceptingtool:"Toggle whether states are accepting",
+        	deletetool: "Delete links and states"
+        }
         // create a button for each tool in tools
         for (i = 0; i < tools.length; i++){
             g.append("image")
@@ -455,12 +462,11 @@ var display = {
                 .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
                 .classed("control-rect", true)
                 .attr("id", tools[i])
-                .on("click", eventHandler.toolSelect);
+                .on("click", eventHandler.toolSelect)
+                .append("svg:title").text(tooltips[tools[i]]);
             }
 
-        // 2nd button
 
-            
     },
     createLinkContextMenu: function(canvas, id, mousePosition) {
         menu = canvas.append("div")
@@ -928,7 +934,7 @@ function restart() {
                 // Make pointer events pass through the inner circle, to the node below.
                 .style('pointer-events', 'none');
         }
-    });    
+    });
 
 
     // show node IDs
