@@ -303,11 +303,15 @@ var eventHandler = {
     },
     clickNode: function(d) {
         if (model.toolMode == "acceptingtool"){
-            model.toggleAccepting(d.id)
+            model.toggleAccepting(d.id);
             return;
         }
         if (model.toolMode == "deletetool"){
-            model.deleteNode(d.id)
+            model.deleteNode(d.id);
+            return;
+        }
+        if (model.toolMode == "texttool"){
+            display.renameStateForm(d.id);
             return;
         }
     },
@@ -398,68 +402,8 @@ var eventHandler = {
         display.createLinkContextMenu(canvas, id, mousePosition);
 
     },
-    renameLink: function() {
-        if (renameMenuShowing) {
-            display.dismissRenameMenu()
-        }
-        //Get the id of the targeted link
-        var id = d3.event.currentTarget.dataset.id;
-        //Get the data associated with the link
-        var d = query.getLinkData(id);
-
-        var current = String(d.input)
-        if (current == undefined) {
-            current = "";
-        }
-
-        //Calculate the position to put the form
-        var labelPos = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, query.isBezier(id));
-        var formX = labelPos.x - 40;
-        var formY = labelPos.y + 15;
-
-        // create a form over the targeted node
-        svg.append("foreignObject")
-            .attr("width", 80)
-            .attr("height", 50)
-            .attr("x", formX)
-            .attr("y", formY)
-            .attr("class", "rename")
-            .append("xhtml:body")
-            .html("<form><input class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
-
-        // give form focus
-        document.getElementById('link' + id).focus();
-
-        renameMenuShowing = true;
-        display.dismissContextMenu();
-    },
-    renameState: function() {
-        if (renameMenuShowing) {
-            display.dismissRenameMenu()
-        }
-        //Get the id of the targeted node
-        var id = d3.event.currentTarget.dataset.id;
-        var d = d3.select("[id='" + id + "']").data()[0];
-        var currentName = d.name
-        if (currentName == undefined) {
-            currentName = "";
-        }
-        // create a form over the targeted node
-        svg.append("foreignObject")
-            .attr("width", 80)
-            .attr("height", 50)
-            .attr("x", d.x + 30)
-            .attr("y", d.y - 10)
-            .attr("class", "rename")
-            .append("xhtml:body")
-            .html("<form><input class='renameinput' id='node" + id + "' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
-
-        // give form focus
-        document.getElementById('node' + id).focus();
-
-        renameMenuShowing = true;
-        display.dismissContextMenu();
-    },
+    
+    
     //Provides right-click functionality for states.
     stateContextMenu: function() {
         d3.event.preventDefault();
@@ -564,7 +508,7 @@ var display = {
             .text("Change condtitions")
             .attr("data-id", id)
 
-        d3.select(".changeconditions").on("click", eventHandler.renameLink);
+        d3.select(".changeconditions").on("click", function(){display.renameLinkForm(id)});
 
         menu.append("p")
             .classed("button deletelink", true)
@@ -615,7 +559,7 @@ var display = {
             .text("Rename state")
             .attr("data-id", id)
 
-        d3.select(".renamestate").on("click", eventHandler.renameState)
+        d3.select(".renamestate").on("click", function(){display.renameStateForm(id)})
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
@@ -742,6 +686,64 @@ var display = {
                 rotation: angle
             };
         }
+    },
+    renameLinkForm: function(id) {
+        if (renameMenuShowing) {
+            display.dismissRenameMenu()
+        }
+        //Get the data associated with the link
+        var d = query.getLinkData(id);
+
+        var current = String(d.input)
+        if (current == undefined) {
+            current = "";
+        }
+
+        //Calculate the position to put the form
+        var labelPos = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, query.isBezier(id));
+        var formX = labelPos.x - 40;
+        var formY = labelPos.y + 15;
+
+        // create a form over the targeted node
+        svg.append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", formX)
+            .attr("y", formY)
+            .attr("class", "rename")
+            .append("xhtml:body")
+            .html("<form><input class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+
+        // give form focus
+        document.getElementById('link' + id).focus();
+
+        renameMenuShowing = true;
+        display.dismissContextMenu();
+    },
+    renameStateForm: function(id) {
+        if (renameMenuShowing) {
+            display.dismissRenameMenu()
+        }
+        var d = query.getNodeData(id)
+        var currentName = d.name
+        if (currentName == undefined) {
+            currentName = "";
+        }
+        // create a form over the targeted node
+        svg.append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", d.x + 30)
+            .attr("y", d.y - 10)
+            .attr("class", "rename")
+            .append("xhtml:body")
+            .html("<form><input class='renameinput' id='node" + id + "' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
+
+        // give form focus
+        document.getElementById('node' + id).focus();
+
+        renameMenuShowing = true;
+        display.dismissContextMenu();
     }
 }
 
