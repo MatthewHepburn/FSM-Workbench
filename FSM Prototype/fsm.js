@@ -283,7 +283,6 @@ var eventHandler = {
         return;
     }
 
-
     // If rename menu is showing, do nothing
     if (renameMenuShowing) {
         return;
@@ -300,6 +299,13 @@ var eventHandler = {
     model.nodes.push(node);
 
     restart();
+    },
+    clickLink: function(d){
+        if (model.toolMode == "texttool"){
+            display.renameLinkForm(d.id);
+            return
+        }
+
     },
     clickNode: function(d) {
         if (model.toolMode == "acceptingtool"){
@@ -429,6 +435,10 @@ var eventHandler = {
         d3.select(".control-rect.selected").classed("selected", false);
         console.log(d3.event)
         var newMode = d3.event.target.id
+        // If current mode is texttool, submit any open rename forms:
+        if (model.toolMode == "texttool"){
+            controller.renameSubmit();
+        }
         // If current mode is the same as the new mode, deselect it:
         if (model.toolMode == newMode){
             model.toolMode = "none";
@@ -753,6 +763,10 @@ var controller = {
     },
     renameSubmit: function() {
         var menu = d3.select('.renameinput')[0][0];
+        //Check menu is present
+        if (menu == null){
+            return;
+        }
         var value = menu.value
         var id = menu.id
         var type = id.slice(0, 4);
@@ -938,6 +952,7 @@ function restart() {
             return d === selected_link;
         })
         .style('marker-mid', 'url(#end-arrow)')
+        .on('click', function(d) {eventHandler.clickLink(d)})
         .on('mousedown', function(d) {
             eventHandler.addLinkMouseDown(d)
         });
