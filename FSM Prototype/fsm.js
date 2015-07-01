@@ -35,6 +35,22 @@ var model = {
         }
         return false;
     },
+    deleteNode: function(id){
+        // Check that editing is allowed and that node0 is not target:
+        if (model.editable == false || id == 0){
+            return;
+        }
+        node = query.getNodeData(id)
+        model.nodes.splice(model.nodes.indexOf(node), 1);
+        var toSplice = model.links.filter(function(l) {
+            return (l.source === node || l.target === node);
+        });
+        toSplice.map(function(l) {
+            model.links.splice(model.links.indexOf(l), 1);
+        });
+        selected_node = null;
+        restart();
+    },
     generateJSON: function(){
         var nodesStr = "data-nodes='" + JSON.stringify(model.nodes) + "'";
         console.log(nodesStr);
@@ -128,7 +144,7 @@ var model = {
             return;
         }
         // Change state in nodes
-        var state = model.nodes[id]
+        var state = query.getNodeData(id);      
         //Remove concentric ring if we are toggling off:
         if (state.accepting) {
             d3.selectAll("#ar" + id).remove();
@@ -290,7 +306,10 @@ var eventHandler = {
             model.toggleAccepting(d.id)
             return;
         }
-
+        if (model.toolMode == "deletetool"){
+            model.deleteNode(d.id)
+            return;
+        }
     },
     addLinkMouseDown: function(d) {
         if (d3.event.ctrlKey) return;
