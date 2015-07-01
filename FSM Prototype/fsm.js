@@ -608,7 +608,7 @@ var display = {
             .text("Toggle accepting")
             .attr("data-id", id)
 
-        d3.select(".toggleaccepting").on("click", toggleAccepting);
+        d3.select(".toggleaccepting").on("click", function(){model.toggleAccepting(id)});
 
         menu.append("p")
             .classed("button renamestate", true)
