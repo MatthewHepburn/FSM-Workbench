@@ -1,13 +1,7 @@
 var model = {
     toolMode: "none",
     nodes: {},
-    links: {},
-    question: {
-        type: "give-list",
-        lengths: [3,3,5,7],
-        text: "For each of the lengths given, give a sequence that the Finite State Machine will accept.",
-        alphabetType: "char"
-    },
+    links: {},    
     editable: true,
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
@@ -88,6 +82,11 @@ var model = {
         var body = document.querySelector('.canvas');
         model.nodes = JSON.parse(body.dataset.nodes);
         model.links = JSON.parse(body.dataset.links);
+        if (body.dataset.question != undefined){
+            model.question = JSON.parse(body.dataset.question);
+        } else{
+            model.question = {type:"none"};
+        }
 
         // Turn IDs in model.links into references to the nodes they refer to.
         // Also set the lastLinkID used.
@@ -485,6 +484,9 @@ var eventHandler = {
 
 var display = {
     askQuestion: function(){
+        if (model.question.type == "none"){
+            return
+        }
         //Display question string
         var div = document.querySelector(".question")
         div.innerHTML = model.question.text;

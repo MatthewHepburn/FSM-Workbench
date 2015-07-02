@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FSM Prototype</title>
+    <link rel="stylesheet" href="fsm.css">
+  </head>
+
+  <body class="canvas" 
+  data-nodes='[{"id":0,"accepting":false,"name":"foo","x":200,"y":250,"fixed":true,"index":0,"weight":2,"px":200,"py":250},{"id":1,"accepting":true,"name":"bar","x":358.65976885257226,"y":250.46409357869933,"index":1,"weight":3,"px":358.66041866676846,"py":250.4647207400592},{"id":2,"accepting":false,"name":"2","x":512.3596748934472,"y":249.02584783757175,"index":2,"weight":1,"px":512.3376440183254,"py":249.02383485755564}]' 
+  data-links='[{"source":0,"target":1,"input":["a","b"],"id":0},{"source":1,"target":2,"input":["a","b","c"],"id":1},{"source":1,"target":0,"input":["a"],"id":2}]'
+  data-question = '{"type":"give-list","lengths":[3,3,5,7],"text":"For each of the lengths given, give a sequence that the Finite State Machine will accept.","alphabetType":"char"}'>
+  	<div class="question"></div>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+  <script src="fsm.js"></script>
+</html>
