@@ -351,6 +351,9 @@ var eventHandler = {
         restart();
     },
     createLink: function(d, eventType) {
+        if (model.toolMode != "linetool"){
+            return
+        }
         if (eventType == "mousedown") {
             if (d3.event.ctrlKey || d3.event.button != 0) return;
             // select node
@@ -459,12 +462,22 @@ var eventHandler = {
         if (model.toolMode == "texttool"){
             controller.renameSubmit();
         }
+        // If current mode is linetool, reinstate drag-to-move
+        if(model.toolMode == "linetool"|| model.toolMode == "texttool" || model.toolMode == "acceptingtool" || model.toolMode == "deletetool"){
+            circle.call(force.drag);
+        }
         // If current mode is the same as the new mode, deselect it:
         if (model.toolMode == newMode){
             model.toolMode = "none";
         } else {
             model.toolMode = newMode
             d3.select("#"+newMode).classed("selected", true);
+        }
+        //  disable node dragging if needed by new mode:
+        if (newMode == "linetool" || newMode == "texttool" || newMode == "acceptingtool" || newMode == "deletetool"){
+            circle
+                .on('mousedown.drag', null)
+                .on('touchstart.drag', null);
         }
     }
 
@@ -1011,8 +1024,7 @@ function restart() {
         .attr('text-anchor', 'middle') // This causes text to be centred on the position of the label.
 
     // add new nodes
-    var g = circle.enter().append('svg:g');
-    circle.call(force.drag);
+    var g = circle.enter().append('svg:g');    
 
     g.append('svg:circle')
         .attr('class', 'node')
@@ -1032,12 +1044,12 @@ function restart() {
         .on('click', function(d) {
             eventHandler.clickNode(d)
         })
-        //.on('mousedown', function(d) {
-        //    eventHandler.createLink(d, "mousedown")
-        //})
-        //.on('mouseup', function(d) {
-        //    eventHandler.createLink(d, "mouseup")
-        //});
+        .on('mousedown', function(d) {
+           eventHandler.createLink(d, "mousedown")
+        })
+        .on('mouseup', function(d) {
+           eventHandler.createLink(d, "mouseup")
+        });
 
 
 
@@ -1204,6 +1216,7 @@ d3.select(window)
 var contextMenuShowing = false;
 var renameMenuShowing = false;
 restart();
+circle.call(force.drag);
 // Add a start arrow to node 0
 var node0 = d3.select("[id='0']").data()[0];
 display.drawStart(node0.x, node0.y);
