@@ -292,7 +292,7 @@ var eventHandler = {
     // because :active only works in WebKit?
     svg.classed('active', true);    
 
-    if (d3.event.ctrlKey || d3.event.button != 0 || mousedown_node || mousedown_link) return;
+    if (d3.event.button != 0 || mousedown_node || mousedown_link) return;
 
     // If not in nodetool mode, do nothing:
     if (model.toolMode != "nodetool"){
@@ -952,8 +952,8 @@ function tick() {
 }
 
 // update graph (called when needed)
-function restart() {
-    // path (link) group
+function restart() {    
+	// path (link) group
     path = path.data(model.links, function(d){return d.id});
 
     // update existing links
@@ -1012,6 +1012,7 @@ function restart() {
 
     // add new nodes
     var g = circle.enter().append('svg:g');
+    circle.call(force.drag);
 
     g.append('svg:circle')
         .attr('class', 'node')
@@ -1031,12 +1032,12 @@ function restart() {
         .on('click', function(d) {
             eventHandler.clickNode(d)
         })
-        .on('mousedown', function(d) {
-            eventHandler.createLink(d, "mousedown")
-        })
-        .on('mouseup', function(d) {
-            eventHandler.createLink(d, "mouseup")
-        });
+        //.on('mousedown', function(d) {
+        //    eventHandler.createLink(d, "mousedown")
+        //})
+        //.on('mouseup', function(d) {
+        //    eventHandler.createLink(d, "mouseup")
+        //});
 
 
 
