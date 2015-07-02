@@ -103,3 +103,13 @@ text.nodename {
 .control-rect.selected{
   fill-opacity: 0.2;
 }
+
+.node.dim{
+  fill: rgb(196, 184, 184) !important;
+  stroke: black !important;
+}
+
+.node.highlight{
+  stroke: black !important;
+  stroke-width: 3 !important;
+}

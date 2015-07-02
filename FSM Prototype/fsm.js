@@ -790,6 +790,40 @@ var display = {
 
         renameMenuShowing = true;
         display.dismissContextMenu();
+    },
+    showTrace: function(){
+        model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
+        model.currentStates = [0];
+        d3.selectAll(".node").classed("dim", true)
+        display.traceStep()
+        setInterval(display.traceStep, 3000)
+        // while (model.currentInput.length > 0 && model.currentStates.length > 0){
+        //     for (i = 0; i < model.currentStates.length; i++){
+        //         var stateID = model.currentStates[i];
+        //         d3.select("[id='" + stateID + "']").classed("dim", false).classed("highlight", true);
+        //     }
+        //     model.step();
+        // }
+    }, 
+    traceStep: function(){
+        d3.selectAll(".highlight").classed("highlight", false)
+        d3.selectAll(".node").classed("dim", true)
+        if (model.currentInput.length == 0 || model.currentStates.length == 0){
+            d3.selectAll(".highlight").classed("highlight", false)
+            d3.selectAll(".node").classed("dim", false)
+            return
+        }
+        for (i = 0; i < model.currentStates.length; i++){
+                 var stateID = model.currentStates[i];
+                 d3.select("[id='" + stateID + "']").classed("dim", false).classed("highlight", true);
+             }
+        model.step()
+        if (model.currentInput.length == 0 || model.currentStates.length == 0){
+            clearInterval(display.traceStep)
+            setTimeout(display.traceStep)
+        }
+     
+        
     }
 }
 
