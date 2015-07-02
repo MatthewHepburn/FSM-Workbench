@@ -468,6 +468,7 @@ var eventHandler = {
         // If current mode is the same as the new mode, deselect it:
         if (model.toolMode == newMode){
             model.toolMode = "none";
+            newMode = "none";
         } else {
             model.toolMode = newMode
             d3.select("#"+newMode).classed("selected", true);
