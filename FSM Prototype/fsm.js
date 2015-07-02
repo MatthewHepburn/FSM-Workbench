@@ -859,8 +859,9 @@ var force = d3.layout.force()
     .links(model.links)
     .size([width, height])
     .linkDistance(150)
-    .charge(-500)
-    .gravity(0.05) //gravity is attraction to the centre, not downwards.
+    .chargeDistance(160)
+    .charge(-30)
+    .gravity(0.00)//gravity is attraction to the centre, not downwards.
     .on('tick', tick)
 
 // define arrow markers for graph links

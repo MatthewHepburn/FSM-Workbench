@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FSM Prototype</title>
+    <link rel="stylesheet" href="fsm.css">
+  </head>
+
+  <body class="canvas" 
+  data-nodes='[{"id":0,"accepting":false,"name":"1","x":200,"y":250,"fixed":1,"index":0,"weight":3,"px":200,"py":250},{"id":1,"accepting":false,"name":"2","x":350.1505223487424,"y":250.48513027042384,"index":1,"weight":2,"px":350.15052405115114,"py":250.48513597601732,"fixed":0},{"id":2,"accepting":false,"name":"3","x":500.33011241595176,"y":251.13054966901225,"index":2,"weight":2,"px":500.33011241595176,"py":251.13054966901225,"fixed":0},{"id":3,"accepting":true,"x":650.6014235243125,"y":250.95219497929233,"index":3,"weight":1,"px":650.6005127938774,"py":250.95219605820168,"fixed":0,"name":"4"},{"id":4,"accepting":false,"x":196.31303473373123,"y":99.89362438785412,"index":4,"weight":2,"px":196.31303473373123,"py":99.89362438785412,"fixed":0,"name":"0"}]' 
+  data-links='[{"source":0,"target":1,"input":["a"],"id":0},{"source":1,"target":2,"input":["b"],"id":1},{"source":2,"target":3,"input":["b"],"id":3},{"source":0,"target":4,"input":["a"],"id":4},{"source":4,"target":0,"input":["b"],"id":5}]'
+  data-question = '{"type":"give-list","lengths":[3,11],"text":"For each of the lengths given, give a sequence that the Finite State Machine will accept.","alphabetType":"char"}'>
+  	<div class="question"></div>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+  <script src="fsm.js"></script>
+</html>
