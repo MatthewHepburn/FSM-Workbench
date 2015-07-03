@@ -39,6 +39,7 @@ var model = {
                 model.links.splice(i, 1);
                 selected_link = null;                
                 d3.select("#linklabel"+id).remove();
+                linkLabels.exit().remove()
                 restart();
                 return;
             }
@@ -55,9 +56,9 @@ var model = {
         var toSplice = model.links.filter(function(l) {
             return (l.source === node || l.target === node);
         });
-        toSplice.map(function(l) {
-            model.links.splice(model.links.indexOf(l), 1);
-        });
+        for (i = 0; i < toSplice.length; i++){
+            model.deleteLink(toSplice[i].id)
+        }
         selected_node = null;
         restart();
     },
@@ -1094,7 +1095,9 @@ function restart() {
         });
 
     // Add link labels
-    linkLabels = linkLabels.data(model.links);
+    linkLabels = linkLabels.data(model.links, function(d){
+        return d.id;
+    });
     linkLabels.enter().append('svg:text')
         .text(function(d) {
             //Funtion to turn array of symbols into the label string
