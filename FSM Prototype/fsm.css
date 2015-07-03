@@ -113,3 +113,22 @@ text.nodename {
   stroke: black !important;
   stroke-width: 3 !important;
 }
+
+.machine-input {
+  font-size: x-large;
+  font-family: sans-serif;
+  font-style: normal;
+}
+
+i {
+  font-style: normal;
+}
+
+i.dim {
+    color: darkgray;
+}
+
+i.highlight {
+  color: crimson;
+  text-decoration: underline;
+}

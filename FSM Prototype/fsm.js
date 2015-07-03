@@ -639,6 +639,31 @@ var display = {
         d3.select(".rename").remove();
         renameMenuShowing = false;
     },
+    drawInput: function(){
+        // Displays the current input, used to draw the trace.
+        var html = "<div>"
+        //Give each element a unique html id to allow highlighting individually
+        for (i = 0; i < model.fullInput.length; i++){
+            html = html + "<i id='in"+ i +"'>" + model.fullInput[i]
+            // Add comma to all but last element.
+            if (i == model.fullInput.length - 1){
+                html = html + "</i>"
+            } else {
+                html = html + "</i>, "
+            }
+        }
+        html = html + "</div>"
+
+        svg.append("foreignObject")
+            .attr("width", 120)
+            .attr("height", 50)
+            .attr("x", width/2)
+            .attr("y", 70)
+            .attr("class", "machine-input")
+            .append("xhtml:body")
+            .html(html); 
+
+    },
     drawStart: function(x, y) {
         var length = 200;
         var start = String((x - length) + "," +y);
@@ -795,8 +820,8 @@ var display = {
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
         d3.selectAll(".node").classed("dim", true)
-        display.traceStep()
-        setInterval(display.traceStep, 3000)
+        display.drawInput()
+        display.traceStep()        
         // while (model.currentInput.length > 0 && model.currentStates.length > 0){
         //     for (i = 0; i < model.currentStates.length; i++){
         //         var stateID = model.currentStates[i];
@@ -805,25 +830,38 @@ var display = {
         //     model.step();
         // }
     }, 
-    traceStep: function(){
+    traceStep: function(last){
+        console.log("tick")
         d3.selectAll(".highlight").classed("highlight", false)
         d3.selectAll(".node").classed("dim", true)
-        if (model.currentInput.length == 0 || model.currentStates.length == 0){
-            d3.selectAll(".highlight").classed("highlight", false)
-            d3.selectAll(".node").classed("dim", false)
-            return
+
+        var i = model.fullInput.length - model.currentInput.length
+        if (i > 0){
+            d3.select("#in" + (i - 1))
+                .classed("highlight", false)
+                .classed("dim", true)
         }
+        d3.select("#in" + i).classed("highlight", true)
+
         for (i = 0; i < model.currentStates.length; i++){
                  var stateID = model.currentStates[i];
                  d3.select("[id='" + stateID + "']").classed("dim", false).classed("highlight", true);
              }
-        model.step()
-        if (model.currentInput.length == 0 || model.currentStates.length == 0){
-            clearInterval(display.traceStep)
-            setTimeout(display.traceStep)
-        }
-     
-        
+        if (model.currentInput.length != 0 && model.currentStates.length != 0){
+            model.step()
+            setTimeout(function(){display.traceStep(false)}, 3000)
+
+        } else {
+            if (last == false){
+                setTimeout(function(){display.traceStep(true)}, 3000)
+            } else {
+                setTimeout(function(){
+                    d3.selectAll(".highlight").classed("highlight", false)
+                    d3.selectAll(".node").classed("dim", false)
+                    d3.select(".machine-input").remove();
+                }, 4500)
+            }
+        }            
     }
 }
 
@@ -1257,4 +1295,5 @@ restart();
 circle.call(force.drag);
 // Add a start arrow to node 0
 var node0 = d3.select("[id='0']").data()[0];
+var traceTimer = 0;
 display.drawStart(node0.x, node0.y);
