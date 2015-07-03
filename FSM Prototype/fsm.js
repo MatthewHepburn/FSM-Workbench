@@ -239,6 +239,11 @@ var checkAnswer = {
             } else {
                 answers[i] = answers[i].split('');
             }
+            //ignore empty fields:
+            if (answers[i].length == 0){
+                continue;
+            }
+
             // Check that the answer is the correct length
             if (answers[i].length != model.question.lengths[i]){
                 forms[i].classList.add("incorrect")
@@ -264,7 +269,8 @@ var checkAnswer = {
             if (!model.accepts(answers[i])){
                 forms[i].classList.add("incorrect")
                 var message = document.createElement("p")
-                message.innerHTML = "Incorrect - input not accepted by machine."
+                var trace = "<a href='javascript:display.showTrace("+JSON.stringify(answers[i])+")'>Show trace.</a>"
+                message.innerHTML = "Incorrect - input not accepted by machine. " + trace
                 message.classList.add("feedback")
                 forms[i].parentNode.appendChild(message)
                 continue;
@@ -816,8 +822,13 @@ var display = {
         renameMenuShowing = true;
         display.dismissContextMenu();
     },
-    showTrace: function(){
-        model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
+    showTrace: function(input){
+        if (traceInProgress){
+            return
+        }
+        traceInProgress = true;
+        model.fullInput = JSON.parse(JSON.stringify(input));
+        model.currentInput = JSON.parse(JSON.stringify(input));
         model.currentStates = [0];
         d3.selectAll(".node").classed("dim", true)
         display.drawInput()
@@ -859,6 +870,7 @@ var display = {
                     d3.selectAll(".highlight").classed("highlight", false)
                     d3.selectAll(".node").classed("dim", false)
                     d3.select(".machine-input").remove();
+                    traceInProgress = false;
                 }, 4500)
             }
         }            
@@ -1295,5 +1307,5 @@ restart();
 circle.call(force.drag);
 // Add a start arrow to node 0
 var node0 = d3.select("[id='0']").data()[0];
-var traceTimer = 0;
+var traceInProgress = false;
 display.drawStart(node0.x, node0.y);
