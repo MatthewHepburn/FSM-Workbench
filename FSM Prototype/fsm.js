@@ -94,8 +94,8 @@ var model = {
         var maxLinkID = 0;
         for(i=0; i<model.links.length; i++){
             var link = model.links[i];
-            if (Math.max(link.source, link.target) > maxLinkID){
-                maxLinkID = Math.max(link.source, link.target);
+            if (link.id > maxLinkID){
+                maxLinkID = link.id;
             }
             link.source = query.getNodeData(link.source)
             link.target = query.getNodeData(link.target)
