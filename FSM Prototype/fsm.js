@@ -56,8 +56,9 @@ var model = {
         var toSplice = model.links.filter(function(l) {
             return (l.source === node || l.target === node);
         });
-        for (i = 0; i < toSplice.length; i++){
-            model.deleteLink(toSplice[i].id)
+        //Use j to avoid closure strangeness - i gets overwritten by model.deleteLink
+        for (j = 0; j < toSplice.length; j++){
+            model.deleteLink(toSplice[j].id)
         }
         selected_node = null;
         restart();
