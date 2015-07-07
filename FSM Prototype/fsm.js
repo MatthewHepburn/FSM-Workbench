@@ -1,7 +1,7 @@
 var model = {
     toolMode: "none",
     nodes: {},
-    links: {},    
+    links: {},
     editable: true,
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
@@ -37,14 +37,14 @@ var model = {
         for (i = 0; i < model.links.length; i++){
             if (model.links[i].id == id){
                 model.links.splice(i, 1);
-                selected_link = null;                
+                selected_link = null;
                 d3.select("#linklabel"+id).remove();
                 linkLabels.exit().remove()
                 restart();
                 return;
             }
         }
-        
+
     },
     deleteNode: function(id){
         // Check that editing is allowed and that node0 is not target:
@@ -161,7 +161,7 @@ var model = {
             return;
         }
         // Change state in nodes
-        var state = query.getNodeData(id);      
+        var state = query.getNodeData(id);
         //Remove concentric ring if we are toggling off:
         if (state.accepting) {
             d3.selectAll("#ar" + id).remove();
@@ -294,10 +294,10 @@ var eventHandler = {
     // if click was on element other than background, do nothing further.
     if (d3.event.target.id != "main-svg"){
         return
-    }  
+    }
 
     // because :active only works in WebKit?
-    svg.classed('active', true);    
+    svg.classed('active', true);
 
     if (d3.event.button != 0 || mousedown_node || mousedown_link) return;
 
@@ -438,8 +438,8 @@ var eventHandler = {
         display.createLinkContextMenu(canvas, id, mousePosition);
 
     },
-    
-    
+
+
     //Provides right-click functionality for states.
     stateContextMenu: function() {
         d3.event.preventDefault();
@@ -669,7 +669,7 @@ var display = {
             .attr("y", 70)
             .attr("class", "machine-input")
             .append("xhtml:body")
-            .html(html); 
+            .html(html);
 
     },
     drawStart: function(x, y) {
@@ -834,7 +834,7 @@ var display = {
         model.currentStates = [0];
         d3.selectAll(".node").classed("dim", true)
         display.drawInput()
-        display.traceStep()        
+        display.traceStep()
         // while (model.currentInput.length > 0 && model.currentStates.length > 0){
         //     for (i = 0; i < model.currentStates.length; i++){
         //         var stateID = model.currentStates[i];
@@ -842,7 +842,7 @@ var display = {
         //     }
         //     model.step();
         // }
-    }, 
+    },
     traceStep: function(last){
         console.log("tick")
         d3.selectAll(".highlight").classed("highlight", false)
@@ -875,7 +875,7 @@ var display = {
                     traceInProgress = false;
                 }, 4500)
             }
-        }            
+        }
     }
 }
 
@@ -1055,7 +1055,7 @@ function tick() {
 }
 
 // update graph (called when needed)
-function restart() {    
+function restart() {
 	// path (link) group
     path = path.data(model.links, function(d){return d.id});
 
@@ -1116,7 +1116,7 @@ function restart() {
         .attr('text-anchor', 'middle') // This causes text to be centred on the position of the label.
 
     // add new nodes
-    var g = circle.enter().append('svg:g');    
+    var g = circle.enter().append('svg:g');
 
     g.append('svg:circle')
         .attr('class', 'node')
@@ -1189,7 +1189,7 @@ function restart() {
     d3.selectAll(".link")
         .on('click', function(d){eventHandler.clickLink(d)})
         .on('contextmenu', eventHandler.linkContextMenu);
-        
+
 }
 
 
@@ -1296,6 +1296,31 @@ function keyup() {
     }
 }
 
+var logging = {
+  sessionID: undefined,
+  generateSessionId: function() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    logging.sessionID = uuid;
+  },
+  sendInfo: function() {
+    var url = window.location.href;
+    if (logging.sessionID == undefined){
+      logging.generateSessionId()
+    }
+    var data = "url=" + encodeURIComponent(url) + "&sessionID=" +encodeURIComponent(logging.sessionID)
+    var request = new XMLHttpRequest();
+    request.open('POST', '/cgi/s1020995/logging.cgi', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    request.send(data)
+
+  }
+}
+
 // app starts here
 display.askQuestion();
 display.drawControlPalette();
@@ -1312,4 +1337,5 @@ circle.call(force.drag);
 // Add a start arrow to node 0
 var node0 = d3.select("[id='0']").data()[0];
 var traceInProgress = false;
+logging.sendInfo()
 display.drawStart(node0.x, node0.y);
