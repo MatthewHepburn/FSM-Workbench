@@ -1337,5 +1337,6 @@ circle.call(force.drag);
 // Add a start arrow to node 0
 var node0 = d3.select("[id='0']").data()[0];
 var traceInProgress = false;
-logging.sendInfo()
 display.drawStart(node0.x, node0.y);
+logging.sendInfo()
+setInterval(logging.sendInfo(), 120000)
