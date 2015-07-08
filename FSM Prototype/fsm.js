@@ -383,12 +383,12 @@ var eventHandler = {
                 .classed('hidden', true)
                 .style('marker-end', '');
 
-            // check for drag-to-self
             mouseup_node = d;
-            if (mouseup_node === mousedown_node) {
-                resetMouseVars();
-                return;
-            }
+            // check for drag-to-self
+            // if (mouseup_node === mousedown_node) {
+            //     resetMouseVars();
+            //     return;
+            // }
 
             // add link to graph (update if exists)
             // NB: links are strictly source < target; arrows separately specified by booleans
@@ -766,6 +766,38 @@ var display = {
             };
         }
     },
+    reflexiveLink: function (x1, y1) {
+        var P1 = x1 + "," + y1;
+
+        var x2 = x1;
+        var y2 = y1 - 80;
+
+        var P2 = x2 + "," + y2;
+
+        var x3 = x2 + 20;
+        var y3 = y2;
+        var P3 = x3 + "," + y3;
+
+        var v12x = x2 - x1
+        var v12y = y2 - y1
+
+        // Rotated left and scaled
+        var vl12x = -0.15 * v12y;
+        var vl12y = 0.15 * v12x;
+
+        c1x = x1 + vl12x;
+        c1y = y1 + vl12y;
+
+        c2x = x2;
+        c2y = y2 - 20;
+
+        var C1 = c1x + ',' + c1y;
+        var C2 = c2x + ',' + c2y;
+
+        return ("M" + P1 + " Q" + C1 + " " + P2 + "Q" + C2 + " " + P3  );
+
+
+    },
     renameLinkForm: function(id) {
         if (renameMenuShowing) {
             display.dismissRenameMenu()
@@ -990,6 +1022,11 @@ function resetMouseVars() {
 function tick() {
     // draw directed edges with proper padding from node centers
     path.attr('d', function(d) {
+            // Check for reflexive links
+            if (d.source == d.target){
+                return display.reflexiveLink(d.source.x, d.source.y + 18)
+            }
+
             var deltaX = d.target.x - d.source.x,
                 deltaY = d.target.y - d.source.y,
                 dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -1003,7 +1040,7 @@ function tick() {
                 sourceY = d.source.y + (padding * unitY),
                 targetX = d.target.x - (padding * unitX),
                 targetY = d.target.y - (padding * unitY);
-
+            
             // Determine if there is a link in the other direction.
             // If there is, we will use a bezier curve to allow both to be visible
             if (query.isBezier(d.id)) {
