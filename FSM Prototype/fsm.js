@@ -1376,4 +1376,4 @@ var node0 = d3.select("[id='0']").data()[0];
 var traceInProgress = false;
 display.drawStart(node0.x, node0.y);
 logging.sendInfo()
-setInterval(logging.sendInfo(), 120000)
+setInterval(logging.sendInfo, 120000)
