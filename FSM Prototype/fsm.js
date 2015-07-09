@@ -729,6 +729,16 @@ var display = {
     getLinkLabelPosition: function(x1, y1, x2, y2, isBezier) {
         //Function takes the location of two nodes (x1, y1) and (x2, y2) and
         //returns a suitable position for the link between them.
+
+        //test if link is reflexive (not necessarily 100% accurate, but good enough)
+        if (x1 == x2 && y1 == y2){
+            return {
+                x: x1,
+                y: y1 - 25  - 20 -23,
+                rotation: 0
+            };
+        }
+
         var cx = 0.5 * (x1 + x2);
         var cy = 0.5 * (y2 + y1);
 
