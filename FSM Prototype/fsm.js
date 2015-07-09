@@ -192,14 +192,17 @@ var query = {
     },
     getNodeData: function(id){
         var d;
-        for (i in model.nodes) {
-            if (model.nodes[i].id == id) {
-                d = model.nodes[i];
+        // Don't use i here to avoid closure strangeness
+        for (n in model.nodes) {
+            if (model.nodes[n].id == id) {
+                d = model.nodes[n];
                 break;
             }
         }
         if (d == undefined) {
-            alert("Error in query.getNodeData - nodeID id not found");
+            console.log("Unexpected id =")
+            console.log(id)
+            alert("Error in query.getNodeData - nodeID '" + id + "' not found");
         }
         return d;
 
