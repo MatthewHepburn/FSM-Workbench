@@ -551,8 +551,35 @@ var display = {
                 .on("click", eventHandler.toolSelect)
                 .append("svg:title").text(tooltips[tools[i]]);
             }
-
-
+    },
+    drawTraceControls: function(){
+        var bwidth = 40; //button width
+        var strokeWidth = 2;
+        var margin = 10;
+        var g = svg.append("g")
+                    .classed("tracecontrols", true);
+        var tools = ["rewind", "back", "forward", "play"];
+        // create a button for each tool in tools
+        for (i = 0; i < tools.length; i++){
+            g.append("image")
+                .attr("y",  4 * height/5 +  0.5 * margin)
+                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + 0.5 * margin + (i * bwidth))
+                .attr("width", bwidth - margin)
+                .attr("height", bwidth - margin)
+                .attr("xlink:href", "Icons/trace-"+ tools[i] +".svg")
+                .attr("class", "control-img");
+            g.append("rect")
+                .attr("width", bwidth)
+                .attr("height", bwidth)
+                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + (i * bwidth))
+                .attr("y", 4 * height/5)
+                .attr("fill", "#101010")
+                .attr("fill-opacity", 0)
+                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
+                .classed("tracecontrol-rect", true)
+                .attr("id", tools[i])
+                .on("click", eventHandler.traceControl);
+            }
     },
     createLinkContextMenu: function(canvas, id, mousePosition) {
         menu = canvas.append("div")
