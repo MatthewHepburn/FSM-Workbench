@@ -705,9 +705,16 @@ var display = {
     drawInput: function(){
         // Displays the current input, used to draw the trace.
         var html = "<div id='inputdiv'>"
+        if (model.fullInput.length < 10){
+            var colour = d3.scale.category10()
+        } else{
+            var colour = d3.scale.category20b()
+        }
+
+        var colour = d3.scale.category10();
         //Give each element a unique html id to allow highlighting individually
-        for (i = 0; i < model.fullInput.length; i++){
-            html = html + "<i class='input' id='in"+ i +"'>" + model.fullInput[i]
+        for (i = 0; i < model.fullInput.length; i++){             
+            html = html + "<i style='color:" + d3.rgb(colour(i)).toString() + ";' class='input' id='in"+ i +"'>" + model.fullInput[i]
             // Add comma to all but last element.
             if (i == model.fullInput.length - 1){
                 html = html + "</i>"

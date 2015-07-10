@@ -125,7 +125,7 @@ i {
 }
 
 i.dim {
-    color: darkgray;
+    opacity: 0.3;
     transition: color 0.75s;
 }
 
