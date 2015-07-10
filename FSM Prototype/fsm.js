@@ -490,6 +490,31 @@ var eventHandler = {
                 .on('mousedown.drag', null)
                 .on('touchstart.drag', null);
         }
+    },
+    traceControl: function(){
+        console.log(d3.event)
+        var button = d3.event.target.id
+        if (button == "rewind"){
+            model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
+            model.currentStates = [0];
+            d3.selectAll(".node").classed("dim", true)
+            d3.select("[id='0']").classed("dim", false).classed("highlight", true);
+            d3.selectAll(".input").classed("dim", false).classed("highlight", false)
+            return;
+        }
+        if (button == "forward"){
+            display.traceStep(false)
+            return;
+        }
+        if (button == "play"){
+            model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
+            model.currentStates = [0];
+            d3.selectAll(".node").classed("dim", true)
+            d3.select("[id='0']").classed("dim", false).classed("highlight", true);
+            d3.selectAll(".input").classed("dim", false).classed("highlight", false)
+            setTimeout(function(){display.traceStep(true)}, 1500);
+            return;
+        }
     }
 
 }
@@ -679,10 +704,10 @@ var display = {
     },
     drawInput: function(){
         // Displays the current input, used to draw the trace.
-        var html = "<div>"
+        var html = "<div id='inputdiv'>"
         //Give each element a unique html id to allow highlighting individually
         for (i = 0; i < model.fullInput.length; i++){
-            html = html + "<i id='in"+ i +"'>" + model.fullInput[i]
+            html = html + "<i class='input' id='in"+ i +"'>" + model.fullInput[i]
             // Add comma to all but last element.
             if (i == model.fullInput.length - 1){
                 html = html + "</i>"
@@ -693,7 +718,7 @@ var display = {
         html = html + "</div>"
 
         svg.append("foreignObject")
-            .attr("width", 120)
+            .attr("width", 200)
             .attr("height", 50)
             .attr("x", width/2)
             .attr("y", 70)
@@ -882,16 +907,16 @@ var display = {
         display.dismissContextMenu();
     },
     showTrace: function(input){
-        if (traceInProgress){
-            return
-        }
         traceInProgress = true;
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.currentInput = JSON.parse(JSON.stringify(input));
         model.currentStates = [0];
         d3.selectAll(".node").classed("dim", true)
-        display.drawInput()
-        display.traceStep()
+        d3.select("[id='0']").classed("dim", false).classed("highlight", true);
+        //Clear any input that might be left over:
+        d3.select("#inputdiv").remove();
+        display.drawInput();
+        display.drawTraceControls();
         // while (model.currentInput.length > 0 && model.currentStates.length > 0){
         //     for (i = 0; i < model.currentStates.length; i++){
         //         var stateID = model.currentStates[i];
@@ -900,16 +925,25 @@ var display = {
         //     model.step();
         // }
     },
-    traceStep: function(last){
-        console.log("tick")
-        d3.selectAll(".highlight").classed("highlight", false)
+    traceStep: function(autoPlay){
         d3.selectAll(".node").classed("dim", true)
-
+        d3.selectAll(".highlight").classed("highlight", false)
+        if (model.currentInput.length != 0 && model.currentStates.length != 0){
+            model.step()
+            if (autoPlay){
+                setTimeout(function(){display.traceStep(true)}, 3000)
+            }
+        }
+        else {
+            traceInProgress = false          
+            return
+        }
+        //Dim all input letters that have been consumed
         var i = model.fullInput.length - model.currentInput.length
-        if (i > 0){
-            d3.select("#in" + (i - 1))
+        for (j = 0; j < i; j++){
+            d3.select("#in" + (j))
                 .classed("highlight", false)
-                .classed("dim", true)
+                .classed("dim", true)        
         }
         d3.select("#in" + i).classed("highlight", true)
 
@@ -917,23 +951,7 @@ var display = {
                  var stateID = model.currentStates[i];
                  d3.select("[id='" + stateID + "']").classed("dim", false).classed("highlight", true);
              }
-        if (model.currentInput.length != 0 && model.currentStates.length != 0){
-            model.step()
-            setTimeout(function(){display.traceStep(false)}, 3000)
-
-        } else {
-            if (last == false){
-                setTimeout(function(){display.traceStep(true)}, 3000)
-            } else {
-                setTimeout(function(){
-                    d3.selectAll(".highlight").classed("highlight", false)
-                    d3.selectAll(".node").classed("dim", false)
-                    d3.select(".machine-input").remove();
-                    traceInProgress = false;
-                }, 4500)
-            }
-        }
-    }
+         }
 }
 
 var controller = {

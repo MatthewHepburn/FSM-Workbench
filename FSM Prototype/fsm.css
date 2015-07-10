@@ -126,9 +126,11 @@ i {
 
 i.dim {
     color: darkgray;
+    transition: color 0.75s;
 }
 
 i.highlight {
   color: crimson;
   text-decoration: underline;
+  transition: color 0.75s;
 }
