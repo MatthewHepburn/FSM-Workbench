@@ -4,6 +4,7 @@ var model = {
     links: {},
     editable: true,
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
+    currentStep: 0,
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
     currentInput: ["a", "a"], // This will have symbols removed as they are processed.
     accepts: function(input){
@@ -136,8 +137,10 @@ var model = {
     },
     step: function(){
         // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
+        // Returns a list of the ids of links used in this step.
         var curSymbol = model.currentInput.shift();
         var newStates = [];
+        var linkIDs = [];
 
         for (i = 0; i < model.currentStates.length; i++){
             var stateID = model.currentStates[i];  // For every state in currentStates, test every link.
@@ -145,6 +148,7 @@ var model = {
                 var link = model.links[j];
                 if(link.source.id == stateID){// See if link starts from currently considered node.
                     if (link.input.indexOf(curSymbol) > -1 || link.input.indexOf("Epsilon") > -1){ // See if this transition is legal.
+                        linkIDs.push(link.id)
                         //Add link target to newStates if it isn't there already
                         if (newStates.indexOf(link.target.id) == -1){
                             newStates.push(link.target.id)
@@ -153,7 +157,9 @@ var model = {
                 }
             }
         }
+        model.currentStep++;
         model.currentStates = newStates;
+        return linkIDs;
     },
     toggleAccepting: function(id) {
         //Check editing is allowed:
@@ -497,6 +503,7 @@ var eventHandler = {
         if (button == "rewind"){
             model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
             model.currentStates = [0];
+            model.currentStep = 0;
             d3.selectAll(".node").classed("dim", true)
             d3.select("[id='0']").classed("dim", false).classed("highlight", true);
             d3.selectAll(".input").classed("dim", false).classed("highlight", false)
@@ -509,6 +516,7 @@ var eventHandler = {
         if (button == "play"){
             model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
             model.currentStates = [0];
+            model.currentStep = 0;
             d3.selectAll(".node").classed("dim", true)
             d3.select("[id='0']").classed("dim", false).classed("highlight", true);
             d3.selectAll(".input").classed("dim", false).classed("highlight", false)
@@ -880,7 +888,7 @@ var display = {
             .attr("y", formY)
             .attr("class", "rename")
             .append("xhtml:body")
-            .html("<form><input class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+            .html("<form><input onsubmit='javascript:return false;' class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
 
         // give form focus
         document.getElementById('link' + id).focus();
@@ -918,6 +926,7 @@ var display = {
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.currentInput = JSON.parse(JSON.stringify(input));
         model.currentStates = [0];
+        model.currentStep = 0;
         d3.selectAll(".node").classed("dim", true)
         d3.select("[id='0']").classed("dim", false).classed("highlight", true);
         //Clear any input that might be left over:
@@ -1325,8 +1334,6 @@ function keydown() {
 
     //return / enter
     if (d3.event.keyCode == 13) {
-        // Prevent default form submit
-        d3.event.preventDefault();
         //Call the rename handler if there is a rename menu showing.
         if (renameMenuShowing) {
             controller.renameSubmit()
