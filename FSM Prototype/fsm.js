@@ -548,10 +548,14 @@ var display = {
             for (i = 0; i < model.question.lengths.length; i++){
                 var numChars = model.question.lengths[i]
                 var id ="qf" + i
-                var line = "<div class='pure-control-group'><label for='" + id +"'>" + numChars + " symbols</label><input type='text' class='qform', id ='" +id +"'></div>"
+                var line = "<div class='pure-control-group'><label for='" + id +"'>" + numChars + " symbols</label><input type='text' class='qform', id ='" +id +"'>"
+                if (i < model.question.lengths.length - 1){
+                    //Close div here, unless on the last loop execution
+                    line = line + "</div>"
+                }
                 form = form + line;
             }
-            form = form + "<div class='pure-control-group'><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></form>";
+            form = form + "<div><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
             div.innerHTML += form;
         }
 
