@@ -98,10 +98,28 @@ text.nodename {
 .control-rect {
   pointer-events: all;
   z-index: 3;
+  transform: translate(0px);
+}
+
+.control-rect:hover {
+  transform: translate(-1px);
+  stroke: rgb(120,30,30) !important;
 }
 
 .control-rect.selected{
   fill-opacity: 0.2;
+  transform: translate(0px);
+}
+
+.tracecontrol-rect {
+  pointer-events: all;
+  z-index: 3;
+  transform: translate(0,0px);
+}
+
+.tracecontrol-rect:hover {
+  transform: translate(0, 1px);
+  stroke: rgb(120,30,30) !important;
 }
 
 .node.dim{
