@@ -524,6 +524,10 @@ var eventHandler = {
             setTimeout(function(){display.traceStep(true)}, 1500);
             return;
         }
+        if (button == "stop"){
+            model.resetTrace();
+            display.dismissTrace();
+        }
     }
 
 }
@@ -547,6 +551,21 @@ var display = {
             form = form + "<button type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></form>";
             div.innerHTML += form;
         }
+
+    },
+    dismissTrace: function(){
+        //First, remove controls + displayed input
+        d3.select("#inputdiv").remove();
+        d3.select(".tracecontrols").remove();
+        //Remove highlight + dim classes:
+        d3.selectAll(".highlight").classed("highlight", false);
+        d3.selectAll(".dim").classed("dim", false);
+        //Restore nodes to their initial colours:
+        d3.selectAll(".node")
+            .style("fill", function(d){
+                return colors(d.id)
+            })
+
 
     },
     drawControlPalette: function(){
@@ -927,7 +946,7 @@ var display = {
         d3.select("[id='0']")
             .classed("dim", false)
             .classed("highlight", true)
-            .attr("style","fill: #74F28B;");
+            .attr("style","fill: #74F28B; stroke:rgb(0,0,0);");
         d3.selectAll(".input").classed("dim", false).classed("highlight", false)
 
     },
@@ -941,7 +960,7 @@ var display = {
         d3.select("[id='0']")
             .classed("dim", false)
             .classed("highlight", true)
-            .attr("style","fill: #74F28B;");
+            .attr("style","fill: #74F28B; stroke:rgb(0,0,0);");
         //Clear any input that might be left over:
         d3.select("#inputdiv").remove();
         display.drawInput();
@@ -974,7 +993,7 @@ var display = {
                  d3.select("[id='" + stateID + "']")
                     .classed("dim", false)
                     .classed("highlight", true)
-                    .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +";");
+                    .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +"; stroke:rgb(0,0,0);");
              }
          }
 }
