@@ -10,6 +10,24 @@ svg {
   user-select: none;
 }
 
+body {
+  margin-left: 15px;
+  margin-top: 15px;
+}
+
+input.qform{
+  margin-top: 3px;
+  margin-bottom: 4px;
+}
+
+div.question-text{
+  margin-bottom: 6px;
+}
+
+.qbutton{
+  margin-left: 314px;
+}
+
 svg:not(.active):not(.ctrl) {
   cursor: crosshair;
 }

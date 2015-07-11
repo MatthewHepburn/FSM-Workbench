@@ -539,16 +539,17 @@ var display = {
         }
         //Display question string
         var div = document.querySelector(".question")
-        div.innerHTML = model.question.text;
+        div.innerHTML = "<div class='question-text'>" + model.question.text + "</div>";
         //Add forms if recquired by the question:
         if (model.question.type == "give-list"){
-            var form = "<form>";
+            var form = "<form class='pure-form-aligned pure-form qformblock'>";
             for (i = 0; i < model.question.lengths.length; i++){
                 var numChars = model.question.lengths[i]
-                var line = "<div>" + numChars + " symbols: <input type='text' class='qform', id ='qf" + i +"'></div>"
+                var id ="qf" + i
+                var line = "<div class='pure-control-group'><label for='" + id +"''>" + numChars + " symbols</label><input type='text' class='qform', id ='" +id +"'></div>"
                 form = form + line;
             }
-            form = form + "<button type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></form>";
+            form = form + "<div class='pure-control-group'><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></form>";
             div.innerHTML += form;
         }
 
