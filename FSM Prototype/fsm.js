@@ -849,7 +849,7 @@ var display = {
         }
 
         if (!isBezier) {
-            var scale = 0.10
+            var scale = 0.11
             return {
                 x: cx + scale * vpx,
                 y: cy + scale * vpy,
@@ -857,7 +857,7 @@ var display = {
             };
 
         } else {
-            var scale = 0.20
+            var scale = 0.21
             return {
                 x: cx + scale * vpx,
                 y: cy + scale * vpy,
