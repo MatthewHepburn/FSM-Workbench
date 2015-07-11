@@ -80,6 +80,11 @@ var model = {
         console.log(linksStr)
 
     },
+    resetTrace: function(){
+        model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
+        model.currentStates = [0];
+        model.currentStep = 0;
+    },
     readJSON: function(){
         // Need to read in nodes + links separately as links refer directly to nodes
         var body = document.querySelector('.canvas');
@@ -501,12 +506,8 @@ var eventHandler = {
         console.log(d3.event)
         var button = d3.event.target.id
         if (button == "rewind"){
-            model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
-            model.currentStates = [0];
-            model.currentStep = 0;
-            d3.selectAll(".node").classed("dim", true)
-            d3.select("[id='0']").classed("dim", false).classed("highlight", true);
-            d3.selectAll(".input").classed("dim", false).classed("highlight", false)
+            model.resetTrace();
+            display.resetTrace();            
             return;
         }
         if (button == "forward"){
@@ -714,15 +715,13 @@ var display = {
         // Displays the current input, used to draw the trace.
         var html = "<div id='inputdiv'>"
         if (model.fullInput.length < 10){
-            var colour = d3.scale.category10()
+            display.colour = d3.scale.category10()
         } else{
-            var colour = d3.scale.category20b()
+            display.colour = d3.scale.category20b()
         }
-
-        var colour = d3.scale.category10();
         //Give each element a unique html id to allow highlighting individually
         for (i = 0; i < model.fullInput.length; i++){             
-            html = html + "<i style='color:" + d3.rgb(colour(i)).toString() + ";' class='input' id='in"+ i +"'>" + model.fullInput[i]
+            html = html + "<i style='color:" + d3.rgb(display.colour(i)).toString() + ";' class='input' id='in"+ i +"'>" + model.fullInput[i]
             // Add comma to all but last element.
             if (i == model.fullInput.length - 1){
                 html = html + "</i>"
@@ -921,6 +920,17 @@ var display = {
         renameMenuShowing = true;
         display.dismissContextMenu();
     },
+    resetTrace: function(){
+        // Resets the display of a trace to the initial position
+        // Resetting the model is handled separatly in model.resetTrace()
+        d3.selectAll(".node").classed("dim", true)
+        d3.select("[id='0']")
+            .classed("dim", false)
+            .classed("highlight", true)
+            .attr("style","fill: #74F28B;");
+        d3.selectAll(".input").classed("dim", false).classed("highlight", false)
+
+    },
     showTrace: function(input){
         traceInProgress = true;
         model.fullInput = JSON.parse(JSON.stringify(input));
@@ -928,24 +938,20 @@ var display = {
         model.currentStates = [0];
         model.currentStep = 0;
         d3.selectAll(".node").classed("dim", true)
-        d3.select("[id='0']").classed("dim", false).classed("highlight", true);
+        d3.select("[id='0']")
+            .classed("dim", false)
+            .classed("highlight", true)
+            .attr("style","fill: #74F28B;");
         //Clear any input that might be left over:
         d3.select("#inputdiv").remove();
         display.drawInput();
         display.drawTraceControls();
-        // while (model.currentInput.length > 0 && model.currentStates.length > 0){
-        //     for (i = 0; i < model.currentStates.length; i++){
-        //         var stateID = model.currentStates[i];
-        //         d3.select("[id='" + stateID + "']").classed("dim", false).classed("highlight", true);
-        //     }
-        //     model.step();
-        // }
     },
     traceStep: function(autoPlay){
         d3.selectAll(".node").classed("dim", true)
         d3.selectAll(".highlight").classed("highlight", false)
         if (model.currentInput.length != 0 && model.currentStates.length != 0){
-            model.step()
+            linksUsed = model.step()
             if (autoPlay){
                 setTimeout(function(){display.traceStep(true)}, 3000)
             }
@@ -961,11 +967,14 @@ var display = {
                 .classed("highlight", false)
                 .classed("dim", true)        
         }
-        d3.select("#in" + i).classed("highlight", true)
+        d3.select("#in" + i).classed("highlight", true)      
 
-        for (i = 0; i < model.currentStates.length; i++){
-                 var stateID = model.currentStates[i];
-                 d3.select("[id='" + stateID + "']").classed("dim", false).classed("highlight", true);
+        for (j = 0; j < model.currentStates.length; j++){
+                 var stateID = model.currentStates[j];
+                 d3.select("[id='" + stateID + "']")
+                    .classed("dim", false)
+                    .classed("highlight", true)
+                    .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +";");
              }
          }
 }
