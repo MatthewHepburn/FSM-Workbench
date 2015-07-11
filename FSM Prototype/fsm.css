@@ -102,15 +102,16 @@ text.nodename {
 }
 
 .qform.correct {
-  background-color: #22BB22;
+  background-color: #B6E388;
 }
 
 .qform.incorrect {
-  background-color: #BB2222;
+  background-color: #E38889;
 }
 
 .feedback {
   display: inline;
+  margin-left: 3px;
 }
 
 .control-rect {

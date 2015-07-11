@@ -242,6 +242,8 @@ var checkAnswer = {
     giveList: function(index){
         //First, remove feedback from previous attempt:
         d3.selectAll(".feedback").remove();
+        d3.selectAll(".correct").classed("correct", false);
+        d3.selectAll(".incorrect").classed("incorrect", false);
         var forms = document.querySelectorAll(".qform");
         var answers = []
     loop1:
@@ -285,7 +287,7 @@ var checkAnswer = {
             if (!model.accepts(answers[i])){
                 forms[i].classList.add("incorrect")
                 var message = document.createElement("p")
-                var trace = "<a href='javascript:display.showTrace("+JSON.stringify(answers[i])+")'>Show trace.</a>"
+                var trace = "<a class='pure-button' href='javascript:display.showTrace("+JSON.stringify(answers[i])+")'>Show trace.</a>"
                 message.innerHTML = "Incorrect - input not accepted by machine. " + trace
                 message.classList.add("feedback")
                 forms[i].parentNode.appendChild(message)
@@ -566,8 +568,6 @@ var display = {
             .style("fill", function(d){
                 return colors(d.id)
             })
-
-
     },
     drawControlPalette: function(){
         var bwidth = 40; //button width
