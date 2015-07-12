@@ -85,6 +85,7 @@ circle.node.accepting {
 text.nodename {
   text-anchor: middle;
   font-weight: bold;
+  alignment-baseline: central;
 }
 
 .contextmenu {

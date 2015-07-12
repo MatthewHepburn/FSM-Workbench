@@ -962,12 +962,15 @@ var display = {
             .classed("dim", false)
             .classed("highlight", true)
             .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
+        // Undim & unhighlight the machine input. 
         d3.selectAll(".input")
             .classed("dim", false)
             .classed("highlight", false)
             .attr("transform", "")
         d3.selectAll(".input-comma")
             .classed("dim", false)
+        // Highlight the first input element
+        d3.select("#in0").classed("highlight", true)
 
     },
     showTrace: function(input){
@@ -1308,8 +1311,6 @@ function restart() {
 
     // show node IDs
     g.append('svg:text')
-        .attr('x', 0)
-        .attr('y', 4)
         .attr('class', 'nodename')
         .attr('id', function(d) {
             return "nodename" + d.id;
