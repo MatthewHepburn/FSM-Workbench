@@ -745,14 +745,14 @@ var display = {
         } else{
             display.colour = d3.scale.category20b()
         }
-        var totalInputLength = model.fullInput.length - 1 //accound for spaces
+        var totalInputLength = 0 //No need to account for spaces
         for (i = 0; i < model.fullInput.length; i++){
             totalInputLength += model.fullInput[i].length
         }
         var y = 70
-        var charWidth = 15
+        var charWidth = 25
         var inWidth = totalInputLength * charWidth;
-        var x = width/2 - inWidth/2
+        var x = width/2 - (inWidth/2)
         for (i = 0; i < model.fullInput.length; i++){  
             g.append("text")
                 .text(model.fullInput[i])   
@@ -761,7 +761,7 @@ var display = {
                 .attr("id", "in"+i)
                 .attr("x", x)
                 .attr("y", y)
-            x = x + model.fullInput.length * charWidth
+            x = x + model.fullInput[i].length * charWidth
             // Add comma to all but last element.
             if (i == model.fullInput.length - 1){
                 continue;
@@ -770,7 +770,7 @@ var display = {
                     .text(",")
                     .classed("input-comma", true)
                     .attr("id", "in-comma"+i)
-                    .attr("x", x - 2 * charWidth)
+                    .attr("x", x -  charWidth/2)
                     .attr("y", y);
             }
         }   
@@ -837,7 +837,7 @@ var display = {
         if (x1 == x2 && y1 == y2){
             return {
                 x: x1,
-                y: y1 - 25  - 20 -23,
+                y: y1 - 75,
                 rotation: 0
             };
         }

@@ -118,8 +118,8 @@ text.nodename {
 }
 
 .feedback {
-  display: inline;
-  margin-left: 3px;
+  display: table-cell;
+  margin-left: 7px;
 }
 
 .control-rect {
