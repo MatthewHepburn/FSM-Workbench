@@ -961,7 +961,7 @@ var display = {
         d3.select("[id='0']")
             .classed("dim", false)
             .classed("highlight", true)
-            .attr("style","fill: #74F28B; stroke:rgb(0,0,0);");
+            .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
         d3.selectAll(".input")
             .classed("dim", false)
             .classed("highlight", false)
@@ -977,15 +977,10 @@ var display = {
         model.currentInput = JSON.parse(JSON.stringify(input));
         model.currentStates = [0];
         model.currentStep = 0;
-        d3.selectAll(".node").classed("dim", true)
-        d3.select("[id='0']")
-            .classed("dim", false)
-            .classed("highlight", true)
-            .attr("style","fill: #74F28B; stroke:rgb(0,0,0);");
-        //Clear any input that might be left over:
-        d3.select("#inputdiv").remove();
+        d3.selectAll(".node").classed("dim", true);
         display.drawInput();
         display.drawTraceControls();
+        display.resetTrace();
     },
     traceStep: function(autoPlay){
         d3.selectAll(".node").classed("dim", true)
