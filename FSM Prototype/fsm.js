@@ -562,7 +562,7 @@ var display = {
     },
     dismissTrace: function(){
         //First, remove controls + displayed input
-        d3.select("#inputdiv").remove();
+        d3.select(".machine-input").remove();
         d3.select(".tracecontrols").remove();
         //Remove highlight + dim classes:
         d3.selectAll(".highlight").classed("highlight", false);
@@ -737,10 +737,6 @@ var display = {
     },
     drawInput: function(){
         var g = svg.append("g")
-            .attr("width", 200)
-            .attr("height", 50)
-            .attr("x", width/2)
-            .attr("y", 70)
             .attr("class", "machine-input")
         // Displays the current input, used to draw the trace.
         var symbols = []
@@ -966,10 +962,16 @@ var display = {
             .classed("dim", false)
             .classed("highlight", true)
             .attr("style","fill: #74F28B; stroke:rgb(0,0,0);");
-        d3.selectAll(".input").classed("dim", false).classed("highlight", false)
+        d3.selectAll(".input")
+            .classed("dim", false)
+            .classed("highlight", false)
+            .attr("transform", "")
+        d3.selectAll(".input-comma")
+            .classed("dim", false)
 
     },
     showTrace: function(input){
+        display.dismissTrace();
         traceInProgress = true;
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.currentInput = JSON.parse(JSON.stringify(input));
@@ -1001,9 +1003,13 @@ var display = {
         //Dim all input letters that have been consumed
         var i = model.fullInput.length - model.currentInput.length
         for (j = 0; j < i; j++){
-            d3.select("#in" + (j))
+            d3.select("#in" + j)
                 .classed("highlight", false)
-                .classed("dim", true)        
+                .classed("dim", true)
+                .transition().duration(1000)
+                .attr("transform", "translate(0, 1000)");
+            d3.select("#in-comma" + j)
+                .classed("dim", true);
         }
         d3.select("#in" + i).classed("highlight", true)      
 

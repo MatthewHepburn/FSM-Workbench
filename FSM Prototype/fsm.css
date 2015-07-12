@@ -165,19 +165,20 @@ text.nodename {
   font-style: normal;
 }
 
-i {
-  font-style: normal;
-}
-
 .input.dim {
     opacity: 0.3;
-    transition: color 0.75s;
+    transition: 0.75s;
 }
 
-i.highlight {
+.input.highlight {
   color: crimson;
   text-decoration: underline;
   transition: color 0.75s;
+}
+
+.input-comma.dim {
+  opacity: 0;
+  transition: 0.4s;
 }
 
 .qbutton{
