@@ -736,34 +736,48 @@ var display = {
         renameMenuShowing = false;
     },
     drawInput: function(){
-        // Displays the current input, used to draw the trace.
-        var html = "<div id='inputdiv'>"
-        if (model.fullInput.length < 10){
-            display.colour = d3.scale.category10()
-        } else{
-            display.colour = d3.scale.category20b()
-        }
-        //Give each element a unique html id to allow highlighting individually
-        for (i = 0; i < model.fullInput.length; i++){             
-            html = html + "<i style='color:" + d3.rgb(display.colour(i)).toString() + ";' class='input' id='in"+ i +"'>" + model.fullInput[i]
-            // Add comma to all but last element.
-            if (i == model.fullInput.length - 1){
-                html = html + "</i>"
-            } else {
-                html = html + "</i>, "
-            }
-        }
-        html = html + "</div>"
-
-        svg.append("foreignObject")
+        var g = svg.append("g")
             .attr("width", 200)
             .attr("height", 50)
             .attr("x", width/2)
             .attr("y", 70)
             .attr("class", "machine-input")
-            .append("xhtml:body")
-            .html(html);
-
+        // Displays the current input, used to draw the trace.
+        var symbols = []
+        if (model.fullInput.length < 10){
+            display.colour = d3.scale.category10()
+        } else{
+            display.colour = d3.scale.category20b()
+        }
+        var totalInputLength = model.fullInput.length - 1 //accound for spaces
+        for (i = 0; i < model.fullInput.length; i++){
+            totalInputLength += model.fullInput[i].length
+        }
+        var y = 70
+        var charWidth = 15
+        var inWidth = totalInputLength * charWidth;
+        var x = width/2 - inWidth/2
+        for (i = 0; i < model.fullInput.length; i++){  
+            g.append("text")
+                .text(model.fullInput[i])   
+                .style("fill", d3.rgb(display.colour(i)).toString())
+                .classed("input", true)
+                .attr("id", "in"+i)
+                .attr("x", x)
+                .attr("y", y)
+            x = x + model.fullInput.length * charWidth
+            // Add comma to all but last element.
+            if (i == model.fullInput.length - 1){
+                continue;
+            } else {
+                g.append("text")
+                    .text(",")
+                    .classed("input-comma", true)
+                    .attr("id", "in-comma"+i)
+                    .attr("x", x - 2 * charWidth)
+                    .attr("y", y);
+            }
+        }   
     },
     drawStart: function(x, y) {
         var length = 200;
