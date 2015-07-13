@@ -512,7 +512,7 @@ var eventHandler = {
         contextMenuShowing = true;
         mousePosition = d3.mouse(svg.node());
 
-        display.createStateContextMenu(canvas, id, mousePosition);
+        display.createStateContextMenu(svg, id, mousePosition);
     },
     //Function to handle clicks to the control palette:
     toolSelect: function() {
@@ -750,22 +750,20 @@ var display = {
         }
     },
     createStateContextMenu: function(canvas, id, mousePosition) {
-        menu = canvas.append("div")
-            .attr("class", "contextmenu")
-            .style("left", mousePosition[0] + "px")
-            .style("top", mousePosition[1] + "px");
+        var html = "<p data-id='" + id + "' class = 'button toggleaccepting'>Toggle Accepting</p>"
+        html += "<p data-id='" + id + "' class = 'button renamestate'>Rename State</p>"
 
-        menu.append("p")
-            .classed("button toggleaccepting", true)
-            .text("Toggle accepting")
-            .attr("data-id", id)
+
+        var menu = canvas.append("foreignObject")
+            .attr('x', mousePosition[0])
+            .attr('y', mousePosition[1])
+            .attr('width', 40)
+            .attr('height', 55)
+            .attr("class", "contextmenu")
+            .append("xhtml:div")
+            .html(html)
 
         d3.select(".toggleaccepting").on("click", function(){model.toggleAccepting(id)});
-
-        menu.append("p")
-            .classed("button renamestate", true)
-            .text("Rename state")
-            .attr("data-id", id)
 
         d3.select(".renamestate").on("click", function(){display.renameStateForm(id)})
 
