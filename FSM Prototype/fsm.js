@@ -340,17 +340,19 @@ var checkAnswer = {
 
 var eventHandler = {
     clickBackground: function() {
+
+    // if click was on element other than background, do nothing further.
+    if (d3.event.target.id != "main-svg"){
+        return;
+    }
+
     // Dismiss context menu if it is present
     if (contextMenuShowing) {
         d3.select(".contextmenu").remove();
         contextMenuShowing = false;
         return;
     }
-    // if click was on element other than background, do nothing further.
-    if (d3.event.target.id != "main-svg"){
-        return
-    }
-
+    
     // because :active only works in WebKit?
     svg.classed('active', true);
 
@@ -706,6 +708,10 @@ var display = {
             }
     },
     createLinkContextMenu: function(canvas, id, mousePosition) {
+        //TODO:
+        // var html = "<p data-id='" + id + "' class = 'button toggleaccepting'>Toggle Accepting</p>"
+        // html += "<p data-id='" + id + "' class = 'button renamestate'>Rename State</p>"
+
         menu = canvas.append("div")
             .attr("class", "contextmenu")
             .style("left", mousePosition[0] + "px")
@@ -757,10 +763,11 @@ var display = {
         var menu = canvas.append("foreignObject")
             .attr('x', mousePosition[0])
             .attr('y', mousePosition[1])
-            .attr('width', 40)
+            .attr('width', 260)
             .attr('height', 55)
-            .attr("class", "contextmenu")
+            .classed("context-menu-holder", true)   
             .append("xhtml:div")
+            .attr("class", "contextmenu")
             .html(html)
 
         d3.select(".toggleaccepting").on("click", function(){model.toggleAccepting(id)});
@@ -793,6 +800,7 @@ var display = {
     },
     dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
+        document.querySelector(".context-menu-holder").remove()
         contextMenuShowing = false;
     },
     dismissRenameMenu: function() {

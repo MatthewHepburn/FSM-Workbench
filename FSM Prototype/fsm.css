@@ -90,11 +90,8 @@ text.nodename {
 }
 
 .contextmenu {
-    position: absolute;
-    left: 0;
-    top: 0;
+    display: inline-block;
     background-color: #fff;
-    width: 200px;
     border: 1px #ccc solid;
     box-shadow: #333 2px 2px 4px;
     padding: 2px 2px 2px 2px;
