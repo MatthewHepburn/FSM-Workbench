@@ -1,12 +1,4 @@
 var model = {
-    question:{
-        type:"satisfy-list",
-        text: "Modify the FSM below to accept the strings on the left but reject the strings on the right.<br> Note: You can use either a deterministic or non-deterministic machine.",
-        acceptList: ["aa", "aba", "abba", "aaa", "abaa"],
-        rejectList: ["", "a", "aaba"],
-        alphabetType: "char"
-
-    },
     toolMode: "none",
     nodes: {},
     links: {},
@@ -98,11 +90,11 @@ var model = {
         var body = document.querySelector('.canvas');
         model.nodes = JSON.parse(body.dataset.nodes);
         model.links = JSON.parse(body.dataset.links);
-        // if (body.dataset.question != undefined){
-        //     model.question = JSON.parse(body.dataset.question);
-        // } else{
-        //     model.question = {type:"none"};
-        // }
+        if (body.dataset.question != undefined){
+            model.question = JSON.parse(body.dataset.question);
+        } else{
+            model.question = {type:"none"};
+        }
 
         // Turn IDs in model.links into references to the nodes they refer to.
         // Also set the lastLinkID used.
@@ -304,6 +296,9 @@ var checkAnswer = {
             forms[i].classList.remove("incorrect");
             forms[i].classList.add("correct");
         }
+    },
+    satisfyList: function(){
+        alert("Hello!");
     }
 }
 
@@ -567,7 +562,7 @@ var display = {
             div.innerHTML += form;
         }
         if (model.question.type == "satisfy-list"){
-            var table = "<table class='qtable'><tr><td>Accept</td><td> </td><td>Reject</td><td> </td>";
+            var table = "<div class='table-div'><table class='qtable'><tr><th>Accept</th><th class='table-space'> </th><th>Reject</th><th class='table-space'> </th></tr>";
             var accLength = model.question.acceptList.length;
             var rejLength = model.question.rejectList.length;
             var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length)
@@ -586,7 +581,7 @@ var display = {
                     table += "<td></td></tr>"
                 }
             }
-            table += "</table>"
+            table += "</table><button class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>"
             div.innerHTML += table;
         }
 

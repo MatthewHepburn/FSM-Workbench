@@ -187,3 +187,29 @@ text.nodename {
   float: right;
   margin-top: 7px;
 }
+
+.qtable td {
+  width: 25%;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.qtable .table-space{
+  width: 30%;
+}
+
+.qtable th {
+  text-align: left
+}
+
+.qtable {
+  font-family: 'Ek Mukta', sans-serif;
+}
+
+.table-div {
+  display: inline-block;
+}
+
+.table-button {
+  float: left !important;
+}
