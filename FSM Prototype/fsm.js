@@ -488,7 +488,7 @@ var eventHandler = {
         // Get the id of the clicked link:
         var id = d3.event.target.id.slice(4);
 
-        var canvas = d3.select(".canvas")
+        var canvas = svg;
         contextMenuShowing = true;
         mousePosition = d3.mouse(svg.node());
 
@@ -708,57 +708,31 @@ var display = {
             }
     },
     createLinkContextMenu: function(canvas, id, mousePosition) {
-        //TODO:
-        // var html = "<p data-id='" + id + "' class = 'button toggleaccepting'>Toggle Accepting</p>"
-        // html += "<p data-id='" + id + "' class = 'button renamestate'>Rename State</p>"
+        //TODO - prevent context menus from appearing off the side of the canvas
+        var html = "<p data-id='" + id + "' class = 'button changeconditions'>Change Conditions</p>"
+        html += "<p data-id='" + id + "' class = 'button deletelink'>Delete Link</p>"
 
-        menu = canvas.append("div")
+        var menu = canvas.append("foreignObject")
+            .attr('x', mousePosition[0])
+            .attr('y', mousePosition[1])
+            .attr('width', 260)
+            .attr('height', 55)
+            .classed("context-menu-holder", true)   
+            .append("xhtml:div")
             .attr("class", "contextmenu")
-            .style("left", mousePosition[0] + "px")
-            .style("top", mousePosition[1] + "px");
-
-        menu.append("p")
-            .classed("button changeconditions", true)
-            .text("Change condtitions")
-            .attr("data-id", id)
+            .html(html)
 
         d3.select(".changeconditions").on("click", function(){display.renameLinkForm(id)});
-
-        menu.append("p")
-            .classed("button deletelink", true)
-            .text("Delete link")
-            .attr("data-id", id)
-
-        d3.select(".deletelink").on("click", function(d){model.deletelink(d.id)});
+        d3.select(".deletelink").on("click", function(d){model.deleteLink(id)});
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
             d3.event.preventDefault()
         })
-
-        canvasSize = [
-            canvas.node().offsetWidth,
-            canvas.node().offsetHeight
-        ];
-
-        popupSize = [
-            menu.node().offsetWidth,
-            menu.node().offsetHeight
-        ];
-        if (popupSize[0] + mousePosition[0] > canvasSize[0]) {
-            menu.style("left", "auto");
-            menu.style("right", 0);
-        }
-
-        if (popupSize[1] + mousePosition[1] > canvasSize[1]) {
-            menu.style("top", "auto");
-            menu.style("bottom", 0);
-        }
     },
     createStateContextMenu: function(canvas, id, mousePosition) {
         var html = "<p data-id='" + id + "' class = 'button toggleaccepting'>Toggle Accepting</p>"
         html += "<p data-id='" + id + "' class = 'button renamestate'>Rename State</p>"
-
 
         var menu = canvas.append("foreignObject")
             .attr('x', mousePosition[0])
@@ -778,25 +752,6 @@ var display = {
         menu.on("contextmenu", function() {
             d3.event.preventDefault()
         })
-
-        canvasSize = [
-            canvas.node().offsetWidth,
-            canvas.node().offsetHeight
-        ];
-
-        popupSize = [
-            menu.node().offsetWidth,
-            menu.node().offsetHeight
-        ];
-        if (popupSize[0] + mousePosition[0] > canvasSize[0]) {
-            menu.style("left", "auto");
-            menu.style("right", 0);
-        }
-
-        if (popupSize[1] + mousePosition[1] > canvasSize[1]) {
-            menu.style("top", "auto");
-            menu.style("bottom", 0);
-        }
     },
     dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
