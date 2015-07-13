@@ -80,6 +80,16 @@ var model = {
         console.log(linksStr)
 
     },
+    parseInput: function(string, isCharType){
+        // Given a string 'abc', return input in form ['a', 'b', 'c'] if charType
+        // or given a string 'stop start go', return input in form ['stop', 'start', 'go']
+        if (isCharType){
+                return string.split('');
+            } else {
+                return string.split(/\ |,\ |,/);
+            }
+
+    },
     resetTrace: function(){
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
@@ -298,7 +308,33 @@ var checkAnswer = {
         }
     },
     satisfyList: function(){
-        alert("Hello!");
+        var accLength = model.question.acceptList.length;
+        var rejLength = model.question.rejectList.length;
+        var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length)
+        for (num = 0; num < nRows; num++){
+            var i = num;
+            // Test element i of acceptList
+            if (i < accLength){
+                var input = model.parseInput(model.question.acceptList[i], model.question.alphabetType == 'char')
+                var accepts = model.accepts(input);
+                if (accepts){
+                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>"
+                } else {
+                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>"
+                }
+            }
+            // Test element i of rejectList
+            if (i < rejLength){
+                var input = model.parseInput(model.question.rejectList[i], model.question.alphabetType == 'char')
+                var accepts = model.accepts(input);
+                if (!accepts){
+                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>"
+                } else {
+                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>"
+                }
+            }
+
+        }
     }
 }
 

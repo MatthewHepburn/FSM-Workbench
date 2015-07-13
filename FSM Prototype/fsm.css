@@ -194,8 +194,8 @@ text.nodename {
   padding-bottom: 0px;
 }
 
-.qtable .table-space{
-  width: 30%;
+.qtable {
+  width: 150%;
 }
 
 .qtable th {
@@ -212,4 +212,10 @@ text.nodename {
 
 .table-button {
   float: left !important;
+}
+
+.x-check {
+  width: 30%;
+  display: list-item;
+  margin-left: 10%;
 }
