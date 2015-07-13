@@ -86,6 +86,7 @@ text.nodename {
   text-anchor: middle;
   font-weight: bold;
   alignment-baseline: central;
+  pointer-events: none;
 }
 
 .contextmenu {
@@ -218,4 +219,9 @@ text.nodename {
   width: 30%;
   display: list-item;
   margin-left: 10%;
+}
+
+.trace-link:hover {
+  text-decoration: underline;
+  color: rgb(30,30,80);
 }

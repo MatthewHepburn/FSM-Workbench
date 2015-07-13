@@ -604,15 +604,19 @@ var display = {
             var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length)
             for (i = 0; i < nRows; i++){
                 table += "<tr>"
-                
+                // Build html for element i of the acceptList
                 if (i < accLength){
-                    table += "<td id=td-acc-" + i + "'>'" + model.question.acceptList[i] + '\'</td><td id=\'td-acc-adj-' + i +"'> </td>"
+                    var parsedInput = JSON.stringify(model.parseInput(model.question.acceptList[i], model.question.alphabetType = "char"))
+                    var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.acceptList[i] + "'</a>"
+                    table += "<td id=td-acc-" + i + "'>" + string + '</td><td id=\'td-acc-adj-' + i +"'> </td>"
                 } else {
                     table += "<td></td>"
                 }
-
+                // Build html for element i of the rejectList
                 if (i < rejLength){
-                    table += "<td id=td-rej-" + i + "'>'" + model.question.rejectList[i] + '\'</td><td id=\'td-rej-adj-' + i +"'> </td></tr>"
+                    var parsedInput = JSON.stringify(model.parseInput(model.question.rejectList[i], model.question.alphabetType = "char"))
+                    var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.rejectList[i] + "'</a>"
+                    table += "<td id=td-rej-" + i + "'>" + string + '</td><td id=\'td-rej-adj-' + i +"'> </td></tr>"
                 } else {
                     table += "<td></td></tr>"
                 }
@@ -1036,6 +1040,7 @@ var display = {
 
     },
     showTrace: function(input){
+        // Takes input in form ['a', 'b', 'c']
         display.dismissTrace();
         traceInProgress = true;
         model.fullInput = JSON.parse(JSON.stringify(input));
