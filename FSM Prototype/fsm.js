@@ -755,7 +755,10 @@ var display = {
     },
     dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
-        document.querySelector(".context-menu-holder").remove()
+        var container = document.querySelector(".context-menu-holder")
+        if (container != null) {
+            container.remove()
+        }
         contextMenuShowing = false;
     },
     dismissRenameMenu: function() {
