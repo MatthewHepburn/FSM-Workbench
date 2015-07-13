@@ -1,4 +1,12 @@
 var model = {
+    question:{
+        type:"satisfy-list",
+        text: "Modify the FSM below to accept the strings on the left but reject the strings on the right.<br> Note: You can use either a deterministic or non-deterministic machine.",
+        acceptList: ["aa", "aba", "abba", "aaa", "abaa"],
+        rejectList: ["", "a", "aaba"],
+        alphabetType: "char"
+
+    },
     toolMode: "none",
     nodes: {},
     links: {},
@@ -90,11 +98,11 @@ var model = {
         var body = document.querySelector('.canvas');
         model.nodes = JSON.parse(body.dataset.nodes);
         model.links = JSON.parse(body.dataset.links);
-        if (body.dataset.question != undefined){
-            model.question = JSON.parse(body.dataset.question);
-        } else{
-            model.question = {type:"none"};
-        }
+        // if (body.dataset.question != undefined){
+        //     model.question = JSON.parse(body.dataset.question);
+        // } else{
+        //     model.question = {type:"none"};
+        // }
 
         // Turn IDs in model.links into references to the nodes they refer to.
         // Also set the lastLinkID used.
@@ -557,6 +565,29 @@ var display = {
             }
             form = form + "<div><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
             div.innerHTML += form;
+        }
+        if (model.question.type == "satisfy-list"){
+            var table = "<table class='qtable'><tr><td>Accept</td><td> </td><td>Reject</td><td> </td>";
+            var accLength = model.question.acceptList.length;
+            var rejLength = model.question.rejectList.length;
+            var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length)
+            for (i = 0; i < nRows; i++){
+                table += "<tr>"
+                
+                if (i < accLength){
+                    table += "<td id=td-acc-" + i + "'>'" + model.question.acceptList[i] + '\'</td><td id=\'td-acc-adj-' + i +"'> </td>"
+                } else {
+                    table += "<td></td>"
+                }
+
+                if (i < rejLength){
+                    table += "<td id=td-rej-" + i + "'>'" + model.question.rejectList[i] + '\'</td><td id=\'td-rej-adj-' + i +"'> </td></tr>"
+                } else {
+                    table += "<td></td></tr>"
+                }
+            }
+            table += "</table>"
+            div.innerHTML += table;
         }
 
     },
