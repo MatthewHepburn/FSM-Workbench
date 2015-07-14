@@ -612,7 +612,7 @@ var display = {
                     var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.acceptList[i] + "'</a>"
                     table += "<td id=td-acc-" + i + "'>" + string + '</td><td id=\'td-acc-adj-' + i +"'> </td>"
                 } else {
-                    table += "<td></td>"
+                    table += "<td></td><td></td>"
                 }
                 // Build html for element i of the rejectList
                 if (i < rejLength){
