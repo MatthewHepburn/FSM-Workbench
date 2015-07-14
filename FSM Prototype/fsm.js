@@ -951,7 +951,7 @@ var display = {
             .attr("y", formY)
             .attr("class", "rename")
             .append("xhtml:body")
-            .html("<form><input onsubmit='javascript:return false;' class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
 
         // give form focus
         document.getElementById('link' + id).focus();
@@ -976,7 +976,7 @@ var display = {
             .attr("y", d.y - 10)
             .attr("class", "rename")
             .append("xhtml:body")
-            .html("<form><input class='renameinput' id='node" + id + "' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
+            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input class='renameinput' id='node" + id + "' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
 
         // give form focus
         document.getElementById('node' + id).focus();
