@@ -780,7 +780,7 @@ var display = {
             totalInputLength += model.fullInput[i].length
         }
         var y = 70
-        var charWidth = 25
+        var charWidth = 25 // Rough estimate
         var inWidth = totalInputLength * charWidth;
         var x = width/2 - (inWidth/2)
         for (i = 0; i < model.fullInput.length; i++){  
@@ -791,7 +791,9 @@ var display = {
                 .attr("id", "in"+i)
                 .attr("x", x)
                 .attr("y", y)
-            x = x + model.fullInput[i].length * charWidth
+            // use bounding box to figure out how big the element is:
+
+            x = x + (document.querySelector("#in"+i).getBBox().width) + 20
             // Add comma to all but last element.
             if (i == model.fullInput.length - 1){
                 continue;
@@ -800,7 +802,7 @@ var display = {
                     .text(",")
                     .classed("input-comma", true)
                     .attr("id", "in-comma"+i)
-                    .attr("x", x -  charWidth/2)
+                    .attr("x", x -  20)
                     .attr("y", y);
             }
         }   
