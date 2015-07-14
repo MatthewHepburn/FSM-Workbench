@@ -187,13 +187,15 @@ text.nodename {
 }
 
 .qtable td {
-  width: 25%;
   padding-top: 0px;
   padding-bottom: 0px;
 }
 
+
+
+
 .qtable {
-  width: 150%;
+  width: 110%;
 }
 
 .qtable th {
@@ -212,8 +214,13 @@ text.nodename {
   float: left !important;
 }
 
+.table-space {
+  width: 2cm;
+}
+
+
 .x-check {
-  width: 30%;
+  width: 0.5cm;
   display: list-item;
   margin-left: 10%;
 }

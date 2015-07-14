@@ -608,7 +608,7 @@ var display = {
                 table += "<tr>"
                 // Build html for element i of the acceptList
                 if (i < accLength){
-                    var parsedInput = JSON.stringify(model.parseInput(model.question.acceptList[i], model.question.alphabetType = "char"))
+                    var parsedInput = JSON.stringify(model.parseInput(model.question.acceptList[i], model.question.alphabetType == "char"))
                     var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.acceptList[i] + "'</a>"
                     table += "<td id=td-acc-" + i + "'>" + string + '</td><td id=\'td-acc-adj-' + i +"'> </td>"
                 } else {
@@ -616,7 +616,7 @@ var display = {
                 }
                 // Build html for element i of the rejectList
                 if (i < rejLength){
-                    var parsedInput = JSON.stringify(model.parseInput(model.question.rejectList[i], model.question.alphabetType = "char"))
+                    var parsedInput = JSON.stringify(model.parseInput(model.question.rejectList[i], model.question.alphabetType == "char"))
                     var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.rejectList[i] + "'</a>"
                     table += "<td id=td-rej-" + i + "'>" + string + '</td><td id=\'td-rej-adj-' + i +"'> </td></tr>"
                 } else {

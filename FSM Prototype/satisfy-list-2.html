@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FSM Prototype</title>
+    <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="fsm.css">
+  </head>
+
+  <body class="canvas" 
+ data-nodes='[{"id":0,"accepting":false,"name":"0p","x":186,"y":346,"fixed":1,"index":0,"weight":2,"px":186,"py":346},{"id":9,"accepting":false,"x":238.7616556362899,"y":582.6076924438703,"index":1,"weight":0,"px":238.76165563629002,"py":582.6076924438698},{"id":21,"accepting":false,"x":336.61489814252144,"y":346.028361938759,"index":2,"weight":4,"px":336.6148978145051,"py":346.0274876390955,"fixed":0,"name":"20p"},{"id":22,"accepting":false,"x":261.3664145941396,"y":215.8620838918659,"index":3,"weight":3,"px":261.3679270935174,"py":215.8639916938259,"fixed":0,"name":"10p"},{"id":23,"accepting":false,"x":411.6222155213121,"y":215.60186562394924,"index":4,"weight":4,"px":411.62283182152566,"py":215.60448771691438,"fixed":0,"name":"30p"},{"id":24,"accepting":false,"x":486.945932176563,"y":345.5723248150779,"index":5,"weight":4,"px":486.9459235209005,"py":345.5721732825397,"fixed":0,"name":"40p"},{"id":25,"accepting":false,"x":561.9022394898742,"y":215.0490756445742,"index":6,"weight":5,"px":561.901943504539,"py":215.05241892115512,"fixed":0,"name":"50p+"},{"id":28,"accepting":true,"x":637.179556033477,"y":345.1667386922109,"index":7,"weight":2,"px":637.1781874813793,"py":345.168088130687,"fixed":0}]'
+ data-links='[{"source":0,"target":21,"input":["20p"],"id":8},{"source":0,"target":22,"input":["10p"],"id":9},{"source":22,"target":21,"input":["10p"],"id":10},{"source":21,"target":23,"input":["10p"],"id":11},{"source":22,"target":23,"input":["20p"],"id":12},{"source":21,"target":24,"input":["20p"],"id":13},{"source":23,"target":24,"input":["10p"],"id":14},{"source":23,"target":25,"input":["20p"],"id":15},{"source":24,"target":25,"input":["10p","20p"],"id":16},{"source":25,"target":25,"input":["10p","20p"],"id":17},{"source":24,"target":28,"input":["Water"],"id":20},{"source":25,"target":28,"input":["Irn-Bru","Water"],"id":21}]'
+  data-question = '{"type":"satisfy-list","text":"Design a FSM to represent the logic of a vending machine. It sells water for 40p and Irn-Bru for 50p. It accepts 10p and 20p coins.<br> The user is not required to enter exact money - eg if they enter 60p they should still be able to purchase water.","acceptList":["10p, 10p, 10p, 10p, 10p, Irn-Bru", "20p, 20p, Water", "10p 20p 20p, Irn-Bru", "20p, 20p, 20p, Water", "10p, 10p, 20p, 10p, Water"],"rejectList":["","10p, 10p, Water", "10p, 10p, 20p, Water, Water"],"alphabetType":"symbol"}'>
+  	<div class="question"></div>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+  <script src="fsm.js"></script>
+</html>
