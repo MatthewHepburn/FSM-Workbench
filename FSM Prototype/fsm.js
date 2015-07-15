@@ -1031,9 +1031,10 @@ var display = {
             traceInProgress = false          
             return
         }
-        //Dim all input letters that have been consumed
+
+        //Dim all previous input letters that have been consumed
         var i = model.fullInput.length - model.currentInput.length
-        for (j = 0; j < i; j++){
+        for (j = 0; j < i - 1; j++){
             d3.select("#in" + j)
                 .classed("highlight", false)
                 .classed("dim", true)
@@ -1042,7 +1043,38 @@ var display = {
             d3.select("#in-comma" + j)
                 .classed("dim", true);
         }
-        d3.select("#in" + i).classed("highlight", true)      
+        // check if most recent letter was consumed:
+        if (model.currentStates.length > 0){
+            d3.select("#in" + (i -1))
+                .classed("dim", true)
+                .classed("highlight", false)
+                .transition().duration(1000)
+                .attr("transform", "translate(0, 1000)");
+                d3.select("#in-comma" + (i-1))
+                .classed("dim", true);
+            d3.select("#in" + i).classed("highlight", true)
+            } 
+        else 
+            {
+            var x = document.querySelector("#in"+(i-1)).getBBox().x
+            d3.select("#in" + (i-1))
+                .classed("rejected", true)
+                .transition()
+                .duration(100)
+                .attr("x", x + 10)
+                .each("end", function(){
+                    d3.select(this)
+                        .transition()
+                        .duration(120)
+                        .attr("x", x - 10)
+                        .each("end", function(){
+                            d3.select(this)
+                                .transition()
+                                .duration(100)
+                                .attr("x", x);
+                        })
+                })
+            }
 
         for (j = 0; j < model.currentStates.length; j++){
                  var stateID = model.currentStates[j];

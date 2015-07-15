@@ -175,6 +175,11 @@ text.nodename {
   transition: color 0.75s;
 }
 
+.input.rejected {
+  
+}
+  
+
 .input-comma.dim {
   opacity: 0;
   transition: 0.4s;
