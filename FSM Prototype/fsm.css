@@ -41,7 +41,6 @@ svg:not(.active):not(.ctrl) {
 path.link {
   fill: none;
   stroke: #000;
-  stroke-width: 5px;
   cursor: default;  
   transition: stroke-width 0.5s;
 }
@@ -79,8 +78,11 @@ circle.node.accepting {
 
 .linklabel {
   font-family: 'Ek Mukta', sans-serif;
-  line-height: 50%;
   alignment-baseline: central;
+}
+
+.linklabel:hover{
+  font-weight: 600;
 }
 
 text.nodename {
