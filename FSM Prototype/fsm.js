@@ -5,6 +5,7 @@ var model = {
     editable: true,
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     currentStep: 0,
+    traceRecord:[],
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
     currentInput: ["a", "a"], // This will have symbols removed as they are processed.
     accepts: function(input){
@@ -94,6 +95,7 @@ var model = {
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
         model.currentStep = 0;
+        model.traceRecord = [{states:[0], currentInput: JSON.parse(JSON.stringify(model.fullInput))}]
     },
     readJSON: function(){
         // Need to read in nodes + links separately as links refer directly to nodes
@@ -557,9 +559,35 @@ var eventHandler = {
             display.resetTrace();            
             return;
         }
+        if (button == "back"){
+            if (!traceStepInProgress){ 
+                display.traceStep(false, true)
+            } else {
+                f = function(){
+                    if (!traceStepInProgress){
+                        traceInProgress = true;
+                        display.traceStep(false, true)
+                    } else {
+                        setTimeout(200, f)
+                    }
+                }
+                setTimeout(200, f)
+            }
+        }
         if (button == "forward"){
-            display.traceStep(false)
-            return;
+             if (!traceStepInProgress){ 
+                display.traceStep(false, false)
+            } else {
+                f = function(){
+                    if (!traceStepInProgress){
+                        traceInProgress = true;
+                        display.traceStep(false, false)
+                    } else {
+                        setTimeout(200, f)
+                    }
+                }
+                setTimeout(200, f)
+            }
         }
         if (button == "play"){
             model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
@@ -574,6 +602,7 @@ var eventHandler = {
         if (button == "stop"){
             model.resetTrace();
             display.dismissTrace();
+            return;
         }
     }
 
@@ -1014,27 +1043,58 @@ var display = {
         display.dismissTrace();
         traceInProgress = true;
         model.fullInput = JSON.parse(JSON.stringify(input));
-        model.currentInput = JSON.parse(JSON.stringify(input));
-        model.currentStates = [0];
-        model.currentStep = 0;
+        model.resetTrace();
         d3.selectAll(".node").classed("dim", true);
         display.drawInput();
         display.drawTraceControls();
         display.resetTrace();
     },
-    traceStep: function(autoPlay){
+    traceStep: function(autoPlay, backward){
+        traceStepInProgress = true;
+        d3.selectAll(".dim").classed("dim", false)
         d3.selectAll(".node").classed("dim", true)
         d3.selectAll(".highlight").classed("highlight", false)
-        if (model.currentInput.length != 0 && model.currentStates.length != 0){
-            linksUsed = model.step()
-            if (autoPlay){
-                setTimeout(function(){display.traceStep(true)}, 3000)
+        if (!backward){
+                if (model.currentInput.length != 0 && model.currentStates.length != 0){
+                    var linksUsed = model.step()
+                    model.traceRecord[model.currentStep] = {
+                        states: JSON.parse(JSON.stringify(model.currentStates)), 
+                        currentInput: JSON.parse(JSON.stringify(model.currentInput))
+                    }
+                    console.log(model.traceRecord[model.currentStep].currentInput)
+                    if (autoPlay){
+                        setTimeout(function(){display.traceStep(true)}, 3000)
+                    }
+                }
+                else {
+                    traceInProgress = false
+                    traceStepInProgress = false;        
+                    return
+                }
+            }
+        else {
+            if (model.traceRecord.length == 0){
+                traceStepInProgress = false;
+                return;
+            }
+            var record = model.traceRecord[model.currentStep -1]
+            console.log(record.currentInput)            
+            model.currentStates = record.states;
+            model.currentInput = JSON.parse(JSON.stringify(record.currentInput));
+            model.currentStep = model.fullInput.length - model.currentInput.length
+            var i = model.currentStep
+            console.log(model.currentStep)
+            d3.select("#in-comma" + (i-1))
+                .classed("dim", true);
+            for ( j = i; j < model.fullInput.length; j++){
+                d3.select("#in" + j)
+                    .transition()
+                    .duration(50)
+                    .attr("transform", "translate(0, 0)")
             }
         }
-        else {
-            traceInProgress = false          
-            return
-        }
+
+        
 
         //Dim all previous input letters that have been consumed
         var i = model.fullInput.length - model.currentInput.length
@@ -1047,8 +1107,24 @@ var display = {
             d3.select("#in-comma" + j)
                 .classed("dim", true);
         }
+
+        for (j = 0; j < model.currentStates.length; j++){
+                 var stateID = model.currentStates[j];
+                 d3.select("[id='" + stateID + "']")
+                    .classed("dim", false)
+                    .classed("highlight", true)
+                    .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +"; stroke:rgb(0,0,0);");
+             }
+
+
+        if (backward && model.currentStep == 0){
+
+            traceStepInProgress = false;
+            return;
+        }
+
         // check if most recent letter was consumed:
-        if (model.currentStates.length > 0){
+        if (!backward && model.currentStates.length > 0){
             d3.select("#in" + (i -1))
                 .classed("dim", true)
                 .classed("highlight", false)
@@ -1078,16 +1154,11 @@ var display = {
                                 .attr("x", x);
                         })
                 })
-            }
-
-        for (j = 0; j < model.currentStates.length; j++){
-                 var stateID = model.currentStates[j];
-                 d3.select("[id='" + stateID + "']")
-                    .classed("dim", false)
-                    .classed("highlight", true)
-                    .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +"; stroke:rgb(0,0,0);");
-             }
+            }        
+            traceStepInProgress = false;
+            return;
          }
+
 }
 
 var controller = {
@@ -1547,6 +1618,7 @@ d3.select(window)
     .on('keyup', keyup);
 var contextMenuShowing = false;
 var renameMenuShowing = false;
+var traceStepInProgress = false;
 restart();
 force.start();
 circle.call(force.drag);
