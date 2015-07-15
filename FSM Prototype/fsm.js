@@ -476,7 +476,7 @@ var eventHandler = {
         }
     },
     // Provides right-click funtionality for links
-    linkContextMenu: function() {
+    linkContextMenu: function(id) {
         d3.event.preventDefault();
 
         //If menu already present, dismiss it.
@@ -485,8 +485,10 @@ var eventHandler = {
             contextMenuShowing = false;
             return;
         }
-        // Get the id of the clicked link:
-        var id = d3.event.target.id.slice(4);
+        if (id == undefined){
+            // Get the id of the clicked link:
+            var id = d3.event.target.id.slice(4);
+        }
 
         var canvas = svg;
         contextMenuShowing = true;
@@ -1328,6 +1330,9 @@ function restart() {
         .attr('text-anchor', 'middle') // This causes text to be centred on the position of the label.
         .on('click', function(d){
             eventHandler.clickLink(d);
+        })
+        .on('contextmenu', function(d){
+            eventHandler.linkContextMenu(d.id)
         })
 
     // add new nodes
