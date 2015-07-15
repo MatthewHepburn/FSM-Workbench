@@ -1326,6 +1326,9 @@ function restart() {
         })
         .attr('class', 'linklabel')
         .attr('text-anchor', 'middle') // This causes text to be centred on the position of the label.
+        .on('click', function(d){
+            eventHandler.clickLink(d);
+        })
 
     // add new nodes
     var g = circle.enter().append('svg:g');
