@@ -41,8 +41,9 @@ svg:not(.active):not(.ctrl) {
 path.link {
   fill: none;
   stroke: #000;
-  stroke-width: 4px;
-  cursor: default;
+  stroke-width: 5px;
+  cursor: default;  
+  transition: stroke-width 0.5s;
 }
 
 svg:not(.active):not(.ctrl) path.link {
@@ -59,6 +60,7 @@ path.link.dragline {
 
 path.link:hover{
   stroke-width: 6px !important;
+
 }
 
 path.link.hidden {

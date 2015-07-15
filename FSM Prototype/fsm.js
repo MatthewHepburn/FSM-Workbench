@@ -381,6 +381,12 @@ var eventHandler = {
     restart();
     },
     clickLink: function(d){
+        if (selected_link == d){
+            selected_link = null;
+        } else {
+            selected_link = d
+        }
+        restart();
         if (model.toolMode == "texttool"){
             display.renameLinkForm(d.id);
             return
@@ -407,10 +413,6 @@ var eventHandler = {
     },
     addLinkMouseDown: function(d) {
         if (d3.event.ctrlKey) return;
-        // select link
-        mousedown_link = d;
-        if (mousedown_link === selected_link) selected_link = null;
-        else selected_link = mousedown_link;
         selected_node = null;
         restart();
     },
@@ -1397,9 +1399,6 @@ function restart() {
     // remove old nodes
     circle.exit().remove();
 
-    // set the graph in motion
-    force.start();
-
     // add listeners
     d3.selectAll(".node")
         .on('contextmenu', eventHandler.stateContextMenu);
@@ -1549,6 +1548,7 @@ d3.select(window)
 var contextMenuShowing = false;
 var renameMenuShowing = false;
 restart();
+force.start();
 circle.call(force.drag);
 // Add a start arrow to node 0
 var node0 = d3.select("[id='0']").data()[0];
