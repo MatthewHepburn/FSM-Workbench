@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="540" width="540" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 100" viewBox="0 0 540 540" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs id="defs9"></defs>
  <metadata id="metadata7">
   <rdf:RDF>
    <cc:Work rdf:about="">
@@ -10,8 +10,8 @@
    </cc:Work>
   </rdf:RDF>
  </metadata>
- <g id="layer1" transform="translate(-102.04724,-256.18109)" stroke="#000" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="20" fill="#FFF">
-  <path id="path2985" d="m648.57,429.51c0,143.59-116.41,260-260,260s-260-116.41-260-260,116.41-260,260-260,260,116.41,260,260z" transform="translate(-16.5242,96.676056)"/>
-  <path id="path3763" d="m648.57,429.51c0,143.59-116.41,260-260,260s-260-116.41-260-260,116.41-260,260-260,260,116.41,260,260z" transform="matrix(0.7989418,0,0,0.7989418,61.601274,183.03157)"/>
+ <g id="layer1" style="stroke-dasharray:none;" transform="translate(-102.0458,-256.18606)" stroke="#000" stroke-miterlimit="4" stroke-width="20" fill="#FFF">
+  <path id="path2985" transform="translate(-16.5242,96.676056)" d="m648.57,429.51c0,143.59-116.41,260-260,260s-260-116.41-260-260,116.41-260,260-260,260,116.41,260,260z"/>
+  <path id="path3763" transform="matrix(0.7989418,0,0,0.7989418,61.601274,183.03157)" d="m648.57,429.51c0,143.59-116.41,260-260,260s-260-116.41-260-260,116.41-260,260-260,260,116.41,260,260z"/>
  </g>
 </svg>
