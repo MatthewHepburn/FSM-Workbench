@@ -1051,6 +1051,10 @@ var display = {
     },
     traceStep: function(autoPlay, backward){
         traceStepInProgress = true;
+        if (backward && model.currentStep == 0){
+            traceStepInProgress  = false;
+            return;
+        }
         d3.selectAll(".dim").classed("dim", false)
         d3.selectAll(".node").classed("dim", true)
         d3.selectAll(".highlight").classed("highlight", false)
