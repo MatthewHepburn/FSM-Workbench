@@ -1,3 +1,562 @@
+var display = {
+    nodeRadius: 20,
+    acceptingRadius: 14,
+    askQuestion: function(){
+        if (model.question.type == "none"){
+            return
+        }
+        //Display question string
+        var div = document.querySelector(".question")
+        div.innerHTML = "<div class='question-text'>" + model.question.text + "</div>";
+        //Add forms if recquired by the question:
+        if (model.question.type == "give-list"){
+            var form = "<form class='pure-form-aligned pure-form qformblock'>";
+            for (i = 0; i < model.question.lengths.length; i++){
+                var numChars = model.question.lengths[i]
+                var id ="qf" + i
+                var line = "<div class='pure-control-group'><label for='" + id +"'>" + numChars + " symbols</label><input type='text' class='qform', id ='" +id +"'>"
+                if (i < model.question.lengths.length - 1){
+                    //Close div here, unless on the last loop execution
+                    line = line + "</div>"
+                }
+                form = form + line;
+            }
+            form = form + "<div><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
+            div.innerHTML += form;
+        }
+        if (model.question.type == "satisfy-list"){
+            var table = "<div class='table-div'><table class='qtable'><tr><th>Accept</th><th class='table-space'> </th><th>Reject</th><th class='table-space'> </th></tr>";
+            var accLength = model.question.acceptList.length;
+            var rejLength = model.question.rejectList.length;
+            var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length)
+            for (i = 0; i < nRows; i++){
+                table += "<tr>"
+                // Build html for element i of the acceptList
+                if (i < accLength){
+                    var parsedInput = JSON.stringify(model.parseInput(model.question.acceptList[i], model.question.alphabetType == "char"))
+                    var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.acceptList[i] + "'</a>"
+                    table += "<td id=td-acc-" + i + "'>" + string + '</td><td id=\'td-acc-adj-' + i +"'> </td>"
+                } else {
+                    table += "<td></td><td></td>"
+                }
+                // Build html for element i of the rejectList
+                if (i < rejLength){
+                    var parsedInput = JSON.stringify(model.parseInput(model.question.rejectList[i], model.question.alphabetType == "char"))
+                    var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.rejectList[i] + "'</a>"
+                    table += "<td id=td-rej-" + i + "'>" + string + '</td><td id=\'td-rej-adj-' + i +"'> </td></tr>"
+                } else {
+                    table += "<td></td></tr>"
+                }
+            }
+            table += "</table><button class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>"
+            div.innerHTML += table;
+        }
+
+    },
+    dismissTrace: function(){
+        //First, remove controls + displayed input
+        d3.select(".machine-input").remove();
+        d3.select(".tracecontrols").remove();
+        //Remove highlight + dim classes:
+        d3.selectAll(".highlight").classed("highlight", false);
+        d3.selectAll(".dim").classed("dim", false);
+        //Restore nodes to their initial colours:
+        d3.selectAll(".node")
+            .style("fill", function(d){
+                return colors(d.id)
+            })
+    },
+    drawControlPalette: function(){
+        var bwidth = 40; //button width
+        var strokeWidth = 2;
+        var margin = 10;
+        var g = svg.append("g")
+                    .classed("controls", true);
+        var tools = ["nodetool", "linetool","texttool", "acceptingtool", "deletetool"];
+        var tooltips = {
+            nodetool:"Create new states",
+            linetool:"Link states together",
+            texttool:"Change link inputs and rename states",
+            acceptingtool:"Toggle whether states are accepting",
+            deletetool: "Delete links and states"
+        }
+        // create a button for each tool in tools
+        for (i = 0; i < tools.length; i++){
+            g.append("image")
+                .attr("x", 0.5 * margin)
+                .attr("y", 0.5 * margin + (i * bwidth))
+                .attr("width", bwidth - margin)
+                .attr("height", bwidth - margin)
+                .attr("xlink:href", "Icons/"+ tools[i] +".svg")
+                .attr("class", "control-img");
+            g.append("rect")
+                .attr("width", bwidth)
+                .attr("height", bwidth)
+                .attr("x", 0)
+                .attr("y", i * bwidth)
+                .attr("fill", "#101010")
+                .attr("fill-opacity", 0)
+                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
+                .classed("control-rect", true)
+                .attr("id", tools[i])
+                .on("click", eventHandler.toolSelect)
+                .append("svg:title").text(tooltips[tools[i]]);
+            }
+    },
+    drawTraceControls: function(){
+        var bwidth = 40; //button width
+        var strokeWidth = 2;
+        var margin = 10;
+        var g = svg.append("g")
+                    .classed("tracecontrols", true);
+        var tools = ["rewind", "back", "forward", "play", "stop"];
+        // create a button for each tool in tools
+        for (i = 0; i < tools.length; i++){
+            g.append("image")
+                .attr("y",  4 * height/5 +  0.5 * margin)
+                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + 0.5 * margin + (i * bwidth))
+                .attr("width", bwidth - margin)
+                .attr("height", bwidth - margin)
+                .attr("xlink:href", "Icons/trace-"+ tools[i] +".svg")
+                .attr("class", "control-img");
+            g.append("rect")
+                .attr("width", bwidth)
+                .attr("height", bwidth)
+                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + (i * bwidth))
+                .attr("y", 4 * height/5)
+                .attr("fill", "#101010")
+                .attr("fill-opacity", 0)
+                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
+                .classed("tracecontrol-rect", true)
+                .attr("id", tools[i])
+                .on("click", eventHandler.traceControl);
+            }
+    },
+    createLinkContextMenu: function(canvas, id, mousePosition) {
+        //TODO - prevent context menus from appearing off the side of the canvas
+        var html = "<p data-id='" + id + "' class = 'button changeconditions'>Change Conditions</p>"
+        html += "<p data-id='" + id + "' class = 'button deletelink'>Delete Link</p>"
+
+        var menu = canvas.append("foreignObject")
+            .attr('x', mousePosition[0])
+            .attr('y', mousePosition[1])
+            .attr('width', 260)
+            .attr('height', 55)
+            .classed("context-menu-holder", true)   
+            .append("xhtml:div")
+            .attr("class", "contextmenu")
+            .html(html)
+
+        d3.select(".changeconditions").on("click", function(){display.renameLinkForm(id)});
+        d3.select(".deletelink").on("click", function(d){model.deleteLink(id)});
+
+        // Disable system menu on right-clicking the context menu
+        menu.on("contextmenu", function() {
+            d3.event.preventDefault()
+        })
+    },
+    createStateContextMenu: function(canvas, id, mousePosition) {
+        var html = "<p data-id='" + id + "' class = 'button toggleaccepting'>Toggle Accepting</p>"
+        html += "<p data-id='" + id + "' class = 'button renamestate'>Rename State</p>"
+
+        var menu = canvas.append("foreignObject")
+            .attr('x', mousePosition[0])
+            .attr('y', mousePosition[1])
+            .attr('width', 260)
+            .attr('height', 55)
+            .classed("context-menu-holder", true)   
+            .append("xhtml:div")
+            .attr("class", "contextmenu")
+            .html(html)
+
+        d3.select(".toggleaccepting").on("click", function(){model.toggleAccepting(id)});
+
+        d3.select(".renamestate").on("click", function(){display.renameStateForm(id)})
+
+        // Disable system menu on right-clicking the context menu
+        menu.on("contextmenu", function() {
+            d3.event.preventDefault()
+        })
+    },
+    dismissContextMenu: function() {
+        d3.select(".contextmenu").remove();
+        var container = document.querySelector(".context-menu-holder")
+        if (container != null) {
+            container.remove()
+        }
+        contextMenuShowing = false;
+    },
+    dismissRenameMenu: function() {
+        d3.select(".rename").remove();
+        renameMenuShowing = false;
+    },
+    drawInput: function(){
+        var g = svg.append("g")
+            .attr("class", "machine-input")
+        // Displays the current input, used to draw the trace.
+        var symbols = []
+        if (model.fullInput.length < 10){
+            display.colour = d3.scale.category10()
+        } else{
+            display.colour = d3.scale.category20b()
+        }
+        var totalInputLength = 0 //No need to account for spaces
+        for (i = 0; i < model.fullInput.length; i++){
+            totalInputLength += model.fullInput[i].length
+        }
+        var y = 70
+        var charWidth = 25 // Rough estimate
+        var inWidth = totalInputLength * charWidth;
+        var x = width/2 - (inWidth/2)
+        for (i = 0; i < model.fullInput.length; i++){  
+            g.append("text")
+                .text(model.fullInput[i])   
+                .style("fill", d3.rgb(display.colour(i)).toString())
+                .classed("input", true)
+                .attr("id", "in"+i)
+                .attr("x", x)
+                .attr("y", y)
+            // use bounding box to figure out how big the element is:
+
+            x = x + (document.querySelector("#in"+i).getBBox().width) + 20
+            // Add comma to all but last element.
+            if (i == model.fullInput.length - 1){
+                continue;
+            } else {
+                g.append("text")
+                    .text(",")
+                    .classed("input-comma", true)
+                    .attr("id", "in-comma"+i)
+                    .attr("x", x -  20)
+                    .attr("y", y);
+            }
+        }   
+    },
+    drawStart: function(x, y) {
+        var length = 200;
+        var start = String((x - length) + "," +y);
+        var end = String(x + "," + y)
+        svg.append('svg:path')
+            .attr('class', 'link start')
+            .attr('d', "M" + start + " L" + end);
+
+    },
+    bezierCurve: function(x1, y1, x2, y2) {
+        // Calculate vector from P1 to P2
+        var vx = x2 - x1;
+        var vy = y2 - y1;
+
+        // Find suitable control points by rotating v left 90deg and scaling
+        var vlx = -0.15 * vy;
+        var vly = 0.15 * vx;
+
+        // Can now define the control points by adding vl to P1 and P2
+        var c1x = x1 + vlx;
+        var c1y = y1 + vly;
+
+        var c2x = x2 + vlx;
+        var c2y = y2 + vly;
+
+        // We need an explicit midpoint to allow a direction arrow to be placed
+        var m1x = c1x + 0.5 * vx;
+        var m1y = c1y + 0.5 * vy
+
+        // Define strings to use to define the path
+        var P1 = x1 + "," + y1;
+        var M1 = m1x + "," + m1y;
+        var P2 = x2 + "," + y2;
+        var C1 = c1x + ',' + c1y;
+        var C2 = c2x + ',' + c2y;
+
+        return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
+    },
+    // Returns a path for a line with a node at the midpoint
+    line: function(x1, y1, x2, y2) {
+        // define vector v from P1 to halfway to P2
+        var vx = 0.5 * (x2 - x1);
+        var vy = 0.5 * (y2 - y1);
+
+        // midpoint is then:
+        var midx = x1 + vx;
+        var midy = y1 + vy;
+
+        var P1 = x1 + "," + y1;
+        var M = midx + "," + midy
+        var P2 = x2 + "," + y2;
+
+        return ("M" + P1 + " L" + M + " L" + P2);
+    },
+    getLinkLabelPosition: function(x1, y1, x2, y2, isBezier) {
+        //Function takes the location of two nodes (x1, y1) and (x2, y2) and
+        //returns a suitable position for the link between them.
+
+        //test if link is reflexive (not necessarily 100% accurate, but good enough)
+        if (x1 == x2 && y1 == y2){
+            return {
+                x: x1,
+                y: y1 - 75,
+                rotation: 0
+            };
+        }
+
+        var cx = 0.5 * (x1 + x2);
+        var cy = 0.5 * (y2 + y1);
+
+        var dx = x2 - x1;
+        var dy = y2 - y1;
+
+        //Find vector V from P1 to P2
+        var vx = x2 - x1;
+        var vy = y2 - y1;
+
+        // Find suitable offset by getting a vector perpendicular to V
+        var vpx = -1 * vy;
+        var vpy = vx;
+
+        //find angle of the line relative to x axis. From -180 to 180.
+        var angle = (Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI)
+        if (Math.abs(angle) > 90) {
+            angle = angle - 180 //don't want text upside down
+        }
+
+        if (!isBezier) {
+            var scale = 0.11
+            return {
+                x: cx + scale * vpx,
+                y: cy + scale * vpy,
+                rotation: angle
+            };
+
+        } else {
+            var scale = 0.21
+            return {
+                x: cx + scale * vpx,
+                y: cy + scale * vpy,
+                rotation: angle
+            };
+        }
+    },
+    reflexiveLink: function (x, y) {
+        var x1 = x - 10;
+        var y1 = y + 5
+
+        var P1 = x1 + "," + y1;
+
+        var x2 = x + 10;
+        var y2 = y1;
+
+        var P2 = x2 + "," + y2;
+
+        var rad = 25     
+
+        return ("M" + P1 + " A" + rad + " " + rad + " 0 1 1 " + P2);
+
+
+    },
+    renameLinkForm: function(id) {
+        if (renameMenuShowing) {
+            display.dismissRenameMenu()
+        }
+        //Get the data associated with the link
+        var d = query.getLinkData(id);
+
+        var current = String(d.input)
+        if (current == undefined) {
+            current = "";
+        }
+
+        //Calculate the position to put the form
+        var labelPos = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, query.isBezier(id));
+        var formX = labelPos.x - 40;
+        var formY = labelPos.y + 15;
+
+        // create a form over the targeted node
+        svg.append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", formX)
+            .attr("y", formY)
+            .attr("class", "rename")
+            .append("xhtml:body")
+            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+
+        // give form focus
+        document.getElementById('link' + id).focus();
+
+        renameMenuShowing = true;
+        display.dismissContextMenu();
+    },
+    renameStateForm: function(id) {
+        if (renameMenuShowing) {
+            display.dismissRenameMenu()
+        }
+        var d = query.getNodeData(id)
+        var currentName = d.name
+        if (currentName == undefined) {
+            currentName = "";
+        }
+        // create a form over the targeted node
+        svg.append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", d.x + 30)
+            .attr("y", d.y - 10)
+            .attr("class", "rename")
+            .append("xhtml:body")
+            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input class='renameinput' id='node" + id + "' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
+
+        // give form focus
+        document.getElementById('node' + id).focus();
+
+        renameMenuShowing = true;
+        display.dismissContextMenu();
+    },
+    resetTrace: function(){
+        // Resets the display of a trace to the initial position
+        // Resetting the model is handled separatly in model.resetTrace()
+        d3.selectAll(".node").classed("dim", true)
+        d3.select("[id='0']")
+            .classed("dim", false)
+            .classed("highlight", true)
+            .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
+        // Undim & unhighlight the machine input. 
+        d3.selectAll(".input")
+            .classed("dim", false)
+            .classed("highlight", false)
+            .attr("transform", "")
+        d3.selectAll(".input-comma")
+            .classed("dim", false)
+        // Highlight the first input element
+        d3.select("#in0").classed("highlight", true)
+
+    },
+    showTrace: function(input){
+        // Takes input in form ['a', 'b', 'c']
+        display.dismissTrace();
+        traceInProgress = true;
+        model.fullInput = JSON.parse(JSON.stringify(input));
+        model.resetTrace();
+        d3.selectAll(".node").classed("dim", true);
+        display.drawInput();
+        display.drawTraceControls();
+        display.resetTrace();
+    },
+    traceStep: function(autoPlay, backward){
+        traceStepInProgress = true;
+        if (backward && model.currentStep == 0){
+            traceStepInProgress  = false;
+            return;
+        }
+        d3.selectAll(".dim").classed("dim", false)
+        d3.selectAll(".node").classed("dim", true)
+        d3.selectAll(".highlight").classed("highlight", false)
+        if (!backward){
+                if (model.currentInput.length != 0 && model.currentStates.length != 0){
+                    var linksUsed = model.step()
+                    model.traceRecord[model.currentStep] = {
+                        states: JSON.parse(JSON.stringify(model.currentStates)), 
+                        currentInput: JSON.parse(JSON.stringify(model.currentInput))
+                    }
+                    console.log(model.traceRecord[model.currentStep].currentInput)
+                    if (autoPlay){
+                        setTimeout(function(){display.traceStep(true)}, 3000)
+                    }
+                }
+                else {
+                    traceInProgress = false
+                    traceStepInProgress = false;        
+                    return
+                }
+            }
+        else {
+            if (model.traceRecord.length == 0){
+                traceStepInProgress = false;
+                return;
+            }
+            var record = model.traceRecord[model.currentStep -1]
+            console.log(record.currentInput)            
+            model.currentStates = record.states;
+            model.currentInput = JSON.parse(JSON.stringify(record.currentInput));
+            model.currentStep = model.fullInput.length - model.currentInput.length
+            var i = model.currentStep
+            console.log(model.currentStep)
+            d3.select("#in-comma" + (i-1))
+                .classed("dim", true);
+            for ( j = i; j < model.fullInput.length; j++){
+                d3.select("#in" + j)
+                    .transition()
+                    .duration(50)
+                    .attr("transform", "translate(0, 0)")
+            }
+        }
+
+        
+
+        //Dim all previous input letters that have been consumed
+        var i = model.fullInput.length - model.currentInput.length
+        for (j = 0; j < i - 1; j++){
+            d3.select("#in" + j)
+                .classed("highlight", false)
+                .classed("dim", true)
+                .transition().duration(1000)
+                .attr("transform", "translate(0, 1000)");
+            d3.select("#in-comma" + j)
+                .classed("dim", true);
+        }
+
+        for (j = 0; j < model.currentStates.length; j++){
+                 var stateID = model.currentStates[j];
+                 d3.select("[id='" + stateID + "']")
+                    .classed("dim", false)
+                    .classed("highlight", true)
+                    .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +"; stroke:rgb(0,0,0);");
+             }
+
+
+        if (backward && model.currentStep == 0){
+
+            traceStepInProgress = false;
+            return;
+        }
+
+        // check if most recent letter was consumed:
+        if (!backward && model.currentStates.length > 0){
+            d3.select("#in" + (i -1))
+                .classed("dim", true)
+                .classed("highlight", false)
+                .transition().duration(1000)
+                .attr("transform", "translate(0, 1000)");
+                d3.select("#in-comma" + (i-1))
+                .classed("dim", true);
+            d3.select("#in" + i).classed("highlight", true)
+            } 
+        else 
+            {
+            var x = document.querySelector("#in"+(i-1)).getBBox().x
+            d3.select("#in" + (i-1))
+                .classed("rejected", true)
+                .transition()
+                .duration(100)
+                .attr("x", x + 10)
+                .each("end", function(){
+                    d3.select(this)
+                        .transition()
+                        .duration(120)
+                        .attr("x", x - 10)
+                        .each("end", function(){
+                            d3.select(this)
+                                .transition()
+                                .duration(100)
+                                .attr("x", x);
+                        })
+                })
+            }        
+            traceStepInProgress = false;
+            return;
+         }
+
+}
+
 var model = {
     toolMode: "none",
     nodes: {},
@@ -129,7 +688,18 @@ var model = {
             }
         }
         model.lastNodeID = maxNodeID;
-        return true;
+        
+        // Read in options
+        if (body.dataset.options != undefined){
+            var options = JSON.parse(body.dataset.options);
+            if (options.nodeRadius != undefined){
+                display.nodeRadius = options.nodeRadius
+            }
+            if (options.acceptingRadius != undefined){
+                display.acceptingRadius = options.acceptingRadius
+            }
+        }
+        return true
 
     },
     setupQuestion: function(){
@@ -609,562 +1179,7 @@ var eventHandler = {
 
 }
 
-var display = {
-    askQuestion: function(){
-        if (model.question.type == "none"){
-            return
-        }
-        //Display question string
-        var div = document.querySelector(".question")
-        div.innerHTML = "<div class='question-text'>" + model.question.text + "</div>";
-        //Add forms if recquired by the question:
-        if (model.question.type == "give-list"){
-            var form = "<form class='pure-form-aligned pure-form qformblock'>";
-            for (i = 0; i < model.question.lengths.length; i++){
-                var numChars = model.question.lengths[i]
-                var id ="qf" + i
-                var line = "<div class='pure-control-group'><label for='" + id +"'>" + numChars + " symbols</label><input type='text' class='qform', id ='" +id +"'>"
-                if (i < model.question.lengths.length - 1){
-                    //Close div here, unless on the last loop execution
-                    line = line + "</div>"
-                }
-                form = form + line;
-            }
-            form = form + "<div><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
-            div.innerHTML += form;
-        }
-        if (model.question.type == "satisfy-list"){
-            var table = "<div class='table-div'><table class='qtable'><tr><th>Accept</th><th class='table-space'> </th><th>Reject</th><th class='table-space'> </th></tr>";
-            var accLength = model.question.acceptList.length;
-            var rejLength = model.question.rejectList.length;
-            var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length)
-            for (i = 0; i < nRows; i++){
-                table += "<tr>"
-                // Build html for element i of the acceptList
-                if (i < accLength){
-                    var parsedInput = JSON.stringify(model.parseInput(model.question.acceptList[i], model.question.alphabetType == "char"))
-                    var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.acceptList[i] + "'</a>"
-                    table += "<td id=td-acc-" + i + "'>" + string + '</td><td id=\'td-acc-adj-' + i +"'> </td>"
-                } else {
-                    table += "<td></td><td></td>"
-                }
-                // Build html for element i of the rejectList
-                if (i < rejLength){
-                    var parsedInput = JSON.stringify(model.parseInput(model.question.rejectList[i], model.question.alphabetType == "char"))
-                    var string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.rejectList[i] + "'</a>"
-                    table += "<td id=td-rej-" + i + "'>" + string + '</td><td id=\'td-rej-adj-' + i +"'> </td></tr>"
-                } else {
-                    table += "<td></td></tr>"
-                }
-            }
-            table += "</table><button class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>"
-            div.innerHTML += table;
-        }
 
-    },
-    dismissTrace: function(){
-        //First, remove controls + displayed input
-        d3.select(".machine-input").remove();
-        d3.select(".tracecontrols").remove();
-        //Remove highlight + dim classes:
-        d3.selectAll(".highlight").classed("highlight", false);
-        d3.selectAll(".dim").classed("dim", false);
-        //Restore nodes to their initial colours:
-        d3.selectAll(".node")
-            .style("fill", function(d){
-                return colors(d.id)
-            })
-    },
-    drawControlPalette: function(){
-        var bwidth = 40; //button width
-        var strokeWidth = 2;
-        var margin = 10;
-        var g = svg.append("g")
-                    .classed("controls", true);
-        var tools = ["nodetool", "linetool","texttool", "acceptingtool", "deletetool"];
-        var tooltips = {
-        	nodetool:"Create new states",
-        	linetool:"Link states together",
-        	texttool:"Change link inputs and rename states",
-        	acceptingtool:"Toggle whether states are accepting",
-        	deletetool: "Delete links and states"
-        }
-        // create a button for each tool in tools
-        for (i = 0; i < tools.length; i++){
-            g.append("image")
-                .attr("x", 0.5 * margin)
-                .attr("y", 0.5 * margin + (i * bwidth))
-                .attr("width", bwidth - margin)
-                .attr("height", bwidth - margin)
-                .attr("xlink:href", "Icons/"+ tools[i] +".svg")
-                .attr("class", "control-img");
-            g.append("rect")
-                .attr("width", bwidth)
-                .attr("height", bwidth)
-                .attr("x", 0)
-                .attr("y", i * bwidth)
-                .attr("fill", "#101010")
-                .attr("fill-opacity", 0)
-                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
-                .classed("control-rect", true)
-                .attr("id", tools[i])
-                .on("click", eventHandler.toolSelect)
-                .append("svg:title").text(tooltips[tools[i]]);
-            }
-    },
-    drawTraceControls: function(){
-        var bwidth = 40; //button width
-        var strokeWidth = 2;
-        var margin = 10;
-        var g = svg.append("g")
-                    .classed("tracecontrols", true);
-        var tools = ["rewind", "back", "forward", "play", "stop"];
-        // create a button for each tool in tools
-        for (i = 0; i < tools.length; i++){
-            g.append("image")
-                .attr("y",  4 * height/5 +  0.5 * margin)
-                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + 0.5 * margin + (i * bwidth))
-                .attr("width", bwidth - margin)
-                .attr("height", bwidth - margin)
-                .attr("xlink:href", "Icons/trace-"+ tools[i] +".svg")
-                .attr("class", "control-img");
-            g.append("rect")
-                .attr("width", bwidth)
-                .attr("height", bwidth)
-                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + (i * bwidth))
-                .attr("y", 4 * height/5)
-                .attr("fill", "#101010")
-                .attr("fill-opacity", 0)
-                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
-                .classed("tracecontrol-rect", true)
-                .attr("id", tools[i])
-                .on("click", eventHandler.traceControl);
-            }
-    },
-    createLinkContextMenu: function(canvas, id, mousePosition) {
-        //TODO - prevent context menus from appearing off the side of the canvas
-        var html = "<p data-id='" + id + "' class = 'button changeconditions'>Change Conditions</p>"
-        html += "<p data-id='" + id + "' class = 'button deletelink'>Delete Link</p>"
-
-        var menu = canvas.append("foreignObject")
-            .attr('x', mousePosition[0])
-            .attr('y', mousePosition[1])
-            .attr('width', 260)
-            .attr('height', 55)
-            .classed("context-menu-holder", true)   
-            .append("xhtml:div")
-            .attr("class", "contextmenu")
-            .html(html)
-
-        d3.select(".changeconditions").on("click", function(){display.renameLinkForm(id)});
-        d3.select(".deletelink").on("click", function(d){model.deleteLink(id)});
-
-        // Disable system menu on right-clicking the context menu
-        menu.on("contextmenu", function() {
-            d3.event.preventDefault()
-        })
-    },
-    createStateContextMenu: function(canvas, id, mousePosition) {
-        var html = "<p data-id='" + id + "' class = 'button toggleaccepting'>Toggle Accepting</p>"
-        html += "<p data-id='" + id + "' class = 'button renamestate'>Rename State</p>"
-
-        var menu = canvas.append("foreignObject")
-            .attr('x', mousePosition[0])
-            .attr('y', mousePosition[1])
-            .attr('width', 260)
-            .attr('height', 55)
-            .classed("context-menu-holder", true)   
-            .append("xhtml:div")
-            .attr("class", "contextmenu")
-            .html(html)
-
-        d3.select(".toggleaccepting").on("click", function(){model.toggleAccepting(id)});
-
-        d3.select(".renamestate").on("click", function(){display.renameStateForm(id)})
-
-        // Disable system menu on right-clicking the context menu
-        menu.on("contextmenu", function() {
-            d3.event.preventDefault()
-        })
-    },
-    dismissContextMenu: function() {
-        d3.select(".contextmenu").remove();
-        var container = document.querySelector(".context-menu-holder")
-        if (container != null) {
-            container.remove()
-        }
-        contextMenuShowing = false;
-    },
-    dismissRenameMenu: function() {
-        d3.select(".rename").remove();
-        renameMenuShowing = false;
-    },
-    drawInput: function(){
-        var g = svg.append("g")
-            .attr("class", "machine-input")
-        // Displays the current input, used to draw the trace.
-        var symbols = []
-        if (model.fullInput.length < 10){
-            display.colour = d3.scale.category10()
-        } else{
-            display.colour = d3.scale.category20b()
-        }
-        var totalInputLength = 0 //No need to account for spaces
-        for (i = 0; i < model.fullInput.length; i++){
-            totalInputLength += model.fullInput[i].length
-        }
-        var y = 70
-        var charWidth = 25 // Rough estimate
-        var inWidth = totalInputLength * charWidth;
-        var x = width/2 - (inWidth/2)
-        for (i = 0; i < model.fullInput.length; i++){  
-            g.append("text")
-                .text(model.fullInput[i])   
-                .style("fill", d3.rgb(display.colour(i)).toString())
-                .classed("input", true)
-                .attr("id", "in"+i)
-                .attr("x", x)
-                .attr("y", y)
-            // use bounding box to figure out how big the element is:
-
-            x = x + (document.querySelector("#in"+i).getBBox().width) + 20
-            // Add comma to all but last element.
-            if (i == model.fullInput.length - 1){
-                continue;
-            } else {
-                g.append("text")
-                    .text(",")
-                    .classed("input-comma", true)
-                    .attr("id", "in-comma"+i)
-                    .attr("x", x -  20)
-                    .attr("y", y);
-            }
-        }   
-    },
-    drawStart: function(x, y) {
-        var length = 200;
-        var start = String((x - length) + "," +y);
-        var end = String(x + "," + y)
-        svg.append('svg:path')
-            .attr('class', 'link start')
-            .attr('d', "M" + start + " L" + end);
-
-    },
-    bezierCurve: function(x1, y1, x2, y2) {
-        // Calculate vector from P1 to P2
-        var vx = x2 - x1;
-        var vy = y2 - y1;
-
-        // Find suitable control points by rotating v left 90deg and scaling
-        var vlx = -0.15 * vy;
-        var vly = 0.15 * vx;
-
-        // Can now define the control points by adding vl to P1 and P2
-        var c1x = x1 + vlx;
-        var c1y = y1 + vly;
-
-        var c2x = x2 + vlx;
-        var c2y = y2 + vly;
-
-        // We need an explicit midpoint to allow a direction arrow to be placed
-        var m1x = c1x + 0.5 * vx;
-        var m1y = c1y + 0.5 * vy
-
-        // Define strings to use to define the path
-        var P1 = x1 + "," + y1;
-        var M1 = m1x + "," + m1y;
-        var P2 = x2 + "," + y2;
-        var C1 = c1x + ',' + c1y;
-        var C2 = c2x + ',' + c2y;
-
-        return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
-    },
-    // Returns a path for a line with a node at the midpoint
-    line: function(x1, y1, x2, y2) {
-        // define vector v from P1 to halfway to P2
-        var vx = 0.5 * (x2 - x1);
-        var vy = 0.5 * (y2 - y1);
-
-        // midpoint is then:
-        var midx = x1 + vx;
-        var midy = y1 + vy;
-
-        var P1 = x1 + "," + y1;
-        var M = midx + "," + midy
-        var P2 = x2 + "," + y2;
-
-        return ("M" + P1 + " L" + M + " L" + P2);
-    },
-    getLinkLabelPosition: function(x1, y1, x2, y2, isBezier) {
-        //Function takes the location of two nodes (x1, y1) and (x2, y2) and
-        //returns a suitable position for the link between them.
-
-        //test if link is reflexive (not necessarily 100% accurate, but good enough)
-        if (x1 == x2 && y1 == y2){
-            return {
-                x: x1,
-                y: y1 - 75,
-                rotation: 0
-            };
-        }
-
-        var cx = 0.5 * (x1 + x2);
-        var cy = 0.5 * (y2 + y1);
-
-        var dx = x2 - x1;
-        var dy = y2 - y1;
-
-        //Find vector V from P1 to P2
-        var vx = x2 - x1;
-        var vy = y2 - y1;
-
-        // Find suitable offset by getting a vector perpendicular to V
-        var vpx = -1 * vy;
-        var vpy = vx;
-
-        //find angle of the line relative to x axis. From -180 to 180.
-        var angle = (Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI)
-        if (Math.abs(angle) > 90) {
-            angle = angle - 180 //don't want text upside down
-        }
-
-        if (!isBezier) {
-            var scale = 0.11
-            return {
-                x: cx + scale * vpx,
-                y: cy + scale * vpy,
-                rotation: angle
-            };
-
-        } else {
-            var scale = 0.21
-            return {
-                x: cx + scale * vpx,
-                y: cy + scale * vpy,
-                rotation: angle
-            };
-        }
-    },
-    reflexiveLink: function (x, y) {
-        var x1 = x - 10;
-        var y1 = y + 5
-
-        var P1 = x1 + "," + y1;
-
-        var x2 = x + 10;
-        var y2 = y1;
-
-        var P2 = x2 + "," + y2;
-
-        var rad = 25     
-
-        return ("M" + P1 + " A" + rad + " " + rad + " 0 1 1 " + P2);
-
-
-    },
-    renameLinkForm: function(id) {
-        if (renameMenuShowing) {
-            display.dismissRenameMenu()
-        }
-        //Get the data associated with the link
-        var d = query.getLinkData(id);
-
-        var current = String(d.input)
-        if (current == undefined) {
-            current = "";
-        }
-
-        //Calculate the position to put the form
-        var labelPos = display.getLinkLabelPosition(d.source.x, d.source.y, d.target.x, d.target.y, query.isBezier(id));
-        var formX = labelPos.x - 40;
-        var formY = labelPos.y + 15;
-
-        // create a form over the targeted node
-        svg.append("foreignObject")
-            .attr("width", 80)
-            .attr("height", 50)
-            .attr("x", formX)
-            .attr("y", formY)
-            .attr("class", "rename")
-            .append("xhtml:body")
-            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
-
-        // give form focus
-        document.getElementById('link' + id).focus();
-
-        renameMenuShowing = true;
-        display.dismissContextMenu();
-    },
-    renameStateForm: function(id) {
-        if (renameMenuShowing) {
-            display.dismissRenameMenu()
-        }
-        var d = query.getNodeData(id)
-        var currentName = d.name
-        if (currentName == undefined) {
-            currentName = "";
-        }
-        // create a form over the targeted node
-        svg.append("foreignObject")
-            .attr("width", 80)
-            .attr("height", 50)
-            .attr("x", d.x + 30)
-            .attr("y", d.y - 10)
-            .attr("class", "rename")
-            .append("xhtml:body")
-            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input class='renameinput' id='node" + id + "' type='text' size='1' maxlength='5' name='state name' value='" + currentName + "'></form>");
-
-        // give form focus
-        document.getElementById('node' + id).focus();
-
-        renameMenuShowing = true;
-        display.dismissContextMenu();
-    },
-    resetTrace: function(){
-        // Resets the display of a trace to the initial position
-        // Resetting the model is handled separatly in model.resetTrace()
-        d3.selectAll(".node").classed("dim", true)
-        d3.select("[id='0']")
-            .classed("dim", false)
-            .classed("highlight", true)
-            .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
-        // Undim & unhighlight the machine input. 
-        d3.selectAll(".input")
-            .classed("dim", false)
-            .classed("highlight", false)
-            .attr("transform", "")
-        d3.selectAll(".input-comma")
-            .classed("dim", false)
-        // Highlight the first input element
-        d3.select("#in0").classed("highlight", true)
-
-    },
-    showTrace: function(input){
-        // Takes input in form ['a', 'b', 'c']
-        display.dismissTrace();
-        traceInProgress = true;
-        model.fullInput = JSON.parse(JSON.stringify(input));
-        model.resetTrace();
-        d3.selectAll(".node").classed("dim", true);
-        display.drawInput();
-        display.drawTraceControls();
-        display.resetTrace();
-    },
-    traceStep: function(autoPlay, backward){
-        traceStepInProgress = true;
-        if (backward && model.currentStep == 0){
-            traceStepInProgress  = false;
-            return;
-        }
-        d3.selectAll(".dim").classed("dim", false)
-        d3.selectAll(".node").classed("dim", true)
-        d3.selectAll(".highlight").classed("highlight", false)
-        if (!backward){
-                if (model.currentInput.length != 0 && model.currentStates.length != 0){
-                    var linksUsed = model.step()
-                    model.traceRecord[model.currentStep] = {
-                        states: JSON.parse(JSON.stringify(model.currentStates)), 
-                        currentInput: JSON.parse(JSON.stringify(model.currentInput))
-                    }
-                    console.log(model.traceRecord[model.currentStep].currentInput)
-                    if (autoPlay){
-                        setTimeout(function(){display.traceStep(true)}, 3000)
-                    }
-                }
-                else {
-                    traceInProgress = false
-                    traceStepInProgress = false;        
-                    return
-                }
-            }
-        else {
-            if (model.traceRecord.length == 0){
-                traceStepInProgress = false;
-                return;
-            }
-            var record = model.traceRecord[model.currentStep -1]
-            console.log(record.currentInput)            
-            model.currentStates = record.states;
-            model.currentInput = JSON.parse(JSON.stringify(record.currentInput));
-            model.currentStep = model.fullInput.length - model.currentInput.length
-            var i = model.currentStep
-            console.log(model.currentStep)
-            d3.select("#in-comma" + (i-1))
-                .classed("dim", true);
-            for ( j = i; j < model.fullInput.length; j++){
-                d3.select("#in" + j)
-                    .transition()
-                    .duration(50)
-                    .attr("transform", "translate(0, 0)")
-            }
-        }
-
-        
-
-        //Dim all previous input letters that have been consumed
-        var i = model.fullInput.length - model.currentInput.length
-        for (j = 0; j < i - 1; j++){
-            d3.select("#in" + j)
-                .classed("highlight", false)
-                .classed("dim", true)
-                .transition().duration(1000)
-                .attr("transform", "translate(0, 1000)");
-            d3.select("#in-comma" + j)
-                .classed("dim", true);
-        }
-
-        for (j = 0; j < model.currentStates.length; j++){
-                 var stateID = model.currentStates[j];
-                 d3.select("[id='" + stateID + "']")
-                    .classed("dim", false)
-                    .classed("highlight", true)
-                    .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +"; stroke:rgb(0,0,0);");
-             }
-
-
-        if (backward && model.currentStep == 0){
-
-            traceStepInProgress = false;
-            return;
-        }
-
-        // check if most recent letter was consumed:
-        if (!backward && model.currentStates.length > 0){
-            d3.select("#in" + (i -1))
-                .classed("dim", true)
-                .classed("highlight", false)
-                .transition().duration(1000)
-                .attr("transform", "translate(0, 1000)");
-                d3.select("#in-comma" + (i-1))
-                .classed("dim", true);
-            d3.select("#in" + i).classed("highlight", true)
-            } 
-        else 
-            {
-            var x = document.querySelector("#in"+(i-1)).getBBox().x
-            d3.select("#in" + (i-1))
-                .classed("rejected", true)
-                .transition()
-                .duration(100)
-                .attr("x", x + 10)
-                .each("end", function(){
-                    d3.select(this)
-                        .transition()
-                        .duration(120)
-                        .attr("x", x - 10)
-                        .each("end", function(){
-                            d3.select(this)
-                                .transition()
-                                .duration(100)
-                                .attr("x", x);
-                        })
-                })
-            }        
-            traceStepInProgress = false;
-            return;
-         }
-
-}
 
 var controller = {
     renameSubmit: function() {
@@ -1338,8 +1353,8 @@ function tick() {
     d3.select(".start").attr('d', function(){
         var node0 = d3.select("[id='0']").data()[0];
         var length = 100;
-        var start = String((node0.x - length - 20) + "," + node0.y);
-        var end = String(node0.x - 27 + "," + node0.y)
+        var start = String((node0.x - length - display.nodeRadius) + "," + node0.y);
+        var end = String(node0.x - 7 - display.nodeRadius + "," + node0.y)
         return "M" + start + " L" + end;
     })
         .style("marker-end", 'url(#end-arrow)')
@@ -1418,7 +1433,7 @@ function restart() {
 
     g.append('svg:circle')
         .attr('class', 'node')
-        .attr('r', 20)
+        .attr('r', display.nodeRadius)
         .style('fill', function(d) {
             return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id);
         })
@@ -1448,7 +1463,7 @@ function restart() {
         var id = d.id
         if (d.accepting & !document.getElementById("ar" + id)) {
             d3.select(this.parentNode).append('svg:circle')
-                .attr('r', 14)
+                .attr('r', display.acceptingRadius)
                 .attr('class', "accepting-ring")
                 .attr('id', "ar" + id)
                 .style('stroke', "black")
