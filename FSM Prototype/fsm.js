@@ -379,7 +379,7 @@ var eventHandler = {
     node.x = point[0];
     node.y = point[1];
     model.nodes.push(node);
-
+    force.start()
     restart();
     },
     clickLink: function(d){
