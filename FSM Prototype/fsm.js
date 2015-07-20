@@ -476,6 +476,7 @@ var eventHandler = {
             // select new link
             selected_link = link;
             selected_node = null;
+            force.start()
             restart();
         }
     },
