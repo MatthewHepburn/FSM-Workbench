@@ -726,6 +726,8 @@ var model = {
         // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
         // Returns a list of the ids of links used in this step.
         var curSymbol = model.currentInput.shift();
+        // Remove any whitespace:
+        curSymbol = curSymbol.replace(/ /g,'')
         var newStates = [];
         var linkIDs = [];
 
