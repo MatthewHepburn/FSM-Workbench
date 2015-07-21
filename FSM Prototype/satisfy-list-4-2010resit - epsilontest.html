@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FSM Prototype</title>
+    <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="fsm.css">
+  </head>
+
+  <body class="canvas" 
+ data-nodes='[{"id":0,"accepting":false,"name":"1","x":200,"y":250,"fixed":1,"index":0,"weight":5,"px":200,"py":250},{"id":9,"accepting":false,"x":238.7616556372352,"y":582.6076924400891,"index":1,"weight":0,"px":238.76165563723532,"py":582.6076924400886},{"id":22,"accepting":false,"x":279.97301020613025,"y":377.2140074104527,"index":2,"weight":3,"px":279.974904484959,"py":377.21068635545294,"fixed":0},{"id":23,"accepting":false,"x":129.9098532683777,"y":382.9666380665169,"index":3,"weight":2,"px":129.91414342393142,"py":382.9673700547902,"fixed":0},{"id":25,"accepting":true,"x":350.4269550386024,"y":250.43292092470034,"index":4,"weight":2,"px":350.42513587714797,"py":250.4382606817411,"fixed":0},{"id":26,"accepting":false,"x":275.85025606909176,"y":120.08482811061134,"index":5,"weight":4,"px":275.85484076378486,"py":120.0890795986339,"fixed":0}]'
+ data-links='[{"source":0,"target":22,"input":["a"],"id":9},{"source":0,"target":23,"input":["b"],"id":10},{"source":23,"target":22,"input":["b"],"id":11},{"source":22,"target":0,"input":["Epsilon"],"id":12},{"source":0,"target":25,"input":["c"],"id":13},{"source":26,"target":26,"input":["a"],"id":14},{"source":0,"target":26,"input":["b"],"id":15},{"source":26,"target":25,"input":["Epsilon"],"id":16}]'
+  data-question = '{"type":"satisfy-list","text":"Construct a non-deterministic FSM that accepts the langauge described by the regular expression (a|bb)*(ba*|c)<br>(Based on question 5 from the 2010/11 resit paper)","acceptList":["b", "c", "aba", "bbbbbbbaaaaaaaaaa", "aaaaaac", "baaaa", "baaa", "bbac", "abbabbabbabbbaa", "bbaabbbbaac"],"rejectList":["bc", "bb", "bbbb", "abba", "acaa"],"alphabetType":"char"}'>
+  	<div class="question"></div>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+  <script src="fsm.js"></script>
+</html>
