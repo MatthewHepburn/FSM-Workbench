@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FSM Prototype</title>
+    <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="fsm.css">
+
+  </head>
+
+  <body class="canvas"data-nodes='[{"id":0,"accepting":false,"name":"12||","x":107,"y":242,"fixed":1,"index":0,"weight":4,"px":107,"py":242},{"id":3,"accepting":false,"x":235.31138694409202,"y":163.87740711121162,"index":1,"weight":6,"px":235.31155397344222,"py":163.878849248471,"fixed":0,"name":"2|1||"},{"id":4,"accepting":false,"x":238.8333715808877,"y":314.0206841244834,"index":2,"weight":6,"px":238.8334581998978,"py":314.01947618879575,"fixed":0,"name":"2||1"},{"id":5,"accepting":false,"x":387.87803091171645,"y":332.4336318830544,"index":3,"weight":6,"px":387.87803091171645,"py":332.4336318830544,"fixed":0,"name":" |2|1"},{"id":6,"accepting":false,"x":537.9423542498048,"y":325.8266733500805,"index":4,"weight":6,"px":537.941012295316,"py":325.82660373209274,"fixed":0,"name":"1|2||"},{"id":7,"accepting":false,"x":468.62907373691206,"y":459.02346413093795,"index":5,"weight":4,"px":468.6290008136071,"py":459.0219096648682,"fixed":0,"name":"|12|"},{"id":8,"accepting":false,"x":385.2440854855297,"y":172.45597228138166,"index":6,"weight":6,"px":385.24457967514167,"py":172.45604664605133,"fixed":0,"name":"|1|2"},{"id":9,"accepting":true,"x":463.15608159289303,"y":44.09929170272391,"index":7,"weight":4,"px":463.1560635149679,"py":44.100838517341316,"fixed":0,"name":"||12"},{"id":10,"accepting":false,"x":535.4182991247578,"y":175.71900403149294,"index":8,"weight":6,"px":535.4182991247578,"py":175.71900403149294,"fixed":0,"name":"1||2"}]'
+  data-links='[{"source":0,"target":3,"input":["ab"],"id":4},{"source":0,"target":4,"input":["ac"],"id":5},{"source":3,"target":0,"input":["ba"],"id":6},{"source":4,"target":0,"input":["ca"],"id":7},{"source":3,"target":4,"input":["bc"],"id":8},{"source":4,"target":3,"input":["cb"],"id":9},{"source":4,"target":5,"input":["ab"],"id":10},{"source":5,"target":4,"input":["ba"],"id":11},{"source":5,"target":6,"input":["ca"],"id":12},{"source":6,"target":5,"input":["ac"],"id":13},{"source":6,"target":7,"input":["ab"],"id":14},{"source":7,"target":6,"input":["ba"],"id":15},{"source":7,"target":5,"input":["bc"],"id":16},{"source":5,"target":7,"input":["cb"],"id":17},{"source":3,"target":8,"input":["ac"],"id":18},{"source":8,"target":3,"input":["ca"],"id":19},{"source":8,"target":9,"input":["bc"],"id":20},{"source":8,"target":10,"input":["ba"],"id":23},{"source":10,"target":8,"input":["ab"],"id":24},{"source":6,"target":10,"input":["bc"],"id":25},{"source":10,"target":6,"input":["cb"],"id":26},{"source":10,"target":9,"input":["ac"],"id":27},{"source":9,"target":8,"input":["cb"],"id":28},{"source":9,"target":10,"input":["ca"],"id":29}]'
+  data-options='{"nodeRadius":24, "acceptingRadius":18}'
+data-question='{"type":"give-list","lengths":[3],"text":"The Tower of Hanoi is a logic puzzle where the goal is to move a stack of disks from one pole to another. Only one disk may be moved at a time and a disk cannot be placed on top of a smaller disk. The FSM below represents the possible moves when working with only two disks. Use it to find the shortest sequence of moves to get both disks from pole A to pole C.<img src=\"hanoi.png\">","alphabetType":"symbol"}' >
+  	<div class="question"></div>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+  <script src="fsm.js"></script>
+</html>

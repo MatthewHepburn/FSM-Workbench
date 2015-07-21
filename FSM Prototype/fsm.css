@@ -45,6 +45,10 @@ path.link {
   transition: stroke-width 0.5s;
 }
 
+.qdiagram {
+  display: block;
+}
+
 svg:not(.active):not(.ctrl) path.link {
   cursor: pointer;
 }
