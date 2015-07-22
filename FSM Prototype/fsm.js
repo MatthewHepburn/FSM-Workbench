@@ -736,7 +736,7 @@ var model = {
             for (j in model.links){
                 var link = model.links[j];
                 if(link.source.id == stateID){// See if link starts from currently considered node.
-                    if (link.input.indexOf(curSymbol) > -1 || link.input.indexOf("Epsilon") > -1){ // See if this transition is legal.
+                    if (link.input.indexOf(curSymbol) > -1){ // See if this transition is legal.
                         linkIDs.push(link.id)
                         //Add link target to newStates if it isn't there already
                         if (newStates.indexOf(link.target.id) == -1){
@@ -746,8 +746,31 @@ var model = {
                 }
             }
         }
-        model.currentStep++;
         model.currentStates = newStates;
+
+        // Make epsilon transitions
+        var transitionMade = true;
+        while (transitionMade == true){ //Search every link until no more transitions are made. Not efficient but sufficient.
+            transitionMade = false
+            for (i = 0; i < model.currentStates.length; i++){
+                var stateID = model.currentStates[i];
+                for (j in model.links){
+                    var link = model.links[j];
+                    if(link.source.id == stateID){// See if link starts from currently considered node.
+                        if (link.input.indexOf("ε") > -1){ // See if this is an epsilon transition.
+                            linkIDs.push(link.id)
+                            //Add link target to newStates if it isn't there already
+                            if (model.currentStates.indexOf(link.target.id) == -1){
+                                model.currentStates.push(link.target.id)
+                                var transitionMade = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        model.currentStep++;
+        
         return linkIDs;
     },
     toggleAccepting: function(id) {
@@ -1210,6 +1233,14 @@ var controller = {
             value = value.replace(/ /g, "");
             //Split on comma and store
             d.input = value.split(',');
+            //Replace the epsilon synonyms with ε
+            for (i = 0; i < d.input.length; i++){
+                var toLower = d.input[i].toLowerCase()
+                if (["epsilon", "epssilon", "espilon", "epsillon"].indexOf(toLower) > -1){
+                    d.input[i] = "ε"
+                }
+
+            }
             //Change the label
             var label = svg.select("#linklabel" + linkID);
             label.text(function(d) {
