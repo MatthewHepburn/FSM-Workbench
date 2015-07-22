@@ -13,3 +13,5 @@ select-states - given a FSM, some input and a set of its current states, select 
 convert-nfa - given an (image of) a nondeterministic FSM, create an equivilant deterministic FSM.
 
 does-accept - given an FSM and some set of inputs, determine for each input if the FSM accepts them.
+
+satisfy-definition - given a formal efinition of an FSM, build that FSM.

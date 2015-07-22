@@ -663,6 +663,39 @@ var model = {
         }
 
     },
+    generateDefinition: function(){
+        //Outputs a formal definition of the current model, in the form used by satisfy-definition questions.
+        var nodes = []
+        for (i = 0; i < model.nodes.length; i++){
+            if (model.nodes[i] == undefined){
+                continue;
+            }
+            nodes.push(model.nodes[i].name)
+        }
+        nodes = '"nodes":' + JSON.stringify(nodes) + ", "
+
+        var accepting = []
+        for (i = 0; i < model.nodes.length; i++){
+            if (model.nodes[i].accepting){
+                accepting.push(model.nodes[i].name);
+            }
+        }
+        accepting = '"accepting":' + JSON.stringify(accepting) +", "
+
+        var links = []
+        for (i = 0; i < model.links.length; i++){
+            var link = model.links[i]
+            for (j = 0; j < link.input.length; j++){
+                var thisLink = {
+                    source: link.source.name,
+                    target: link.target.name,
+                    input: link.input[j]
+                }
+                links.push(thisLink);
+            }
+        }
+        console.log(accepting + nodes + "'links':" + JSON.stringify(links));
+    },
     generateJSON: function(){
         var nodesStr = "data-nodes='" + JSON.stringify(model.nodes) + "'";
         console.log(nodesStr);
