@@ -428,6 +428,19 @@ var display = {
             .classed("dim", false)
         // Highlight the first input element
         d3.select("#in0").classed("highlight", true)
+        //Highlight any other nodes that could be current due to ε transitions
+        for (i = 0; i < model.currentStates.length; i++){
+            var id = model.currentStates[i]
+            if (id == 0){
+                continue;
+            }
+            else{
+                d3.select("[id='"+id+"']")
+                    .classed("dim", false)
+                    .classed("highlight", true)
+                    .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
+            }
+        }
 
     },
     showTrace: function(input){
@@ -624,6 +637,32 @@ var model = {
         selected_node = null;
         restart();
     },
+    doEpsilonTransitions: function(){
+        //Adds all states linked to by a transition accepting ε to model.currentStates
+        //Return the links used.
+        var transitionMade = true;
+        var linkIDs = []
+        while (transitionMade == true){ //Search every link until no more transitions are made. Not efficient but sufficient.
+            transitionMade = false
+            for (i = 0; i < model.currentStates.length; i++){
+                var stateID = model.currentStates[i];
+                for (j in model.links){
+                    var link = model.links[j];
+                    if(link.source.id == stateID){// See if link starts from currently considered node.
+                        if (link.input.indexOf("ε") > -1){ // See if this is an epsilon transition.
+                            linkIDs.push(link.id)
+                            //Add link target to newStates if it isn't there already
+                            if (model.currentStates.indexOf(link.target.id) == -1){
+                                model.currentStates.push(link.target.id)
+                                var transitionMade = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    },
     generateJSON: function(){
         var nodesStr = "data-nodes='" + JSON.stringify(model.nodes) + "'";
         console.log(nodesStr);
@@ -653,6 +692,7 @@ var model = {
     resetTrace: function(){
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
+        model.doEpsilonTransitions();
         model.currentStep = 0;
         model.traceRecord = [{states:[0], currentInput: JSON.parse(JSON.stringify(model.fullInput))}]
     },
@@ -748,27 +788,7 @@ var model = {
         }
         model.currentStates = newStates;
 
-        // Make epsilon transitions
-        var transitionMade = true;
-        while (transitionMade == true){ //Search every link until no more transitions are made. Not efficient but sufficient.
-            transitionMade = false
-            for (i = 0; i < model.currentStates.length; i++){
-                var stateID = model.currentStates[i];
-                for (j in model.links){
-                    var link = model.links[j];
-                    if(link.source.id == stateID){// See if link starts from currently considered node.
-                        if (link.input.indexOf("ε") > -1){ // See if this is an epsilon transition.
-                            linkIDs.push(link.id)
-                            //Add link target to newStates if it isn't there already
-                            if (model.currentStates.indexOf(link.target.id) == -1){
-                                model.currentStates.push(link.target.id)
-                                var transitionMade = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        linkIDs = linkIDs + model.doEpsilonTransitions()
         model.currentStep++;
         
         return linkIDs;
