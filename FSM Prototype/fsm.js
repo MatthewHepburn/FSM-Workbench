@@ -694,7 +694,7 @@ var model = {
                 links.push(thisLink);
             }
         }
-        console.log(accepting + nodes + "'links':" + JSON.stringify(links));
+        console.log(accepting + nodes + '"links":' + JSON.stringify(links));
     },
     generateJSON: function(){
         var nodesStr = "data-nodes='" + JSON.stringify(model.nodes) + "'";
