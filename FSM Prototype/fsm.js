@@ -51,6 +51,9 @@ var display = {
             table += "</table><button class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>"
             div.innerHTML += table;
         }
+        if (model.question.type == "satisfy-definition"){
+            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyDefinition()'>Check</button></div>"
+        }
 
     },
     dismissTrace: function(){
@@ -680,7 +683,10 @@ var model = {
                 accepting.push(model.nodes[i].name);
             }
         }
-        accepting = '"accepting":' + JSON.stringify(accepting) +", "
+        accepting = '"accepting":"' + JSON.stringify(accepting) +'", '
+
+        var initial = query.getNodeData(0).name;
+        initial = '"initial":' + initial + ", "
 
         var links = []
         for (i = 0; i < model.links.length; i++){
@@ -694,7 +700,7 @@ var model = {
                 links.push(thisLink);
             }
         }
-        console.log(accepting + nodes + '"links":' + JSON.stringify(links));
+        console.log(accepting + initial + nodes + '"links":' + JSON.stringify(links));
     },
     generateJSON: function(){
         var nodesStr = "data-nodes='" + JSON.stringify(model.nodes) + "'";
@@ -956,6 +962,74 @@ var checkAnswer = {
             forms[i].classList.remove("incorrect");
             forms[i].classList.add("correct");
         }
+    },
+    satisfyDefinition: function(){
+        // Declare a feedback function here that each test can use.
+        displayFeedback = function(f){
+            //remove old feedback
+            var feedback = document.querySelector(".feedback");
+            if (feedback != null){
+                feedback.remove()
+            }
+            var message = document.createElement("p")
+            message.classList.add("feedback")
+            message.innerHTML = f;
+            document.querySelector(".button-div").appendChild(message)
+        }
+        // Test that fsm has the correct number of nodes:
+        if (model.nodes.length != model.question.nodes.length){
+            var actual = model.nodes.length;
+            var expected = model.question.nodes.length
+            displayFeedback("Incorrect - the FSM should have " + expected + " states but there are only " + actual + ".")
+            return;
+        }
+        // Test if every named node exists:
+        for (i = 0; i < model.question.nodes.length; i++){
+            var questionNode = model.question.nodes[i];
+            var found = false
+            for (j = 0; j < model.nodes.length; j++){
+                var thisNode = model.nodes[j]
+                if (thisNode.name == questionNode){
+                    found = true;
+                }
+            }
+            if (!found){
+                displayFeedback("Incorrect - the FSM should have a state labelled '" + questionNode + "'.")
+                return;
+            }
+        }
+        // Test that the correct state is the intial state:
+        if (query.getNodeData(0).name != model.question.initial){
+            var expected = model.question.initial
+            if (expected == undefined){
+                expected = "unnamed"
+            }
+            else{
+                expected = "'" + expected + "'"
+            }
+            var actual = query.getNodeData(0).name;
+            displayFeedback("Incorrect - the initial state should be " + expected +" not '" + actual + "'.")
+        }
+        // Test if the correct state(s) are accepting:
+        for (i = 0; i < model.question.accepting.length; i++){
+            var questionNode = model.question.accepting[i]
+            for (j = 0; j < model.nodes; j++){
+                var thisNode = model.nodes[j]
+                if (thisNode.name != questionNode){
+                    continue;
+                } else {
+                    if (!thisNode.accepting){
+                        displayFeedback("Incorrect - '" + thisNode +"' should be an accepting state.")
+                        return;
+                    }
+                }
+
+            }
+        }
+        // Test that no states are accepting that shouldn't be:
+        
+
+
     },
     satisfyList: function(){
         var accLength = model.question.acceptList.length;

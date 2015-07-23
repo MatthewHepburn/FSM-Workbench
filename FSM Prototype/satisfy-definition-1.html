@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FSM Prototype</title>
+    <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="fsm.css">
+  </head>
+
+  <body class="canvas" 
+  data-nodes='[{"id":0,"accepting":false,"name":"foo","x":200,"y":250,"fixed":true,"index":0,"weight":2,"px":200,"py":250},{"id":1,"accepting":true,"name":"bar","x":358.65976885257226,"y":250.46409357869933,"index":1,"weight":3,"px":358.66041866676846,"py":250.4647207400592},{"id":2,"accepting":false,"name":"2","x":512.3596748934472,"y":249.02584783757175,"index":2,"weight":1,"px":512.3376440183254,"py":249.02383485755564}]' 
+  data-links='[{"source":0,"target":1,"input":["a","b"],"id":0},{"source":1,"target":2,"input":["a","b","c"],"id":1},{"source":1,"target":0,"input":["a"],"id":2}]'
+  data-question = '{"type":"satisfy-definition","alphabet":["1","2"],"accepting":["8"],"initial":"1", "nodes":["1","2","3","5","4","6","7","8"], "links":[{"source":"1","target":"2","input":"1"},{"source":"1","target":"4","input":"1"},{"source":"2","target":"2","input":"2"},{"source":"2","target":"3","input":"2"},{"source":"3","target":"3","input":"1"},{"source":"3","target":"8","input":"ε"},{"source":"4","target":"5","input":"1"},{"source":"5","target":"5","input":"1"},{"source":"5","target":"5","input":"2"},{"source":"4","target":"6","input":"2"},{"source":"6","target":"4","input":"1"},{"source":"6","target":"6","input":"1"},{"source":"6","target":"7","input":"2"},{"source":"7","target":"8","input":"ε"}],"text":"<p>Draw the non-deterministic FSM described below.</p><p><em>M </em>: <em>M </em>= (<em>Q</em>,<em>&nbsp;</em>&Sigma;,<em>&nbsp;s<sub>0</sub></em>,<em>&nbsp;F</em>,<em> </em>&delta;<em>)</em>, where</p><p><em>Q </em>= {1, 2, 3, 4, 5, 6, 7, 8}</p><p>&Sigma; = {1, 2}</p><p><em>s</em><sub>0</sub> = {1}</p><p>F = {8}&nbsp;</p><p>&delta; = {(1, 1, 2), (1, 1, 4), (2, 2, 2), (2, 2, 3), (3, 1, 3), (3,&nbsp;&epsilon;, 8), (4, 1, 5), (5, 1, 5), (5, 2, 5), (4, 2, 6), (6, 1, 4), (6, 1, 6), (6, 2, 7), (7, &epsilon;, 8)}.</p><p>(Based on the 2013/14 resit exam paper.)</p>","alphabetType":"char"}'>
+  	<div class="question"></div>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+  <script src="fsm.js"></script>
+</html>
