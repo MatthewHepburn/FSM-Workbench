@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import jinja2
 import os
 import json
@@ -12,7 +14,6 @@ if __name__ == "__main__":
     # Load in question data
     with open('questions.JSON') as data_file:    
         data = json.load(data_file)
-    pprint(data[0]["data-nodes"])
 
     # Setup Jinja
     templateLoader = jinja2.FileSystemLoader("Templates")
@@ -21,9 +22,15 @@ if __name__ == "__main__":
     templatesDir = getDir()  # TODO work out what this does/if it does anything
     template = templateEnv.get_template("question.jinja")
 
-    for (question in data):
-        outputText = template.render(question)
-        filename = data["filename"]
+    for question in data:
+        variables = {
+            "nodes": question["data-nodes"],
+            "links": question["data-links"],
+            "options": question["data-options"],
+            "question": question["data-question"]
+        }
+        outputText = template.render(variables)
+        filename = question["filename"] + ".html"
         f = open(filename, "w")
         f.write(outputText)
         f.close()

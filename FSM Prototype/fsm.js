@@ -723,7 +723,15 @@ var model = {
         //Generates JSON in the format of questions.JSON
         var nodesStr = JSON.stringify(model.nodes);
         nodesStr = '"data-nodes": "' + nodesStr.replace(/"/g, '\\"') + '"';
-        var linkStr = JSON.stringify(model.links);
+        
+
+        // Create a copy of model.links to replace the source + target objects with node IDs
+        var linksTmp = JSON.parse(JSON.stringify(model.links));
+        for (i = 0; i < linksTmp.length; i++){
+            linksTmp[i].source = linksTmp[i].source.id;
+            linksTmp[i].target = linksTmp[i].target.id;
+        }
+        var linkStr = JSON.stringify(linksTmp);
         linkStr = '"data-links": "' + linkStr.replace(/"/g, '\\"')+ '"';
         var questionStr = JSON.stringify(model.question);
         questionStr = '"data-question": "' + questionStr.replace(/"/g, '\\"')+ '"';
@@ -785,6 +793,7 @@ var model = {
         // Read in options
         if (body.dataset.options != undefined){
             var options = JSON.parse(body.dataset.options);
+            model.options = options;
             if (options.nodeRadius != undefined){
                 display.nodeRadius = options.nodeRadius
             }
