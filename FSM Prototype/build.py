@@ -11,7 +11,7 @@ def getDir():
     
 
 if __name__ == "__main__":
-    # Load in question data
+        # Load in question data
     with open('questions.JSON') as data_file:    
         data = json.load(data_file)
 
@@ -21,6 +21,10 @@ if __name__ == "__main__":
     # Also add "lstrip_blocks=True" above if jinja2.7 or greater is available
     templatesDir = getDir()  # TODO work out what this does/if it does anything
     template = templateEnv.get_template("question.jinja")
+
+    # # Change to /Questions directory
+    # currentDir = os.getcwd()
+    # os.chdir("Questions")
 
     for question in data:
         variables = {
@@ -34,3 +38,6 @@ if __name__ == "__main__":
         f = open(filename, "w")
         f.write(outputText)
         f.close()
+
+    # # Return to previous directory.
+    # os.chdir(currentDir)
