@@ -578,6 +578,7 @@ var model = {
     nodes: {},
     links: {},
     editable: true,
+    options: {},
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     currentStep: 0,
     traceRecord:[],
@@ -717,6 +718,19 @@ var model = {
         var questionStr = "data-question='" + JSON.stringify(model.question) + "'";
         console.log(linksStr)
 
+    },
+    generateJSON2: function(){
+        //Generates JSON in the format of questions.JSON
+        var nodesStr = JSON.stringify(model.nodes);
+        nodesStr = '"data-nodes": "' + nodesStr.replace(/"/g, '\\"') + '"';
+        var linkStr = JSON.stringify(model.links);
+        linkStr = '"data-links": "' + linkStr.replace(/"/g, '\\"')+ '"';
+        var questionStr = JSON.stringify(model.question);
+        questionStr = '"data-question": "' + questionStr.replace(/"/g, '\\"')+ '"';
+        var optionsStr = JSON.stringify(model.options);
+        optionsStr = '"data-options": "' + optionsStr.replace(/"/g, '\\"')+ '"';
+        var out = nodesStr + ", " + linkStr + ", " + questionStr + ", " + optionsStr;
+        console.log(out);
     },
     parseInput: function(string, isCharType){
         // Given a string 'abc', return input in form ['a', 'b', 'c'] if charType
