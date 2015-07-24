@@ -129,6 +129,11 @@ text.nodename {
   margin-left: 7px;
 }
 
+.inline-feedback {
+  display: inline;
+  margin-left: 7px;
+}
+
 .control-rect {
   pointer-events: all;
   z-index: 3;

@@ -967,12 +967,12 @@ var checkAnswer = {
         // Declare a feedback function here that each test can use.
         displayFeedback = function(f){
             //remove old feedback
-            var feedback = document.querySelector(".feedback");
+            var feedback = document.querySelector(".inline-feedback");
             if (feedback != null){
                 feedback.remove()
             }
             var message = document.createElement("p")
-            message.classList.add("feedback")
+            message.classList.add("inline-feedback")
             message.innerHTML = f;
             document.querySelector(".button-div").appendChild(message)
         }
@@ -1027,9 +1027,71 @@ var checkAnswer = {
             }
         }
         // Test that no states are accepting that shouldn't be:
-        
+        for (i = 0; i < model.nodes.length; i++){
+            thisNode = model.nodes[i]
+            if (!thisNode.accepting){
+                continue;
+            } else {
+                var found = false
+                for (j = 0; j < model.question.accepting.length; j++){
+                    if (thisNode.name == model.question.accepting[j]){
+                        found = true;
+                    }
+                }
+                if (found == false){
+                    var name = thisNode.name;
+                    if (name == undefined){
+                        name = "unnamed"
+                    } else {
+                        name = "'" + name + "'"
+                    }
+                    displayFeedback("Incorrect - " + name + " should not be an accepting state.")
+                    return
+                }
+            }
+        }
+        // Test that every link that exists is supposed to:
+        // Also record whether every link that is supposed to exist does exist
+        var exists = new Array(model.question.links.length);
+        for (i = 0; i  < model.links.length; i ++){
+            var thisLink = model.links[i]
+            for (j = 0; j < thisLink.input.length; j++){
+                var thisInput = thisLink.input[j]
+                var found = false;
+                for (k = 0; k < model.question.links.length && found == false; k++){
+                    var questionLink = model.question.links[k]
+                    if (questionLink.source != thisLink.source.name){
+                        continue;
+                    }
+                    if (questionLink.target != thisLink.target.name){
+                        continue;
+                    }
+                    if (questionLink.input != thisInput){
+                        continue
+                    }
+                    found = true;
+                    exists[k] = true;
+                }
+                if (!found){
+                    displayFeedback("Incorrect - there should not be a transition from '" + thisLink.source.name + "' to '" + thisLink.target.name + "' for input '" + thisInput +"'.")
+                    return;
+                }
+            }
+        }
 
+        // Check that every link that is supposed to exist does (using information from previous step):
+        for (i = 0; i< exists.length; i++){
+            if (!exists[i]){
+                var source = model.question.links[i].source;
+                var target = model.question.links[i].target;
+                var input = model.question.links[i].input;
+                displayFeedback("Incorrect - there should be a link from '" + source + "' to '" + target + "' for input '" + input + "'.")
+                return
+            }
+        }
 
+        //All tests passed:
+        displayFeedback("Correct!");
     },
     satisfyList: function(){
         var accLength = model.question.acceptList.length;
