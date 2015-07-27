@@ -9,11 +9,11 @@ from operator import itemgetter
 def getDir():
     currentDir = os.getcwd()
     return os.path.join(currentDir, "Templates")
-    
+
 
 if __name__ == "__main__":
         # Load in question data
-    with open('questions.JSON') as data_file:    
+    with open('questions.JSON') as data_file:
         data = json.load(data_file)
 
     # Setup Jinja
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         outputText = template.render(variables)
         filename = question["filename"] + ".html"
         f = open(filename, "w")
-        f.write(outputText)
+        f.write(outputText.encode("UTF-8"))
         f.close()
 
     # # Return to previous directory.
