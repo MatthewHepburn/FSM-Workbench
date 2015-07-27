@@ -4,6 +4,7 @@ import jinja2
 import os
 import json
 from pprint import pprint
+from operator import itemgetter
 
 def getDir():
     currentDir = os.getcwd()
@@ -26,6 +27,9 @@ if __name__ == "__main__":
     # currentDir = os.getcwd()
     # os.chdir("Questions")
 
+    #Sort data by question number
+    sorted(data, key=itemgetter('question-number'))
+
     for question in data:
         variables = {
             "nodes": question["data-nodes"],
@@ -33,6 +37,18 @@ if __name__ == "__main__":
             "options": question["data-options"],
             "question": question["data-question"]
         }
+        # Set previous/next urls
+        # NB - question numbering begins at 1.
+        if question["question-number"] > 1:
+            variables["previous"] = "href='" + data[question["question-number"]-2]["filename"] + ".html'"
+        else:
+            variables["previous"] = ""
+
+        if question["question-number"] < len(data):
+            variables["next"] = "href='" + data[question["question-number"]]["filename"] + ".html'"
+        else:
+            variables["next"] = ""
+
         outputText = template.render(variables)
         filename = question["filename"] + ".html"
         f = open(filename, "w")
