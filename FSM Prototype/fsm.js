@@ -1309,8 +1309,24 @@ var eventHandler = {
         display.createLinkContextMenu(canvas, id, mousePosition);
 
     },
-
-
+    rate: function() {
+        if (hasRated){
+            return;
+        }
+        // Event handeler for the question-rating buttons
+        if (d3.event.target.id == "rate-yes") {
+            var rating = "yes";
+        } else {
+            var rating = "no";
+        }        
+        d3.select(".rate")
+            .transition()
+            .duration(400)
+            .style("opacity", "0.1")
+            .remove()
+        logging.sendRating(rating)
+        hasRated = true;
+    },
     //Provides right-click functionality for states.
     stateContextMenu: function() {
         d3.event.preventDefault();
@@ -1479,7 +1495,7 @@ var width = 960,
     colors = d3.scale.category10();
 
 var svg = d3.select('body')
-    .append('svg')
+    .insert('svg', ".rate")
     .attr("id", "main-svg")
     .attr('width', width)
     .attr('height', height);
@@ -1868,6 +1884,17 @@ var logging = {
     request.open('POST', '/cgi/s1020995/logging.cgi', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
     request.send(data)
+  },
+  sendRating: function(rating) {
+    var url = window.location.href;
+    if (logging.sessionID == undefined){
+      logging.generateSessionId()
+    }
+    var data = "url=" + encodeURIComponent(url) + "&sessionID=" +encodeURIComponent(logging.sessionID);
+    data = data + "&rating=" + encodeURIComponent(rating);
+    request.open('POST', '/cgi/s1020995/rating.cgi', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    request.send(data)
 
   }
 }
@@ -1891,5 +1918,8 @@ circle.call(force.drag);
 var node0 = d3.select("[id='0']").data()[0];
 var traceInProgress = false;
 display.drawStart(node0.x, node0.y);
+// Add event listener to the rate buttons
+d3.selectAll(".rate-button").on("click", eventHandler.rate)
+var hasRated = false;
 logging.sendInfo()
 setInterval(logging.sendInfo, 120000)
