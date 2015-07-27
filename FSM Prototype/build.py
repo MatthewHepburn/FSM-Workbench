@@ -31,6 +31,7 @@ if __name__ == "__main__":
     sorted(data, key=itemgetter('question-number'))
 
     for question in data:
+        print(question["filename"])
         variables = {
             "nodes": question["data-nodes"],
             "links": question["data-links"],
@@ -52,8 +53,16 @@ if __name__ == "__main__":
         outputText = template.render(variables)
         filename = question["filename"] + ".html"
         f = open(filename, "w")
-        f.write(outputText.encode("UTF-8"))
+        f.write(outputText)
         f.close()
+
+    template = templateEnv.get_template("index.jinja")
+    variables = {"q1": data[0]["filename"] + ".html"}
+    outputText = template.render(variables)
+    f = open("index.html", "w")
+    f.write(outputText)
+    f.close()
+    print("index.html")
 
     # # Return to previous directory.
     # os.chdir(currentDir)
