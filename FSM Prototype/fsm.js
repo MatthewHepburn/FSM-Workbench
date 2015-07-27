@@ -145,7 +145,7 @@ var display = {
             .attr('y', mousePosition[1])
             .attr('width', 260)
             .attr('height', 55)
-            .classed("context-menu-holder", true)   
+            .classed("context-menu-holder", true)
             .append("xhtml:div")
             .attr("class", "contextmenu")
             .html(html)
@@ -167,7 +167,7 @@ var display = {
             .attr('y', mousePosition[1])
             .attr('width', 260)
             .attr('height', 55)
-            .classed("context-menu-holder", true)   
+            .classed("context-menu-holder", true)
             .append("xhtml:div")
             .attr("class", "contextmenu")
             .html(html)
@@ -211,9 +211,9 @@ var display = {
         var charWidth = 25 // Rough estimate
         var inWidth = totalInputLength * charWidth;
         var x = width/2 - (inWidth/2)
-        for (i = 0; i < model.fullInput.length; i++){  
+        for (i = 0; i < model.fullInput.length; i++){
             g.append("text")
-                .text(model.fullInput[i])   
+                .text(model.fullInput[i])
                 .style("fill", d3.rgb(display.colour(i)).toString())
                 .classed("input", true)
                 .attr("id", "in"+i)
@@ -233,7 +233,7 @@ var display = {
                     .attr("x", x -  20)
                     .attr("y", y);
             }
-        }   
+        }
     },
     drawStart: function(x, y) {
         var length = 200;
@@ -350,7 +350,7 @@ var display = {
 
         var P2 = x2 + "," + y2;
 
-        var rad = 25     
+        var rad = 25
 
         return ("M" + P1 + " A" + rad + " " + rad + " 0 1 1 " + P2);
 
@@ -422,7 +422,7 @@ var display = {
             .classed("dim", false)
             .classed("highlight", true)
             .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
-        // Undim & unhighlight the machine input. 
+        // Undim & unhighlight the machine input.
         d3.selectAll(".input")
             .classed("dim", false)
             .classed("highlight", false)
@@ -470,7 +470,7 @@ var display = {
                 if (model.currentInput.length != 0 && model.currentStates.length != 0){
                     var linksUsed = model.step()
                     model.traceRecord[model.currentStep] = {
-                        states: JSON.parse(JSON.stringify(model.currentStates)), 
+                        states: JSON.parse(JSON.stringify(model.currentStates)),
                         currentInput: JSON.parse(JSON.stringify(model.currentInput))
                     }
                     console.log(model.traceRecord[model.currentStep].currentInput)
@@ -480,7 +480,7 @@ var display = {
                 }
                 else {
                     traceInProgress = false
-                    traceStepInProgress = false;        
+                    traceStepInProgress = false;
                     return
                 }
             }
@@ -490,7 +490,7 @@ var display = {
                 return;
             }
             var record = model.traceRecord[model.currentStep -1]
-            console.log(record.currentInput)            
+            console.log(record.currentInput)
             model.currentStates = record.states;
             model.currentInput = JSON.parse(JSON.stringify(record.currentInput));
             model.currentStep = model.fullInput.length - model.currentInput.length
@@ -506,7 +506,7 @@ var display = {
             }
         }
 
-        
+
 
         //Dim all previous input letters that have been consumed
         var i = model.fullInput.length - model.currentInput.length
@@ -545,8 +545,8 @@ var display = {
                 d3.select("#in-comma" + (i-1))
                 .classed("dim", true);
             d3.select("#in" + i).classed("highlight", true)
-            } 
-        else 
+            }
+        else
             {
             var x = document.querySelector("#in"+(i-1)).getBBox().x
             d3.select("#in" + (i-1))
@@ -566,7 +566,7 @@ var display = {
                                 .attr("x", x);
                         })
                 })
-            }        
+            }
             traceStepInProgress = false;
             return;
          }
@@ -723,7 +723,7 @@ var model = {
         //Generates JSON in the format of questions.JSON
         var nodesStr = JSON.stringify(model.nodes);
         nodesStr = '"data-nodes": "' + nodesStr.replace(/"/g, '\\"') + '"';
-        
+
 
         // Create a copy of model.links to replace the source + target objects with node IDs
         var linksTmp = JSON.parse(JSON.stringify(model.links));
@@ -789,7 +789,7 @@ var model = {
             }
         }
         model.lastNodeID = maxNodeID;
-        
+
         // Read in options
         if (body.dataset.options != undefined){
             var options = JSON.parse(body.dataset.options);
@@ -852,7 +852,7 @@ var model = {
 
         linkIDs = linkIDs + model.doEpsilonTransitions()
         model.currentStep++;
-        
+
         return linkIDs;
     },
     toggleAccepting: function(id) {
@@ -1161,7 +1161,7 @@ var eventHandler = {
         contextMenuShowing = false;
         return;
     }
-    
+
     // because :active only works in WebKit?
     svg.classed('active', true);
 
@@ -1318,7 +1318,7 @@ var eventHandler = {
             var rating = "yes";
         } else {
             var rating = "no";
-        }        
+        }
         d3.select(".rate")
             .transition()
             .duration(400)
@@ -1380,11 +1380,11 @@ var eventHandler = {
         var button = d3.event.target.id
         if (button == "rewind"){
             model.resetTrace();
-            display.resetTrace();            
+            display.resetTrace();
             return;
         }
         if (button == "back"){
-            if (!traceStepInProgress){ 
+            if (!traceStepInProgress){
                 display.traceStep(false, true)
             } else {
                 f = function(){
@@ -1399,7 +1399,7 @@ var eventHandler = {
             }
         }
         if (button == "forward"){
-             if (!traceStepInProgress){ 
+             if (!traceStepInProgress){
                 display.traceStep(false, false)
             } else {
                 f = function(){
@@ -1571,7 +1571,7 @@ function tick() {
                 sourceY = d.source.y + (padding * unitY),
                 targetX = d.target.x - (padding * unitX),
                 targetY = d.target.y - (padding * unitY);
-            
+
             // Determine if there is a link in the other direction.
             // If there is, we will use a bezier curve to allow both to be visible
             if (query.isBezier(d.id)) {
@@ -1892,6 +1892,7 @@ var logging = {
     }
     var data = "url=" + encodeURIComponent(url) + "&sessionID=" +encodeURIComponent(logging.sessionID);
     data = data + "&rating=" + encodeURIComponent(rating);
+    var request = new XMLHttpRequest();
     request.open('POST', '/cgi/s1020995/rating.cgi', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
     request.send(data)

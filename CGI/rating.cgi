@@ -6,6 +6,7 @@ import cgitb
 import logging
 import datetime
 import time
+import re
 
 logdir = os.curdir
 os.path.join(logdir, "cgitb.log")
@@ -28,15 +29,18 @@ try:
 except KeyError:
 	agent = "unknown"
 sessionID = form.getfirst("sessionID", "none")
-sessionID = form.getfirst("sessionID", "none")
 url = form.getfirst("url", "none")
+if url != "none":
+	#Extract the file name using regex
+	url = re.search("[^/]*(?=\.html$)", url).group(0)
+rating = form.getfirst("rating", "none")
 
-string = sessionID + "    "+url+"    "+remoteIp+"    "+remoteHost+"    "+timeEpoch+"    "+timeHuman+"    "+agent
+string = sessionID + "    "+url+"    "+remoteIp+"    "+remoteHost+"    "+timeEpoch+"    "+timeHuman+"    "+agent+"    "+rating
 
 date = str(datetime.date.today())
 
 
-logging.basicConfig(filename='usage ' + date +'.log',level=logging.INFO)
+logging.basicConfig(filename='rating ' + url +'.log',level=logging.INFO)
 
 logging.info(string)
 
