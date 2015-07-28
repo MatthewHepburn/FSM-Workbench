@@ -5,6 +5,7 @@ import os
 import json
 from pprint import pprint
 from operator import itemgetter
+import sys
 
 def getDir():
     currentDir = os.getcwd()
@@ -53,7 +54,10 @@ if __name__ == "__main__":
         outputText = template.render(variables)
         filename = question["filename"] + ".html"
         f = open(filename, "w")
-        f.write(outputText)
+        if sys.version_info[0] > 2:
+            f.write(outputText)
+        else:
+            f.write(outputText.encode("UTF-8"))
         f.close()
 
     template = templateEnv.get_template("index.jinja")
