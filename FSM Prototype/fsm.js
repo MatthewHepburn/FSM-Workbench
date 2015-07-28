@@ -1207,6 +1207,8 @@ var eventHandler = {
 
     },
     clickNode: function(d) {
+        console.log("clickNode event -")
+        console.log(d3.event)
         if (model.toolMode == "acceptingtool"){
             model.toggleAccepting(d.id);
             return;
@@ -1226,11 +1228,13 @@ var eventHandler = {
         restart();
     },
     createLink: function(d, eventType) {
+        console.log("createLink")
+        console.log(d3.event)
         if (model.toolMode != "linetool"){
             return
         }
         if (eventType == "mousedown") {
-            if (d3.event.ctrlKey || d3.event.button != 0) return;
+            if (d3.event.ctrlKey || (d3.event.button != 0 && d3.event.button != undefined)) return;
             // select node
             mousedown_node = d;
             if (mousedown_node === selected_node) selected_node = null;
@@ -1244,14 +1248,29 @@ var eventHandler = {
                 .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
             restart();
         } else if (eventType == "mouseup") {
-            if (!mousedown_node || d3.event.button != 0) return;
+            if (!mousedown_node || (d3.event.button != 0 && d3.event.button != undefined)) return;
 
             // needed by FF
             drag_line
                 .classed('hidden', true)
                 .style('marker-end', '');
 
-            mouseup_node = d;
+            // Extract target for touch events
+            if(d3.event.button == 0){
+                mouseup_node = d;
+            } else {
+                var touch = d3.event.changedTouches[0]
+                var elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!elem.classList.contains("node")){
+                    console.log("createLink target:")
+                    console.log(elem)
+                    return;
+                } else {
+                    mouseup_node = query.getNodeData(elem.id)
+                }
+            }
+
+
             // check for drag-to-self
             // if (mouseup_node === mousedown_node) {
             //     resetMouseVars();
@@ -1624,7 +1643,7 @@ function tick() {
 
 // update graph (called when needed)
 function restart() {
-	// path (link) group
+    // path (link) group
     path = path.data(model.links, function(d){return d.id});
 
     // update existing links
@@ -1642,7 +1661,11 @@ function restart() {
         .style('marker-mid', 'url(#end-arrow)')
         .on('mousedown', function(d) {
             eventHandler.addLinkMouseDown(d)
-        });
+        })
+        .on("dragend", function() {
+            console.log("dragend")
+            console.log("d3.event")
+        })
 
     // remove old links
     path.exit().remove();
@@ -1713,9 +1736,15 @@ function restart() {
         .on('mousedown', function(d) {
            eventHandler.createLink(d, "mousedown")
         })
+        .on('touchstart', function(d) {
+           eventHandler.createLink(d, "mousedown")
+        })
         .on('mouseup', function(d) {
            eventHandler.createLink(d, "mouseup")
-        });
+        })
+        .on('touchend', function(d) {
+            eventHandler.createLink(d, "mouseup")
+        })
 
 
 
@@ -1765,6 +1794,8 @@ function restart() {
 
 function mousemove() {
     if (!mousedown_node) return;
+
+    d3.event.preventDefault();
 
     // update drag line
     drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
@@ -1905,7 +1936,9 @@ display.askQuestion();
 display.drawControlPalette();
 svg.on('mousedown', eventHandler.clickBackground)
     .on('mousemove', mousemove)
-    .on('mouseup', mouseup);
+    .on('touchmove', mousemove)
+    .on('mouseup', mouseup)
+    .on("touchend", mouseup)
 d3.select(window)
     .on('keydown', keydown)
     .on('keyup', keyup);
