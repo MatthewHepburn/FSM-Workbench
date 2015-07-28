@@ -31,8 +31,13 @@ if __name__ == "__main__":
     #Sort data by question number
     sorted(data, key=itemgetter('question-number'))
 
+    i = 1;
+
     for question in data:
         print(question["filename"])
+        if question["question-number"] != i:
+            print("--!!Warning - question #" + str(i) + " is missing in questions.JSON. This may break the next/previous links,")
+        i = i + 1
         variables = {
             "nodes": question["data-nodes"],
             "links": question["data-links"],
