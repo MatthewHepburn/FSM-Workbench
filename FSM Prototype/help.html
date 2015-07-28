@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<head>
+	<title>Help</title>
+    <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="help.css">
+</head>
+<body>
+    <div class="menu">
+    	<a href="index.html"class='pure-button'>Home</a>
+    	<a class='pure-button'>About</a>
+    	<a href="help.html" class='pure-button'>Help</a>
+	</div>
+	<div class ="contents">
+        <h2>Contents</h2>
+    	<ul>
+            <li><a href="#toolbar">The Toolbar</a></li>
+            <li><a href="#howdoi">How do I...</a>
+                <ul><a href="#epsilon">Enter an &#949 transition?</a></ul>
+                <ul><a href="#output">Specify machines which have outputs?</a></ul>
+                <ul><a href="#save">Save a machine I have created?</a></ul>
+            </li>
+        </ul>
+	</div>
+    <div class="help" id="toolbar">
+        <h2>The Toolbar</h2>
+        <img class="toolpic" src="Icons/nodetool.svg" width="40px">
+        <p>New state tool - select this and click on an empty part of the canvas to create new nodes.</p>
+        <img class="toolpic" src="Icons/linetool.svg" width="40px">
+        <p>Link tool - select this and click and drag from one state to another to link those states together. Simply click a state to create a link from that state to itself.</p>
+        <img class="toolpic" src="Icons/texttool.svg" width="40px">
+        <p>Text tool - select this and click on a state to rename it. Clicking on a link allows you to change the transition condition of that link, separating different conditions with a comma eg. 'a,b,c'.</p>
+        <img class="toolpic" src="Icons/acceptingtool.svg" width="40px">
+        <p>Accepting tool - select this and click on a state to toggle whether it is an accepting state or not. Accepting states are shown by them having an extra circle inside them.</p>
+        <img class="toolpic" src="Icons/deletetool.svg" width="40px">
+        <p>Delete tool - select this and click on a state or a link to remove it.</p>
+    </div>
+    <div class="help" id="howdoi">
+        <h2>How do I...</h2>
+        <h3 id='epsilon'>Enter an &#949 transition?</h3>
+        <p>If you enter 'epsilon' as a link condition, it will be replaced with the &#949 symbol. Eg. 'a,b,epsilon'.</p>
+        <h3 id='output'>Specify machines which have outputs?</h3>
+        <p>Alas, this functionality has not been yet been implemented.</p>
+        <h3 id='save'>Save a machine I have created?</h3>
+        <p>This feature has not been fully implemented yet. If you're really desparate to save, you can open the console and run model.generateJSON() and manually graft the result into the appropriate html fields of the page.</p>
+    </div>
+	
+</body>
+<html>

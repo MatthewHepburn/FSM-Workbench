@@ -1,0 +1,21 @@
+.menu {
+	margin-top: 2px;
+}
+body {
+	margin-left: 15px;
+}
+.intro {
+	font-family: 'Ek Mukta', sans-serif;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.screenshots img {
+	width: 250px;
+}
+
+img.toolpic {
+    padding: 3px;
+    border-width: 2px;
+    border-color: black;
+}
