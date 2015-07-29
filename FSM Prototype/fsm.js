@@ -1199,8 +1199,7 @@ var checkAnswer = {
             document.querySelector(".button-div").appendChild(message)
         }
         var regex = new RegExp(model.question.regex);
-        // First, check that what the machine accepts is correct:
-        // paths is a list of strings <= pathLength that the machine accepts
+        // First, check that what the machine accepts is a subset of what the regex accepts (for length <= pathLength)
         var paths = query.getPaths(query.getNodeData(0), "", "", [])
         console.log(paths)
         paths.map(function(string){
@@ -1209,6 +1208,39 @@ var checkAnswer = {
                 return;
             }
         })
+
+        // Next, check that what the regex accepts is a subset of what the machine accepts
+        // First, create a list of all possible strings built from the alphabet using Dynamic Programming.
+        var pathLength = model.links.length * 2
+        var alphabet = model.question.alphabet
+        var strings = ["", alphabet]
+        for (length = 2; length < pathLength; length++){
+            displayFeedback("building string list - on length " + length)
+            strings[length] = []
+            strings[length-1].map(function(s){
+                for (i = 0; i < alphabet.length; i++){
+                    var newString = s + alphabet[i]
+                    strings[length].push(newString)
+                }
+            })
+        }
+        // Avoid i and j as loop variables because of closures.
+        // Map doesn't work well as you can't return the function from inside a map (I think).
+        for (length = 0; length < strings.length; length++){
+            for (k = 0; k< strings[length].length; k++){
+                var string = strings[length][k]
+                displayFeedback("Analysing " + string)
+                if (regex.exec(string)[0] ==  string){
+                        //If the regex accepts the string, check the machine accepts it
+                        if (!model.accepts(model.parseInput(string, model.question.alphabetType))){
+                            displayFeedback("Incorrect - the machine rejects the string '" + string + "' which it should accept.")
+                            return;
+                        }
+                    }
+            }
+        }
+        displayFeedback("Correct!");
+        console.log(strings)
     }
 }
 
