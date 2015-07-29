@@ -23,6 +23,7 @@ var display = {
             }
             form = form + "<div><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
             div.innerHTML += form;
+            return;
         }
         if (model.question.type == "satisfy-list"){
             var table = "<div class='table-div'><table class='qtable'><tr><th>Accept</th><th class='table-space'> </th><th>Reject</th><th class='table-space'> </th></tr>";
@@ -50,9 +51,14 @@ var display = {
             }
             table += "</table><button class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>"
             div.innerHTML += table;
+            return;
         }
         if (model.question.type == "satisfy-definition"){
             div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyDefinition()'>Check</button></div>"
+            return;
+        }
+        if (model.question.type == "satisfy-regex"){
+            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyRegex()'>Check</button></div>"
         }
 
     },
@@ -890,6 +896,15 @@ var query = {
         }
         return d;
     },
+    getLinksFromNode: function(node){
+        var links = []
+        for (i in model.links){
+            if (model.links[i].source == node){
+                links.push(model.links[i])
+            }
+        }
+        return links;
+    },
     getNodeData: function(id){
         var d;
         // Don't use i here to avoid closure strangeness
@@ -906,6 +921,31 @@ var query = {
         }
         return d;
 
+    },
+    getPaths: function(node, input, string, returnList){
+        // Recursively find all accepted paths through the current fsm of length <= pathlength
+        var pathLength = 2 * model.links.length;
+        if (model.question.alphabetType == "char"){
+            var newString = string + input;
+            console.log(newString)
+        } else {
+            alert("TODO - implement symbol type in checkAnswer.satisfyRegex");
+            return
+        }
+        if (node.accepting){
+            returnList.push(newString)
+        }
+
+        if (newString.length == pathLength){
+            return returnList
+        }
+        var links = query.getLinksFromNode(node)
+        links.map(function(link){
+            link.input.map(function(m){
+                returnList = returnList.concat(query.getPaths(link.target, m, JSON.parse(JSON.stringify(newString)), []))
+            })
+        })
+        return returnList
     },
     isBezier: function(id) {
         // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
@@ -1144,6 +1184,31 @@ var checkAnswer = {
             }
 
         }
+    },
+    satisfyRegex: function() {
+        // Declare a feedback function here that each test can use.
+        displayFeedback = function(f){
+            //remove old feedback
+            var feedback = document.querySelector(".inline-feedback");
+            if (feedback != null){
+                feedback.remove()
+            }
+            var message = document.createElement("p")
+            message.classList.add("inline-feedback")
+            message.innerHTML = f;
+            document.querySelector(".button-div").appendChild(message)
+        }
+        var regex = new RegExp(model.question.regex);
+        // First, check that what the machine accepts is correct:
+        // paths is a list of strings <= pathLength that the machine accepts
+        var paths = query.getPaths(query.getNodeData(0), "", "", [])
+        console.log(paths)
+        paths.map(function(string){
+            if (regex.exec(string)[0] != string){
+                displayFeedback("Incorrect - the machine accepts the string '" + string + "' which it should reject.")
+                return;
+            }
+        })
     }
 }
 
