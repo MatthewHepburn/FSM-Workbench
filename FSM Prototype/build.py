@@ -22,11 +22,12 @@ if __name__ == "__main__":
     templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True)
     # Also add "lstrip_blocks=True" above if jinja2.7 or greater is available
     templatesDir = getDir()  # TODO work out what this does/if it does anything
-    template = templateEnv.get_template("question.jinja")
+    question_template = templateEnv.get_template("question.jinja")
+    index_template = templateEnv.get_template("index.jinja")
 
-    # # Change to /Questions directory
-    # currentDir = os.getcwd()
-    # os.chdir("Questions")
+    # Change to /Questions directory
+    currentDir = os.getcwd()
+    os.chdir("Deploy")
 
     #Sort data by question number
     sorted(data, key=itemgetter('question-number'))
@@ -57,7 +58,7 @@ if __name__ == "__main__":
         else:
             variables["next"] = ""
 
-        outputText = template.render(variables)
+        outputText = question_template.render(variables)
         filename = question["filename"] + ".html"
         f = open(filename, "w")
         if sys.version_info[0] > 2:
@@ -66,13 +67,13 @@ if __name__ == "__main__":
             f.write(outputText.encode("UTF-8"))
         f.close()
 
-    template = templateEnv.get_template("index.jinja")
+    
     variables = {"q1": data[0]["filename"] + ".html"}
-    outputText = template.render(variables)
+    outputText = index_template.render(variables)
     f = open("index.html", "w")
     f.write(outputText)
     f.close()
     print("index.html")
 
-    # # Return to previous directory.
-    # os.chdir(currentDir)
+    # Return to previous directory.
+    os.chdir(currentDir)
