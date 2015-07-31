@@ -1244,6 +1244,9 @@ var checkAnswer = {
         console.log(paths);
         var errorFound = false
         paths.map(function(string){
+            if (errorFound){
+                return;
+            }
             if (regex.exec(string) == null || regex.exec(string)[0] != string){
                 if (string == ""){
                     displayFeedback("Incorrect - the machine accepts the empty string ('') which it should reject.")
