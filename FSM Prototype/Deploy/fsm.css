@@ -91,7 +91,7 @@ circle.node.accepting {
 
 text.nodename {
   text-anchor: middle;
-  font-family: "Ek Mukta"
+  font-family: "Ek Mukta";
   dominant-baseline: central;
   alignment-baseline: central;
   pointer-events: none;
