@@ -898,9 +898,9 @@ var query = {
     },
     getLinksFromNode: function(node){
         var links = []
-        for (i in model.links){
-            if (model.links[i].source == node){
-                links.push(model.links[i])
+        for (l in model.links){
+            if (model.links[l].source == node){
+                links.push(model.links[l])
             }
         }
         return links;
@@ -961,6 +961,36 @@ var query = {
 
         return exists;
 
+    }, 
+    isDeterministic: function() {
+        // returns [true, ""] if the model is deterministic, [false, "reason"] if not
+        for (i = 0; i < model.nodes.length; i++){
+            // For each node, get all links out of it
+            var links = query.getLinksFromNode(model.nodes[i])
+            var symbolsSeen = []
+            for (j = 0; j < links.length; j++){
+                var link = links[j]
+                for (k = 0; k < link.input.length; k++){
+                    var input = link.input[k]
+                    if (symbolsSeen.indexOf(input) != -1){
+                        var nodeName = model.nodes[i].name
+                        if (nodeName == undefined){
+                            nodeName = "an unnamed node"
+                        }
+                        return [false, "There are two transitions out of " + nodeName + " for symbol '" + input + "'."]
+                    }
+                    if (input == "ε"){
+                        var nodeName = model.nodes[i].name
+                        if (nodeName == undefined){
+                            nodeName = "an unnamed node"
+                        }
+                        return [false, "There is an epsilon transition from " + nodeName + "." ]
+                    }
+                    symbolsSeen.push(input)
+                }
+            }
+        }
+        return [true, ""]
     }
 }
 // Read in data as soon as model and query methods are created.
