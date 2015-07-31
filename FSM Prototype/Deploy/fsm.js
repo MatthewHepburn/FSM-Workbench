@@ -149,8 +149,8 @@ var display = {
         var menu = canvas.append("foreignObject")
             .attr('x', mousePosition[0])
             .attr('y', mousePosition[1])
-            .attr('width', 260)
-            .attr('height', 55)
+            .attr('width', "260em")
+            .attr('height', "55em")
             .classed("context-menu-holder", true)
             .append("xhtml:div")
             .attr("class", "contextmenu")
@@ -171,8 +171,8 @@ var display = {
         var menu = canvas.append("foreignObject")
             .attr('x', mousePosition[0])
             .attr('y', mousePosition[1])
-            .attr('width', 260)
-            .attr('height', 55)
+            .attr('width', "260em")
+            .attr('height', "55em")
             .classed("context-menu-holder", true)
             .append("xhtml:div")
             .attr("class", "contextmenu")
@@ -189,10 +189,7 @@ var display = {
     },
     dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
-        var container = document.querySelector(".context-menu-holder")
-        if (container != null) {
-            container.remove()
-        }
+        d3.select(".context-menu-holder").remove();
         contextMenuShowing = false;
     },
     dismissRenameMenu: function() {
@@ -1305,8 +1302,7 @@ var eventHandler = {
 
     // Dismiss context menu if it is present
     if (contextMenuShowing) {
-        d3.select(".contextmenu").remove();
-        contextMenuShowing = false;
+        display.dismissContextMenu()
         return;
     }
 
@@ -1460,9 +1456,7 @@ var eventHandler = {
 
         //If menu already present, dismiss it.
         if (contextMenuShowing) {
-            d3.select(".contextmenu").remove();
-            contextMenuShowing = false;
-            return;
+            display.dismissContextMenu()
         }
         if (id == undefined){
             // Get the id of the clicked link:
@@ -1500,9 +1494,7 @@ var eventHandler = {
 
         //If menu already present, dismiss it.
         if (contextMenuShowing) {
-            d3.select(".contextmenu").remove();
-            contextMenuShowing = false;
-            return;
+            display.dismissContextMenu()
         }
         // Get the id of the clicked state:
         var id = d3.event.target.id
@@ -1665,7 +1657,7 @@ var svg = d3.select('body')
     .insert('svg', ".rate")
     .attr("id", "main-svg")
     .attr('width', width)
-    .attr('height', height);
+    .attr('height', height)
 
 
 
