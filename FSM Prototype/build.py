@@ -42,7 +42,8 @@ if __name__ == "__main__":
             "nodes": question["data-nodes"],
             "links": question["data-links"],
             "options": question["data-options"],
-            "question": question["data-question"]
+            "question": question["data-question"],
+            "title": "FSM - Question #" + str(question["question-number"])
         }
         # Set previous/next urls
         # NB - question numbering begins at 1.
