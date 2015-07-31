@@ -1211,12 +1211,20 @@ var checkAnswer = {
         var paths = query.getPaths(query.getNodeData(0), "", "", pathLength, [])
         console.log("paths =");
         console.log(paths);
+        var errorFound = false
         paths.map(function(string){
             if (regex.exec(string) == null || regex.exec(string)[0] != string){
-                displayFeedback("Incorrect - the machine accepts the string '" + string + "' which it should reject.")
-                return;
+                if (string == ""){
+                    displayFeedback("Incorrect - the machine accepts the empty string ('') which it should reject.")
+                } else{
+                    displayFeedback("Incorrect - the machine accepts the string '" + string + "' which it should reject.")
+                }
+                errorFound = true;
             }
         })
+        if (errorFound){
+            return;
+        }
 
         // Next, check that what the regex accepts is a subset of what the machine accepts
         // First, create a list of all possible strings built from the alphabet using Dynamic Programming.

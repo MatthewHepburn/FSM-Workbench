@@ -70,5 +70,13 @@
     "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
     "data-question": "{\"type\":\"satisfy-regex\",\"text\":\"Construct a FSM which matches the regex ‘(ab|c)*’.\",\"alphabetType\":\"char\",\"regex\":\"(ab|c)*\",\"alphabet\":[\"a\",\"b\",\"c\"]}",
     "data-options": "{}"
+  },
+  {
+    "question-number": 10,
+    "filename": "satisfy-regex-2",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563762288,\"y\":582.6076924385384,\"index\":1,\"weight\":0,\"px\":238.761655637623,\"py\":582.6076924385379},{\"id\":21,\"accepting\":false,\"x\":350.36243015048996,\"y\":250.02945122848953,\"index\":2,\"weight\":1,\"px\":350.36243015048996,\"py\":250.02945122848953,\"fixed\":0,\"name\":\"2\"}]",
+    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
+    "data-question": "{\"type\":\"satisfy-regex\",\"text\":\"Construct a FSM which matches the regex ‘abb(abb)*’\",\"alphabetType\":\"char\",\"regex\":\"abb(abb)*\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":3}",
+    "data-options": "{}"
   }
 ]
