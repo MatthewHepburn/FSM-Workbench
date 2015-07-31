@@ -922,9 +922,8 @@ var query = {
         return d;
 
     },
-    getPaths: function(node, input, string, returnList){
-        // Recursively find all accepted paths through the current fsm of length <= pathlength
-        var pathLength = 2 * model.links.length;
+    getPaths: function(node, input, string, pathLength, returnList){
+        // Recursively find all accepted paths through the current fsm of length <= pathLength
         if (model.question.alphabetType == "char"){
             var newString = string + input;
             console.log(newString)
@@ -942,7 +941,7 @@ var query = {
         var links = query.getLinksFromNode(node)
         links.map(function(link){
             link.input.map(function(m){
-                returnList = returnList.concat(query.getPaths(link.target, m, JSON.parse(JSON.stringify(newString)), []))
+                returnList = returnList.concat(query.getPaths(link.target, m, JSON.parse(JSON.stringify(newString)), pathLength, []))
             })
         })
         return returnList
@@ -1199,11 +1198,21 @@ var checkAnswer = {
             document.querySelector(".button-div").appendChild(message)
         }
         var regex = new RegExp(model.question.regex);
+        if (model.question.minAcceptLength == undefined){ // minAcceptLength is the length of the shortest string that the regex should accept. Here given a default value of 4.
+            var minAcceptLength = 4;
+        } else {
+            var minAcceptLength = model.question.minAcceptLength;
+        }
         // First, check that what the machine accepts is a subset of what the regex accepts (for length <= pathLength)
-        var paths = query.getPaths(query.getNodeData(0), "", "", [])
-        console.log(paths)
+        var pathLength = model.links.length * 2
+        if (pathLength < minAcceptLength){
+            pathLength = minAcceptLength
+        }
+        var paths = query.getPaths(query.getNodeData(0), "", "", pathLength, [])
+        console.log("paths =");
+        console.log(paths);
         paths.map(function(string){
-            if (regex.exec(string)[0] != string){
+            if (regex.exec(string) == null || regex.exec(string)[0] != string){
                 displayFeedback("Incorrect - the machine accepts the string '" + string + "' which it should reject.")
                 return;
             }
@@ -1211,10 +1220,10 @@ var checkAnswer = {
 
         // Next, check that what the regex accepts is a subset of what the machine accepts
         // First, create a list of all possible strings built from the alphabet using Dynamic Programming.
-        var pathLength = model.links.length * 2
+
         var alphabet = model.question.alphabet
         var strings = ["", alphabet]
-        for (length = 2; length < pathLength; length++){
+        for (length = 2; length <= pathLength; length++){
             displayFeedback("building string list - on length " + length)
             strings[length] = []
             strings[length-1].map(function(s){
@@ -1230,7 +1239,7 @@ var checkAnswer = {
             for (k = 0; k< strings[length].length; k++){
                 var string = strings[length][k]
                 displayFeedback("Analysing " + string)
-                if (regex.exec(string)[0] ==  string){
+                if (regex.exec(string) != null && regex.exec(string)[0] ==  string){
                         //If the regex accepts the string, check the machine accepts it
                         if (!model.accepts(model.parseInput(string, model.question.alphabetType))){
                             displayFeedback("Incorrect - the machine rejects the string '" + string + "' which it should accept.")
