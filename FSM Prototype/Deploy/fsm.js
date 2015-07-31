@@ -387,10 +387,11 @@ var display = {
             .attr("y", formY)
             .attr("class", "rename")
             .append("xhtml:body")
-            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='link" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='lkfm" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
 
         // give form focus
-        document.getElementById('link' + id).focus();
+        document.getElementById('lkfm' + id).focus()
+        
 
         renameMenuShowing = true;
         display.dismissContextMenu();
@@ -1617,7 +1618,7 @@ var controller = {
             var label = svg.select("#nodename" + nodeID);
             label.text(value)
         }
-        if (type == "link") {
+        if (type == "lkfm") {
             var linkID = id.slice(4);
             var d = query.getLinkData(linkID);
             //Strip whitespace:
