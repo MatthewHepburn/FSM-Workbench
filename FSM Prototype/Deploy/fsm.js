@@ -1323,6 +1323,50 @@ var checkAnswer = {
         }
         displayFeedback("Correct!");
         console.log(strings)
+    },
+    selectStates: function(){
+        // Declare a feedback function here 
+        displayFeedback = function(isCorrect){
+            //remove old feedback
+            var feedback = document.querySelector(".inline-feedback");
+            if (feedback != null){
+                feedback.remove()
+            }
+            var message = document.createElement("p")
+            message.classList.add("inline-feedback")
+            if (isCorrect){
+                message.innerHTML = "<img class ='x-check-button' src=Icons/check.svg>"
+            } else{
+                message.innerHTML = "<img class ='x-check-button' src=Icons/x.svg>"
+            }
+            document.querySelector(".button-div").appendChild(message)
+        }
+        //Put machine into state described by the question.
+        model.currentStates = JSON.parse(JSON.stringify(model.question.initialState));
+        model.fullInput = JSON.parse(JSON.stringify(model.question.input));
+        model.currentInput = JSON.parse(JSON.stringify(model.question.input));
+        // Take the required number of steps
+        for (i = 0; i < model.question.nSteps; i++){
+            model.step()
+        }
+
+        // Check that the selection is correct:
+        // First, check that the lengths are the same:
+        if (model.selected.length != model.currentStates.length){
+            displayFeedback(false)
+            return;
+        }
+
+        for (i = 0; i < model.selected.length; i++){
+            var state = model.selected[i].id
+            if (model.currentStates.indexOf(state) == -1){
+                displayFeedback(false)
+                return;
+            }
+        }
+
+        displayFeedback(true);
+        return;        
     }
 }
 

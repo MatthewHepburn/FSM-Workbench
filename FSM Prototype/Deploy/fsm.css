@@ -242,6 +242,9 @@ text.nodename {
   display: list-item;
   margin-left: 10%;
 }
+.x-check-button {
+  width: 0.5cm;
+}
 
 .trace-link:hover {
   text-decoration: underline;
