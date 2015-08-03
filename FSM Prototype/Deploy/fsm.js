@@ -811,13 +811,13 @@ var model = {
     setupQuestion: function(){
         // Function uses data in model.question to setup the question environment
         var types = ["satisfy-regex","deterministic-satisfy-regex","satisfy-list","deterministic-satisfy-list","give-regex",
-                    "give-list","select-states","convert-nfa", "does-accept", "none"];
+                    "give-list","select-states","convert-nfa", "does-accept", "satisfy-definition", "none"];
         if (types.indexOf(model.question.type) == -1){
             alert(model.question.type + " is not a valid question type.");
             return;
         }
         // Set editable flag:
-        if (["satisfy-regex","deterministic-satisfy-regex","satisfy-list","deterministic-satisfy-list","convert-nfa","none"].indexOf(model.question.type) == -1){
+        if (["give-list"].indexOf(model.question.type) != -1){
             model.editable = false;
         } else {
             model.editable = true;
@@ -2072,8 +2072,10 @@ var logging = {
 }
 
 // app starts here
-display.askQuestion();
-display.drawControlPalette();
+model.setupQuestion();
+if (model.editable){
+    display.drawControlPalette();
+}
 svg.on('mousedown', eventHandler.clickBackground)
     .on('mousemove', mousemove)
     .on('touchmove', mousemove)
