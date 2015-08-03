@@ -59,6 +59,25 @@ var display = {
         }
         if (model.question.type == "satisfy-regex"){
             div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyRegex()'>Check</button></div>"
+            return;
+        }
+
+        if (model.question.type == "select-states"){
+            console.log("select-states")
+            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.selectStates()'>Check</button></div>"
+            model.selected = []
+            // Need to wait until nodes are created to register event handlers.
+            var f = function(){
+                if (loaded){
+                    console.log("yes")
+                    d3.selectAll(".node").on("click", model.toggleSelectedNode)
+                } else {
+                    setTimeout(f, 100)
+                    console.log("no")
+                }
+            }
+            setTimeout(f, 100);        
+            return;
         }
 
     },
@@ -461,6 +480,11 @@ var display = {
         display.drawTraceControls();
         display.resetTrace();
     },
+    toggleSelectedNode: function(id){
+       console.log("display.toggleSelectedNode()")
+       var node = d3.select("[id = '" + id + "']");
+       node.classed("qselect", !node.classed('qselect'))
+    },
     traceStep: function(autoPlay, backward){
         traceStepInProgress = true;
         if (backward && model.currentStep == 0){
@@ -817,7 +841,7 @@ var model = {
             return;
         }
         // Set editable flag:
-        if (["give-list"].indexOf(model.question.type) != -1){
+        if (["give-list", "select-states"].indexOf(model.question.type) != -1){
             model.editable = false;
         } else {
             model.editable = true;
@@ -876,7 +900,17 @@ var model = {
 
         // Update is now needed:
         restart();
-
+    },
+    toggleSelectedNode: function() {
+        var id = d3.event.target.id
+        console.log("toggle " + id)
+        var node = query.getNodeData(id)
+        if (model.selected.indexOf(node) == -1){
+            model.selected.push(node)            
+        } else {
+            model.selected.splice(model.selected.indexOf(node), 1)
+        }
+        display.toggleSelectedNode(id)
     }
 }
 
@@ -2097,5 +2131,7 @@ display.drawStart(node0.x, node0.y);
 // Add event listener to the rate buttons
 d3.selectAll(".rate-button").on("click", eventHandler.rate)
 var hasRated = false;
-logging.sendInfo()
-setInterval(logging.sendInfo, 120000)
+var loaded = true;
+// Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
+logging.sendInfo();
+setInterval(logging.sendInfo, 120000);

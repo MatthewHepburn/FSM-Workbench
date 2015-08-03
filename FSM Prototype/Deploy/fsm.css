@@ -247,3 +247,9 @@ text.nodename {
   text-decoration: underline;
   color: rgb(30,30,80);
 }
+
+.qselect {
+  stroke: black !important;
+  stroke-width: 5px !important;
+  fill: white !important;
+}
