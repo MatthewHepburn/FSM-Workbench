@@ -2179,6 +2179,7 @@ var logging = {
     }
     var data = "url=" + encodeURIComponent(url) + "&userID=" + encodeURIComponent(logging.userID);
     data = data + "&isCorrect=" + isCorrect + "&answer=" + answer;
+    var request = new XMLHttpRequest();
     request.open('POST', '/cgi/s1020995/answer.cgi', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
     request.send(data)
