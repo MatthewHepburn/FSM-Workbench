@@ -27,11 +27,11 @@ try:
 	agent = os.environ["HTTP_USER_AGENT"]
 except KeyError:
 	agent = "unknown"
-sessionID = form.getfirst("sessionID", "none")
-sessionID = form.getfirst("sessionID", "none")
+userID = form.getfirst("userID", "none")
+userID = form.getfirst("userID", "none")
 url = form.getfirst("url", "none")
 
-string = sessionID + "    "+url+"    "+remoteIp+"    "+remoteHost+"    "+timeEpoch+"    "+timeHuman+"    "+agent
+string = userID + "    "+url+"    "+remoteIp+"    "+remoteHost+"    "+timeEpoch+"    "+timeHuman+"    "+agent
 
 date = str(datetime.date.today())
 

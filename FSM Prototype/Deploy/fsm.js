@@ -2113,22 +2113,36 @@ function keyup() {
 }
 
 var logging = {
-  sessionID: undefined,
-  generateSessionId: function() {
+  userID: undefined,
+  generateUserID: function() {
+    //Use local storage if it is available
+    if(typeof(localStorage) !== "undefined") {
+        var hasStorage = true;
+        if (localStorage.getItem("userID") !== null){
+            logging.userID = localStorage.getItem("userID")
+            return;        
+        }
+    } else {
+        var hasStorage = false;
+    }
     var d = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = (d + Math.random()*16)%16 | 0;
         d = Math.floor(d/16);
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
-    logging.sessionID = uuid;
+    logging.userID = uuid;
+    if (hasStorage){
+        localStorage.setItem("userID", uuid)
+    }
+
   },
   sendInfo: function() {
     var url = window.location.href;
-    if (logging.sessionID == undefined){
-      logging.generateSessionId()
+    if (logging.userID == undefined){
+      logging.generateUserID()
     }
-    var data = "url=" + encodeURIComponent(url) + "&sessionID=" +encodeURIComponent(logging.sessionID)
+    var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.sessionID)
     var request = new XMLHttpRequest();
     request.open('POST', '/cgi/s1020995/logging.cgi', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
