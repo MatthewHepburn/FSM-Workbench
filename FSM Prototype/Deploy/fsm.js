@@ -2142,7 +2142,7 @@ var logging = {
     if (logging.userID == undefined){
       logging.generateUserID()
     }
-    var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.sessionID)
+    var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.userID)
     var request = new XMLHttpRequest();
     request.open('POST', '/cgi/s1020995/logging.cgi', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
@@ -2150,10 +2150,10 @@ var logging = {
   },
   sendRating: function(rating) {
     var url = window.location.href;
-    if (logging.sessionID == undefined){
-      logging.generateSessionId()
+    if (logging.userID == undefined){
+      logging.generateUserID()
     }
-    var data = "url=" + encodeURIComponent(url) + "&sessionID=" +encodeURIComponent(logging.sessionID);
+    var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.userID);
     data = data + "&rating=" + encodeURIComponent(rating);
     var request = new XMLHttpRequest();
     request.open('POST', '/cgi/s1020995/rating.cgi', true);
