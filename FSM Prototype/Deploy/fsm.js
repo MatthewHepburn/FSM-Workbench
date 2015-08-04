@@ -1081,10 +1081,12 @@ var checkAnswer = {
                 message.innerHTML = "Incorrect - input not accepted by machine. " + trace
                 message.classList.add("feedback")
                 forms[i].parentNode.appendChild(message)
+                logging.sendAnswer(false, answers)
                 continue;
             }
             forms[i].classList.remove("incorrect");
             forms[i].classList.add("correct");
+            logging.sendAnswer(true, answers)
         }
     },
     satisfyDefinition: function(){
@@ -1105,6 +1107,7 @@ var checkAnswer = {
             var actual = model.nodes.length;
             var expected = model.question.nodes.length
             displayFeedback("Incorrect - the FSM should have " + expected + " states but there are only " + actual + ".")
+            logging.sendAnswer(false);
             return;
         }
         // Test if every named node exists:
@@ -1119,6 +1122,7 @@ var checkAnswer = {
             }
             if (!found){
                 displayFeedback("Incorrect - the FSM should have a state labelled '" + questionNode + "'.")
+                logging.sendAnswer(false);
                 return;
             }
         }
@@ -1133,6 +1137,8 @@ var checkAnswer = {
             }
             var actual = query.getNodeData(0).name;
             displayFeedback("Incorrect - the initial state should be " + expected +" not '" + actual + "'.")
+            logging.sendAnswer(false);
+            return;
         }
         // Test if the correct state(s) are accepting:
         for (i = 0; i < model.question.accepting.length; i++){
@@ -1144,6 +1150,7 @@ var checkAnswer = {
                 } else {
                     if (!thisNode.accepting){
                         displayFeedback("Incorrect - '" + thisNode +"' should be an accepting state.")
+                        logging.sendAnswer(false);
                         return;
                     }
                 }
@@ -1170,6 +1177,7 @@ var checkAnswer = {
                         name = "'" + name + "'"
                     }
                     displayFeedback("Incorrect - " + name + " should not be an accepting state.")
+                    logging.sendAnswer(false);
                     return
                 }
             }
@@ -1198,6 +1206,7 @@ var checkAnswer = {
                 }
                 if (!found){
                     displayFeedback("Incorrect - there should not be a transition from '" + thisLink.source.name + "' to '" + thisLink.target.name + "' for input '" + thisInput +"'.")
+                    logging.sendAnswer(false);
                     return;
                 }
             }
@@ -1210,17 +1219,20 @@ var checkAnswer = {
                 var target = model.question.links[i].target;
                 var input = model.question.links[i].input;
                 displayFeedback("Incorrect - there should be a link from '" + source + "' to '" + target + "' for input '" + input + "'.")
+                logging.sendAnswer(false);
                 return
             }
         }
 
         //All tests passed:
         displayFeedback("Correct!");
+        logging.sendAnswer(true);
     },
     satisfyList: function(){
         var accLength = model.question.acceptList.length;
         var rejLength = model.question.rejectList.length;
         var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length)
+        var passed = true;
         for (num = 0; num < nRows; num++){
             var i = num;
             // Test element i of acceptList
@@ -1231,6 +1243,7 @@ var checkAnswer = {
                     document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>"
                 } else {
                     document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>"
+                    passed = false;
                 }
             }
             // Test element i of rejectList
@@ -1241,10 +1254,12 @@ var checkAnswer = {
                     document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>"
                 } else {
                     document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>"
+                    passed = false;
                 }
             }
 
         }
+        logging.sendAnswer(passed)
     },
     satisfyRegex: function() {
         // Declare a feedback function here that each test can use.
@@ -1288,6 +1303,7 @@ var checkAnswer = {
             }
         })
         if (errorFound){
+            logging.sendAnswer(false);
             return;
         }
 
@@ -1316,13 +1332,14 @@ var checkAnswer = {
                         //If the regex accepts the string, check the machine accepts it
                         if (!model.accepts(model.parseInput(string, model.question.alphabetType))){
                             displayFeedback("Incorrect - the machine rejects the string '" + string + "' which it should accept.")
+                            logging.sendAnswer(false);
                             return;
                         }
                     }
             }
         }
         displayFeedback("Correct!");
-        console.log(strings)
+        logging.sendAnswer(true);
     },
     selectStates: function(){
         // Declare a feedback function here 
@@ -1336,8 +1353,10 @@ var checkAnswer = {
             message.classList.add("inline-feedback")
             if (isCorrect){
                 message.innerHTML = "<img class ='x-check-button' src=Icons/check.svg>"
+                logging.sendAnswer(true, model.selected);
             } else{
                 message.innerHTML = "<img class ='x-check-button' src=Icons/x.svg>"
+                logging.sendAnswer(false, model.selected);
             }
             document.querySelector(".button-div").appendChild(message)
         }
@@ -2137,8 +2156,40 @@ var logging = {
     }
 
   },
+  // answer is an optional parameter, if not specified the current state will be sent.
+  sendAnswer: function(isCorrect, answer) {
+    if (answer == undefined){
+        answer = model.generateJSON2();
+    } else {
+        answer = JSON.stringify(answer);
+    }
+    if (isCorrect){
+        isCorrect = "true";
+    } else {
+        isCorrect = "false";
+    }
+    // Record different information if the model is editable
+    var url = window.location.href;
+    if (url.slice(0,5) == "file:"){
+        // Don't try to log if accessing locally.
+        return;
+    }
+    if (logging.userID == undefined){
+      logging.generateUserID()
+    }
+    var data = "url=" + encodeURIComponent(url) + "&userID=" + encodeURIComponent(logging.userID);
+    data = data + "&isCorrect=" + isCorrect + "&answer=" + answer;
+    request.open('POST', '/cgi/s1020995/answer.cgi', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    request.send(data)
+
+  },
   sendInfo: function() {
     var url = window.location.href;
+    if (url.slice(0,5) == "file:"){
+        // Don't try to log if accessing locally.
+        return;
+    }
     if (logging.userID == undefined){
       logging.generateUserID()
     }
@@ -2150,6 +2201,10 @@ var logging = {
   },
   sendRating: function(rating) {
     var url = window.location.href;
+    if (url.slice(0,5) == "file:"){
+        // Don't try to log if accessing locally.
+        return;
+    }
     if (logging.userID == undefined){
       logging.generateUserID()
     }
