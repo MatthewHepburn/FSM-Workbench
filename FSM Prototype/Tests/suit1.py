@@ -3,23 +3,23 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
 
-# class checkTitleProgression(unittest.TestCase):
+class checkTitleProgression(unittest.TestCase):
 
-#     def setUp(self):
-#         self.driver = webdriver.Firefox()
+    def setUp(self):
+        self.driver = webdriver.Firefox()
 
-#     def test_search_in_python_org(self):
-#         driver = self.driver
-#         driver.get("http://homepages.inf.ed.ac.uk/s1020995")
-#         assert "Finite State Machines" in driver.title
-#         for i in range(1,10):
-#             next_link = driver.find_element_by_link_text('Next')
-#             next_link.click()
-#             assert str(i) in driver.title
+    def test_search_in_python_org(self):
+        driver = self.driver
+        driver.get("http://homepages.inf.ed.ac.uk/s1020995")
+        assert "Finite State Machines" in driver.title
+        for i in range(1,10):
+            next_link = driver.find_element_by_link_text('Next')
+            next_link.click()
+            assert str(i) in driver.title
 
 
-#     def tearDown(self):
-#         self.driver.close()
+    def tearDown(self):
+        self.driver.close()
 
 class checkContextMenus(unittest.TestCase):
 
@@ -67,7 +67,24 @@ class checkContextMenus(unittest.TestCase):
         form.send_keys(Keys.RETURN)
         # Check that model has updated:
         assert "qwertyuip" in str(driver.execute_script("return model.links"))
+        # Check that label has updated
+        assert "z, z, qwertyuip" in driver.page_source
 
+        #Reopen context menu from linklabel
+        id = str(driver.execute_script("return model.links[0].id"))
+        link = driver.find_element_by_css_selector("#linklabel" + id)
+        webdriver.ActionChains(driver).context_click(link).perform()
+        assert "'id': " + id in str(driver.execute_script("return model.links"))
+
+        # Test 'Delete Link':
+        deleteLink = driver.find_element_by_css_selector(".deletelink")
+        deleteLink.click()
+        # Check that link has been deleted
+        assert "qwertyuip" not in str(driver.execute_script("return model.links"))
+        assert "'id': " + id not in str(driver.execute_script("return model.links"))
+
+        # Check that label has updated
+        assert "z, z, qwertyuip" not in driver.page_source
 
     def tearDown(self):
         self.driver.close()
