@@ -174,7 +174,6 @@ var display = {
             .attr("class", "contextmenu")
             .html(html);
 
-        //TODO - fix linkcontextmenu
         d3.select(".changeconditions").on("click", function(){display.renameLinkForm(id);});
         d3.select(".deletelink").on("click", function(d){model.deleteLink(id);});
 
@@ -2006,7 +2005,9 @@ function restart() {
 
     d3.selectAll(".link")
         .on("click", function(d){eventHandler.clickLink(d);})
-        .on("contextmenu", eventHandler.linkContextMenu);
+        .on("contextmenu", function(d){
+            eventHandler.linkContextMenu(d.id);
+        });
 
 }
 
