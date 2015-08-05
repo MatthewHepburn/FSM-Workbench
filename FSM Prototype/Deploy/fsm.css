@@ -256,3 +256,6 @@ text.nodename {
   stroke-width: 5px !important;
   fill: white !important;
 }
+.survey {
+  padding-top: 10px;
+}
