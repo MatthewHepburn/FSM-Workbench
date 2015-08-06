@@ -1,6 +1,7 @@
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+import os
 
 
 class checkTitleProgression(unittest.TestCase):
@@ -10,7 +11,7 @@ class checkTitleProgression(unittest.TestCase):
 
     def test_search_in_python_org(self):
         driver = self.driver
-        driver.get("http://homepages.inf.ed.ac.uk/s1020995")
+        driver.get(os.path.join(testPath, "index.html"))
         assert "Finite State Machines" in driver.title
         for i in range(1,10):
             next_link = driver.find_element_by_link_text('Next')
@@ -28,7 +29,7 @@ class checkContextMenus(unittest.TestCase):
 
     def test_search_in_python_org(self):
         driver = self.driver
-        driver.get("http://homepages.inf.ed.ac.uk/s1020995/satisfy-list-1.html")
+        driver.get(os.path.join(testPath, "satisfy-list-1.html"))
         # Select a node and context-click it.
         node = driver.find_element_by_css_selector('.node')
         webdriver.ActionChains(driver).context_click(node).perform()
@@ -91,4 +92,5 @@ class checkContextMenus(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    testPath = "file://" + os.path.join(os.path.split(os.getcwd())[0], "Deploy")
     unittest.main()
