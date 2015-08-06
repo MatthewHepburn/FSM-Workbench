@@ -1,7 +1,96 @@
+# -*- coding: utf8 -*-
+
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import os
+
+
+class checkTools(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+
+    def testTools(self):
+        driver = self.driver
+        driver.get(os.path.join(testPath, "satisfy-list-2-vending-machine.html"))
+
+        # Test 'nodetool':
+        nodetool = driver.find_element_by_css_selector("#nodetool")
+        assert "selected" not in nodetool.get_attribute("class")
+        nodetool.click()
+        assert "selected" in nodetool.get_attribute("class")
+        nNodes = driver.execute_script("return model.nodes.length")
+        driver.find_element_by_css_selector("#main-svg").click()
+        assert nNodes + 1 == driver.execute_script("return model.nodes.length")
+        driver.find_element_by_css_selector("#main-svg").click()
+        assert nNodes + 2 == driver.execute_script("return model.nodes.length")
+
+        # Test 'linetool'
+        linetool = driver.find_element_by_css_selector("#linetool")
+        assert "selected" not in linetool.get_attribute("class")
+        linetool.click()
+        assert "selected" in linetool.get_attribute("class")
+        assert "selected" not in nodetool.get_attribute("class")
+        nLinks = driver.execute_script("return model.links.length")
+        node1id = driver.execute_script("return model.nodes[model.nodes.length - 1].id")
+        node1 = driver.find_element_by_id(str(node1id))
+        node1.click()
+        assert nLinks + 1 == driver.execute_script("return model.links.length"), "Reflexive link not created"
+        node2id = driver.execute_script("return model.nodes[model.nodes.length - 2].id")
+        node2 = driver.find_element_by_id(str(node2id))
+        webdriver.ActionChains(driver).drag_and_drop(node1, node2).perform()
+        assert nLinks + 2 == driver.execute_script("return model.links.length"), "Link not created"
+        webdriver.ActionChains(driver).drag_and_drop(node2, node1).perform()
+        assert nLinks + 3 == driver.execute_script("return model.links.length"), "Link not created"
+        webdriver.ActionChains(driver).drag_and_drop(node2, node1).perform()
+        assert nLinks + 3 == driver.execute_script("return model.links.length"), "Link should not have been created"
+
+        # Test 'texttool'
+        # First - test on nodes
+        texttool = driver.find_element_by_css_selector("#texttool")
+        assert "selected" not in texttool.get_attribute("class"), "Text tool should be selected"
+        texttool.click()
+        assert "selected" in texttool.get_attribute("class"), "Text tool should be selected"
+        assert "selected" not in linetool.get_attribute("class"), "Line tool should have been deselected"
+        node1.click()
+        form = driver.find_element_by_css_selector(".renameinput")
+        form.send_keys("тест") # This will probably take additional work to run in python 2.x but works in python 3.4
+        form.send_keys(Keys.RETURN)
+        assert "тест" == driver.execute_script("return query.getNodeData(" + str(node1id) + ").name"), "Rename did not modify model correctly"
+        assert "тест" in driver.page_source, "Rename display unsuccessful for string 'тест'" 
+        node1.click()
+        form = driver.find_element_by_css_selector(".renameinput")
+        form.clear()
+        form.send_keys("اختبار") # This will probably take additional work to run in python 2.x but works in python 3.4
+        form.send_keys(Keys.RETURN)
+        assert "اختبا" == driver.execute_script("return query.getNodeData(" + str(node1id) + ").name"), "Rename did not modify model correctly - got " + driver.execute_script("return query.getNodeData(" + str(node1id) + ").name")
+        assert "اختبا" in driver.page_source, "Rename display unsuccessful for string 'اختبا'"
+        
+        # Second - test on links:
+        linkid = driver.execute_script("return model.links[model.links.length - 1].id")
+        link = driver.find_element_by_id("link" + str(linkid))
+        link.click()
+        form = driver.find_element_by_css_selector(".renameinput")
+        form.send_keys("ajgl, vzx, EPSILON")
+        form.send_keys(Keys.RETURN)
+        assert "ajgl, vzx, ε" in driver.page_source, "Link rename not displayed successfully"
+        input = driver.execute_script("return query.getLinkData(" + str(linkid) +").input")
+        assert "ajgl" == input[0], "Rename did not update model correctly"
+        assert "vzx" == input[1], "Rename did not update model correctly"
+        assert "ε" == input[2], "Rename did not update model correctly"
+
+        # Test 'acceptingtool'
+        acceptingtool = driver.find_element_by_css_selector("#acceptingtool")
+        assert "selected" in texttool.get_attribute("class"), "Text tool should be selected"
+        assert "selected" not in acceptingtool.get_attribute("class"), "Accepting tool should not be selected"
+        acceptingtool.click()
+        assert "selected" in acceptingtool.get_attribute("class"), "Accepting tool should be selected"
+        assert "selected" not in texttool.get_attribute("class"), "Text tool should have been deselected"
+
+
+
+    def tearDown(self):
+        self.driver.quit()
 
 
 class checkTitleProgression(unittest.TestCase):
@@ -9,7 +98,7 @@ class checkTitleProgression(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
 
-    def test_search_in_python_org(self):
+    def testTitleProgression(self):
         driver = self.driver
         driver.get(os.path.join(testPath, "index.html"))
         assert "Finite State Machines" in driver.title
@@ -20,14 +109,14 @@ class checkTitleProgression(unittest.TestCase):
 
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 class checkContextMenus(unittest.TestCase):
 
     def setUp(self):
         self.driver = webdriver.Firefox()
 
-    def test_search_in_python_org(self):
+    def testContextMenus(self):
         driver = self.driver
         driver.get(os.path.join(testPath, "satisfy-list-1.html"))
         # Select a node and context-click it.
@@ -88,7 +177,7 @@ class checkContextMenus(unittest.TestCase):
         assert "z, z, qwertyuip" not in driver.page_source
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 
 if __name__ == "__main__":
