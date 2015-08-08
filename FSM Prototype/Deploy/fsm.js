@@ -1390,6 +1390,7 @@ var eventHandler = {
         if (d3.event.target.id != "main-svg"){
             return;
         }
+        console.log(d3.event);
 
         // Dismiss context menu if it is present
         if (contextMenuShowing) {
@@ -1402,27 +1403,37 @@ var eventHandler = {
 
         if (d3.event.button != 0 || mousedown_node || mousedown_link) return;
 
-        // If not in nodetool mode, do nothing:
-        if (model.toolMode != "nodetool"){
-            return;
-        }
-
+        
         // If rename menu is showing, do nothing
         if (renameMenuShowing) {
+            controller.renameSubmit()
             return;
         }
 
-        // insert new node at point
-        var point = d3.mouse(this),
-            node = {
-                id: ++model.lastNodeID,
-                accepting: false
-            };
-        node.x = point[0];
-        node.y = point[1];
-        model.nodes.push(node);
-        force.start();
-        restart();
+        // If not in nodetool mode, do nothing:
+        if (model.toolMode == "nodetool"){
+            // insert new node at point
+            var point = d3.mouse(this),
+                node = {
+                    id: ++model.lastNodeID,
+                    accepting: false
+                };
+            node.x = point[0];
+            node.y = point[1];
+            model.nodes.push(node);
+            force.start();
+            restart();
+            return;
+        }
+        if (model.toolMode == "texttool"){
+            // If there is nearby link, rename it:
+            var maxDistance = 60 // ignore links further away than this
+                // x = 
+            for (var i = 0; i < model.links.length; i++){
+                var link = model.links[i];
+
+            }
+        }
     },
     clickLink: function(d){
         if (selected_link == d){
@@ -1773,7 +1784,7 @@ var drag_line = svg.append("svg:path")
     .attr("d", "M0,0L0,0");
 
 // handles to link and node element groups
-var path = svg.append("svg:g").selectAll("path"),
+var path = svg.append("svg:g").attr("id", "paths").selectAll("path"),
     circle = svg.append("svg:g").selectAll("g"),
     linkLabels = svg.selectAll(".linklabel");
 
@@ -1827,6 +1838,13 @@ function tick() {
             return "link" + d.id;
         });
 
+    //Update the path padding
+    model.links.map(function(l){
+        var path = d3.select("#link" + l.id);
+        var padding = d3.select("#linkpad" + l.id);
+        padding.attr("d", path.attr("d"))
+    })
+
 
     // Move the input labels
     linkLabels.attr("transform", function(d) {
@@ -1876,7 +1894,8 @@ function restart() {
         .style("marker-mid", "url(#end-arrow)");
 
     // add new links
-    path.enter().append("svg:path")
+    var newLinks = path.enter()
+    newLinks.append("svg:path")
         .attr("class", "link")
         .classed("selected", function(d) {
             return d === selected_link;
@@ -1884,7 +1903,20 @@ function restart() {
         .style("marker-mid", "url(#end-arrow)")
         .on("mousedown", function(d) {
             eventHandler.addLinkMouseDown(d);
-        });
+        })
+        .each(function(d){
+            d3.select("#paths")
+            .append("svg:path")
+            .attr("class", "link-padding")
+            .attr("id", "linkpad" + d.id)
+            .on("mousedown", function() {
+                eventHandler.addLinkMouseDown(d)
+            })
+            .on("click", function() {
+                eventHandler.clickLink(d)
+            })
+        })     
+        
 
     // remove old links
     path.exit().remove();

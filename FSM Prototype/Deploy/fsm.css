@@ -70,6 +70,13 @@ path.link.hidden {
   stroke-width: 0;
 }
 
+.link-padding {
+  stroke-width: 35px;
+  fill: none;
+  stroke: black;
+  stroke-opacity: 0;
+}
+
 circle.node {
   stroke-width: 1.5px;
   cursor: pointer;
