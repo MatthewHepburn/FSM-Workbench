@@ -482,12 +482,16 @@ var display = {
     traceStep: function(autoPlay, backward){
         traceStepInProgress = true;
         if (backward && model.currentStep == 0){
-            traceStepInProgress  = false;
+            traceStepInProgress = false;
+            return;
+        }
+        if (!backward && model.currentStates.length == 0){
             return;
         }
         d3.selectAll(".dim").classed("dim", false);
         d3.selectAll(".node").classed("dim", true);
         d3.selectAll(".highlight").classed("highlight", false);
+        var i = model.currentStep + 1;
         if (!backward){
             if (model.currentInput.length != 0 && model.currentStates.length != 0){
                 var linksUsed = model.step()
@@ -514,7 +518,6 @@ var display = {
             model.currentStates = record.states;
             model.currentInput = JSON.parse(JSON.stringify(record.currentInput));
             model.currentStep = model.fullInput.length - model.currentInput.length;
-            var i = model.currentStep;
             d3.select("#in-comma" + (i-1))
                 .classed("dim", true);
             for (var j = i; j < model.fullInput.length; j++){
@@ -529,18 +532,18 @@ var display = {
 
         //Dim all previous input letters that have been consumed
         var index = model.fullInput.length - model.currentInput.length;
-        for (j = 0; j < index - 1; j++){
-            d3.select("#in" + j)
+        for (var k = 0; k < index; k++){
+            d3.select("#in" + k)
                 .classed("highlight", false)
                 .classed("dim", true)
                 .transition().duration(1000)
                 .attr("transform", "translate(0, 1000)");
-            d3.select("#in-comma" + j)
+            d3.select("#in-comma" + k)
                 .classed("dim", true);
         }
 
-        for (j = 0; j < model.currentStates.length; j++){
-            var stateID = model.currentStates[j];
+        for (k = 0; k < model.currentStates.length; k++){
+            var stateID = model.currentStates[k];
             d3.select("[id='" + stateID + "']")
                 .classed("dim", false)
                 .classed("highlight", true)
@@ -581,6 +584,8 @@ var display = {
                                 .attr("x", x);
                         });
                 });
+            d3.select("#in-comma" + (i-1))
+                .classed("dim", false);
         }
         traceStepInProgress = false;
         return;
@@ -1645,33 +1650,13 @@ var eventHandler = {
             return;
         }
         if (button == "back"){
-            if (!traceStepInProgress){
+            if (!tracePlaying){
                 display.traceStep(false, true);
-            } else {
-                var f = function(){
-                    if (!traceStepInProgress){
-                        traceInProgress = true;
-                        display.traceStep(false, true);
-                    } else {
-                        setTimeout(200, f);
-                    }
-                };
-                setTimeout(200, f);
             }
         }
         if (button == "forward"){
-            if (!traceStepInProgress){
+            if (!tracePlaying){
                 display.traceStep(false, false);
-            } else {
-                f = function(){
-                    if (!traceStepInProgress){
-                        traceInProgress = true;
-                        display.traceStep(false, false);
-                    } else {
-                        setTimeout(200, f);
-                    }
-                };
-                setTimeout(200, f);
             }
         }
         if (button == "play"){
@@ -2256,13 +2241,12 @@ d3.select(window)
     .on("keyup", keyup);
 var contextMenuShowing = false;
 var renameMenuShowing = false;
-var traceStepInProgress = false;
 restart();
 force.start();
 circle.call(force.drag);
 // Add a start arrow to node 0
 var node0 = d3.select("[id='0']").data()[0];
-var traceInProgress = false;
+var tracePlaying = false;
 display.drawStart(node0.x, node0.y);
 // Add event listener to the rate buttons
 d3.selectAll(".rate-button").on("click", eventHandler.rate);
