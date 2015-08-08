@@ -9,6 +9,7 @@ import os
 class checkTools(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(10)
 
     def testTools(self):
         driver = self.driver
@@ -41,6 +42,9 @@ class checkTools(unittest.TestCase):
         webdriver.ActionChains(driver).drag_and_drop(node1, node2).perform()
         assert nLinks + 2 == driver.execute_script("return model.links.length"), "Link not created"
         webdriver.ActionChains(driver).drag_and_drop(node2, node1).perform()
+        newID = "link" + str(driver.execute_script("return model.lastLinkID"))
+        # Wait for the new link to be created:
+        driver.find_element_by_id(newID)
         assert nLinks + 3 == driver.execute_script("return model.links.length"), "Link not created"
         webdriver.ActionChains(driver).drag_and_drop(node2, node1).perform()
         assert nLinks + 3 == driver.execute_script("return model.links.length"), "Link should not have been created"
@@ -89,8 +93,8 @@ class checkTools(unittest.TestCase):
 
 
 
-    def tearDown(self):
-        self.driver.quit()
+    # def tearDown(self):
+    #     self.driver.quit()
 
 
 class checkTitleProgression(unittest.TestCase):

@@ -26,9 +26,9 @@
   {
     "question-number": 4,
     "filename": "satisfy-list-1",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563769064,\"y\":582.6076924382673,\"index\":1,\"weight\":0,\"px\":238.76165563769075,\"py\":582.6076924382669},{\"id\":21,\"accepting\":false,\"x\":350.36243015048876,\"y\":250.02945122848976,\"index\":2,\"weight\":1,\"px\":350.36243015048876,\"py\":250.02945122848976,\"fixed\":0,\"name\":\"2\"}]",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":21,\"accepting\":false,\"x\":350.36243015048876,\"y\":250.02945122848976,\"index\":2,\"weight\":1,\"px\":350.36243015048876,\"py\":250.02945122848976,\"fixed\":0,\"name\":\"2\"}]",
     "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8},{\"source\":21,\"target\":21,\"input\":[\"b\"],\"id\":9}]",
-    "data-question": "{\"type\":\"satisfy-list\",\"text\":\"Modify the FSM below to accept the strings on the left but reject the strings on the right.<br> Note: You can use either a deterministic or non-deterministic machine.\",\"acceptList\":[\"aa\",\"aba\",\"abba\",\"aaa\",\"abaa\"],\"rejectList\":[\"\",\"a\",\"aaba\"],\"alphabetType\":\"char\"}",
+    "data-question": "{\"type\":\"satisfy-list\",\"text\":\"Modify the FSM below to accept the strings on the left but reject the strings on the right.\",\"acceptList\":[\"aa\",\"aba\",\"abba\",\"aaa\",\"abaa\"],\"rejectList\":[\"\",\"a\",\"aaba\"],\"alphabetType\":\"char\"}",
     "data-options": "{}"
   },
   {

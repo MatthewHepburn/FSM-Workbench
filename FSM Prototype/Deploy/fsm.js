@@ -1404,36 +1404,19 @@ var eventHandler = {
         if (d3.event.button != 0 || mousedown_node || mousedown_link) return;
 
         
-        // If rename menu is showing, do nothing
+        // If rename menu is showing, submit it.
         if (renameMenuShowing) {
             controller.renameSubmit()
             return;
         }
 
-        // If not in nodetool mode, do nothing:
-        if (model.toolMode == "nodetool"){
-            // insert new node at point
-            var point = d3.mouse(this),
-                node = {
-                    id: ++model.lastNodeID,
-                    accepting: false
-                };
-            node.x = point[0];
-            node.y = point[1];
-            model.nodes.push(node);
-            force.start();
-            restart();
-            return;
+        
+        if (model.toolMode == "nodetool" || model.toolMode == "acceptingtool"){
+            d3.event.preventDefault()
+            eventHandler.createNode() 
+            return;           
         }
-        if (model.toolMode == "texttool"){
-            // If there is nearby link, rename it:
-            var maxDistance = 60 // ignore links further away than this
-                // x = 
-            for (var i = 0; i < model.links.length; i++){
-                var link = model.links[i];
-
-            }
-        }
+        
     },
     clickLink: function(d){
         if (selected_link == d){
@@ -1452,6 +1435,14 @@ var eventHandler = {
         }
 
     },
+    clickLinkPadding: function(d){
+        if (model.toolMode == "nodetool" || model.toolMode == "acceptingtool"){
+            eventHandler.createNode();
+        }
+        else {
+            eventHandler.clickLink(d);
+        }
+    },
     clickNode: function(d) {
         if (model.toolMode == "acceptingtool"){
             model.toggleAccepting(d.id);
@@ -1464,6 +1455,9 @@ var eventHandler = {
         if (model.toolMode == "texttool"){
             display.renameStateForm(d.id);
             return;
+        }
+        if (model.toolMode == "nodetool"){
+            eventHandler.createNode();
         }
     },
     addLinkMouseDown: function(d) {
@@ -1546,6 +1540,20 @@ var eventHandler = {
             restart();
         }
     },
+    createNode: function(){
+        // insert new node at point
+        var point = d3.mouse(d3.select("#main-svg")[0][0]),
+            node = {
+                id: ++model.lastNodeID,
+                accepting: (model.toolMode == "acceptingtool") 
+            };
+        node.x = point[0];
+        node.y = point[1];
+        model.nodes.push(node);
+        force.start();
+        restart();
+        return;
+    },
     // Provides right-click funtionality for links
     linkContextMenu: function(id) {
         d3.event.preventDefault();
@@ -1610,8 +1618,8 @@ var eventHandler = {
         if (model.toolMode == "texttool"){
             controller.renameSubmit();
         }
-        // If current mode is linetool, reinstate drag-to-move
-        if(model.toolMode == "linetool"|| model.toolMode == "texttool" || model.toolMode == "acceptingtool" || model.toolMode == "deletetool"){
+        // Reinstate drag-to-move if previous mode did not allow it.
+        if(model.toolMode == "linetool"|| model.toolMode == "texttool" || model.toolMode == "acceptingtool" || model.toolMode == "deletetool" || model.toolMode == "nodetool"){
             circle.call(force.drag);
         }
         // If current mode is the same as the new mode, deselect it:
@@ -1623,7 +1631,7 @@ var eventHandler = {
             d3.select("#"+newMode).classed("selected", true);
         }
         //  disable node dragging if needed by new mode:
-        if (newMode == "linetool" || newMode == "texttool" || newMode == "acceptingtool" || newMode == "deletetool"){
+        if (newMode == "linetool" || newMode == "texttool" || newMode == "acceptingtool" || newMode == "deletetool" || newMode == "nodetool"){
             circle
                 .on("mousedown.drag", null)
                 .on("touchstart.drag", null);
@@ -1913,7 +1921,7 @@ function restart() {
                 eventHandler.addLinkMouseDown(d)
             })
             .on("click", function() {
-                eventHandler.clickLink(d)
+                eventHandler.clickLinkPadding(d)
             })
         })     
         
@@ -1935,7 +1943,7 @@ function restart() {
         })
         .classed("accepting", function(d) {
             return d.accepting;
-        });
+        })
 
     // Add link labels
     linkLabels = linkLabels.data(model.links, function(d){
