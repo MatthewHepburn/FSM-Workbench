@@ -20,14 +20,14 @@
     "filename": "give-list-2",
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"name\":\"2\",\"x\":350.15032120079667,\"y\":250.475260487718,\"index\":1,\"weight\":2,\"px\":350.1503209617719,\"py\":250.47526958470755,\"fixed\":0},{\"id\":2,\"accepting\":false,\"name\":\"3\",\"x\":500.3293871545822,\"y\":251.17886507380038,\"index\":2,\"weight\":2,\"px\":500.3293821052963,\"py\":251.17882771815624,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":650.6004584943366,\"y\":250.95221832253597,\"index\":3,\"weight\":1,\"px\":650.5994361672165,\"py\":250.95221986159427,\"fixed\":0,\"name\":\"4\"},{\"id\":4,\"accepting\":false,\"x\":196.31303007981728,\"y\":99.89358118674825,\"index\":4,\"weight\":2,\"px\":196.31305489187685,\"py\":99.89459124923395,\"fixed\":0,\"name\":\"0\"}]",
     "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":0},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":1},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":3},{\"source\":0,\"target\":4,\"input\":[\"a\"],\"id\":4},{\"source\":4,\"target\":0,\"input\":[\"b\"],\"id\":5}]",
-    "data-question": "{\"type\":\"give-list\",\"lengths\":[3,11],\"text\":\"For each of the lengths given, give a sequence that the Finite State Machine will accept.\",\"alphabetType\":\"char\"}",
+    "data-question": "{\"type\":\"give-list\",\"lengths\":[3,9],\"text\":\"For each of the lengths given, give a sequence that the Finite State Machine will accept.\",\"alphabetType\":\"char\"}",
     "data-options": "{}"
   },
   {
     "question-number": 4,
     "filename": "satisfy-list-1",
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563769064,\"y\":582.6076924382673,\"index\":1,\"weight\":0,\"px\":238.76165563769075,\"py\":582.6076924382669},{\"id\":21,\"accepting\":false,\"x\":350.36243015048876,\"y\":250.02945122848976,\"index\":2,\"weight\":1,\"px\":350.36243015048876,\"py\":250.02945122848976,\"fixed\":0,\"name\":\"2\"}]",
-    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
+    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8},{\"source\":21,\"target\":21,\"input\":[\"b\"],\"id\":9}]",
     "data-question": "{\"type\":\"satisfy-list\",\"text\":\"Modify the FSM below to accept the strings on the left but reject the strings on the right.<br> Note: You can use either a deterministic or non-deterministic machine.\",\"acceptList\":[\"aa\",\"aba\",\"abba\",\"aaa\",\"abaa\"],\"rejectList\":[\"\",\"a\",\"aaba\"],\"alphabetType\":\"char\"}",
     "data-options": "{}"
   },
