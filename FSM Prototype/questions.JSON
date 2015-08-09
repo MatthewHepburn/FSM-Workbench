@@ -44,7 +44,7 @@
     "filename": "satisfy-list-4-2010-resit",
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563769064,\"y\":582.6076924382673,\"index\":1,\"weight\":0,\"px\":238.76165563769075,\"py\":582.6076924382669},{\"id\":21,\"accepting\":false,\"x\":350.36243015048876,\"y\":250.02945122848976,\"index\":2,\"weight\":1,\"px\":350.36152344830526,\"py\":250.02945105089555,\"fixed\":0,\"name\":\"2\"}]",
     "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
-    "data-question": "{\"type\":\"satisfy-list\",\"text\":\"Construct a non-deterministic FSM that accepts the langauge described by the regular expression (a|bb)*(ba*|c)<br>(Based on question 5 from the 2010/11 resit paper)<br><b>Hint:</b> you can enter \\\"epsilon\\\" as a transition condition.\",\"acceptList\":[\"b\",\"c\",\"aba\",\"bbbbbbbaaaaaaaaaa\",\"aaaaaac\",\"baaaa\",\"baaa\",\"bbac\",\"abbabbabbabbbaa\",\"bbaabbbbaac\"],\"rejectList\":[\"bc\",\"bb\",\"bbbb\",\"abba\",\"acaa\"],\"alphabetType\":\"char\"}",
+    "data-question": "{\"type\":\"satisfy-list\",\"text\":\"Construct a non-deterministic FSM that accepts the language described by the regular expression (a|bb)*(ba*|c)<br>(Based on question 5 from the 2010/11 resit paper)<br><b>Hint:</b> you can enter \\\"epsilon\\\" as a transition condition.\",\"acceptList\":[\"b\",\"c\",\"aba\",\"bbbbbbbaaaaaaaaaa\",\"aaaaaac\",\"baaaa\",\"baaa\",\"bbac\",\"abbabbabbabbbaa\",\"bbaabbbbaac\"],\"rejectList\":[\"bc\",\"bb\",\"bbbb\",\"abba\",\"acaa\"],\"alphabetType\":\"char\"}",
     "data-options": "{}"
   },
   {

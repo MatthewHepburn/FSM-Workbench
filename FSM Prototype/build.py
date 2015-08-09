@@ -24,6 +24,7 @@ if __name__ == "__main__":
     templatesDir = getDir()  # TODO work out what this does/if it does anything
     question_template = templateEnv.get_template("question.jinja")
     index_template = templateEnv.get_template("index.jinja")
+    end_template = templateEnv.get_template("end.jinja")
 
     # Change to /Questions directory
     currentDir = os.getcwd()
@@ -56,7 +57,8 @@ if __name__ == "__main__":
         if question["question-number"] < len(data):
             variables["next"] = "href='" + data[question["question-number"]]["filename"] + ".html'"
         else:
-            variables["next"] = ""
+            variables["next"] = "href ='end.html'"
+            lastQuestion = question["filename"]
 
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"
@@ -67,13 +69,21 @@ if __name__ == "__main__":
             f.write(outputText.encode("UTF-8"))
         f.close()
 
-    
+    # Output index.html
     variables = {"q1": data[0]["filename"] + ".html"}
     outputText = index_template.render(variables)
     f = open("index.html", "w")
     f.write(outputText)
     f.close()
     print("index.html")
+
+    # Output end.html
+    variables = {"lastq": lastQuestion + ".html"}
+    outputText = end_template.render(variables)
+    f = open("end.html", "w")
+    f.write(outputText)
+    f.close()
+    print("end.html")
 
     # Return to previous directory.
     os.chdir(currentDir)
