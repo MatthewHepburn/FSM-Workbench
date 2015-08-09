@@ -4,6 +4,11 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import os
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait 
+from selenium.webdriver.support import expected_conditions as EC
+
 
 
 class checkTools(unittest.TestCase):
@@ -12,6 +17,10 @@ class checkTools(unittest.TestCase):
         self.driver.implicitly_wait(10)
 
     def testTools(self):
+        # NB - having the mouse over the browser window or moving the mouse 
+        # while this test is running can cause it to fail as it
+        # interferes with the drag/drop operation.
+
         driver = self.driver
         driver.get(os.path.join(testPath, "satisfy-list-2-vending-machine.html"))
 
@@ -40,11 +49,15 @@ class checkTools(unittest.TestCase):
         node2id = driver.execute_script("return model.nodes[model.nodes.length - 2].id")
         node2 = driver.find_element_by_id(str(node2id))
         webdriver.ActionChains(driver).drag_and_drop(node1, node2).perform()
+        newID = "link" + str(driver.execute_script("return model.lastLinkID"))
+        # Wait for the new link to be created:
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, newID)))
+        node1.click()
         assert nLinks + 2 == driver.execute_script("return model.links.length"), "Link not created"
         webdriver.ActionChains(driver).drag_and_drop(node2, node1).perform()
         newID = "link" + str(driver.execute_script("return model.lastLinkID"))
         # Wait for the new link to be created:
-        driver.find_element_by_id(newID)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, newID)))
         assert nLinks + 3 == driver.execute_script("return model.links.length"), "Link not created"
         webdriver.ActionChains(driver).drag_and_drop(node2, node1).perform()
         assert nLinks + 3 == driver.execute_script("return model.links.length"), "Link should not have been created"
@@ -90,11 +103,34 @@ class checkTools(unittest.TestCase):
         acceptingtool.click()
         assert "selected" in acceptingtool.get_attribute("class"), "Accepting tool should be selected"
         assert "selected" not in texttool.get_attribute("class"), "Text tool should have been deselected"
+        assert False == driver.execute_script("return query.getNodeData("+str(node1id)+").accepting")
+        node1.click()
+        assert True == driver.execute_script("return query.getNodeData("+str(node1id)+").accepting")
+        node1.click()
+        assert False == driver.execute_script("return query.getNodeData("+str(node1id)+").accepting")
+        nNodes = driver.execute_script("return model.nodes.length")
+        driver.find_element_by_css_selector("#main-svg").click()
+        assert nNodes + 1 == driver.execute_script("return model.nodes.length")
+        assert driver.execute_script("return model.nodes[model.nodes.length-1].accepting")
+
+        # Test 'deletetool'
+        deletetool = driver.find_element_by_css_selector("#deletetool")
+        assert "selected" in acceptingtool.get_attribute("class"), "Accepting tool should be selected"
+        assert "selected" not in deletetool.get_attribute("class"), "Delete tool should not be selected"
+        deletetool.click()
+        assert "selected" in deletetool.get_attribute("class"), "Delete tool should be selected"
+        assert "selected" not in acceptingtool.get_attribute("class"), "Accepting tool should have been deselected"
+        nNodes = driver.execute_script("return model.nodes.length")
+        node2.click()
+        assert nNodes - 1 == driver.execute_script("return model.nodes.length"), "Node count not changed by delete"
+        nLinks = driver.execute_script("return model.links.length")
+        node1.click()
+        assert nLinks - 1 == driver.execute_script("return model.links.length"), "Link count not changed by delete"
+        assert nNodes - 2 == driver.execute_script("return model.nodes.length"), "Node count not changed by delete"
 
 
-
-    # def tearDown(self):
-    #     self.driver.quit()
+    def tearDown(self):
+        self.driver.quit()
 
 
 class checkTitleProgression(unittest.TestCase):
