@@ -52,7 +52,7 @@ if __name__ == "__main__":
         if question["question-number"] > 1:
             variables["previous"] = "href='" + data[question["question-number"]-2]["filename"] + ".html'"
         else:
-            variables["previous"] = ""
+            variables["previous"] = "href='index.html'"
 
         if question["question-number"] < len(data):
             variables["next"] = "href='" + data[question["question-number"]]["filename"] + ".html'"
