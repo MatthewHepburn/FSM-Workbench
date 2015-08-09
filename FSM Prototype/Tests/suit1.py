@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait 
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 
 
@@ -49,12 +50,14 @@ class checkTools(unittest.TestCase):
         node2id = driver.execute_script("return model.nodes[model.nodes.length - 2].id")
         node2 = driver.find_element_by_id(str(node2id))
         webdriver.ActionChains(driver).drag_and_drop(node1, node2).perform()
+        time.sleep(1)
         newID = "link" + str(driver.execute_script("return model.lastLinkID"))
         # Wait for the new link to be created:
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, newID)))
         node1.click()
         assert nLinks + 2 == driver.execute_script("return model.links.length"), "Link not created"
         webdriver.ActionChains(driver).drag_and_drop(node2, node1).perform()
+        time.sleep(1)
         newID = "link" + str(driver.execute_script("return model.lastLinkID"))
         # Wait for the new link to be created:
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, newID)))
