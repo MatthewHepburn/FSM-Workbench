@@ -1637,7 +1637,8 @@ var eventHandler = {
     //Function to handle clicks to the control palette:
     toolSelect: function() {
         //Clear previous selection:
-        d3.select(".control-rect.selected").classed("selected", false);
+        d3.select(".control-rect.selected").classed("selected", false)
+            .attr("fill", "white");
         var newMode = d3.event.target.id;
         // If current mode is texttool, submit any open rename forms:
         if (model.toolMode == "texttool"){
@@ -1653,7 +1654,8 @@ var eventHandler = {
             newMode = "none";
         } else {
             model.toolMode = newMode;
-            d3.select("#"+newMode).classed("selected", true);
+            d3.select("#"+newMode).classed("selected", true)
+                .attr("fill", "url(#Gradient1)");
         }
         //  disable node dragging if needed by new mode:
         if (newMode == "linetool" || newMode == "texttool" || newMode == "acceptingtool" || newMode == "deletetool" || newMode == "nodetool"){
