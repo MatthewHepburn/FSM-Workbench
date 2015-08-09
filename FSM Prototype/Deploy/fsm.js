@@ -129,6 +129,25 @@ var display = {
                 .on("click", eventHandler.toolSelect)
                 .append("svg:title").text(tooltips[tools[i]]);
         }
+        // Define a gradient to be applied when a button is selected:
+        var grad = d3.select("defs").append("svg:linearGradient")
+            .attr("id", "Gradient1")
+            .attr("x1", "0")
+            .attr("x2", "1")
+            .attr("y1", "0")
+            .attr("y2", "1")
+        
+        grad.append("svg:stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "black")
+            .attr("stop-opacity", 0.7)
+
+        grad.append("svg:stop")
+            .attr("offset", "65%")
+            .attr("stop-color", "black")
+            .attr("stop-opacity", 0.1)
+
+
     },
     drawTraceControls: function(){
         var bwidth = 40; //button width
