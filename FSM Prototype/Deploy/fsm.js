@@ -175,7 +175,7 @@ var display = {
             .html(html);
 
         d3.select(".changeconditions").on("click", function(){display.renameLinkForm(id);});
-        d3.select(".deletelink").on("click", function(d){model.deleteLink(id);});
+        d3.select(".deletelink").on("click", function(d){model.deleteLink(id); display.dismissContextMenu();});
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
@@ -636,6 +636,7 @@ var model = {
                 model.links.splice(i, 1);
                 selected_link = null;
                 d3.select("#linklabel"+id).remove();
+                d3.select("#linkpad" + id).remove();
                 linkLabels.exit().remove();
                 restart();
                 return;
@@ -1887,7 +1888,7 @@ function restart() {
         .style("marker-mid", "url(#end-arrow)");
 
     // add new links
-    var newLinks = path.enter()
+    var newLinks = path.enter();
     newLinks.append("svg:path")
         .attr("class", "link")
         .classed("selected", function(d) {
@@ -1903,12 +1904,13 @@ function restart() {
             .attr("class", "link-padding")
             .attr("id", "linkpad" + d.id)
             .on("mousedown", function() {
-                eventHandler.addLinkMouseDown(d)
+                eventHandler.addLinkMouseDown(d);
             })
+            .attr("data-link-id", d.id)
             .on("click", function() {
-                eventHandler.clickLinkPadding(d)
-            })
-        })     
+                eventHandler.clickLinkPadding(d);
+            });
+        }); 
         
 
     // remove old links
@@ -2033,6 +2035,9 @@ function restart() {
         .on("contextmenu", function(d){
             eventHandler.linkContextMenu(d.id);
         });
+
+    d3.selectAll(".link-padding")
+        .on("contextmenu", function(){eventHandler.linkContextMenu(d3.select(this).attr("data-link-id"));});
 
 }
 
