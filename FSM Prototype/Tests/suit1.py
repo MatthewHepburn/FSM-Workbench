@@ -11,6 +11,123 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 
+class checkQuestions(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(10)
+
+    def testSatisfyList1(self):
+        #Test that satisfy-list-1 accepts a correct solution.
+        driver = self.driver
+        driver.get(os.path.join(testPath, "satisfy-list-1.html"))
+
+        node1id = driver.execute_script("return model.nodes[0].id")
+        node2id = driver.execute_script("return model.nodes[1].id")
+        node1 = driver.find_element_by_id(str(node1id))
+        node2 = driver.find_element_by_id(str(node2id))
+        #Select Node tool:
+        driver.find_element_by_css_selector("#nodetool").click()
+        #Click background:
+        driver.find_element_by_css_selector("#main-svg").click()
+        node3id = driver.execute_script("return model.nodes[2].id")
+        node3 = driver.find_element_by_id(str(node3id))
+        #Create links:
+        driver.find_element_by_css_selector("#linetool").click()
+        node3.click()
+        link3to3id = driver.execute_script("return model.links[model.links.length -1].id")
+        link3to3 = driver.find_element_by_id("link" + str(link3to3id))
+        webdriver.ActionChains(driver).drag_and_drop(node2, node3).perform()
+        link2to3id = driver.execute_script("return model.links[model.links.length -1].id")
+        link2to3 = driver.find_element_by_id("link" + str(link2to3id))
+        # Label links
+        driver.find_element_by_css_selector("#texttool").click()
+        link3to3.click()
+        form = driver.find_element_by_css_selector(".renameinput")
+        form.clear()
+        form.send_keys("a")
+        form.send_keys(Keys.RETURN)
+        link2to3.click()
+        form = driver.find_element_by_css_selector(".renameinput")
+        form.clear()
+        form.send_keys("a")
+        form.send_keys(Keys.RETURN)
+        # Set accepting state
+        driver.find_element_by_css_selector("#acceptingtool").click()
+        node3.click()
+        # Check Answer
+        driver.find_element_by_css_selector(".qbutton").click()
+        assert "check.svg" in driver.page_source, "No tickmark displayed"
+        assert "x.svg" not in driver.page_source, "Cross should not be displayed"
+
+    def testSatisfyList2(self):
+        driver = self.driver
+        driver.get(os.path.join(testPath, "satisfy-list-2-vending-machine.html"))
+        node0p = driver.find_element_by_id("0")
+        #Identify nodes:
+        for i in range(1,3):
+            node = driver.execute_script("return model.nodes["+str(i)+"]")
+            nodeName = node["name"]
+            if nodeName == "10p":
+                node10p = driver.find_element_by_id(str(node["id"]))
+                continue
+            if nodeName == "20p":
+                node20p = driver.find_element_by_id(str(node["id"])) 
+                continue
+            assert False, "Unexpected node name."
+
+        # Create nodes:
+        driver.find_element_by_css_selector("#nodetool").click()
+        lastNodeId = driver.execute_script("return model.nodes[model.nodes.length-1].id")
+        nodes = []
+        for i in range(0, 4):
+            driver.find_element_by_css_selector("#main-svg").click()
+            nodes += [driver.find_element_by_id(str(lastNodeId + i + 1))]
+
+        node30p, node40p, node50p, nodeEnd = nodes[0], nodes[1], nodes[2], nodes[3]
+
+        # Label Nodes
+        driver.find_element_by_id("texttool").click()
+        nodeNames = ["30p", "40p", "50p+", "Vend"]
+        for i in range(0,4):
+            nodes[i].click()
+            form = driver.find_element_by_css_selector(".renameinput")
+            form.clear()
+            form.send_keys(nodeNames[i])
+            form.send_keys(Keys.RETURN)
+
+        # Link and label Nodes
+        linetool = driver.find_element_by_css_selector("#linetool")
+        linetool.click()
+        assert "selected" in linetool.get_attribute("class"), "Line tool should be selected."
+        nextLinkID = driver.execute_script("return model.links[model.links.length-1].id + 1")
+        links = [(node10p, node30p, "20p"), (node20p, node30p, "10p"), (node20p, node40p, "20p"), (node30p, node40p, "10p"), (node30p, node50p, "20p"), (node40p, node50p, "10p, 20p"), (node40p, nodeEnd, "Water"), (node50p, nodeEnd, "Water, Irn-Bru")]
+        for i in range(0, len(links)):
+            startNode = links[i][0]
+            endNode = links[i][1]
+            string = links[i][2]
+            webdriver.ActionChains(driver).drag_and_drop(startNode, endNode).perform()
+            linkID = nextLinkID + i
+            link = driver.find_element_by_id("linkpad" + str(linkID))
+            webdriver.ActionChains(driver).context_click(link).perform()
+            driver.find_element_by_css_selector(".changeconditions").click()
+            form = driver.find_element_by_css_selector(".renameinput")
+            form.clear()
+            form.send_keys(string)
+            form.send_keys(Keys.RETURN)
+
+        # Set accepting state:
+        driver.find_element_by_id("acceptingtool").click()
+        nodeEnd.click()
+
+        # Check Answer
+        driver.find_element_by_css_selector(".qbutton").click()
+        assert "check.svg" in driver.page_source, "No tickmark displayed"
+        assert "x.svg" not in driver.page_source, "Cross should not be displayed"
+
+
+    def tearDown(self):
+        self.driver.quit()
+
 
 class checkTools(unittest.TestCase):
     def setUp(self):
