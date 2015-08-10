@@ -114,6 +114,9 @@ class checkQuestions(unittest.TestCase):
             form.clear()
             form.send_keys(string)
             form.send_keys(Keys.RETURN)
+             # Check Answer
+            driver.find_element_by_css_selector(".qbutton").click()
+            assert "x.svg" in driver.page_source, "Cross should be displayed"
 
         # Set accepting state:
         driver.find_element_by_id("acceptingtool").click()
