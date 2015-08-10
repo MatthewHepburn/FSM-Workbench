@@ -108,6 +108,7 @@ class checkQuestions(unittest.TestCase):
             webdriver.ActionChains(driver).drag_and_drop(startNode, endNode).perform()
             linkID = nextLinkID + i
             link = driver.find_element_by_id("linkpad" + str(linkID))
+            time.sleep(0.1)
             webdriver.ActionChains(driver).context_click(link).perform()
             driver.find_element_by_css_selector(".changeconditions").click()
             form = driver.find_element_by_css_selector(".renameinput")
@@ -124,6 +125,7 @@ class checkQuestions(unittest.TestCase):
 
         # Check Answer
         driver.find_element_by_css_selector(".qbutton").click()
+        time.sleep(0.4)
         assert "check.svg" in driver.page_source, "No tickmark displayed"
         assert "x.svg" not in driver.page_source, "Cross should not be displayed"
 

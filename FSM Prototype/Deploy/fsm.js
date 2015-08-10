@@ -385,19 +385,26 @@ var display = {
         }
     },
     reflexiveLink: function (x, y) {
+        // Create two segments, meeting at the top, to allow placement of arrowheads
+        // Note this is not needed for arrowheads to display in Chrome, but based on the specification this may be a bug in Chrome.
         var x1 = x - 10;
         var y1 = y + 5;
 
         var P1 = x1 + "," + y1;
 
-        var x2 = x + 10;
-        var y2 = y1;
+        var x2 = x
+        var y2 = y - 22.9129 - 20
+        var x3 = x + 10;
+        var y3 = y1;
 
         var P2 = x2 + "," + y2;
+        var P3 = x3 + "," + y3;
 
         var rad = 25;
-
-        return ("M" + P1 + " A" + rad + " " + rad + " 0 1 1 " + P2);
+        
+        var str = "M" + P1 + " A" + rad + " " + rad + " 0 0 1 " + P2;
+        str += "  A" + rad + " " + rad + " 0 0 1 " + P3;
+        return str;
 
 
     },
