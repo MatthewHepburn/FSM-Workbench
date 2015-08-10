@@ -204,6 +204,10 @@ var display = {
     createStateContextMenu: function(canvas, id, mousePosition) {
         var html = "<p data-id='" + id + "' class = 'button toggleaccepting'>Toggle Accepting</p>";
         html += "<p data-id='" + id + "' class = 'button renamestate'>Rename State</p>";
+        if (id != 0){
+            // Do not add delte button to node 0 as deleting it is not allowed
+            html += "<p data-id='" + id + "' class = 'button deletestate'>Delete State</p>";
+        }
 
         var menu = canvas.append("foreignObject")
             .attr("x", mousePosition[0])
@@ -218,6 +222,11 @@ var display = {
         d3.select(".toggleaccepting").on("click", function(){model.toggleAccepting(id);});
 
         d3.select(".renamestate").on("click", function(){display.renameStateForm(id);});
+
+        if (id != 0){
+            d3.select(".deletestate").on("click", function(){model.deleteNode(id); display.dismissContextMenu();});
+        }
+        
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
