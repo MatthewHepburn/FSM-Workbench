@@ -14,7 +14,7 @@ import time
 class checkQuestions(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
-        self.driver.implicitly_wait(10)
+        self.driver.implicitly_wait(2)
 
     def testSatisfyList1(self):
         #Test that satisfy-list-1 accepts a correct solution.
@@ -107,7 +107,12 @@ class checkQuestions(unittest.TestCase):
             string = links[i][2]
             webdriver.ActionChains(driver).drag_and_drop(startNode, endNode).perform()
             linkID = nextLinkID + i
-            link = driver.find_element_by_id("linkpad" + str(linkID))
+            try:
+                link = driver.find_element_by_id("linkpad" + str(linkID))
+            except :
+                print("Retrying!")
+                webdriver.ActionChains(driver).drag_and_drop(startNode, endNode).perform()
+                link = driver.find_element_by_id("linkpad" + str(linkID))
             time.sleep(0.1)
             webdriver.ActionChains(driver).context_click(link).perform()
             driver.find_element_by_css_selector(".changeconditions").click()
@@ -130,8 +135,8 @@ class checkQuestions(unittest.TestCase):
         assert "x.svg" not in driver.page_source, "Cross should not be displayed"
 
 
-    def tearDown(self):
-        self.driver.quit()
+    # def tearDown(self):
+    #     self.driver.quit()
 
 
 class checkTools(unittest.TestCase):
