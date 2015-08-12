@@ -2241,6 +2241,10 @@ var logging = {
             // Don't try to log if accessing locally.
             return;
         }
+        if (!isActive){
+            // Don't log if the window is not active
+            return;
+        }
         if (logging.userID == undefined){
             logging.generateUserID();
         }
@@ -2294,6 +2298,17 @@ display.drawStart(node0.x, node0.y);
 d3.selectAll(".rate-button").on("click", eventHandler.rate);
 var hasRated = false;
 var loaded = true;
+// Keep track of whether the tab is active, for logging purposes
+var isActive = true;
+
+window.onfocus = function () { 
+  isActive = true; 
+}; 
+
+window.onblur = function () { 
+  isActive = false;
+}; 
+
 // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
 logging.sendInfo();
 setInterval(logging.sendInfo, 120000);
