@@ -107,12 +107,20 @@ class checkQuestions(unittest.TestCase):
             string = links[i][2]
             webdriver.ActionChains(driver).drag_and_drop(startNode, endNode).perform()
             linkID = nextLinkID + i
-            try:
-                link = driver.find_element_by_id("linkpad" + str(linkID))
-            except :
-                print("Retrying!")
-                webdriver.ActionChains(driver).drag_and_drop(startNode, endNode).perform()
-                link = driver.find_element_by_id("linkpad" + str(linkID))
+            found = False
+            j = 0
+            while j < 4 and not found:
+                j = j + 1
+                try:
+                    link = driver.find_element_by_id("linkpad" + str(linkID))
+                    found = True;
+                except :
+                    print("retrying")
+                    webdriver.ActionChains(driver).drag_and_drop(startNode, endNode).perform()
+                    linetool.click()
+                    webdriver.ActionChains(driver).drag_and_drop(startNode, node0p).perform()
+                    linetool.click()
+
             time.sleep(0.1)
             webdriver.ActionChains(driver).context_click(link).perform()
             driver.find_element_by_css_selector(".changeconditions").click()
@@ -135,8 +143,8 @@ class checkQuestions(unittest.TestCase):
         assert "x.svg" not in driver.page_source, "Cross should not be displayed"
 
 
-    # def tearDown(self):
-    #     self.driver.quit()
+    def tearDown(self):
+        self.driver.quit()
 
 
 class checkTools(unittest.TestCase):
