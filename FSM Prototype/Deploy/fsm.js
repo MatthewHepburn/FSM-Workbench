@@ -75,7 +75,7 @@ var display = {
                     setTimeout(f, 100);
                 }
             };
-            setTimeout(f, 100);        
+            setTimeout(f, 100);
             return;
         }
 
@@ -136,7 +136,7 @@ var display = {
             .attr("x2", "1")
             .attr("y1", "0")
             .attr("y2", "1")
-        
+
         grad.append("svg:stop")
             .attr("offset", "0%")
             .attr("stop-color", "black")
@@ -226,7 +226,7 @@ var display = {
         if (id != 0){
             d3.select(".deletestate").on("click", function(){model.deleteNode(id); display.dismissContextMenu();});
         }
-        
+
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
@@ -401,7 +401,7 @@ var display = {
         var P3 = x3 + "," + y3;
 
         var rad = 25;
-        
+
         var str = "M" + P1 + " A" + rad + " " + rad + " 0 0 1 " + P2;
         str += "  A" + rad + " " + rad + " 0 0 1 " + P3;
         return str;
@@ -437,7 +437,7 @@ var display = {
 
         // give form focus
         document.getElementById("lkfm" + id).focus();
-        
+
 
         renameMenuShowing = true;
         display.dismissContextMenu();
@@ -763,7 +763,7 @@ var model = {
     },
     generateJSON: function(){
         var nodesStr = "data-nodes='" + JSON.stringify(model.nodes) + "'";
-        
+
         //create a clone of model.links. VERY hacky but apparantly not bad for efficiency
         var linksTmp = JSON.parse(JSON.stringify(model.links));
         //change source + target of links to be node IDs:
@@ -771,7 +771,7 @@ var model = {
             linksTmp[i].source = linksTmp[i].source.id;
             linksTmp[i].target = linksTmp[i].target.id;
         }
-        var linksStr = "data-links='" + JSON.stringify(linksTmp) + "'";        
+        var linksStr = "data-links='" + JSON.stringify(linksTmp) + "'";
         var questionStr = "data-question='" + JSON.stringify(model.question) + "'";
         /*eslint-disable */
         console.log(nodesStr);
@@ -779,7 +779,7 @@ var model = {
         console.log(questionStr);
         /*eslint-enable */
 
-        
+
 
     },
     generateJSON2: function(){
@@ -801,9 +801,7 @@ var model = {
         var optionsStr = JSON.stringify(model.options);
         optionsStr = '"data-options": "' + optionsStr.replace(/"/g, '\\"')+ '"';
         var out = nodesStr + ", " + linkStr + ", " + questionStr + ", " + optionsStr;
-        /*eslint-disable */
-        console.log(out);
-        /*eslint-enable */
+        return out;
     },
     parseInput: function(string, isCharType){
         // Given a string 'abc', return input in form ['a', 'b', 'c'] if charType
@@ -942,7 +940,7 @@ var model = {
         var id = d3.event.target.id;
         var node = query.getNodeData(id);
         if (model.selected.indexOf(node) == -1){
-            model.selected.push(node);  
+            model.selected.push(node);
         } else {
             model.selected.splice(model.selected.indexOf(node), 1);
         }
@@ -1030,7 +1028,7 @@ var query = {
 
         return exists;
 
-    }, 
+    },
     isDeterministic: function() {
         // returns [true, ""] if the model is deterministic, [false, "reason"] if not
         for (var i = 0; i < model.nodes.length; i++){
@@ -1378,7 +1376,7 @@ var checkAnswer = {
         logging.sendAnswer(true);
     },
     selectStates: function(){
-        // Declare a feedback function here 
+        // Declare a feedback function here
         var displayFeedback = function(isCorrect){
             //remove old feedback
             var feedback = document.querySelector(".inline-feedback");
@@ -1421,7 +1419,7 @@ var checkAnswer = {
         }
 
         displayFeedback(true);
-        return;        
+        return;
     }
 };
 
@@ -1444,20 +1442,20 @@ var eventHandler = {
 
         if (d3.event.button != 0 || mousedown_node || mousedown_link) return;
 
-        
+
         // If rename menu is showing, submit it.
         if (renameMenuShowing) {
             controller.renameSubmit()
             return;
         }
 
-        
+
         if (model.toolMode == "nodetool" || model.toolMode == "acceptingtool"){
             d3.event.preventDefault()
-            eventHandler.createNode() 
-            return;           
+            eventHandler.createNode()
+            return;
         }
-        
+
     },
     clickLink: function(d){
         if (selected_link == d){
@@ -1586,7 +1584,7 @@ var eventHandler = {
         var point = d3.mouse(d3.select("#main-svg")[0][0]),
             node = {
                 id: ++model.lastNodeID,
-                accepting: (model.toolMode == "acceptingtool") 
+                accepting: (model.toolMode == "acceptingtool")
             };
         node.x = point[0];
         node.y = point[1];
@@ -1619,7 +1617,7 @@ var eventHandler = {
         var rating;
         if (hasRated){
             return;
-        }        
+        }
         // Event handeler for the question-rating buttons
         if (d3.event.target.id == "rate-yes") {
             rating = "yes";
@@ -1947,8 +1945,8 @@ function restart() {
             .on("click", function() {
                 eventHandler.clickLinkPadding(d);
             });
-        }); 
-        
+        });
+
 
     // remove old links
     path.exit().remove();
@@ -2191,7 +2189,7 @@ var logging = {
             hasStorage = true;
             if (localStorage.getItem("userID") !== null){
                 logging.userID = localStorage.getItem("userID");
-                return;        
+                return;
             }
         } else {
             hasStorage = false;
@@ -2301,13 +2299,13 @@ var loaded = true;
 // Keep track of whether the tab is active, for logging purposes
 var isActive = true;
 
-window.onfocus = function () { 
-  isActive = true; 
-}; 
+window.onfocus = function () {
+  isActive = true;
+};
 
-window.onblur = function () { 
+window.onblur = function () {
   isActive = false;
-}; 
+};
 
 // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
 logging.sendInfo();
