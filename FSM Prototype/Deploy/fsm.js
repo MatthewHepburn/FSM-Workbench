@@ -2219,26 +2219,23 @@ var logging = {
         }
         // Record different information if the model is editable
         var url = window.location.href;
-        if (url.slice(0,5) == "file:"){
-            // Don't try to log if accessing locally.
-            return;
-        }
         if (logging.userID == undefined){
             logging.generateUserID();
         }
         var data = "url=" + encodeURIComponent(url) + "&userID=" + encodeURIComponent(logging.userID);
         data = data + "&isCorrect=" + isCorrect + "&answer=" + answer;
-        var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/answer.cgi", true);
-        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        request.send(data);
-    },
-    sendInfo: function() {
-        var url = window.location.href;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;
         }
+        var request = new XMLHttpRequest();
+        request.open("POST", "/cgi/s1020995/answer.cgi", true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+        request.send(data);
+    },
+    sendInfo: function() {
+        var url = window.location.href;
         if (!isActive){
             // Don't log if the window is not active
             return;
@@ -2248,21 +2245,25 @@ var logging = {
         }
         var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.userID);
         var request = new XMLHttpRequest();
+        if (url.slice(0,5) == "file:"){
+            // Don't try to log if accessing locally.
+            return;
+        }
         request.open("POST", "/cgi/s1020995/logging.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(data);
     },
     sendRating: function(rating) {
         var url = window.location.href;
-        if (url.slice(0,5) == "file:"){
-            // Don't try to log if accessing locally.
-            return;
-        }
         if (logging.userID == undefined){
             logging.generateUserID();
         }
         var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.userID);
         data = data + "&rating=" + encodeURIComponent(rating);
+        if (url.slice(0,5) == "file:"){
+            // Don't try to log if accessing locally.
+            return;
+        }
         var request = new XMLHttpRequest();
         request.open("POST", "/cgi/s1020995/rating.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
