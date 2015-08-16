@@ -6,6 +6,8 @@ from user_agents import parse
 
 urls = {}
 users = {}
+dates = {}
+cutoffTime = 1439447160 # Time url was distributed, ignore entries before this time
 logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
 
@@ -13,7 +15,17 @@ def main():
     readFiles()
 
 def analyseUsage():
-    pass
+    for user in users:
+        for page in users[user]["pages"]:
+            if page not in urls:
+                urls[page] = {}
+            if "uniqueVistitors" not in urls[page]:
+                urls[page]["uniqueVistitors"] = 1
+                urls[page]["totalTime"] = users[user]["pages"][page]
+            else:
+                urls[page]["uniqueVistitors"] += 1
+                urls[page]["totalTime"] += users[user]["pages"][page]
+
 
 def readFiles():
     files = os.listdir()
@@ -29,6 +41,7 @@ def readFiles():
     for file in ratingFiles:
         readRatings(file)
     analyseUsage()
+    pp.pprint(urls)
 
 def readAnswers(filename):
     f = open(filename, "r")
@@ -39,6 +52,9 @@ def readAnswers(filename):
         line = l.split("    ")
         userID = line[0][10:]
         if userID == "MHepburn": #Ignore testing activity
+            continue
+        unixTime = int(line[3])
+        if unixTime < cutoffTime:
             continue
         total += 1
         isCorrect = line[6]
@@ -62,6 +78,9 @@ def readRatings(filename):
         userID = line[0][10:]
         if userID == "MHepburn": #Ignore testing activity
             continue
+        unixTime = int(line[4])
+        if unixTime < cutoffTime:
+            continue
         total += 1
         rating = line[7]
         if "yes" in rating:
@@ -78,6 +97,10 @@ def readRatings(filename):
 
 def readUsage(filename):
     f = open(filename, "r")
+    date = filename[6:16]
+    dailyUniques = []
+    if date not in dates:
+        dates[date] = {"uniqueVistitors":0}
     for l in f:
         line = l.split("    ")
         if len(line) < 7:
@@ -86,17 +109,23 @@ def readUsage(filename):
         userID = line[0][10:]
         if userID == "MHepburn": #Ignore testing activity
             continue
+        unixTime = int(line[4])
+        if unixTime < cutoffTime:
+            continue
+        if userID not in dailyUniques:
+            dailyUniques += [userID]
+            dates[date]["uniqueVistitors"] += 1
         url = parseURL(line[1])
         agentString = line[6]
         agent = str(parse(agentString))
         if not userID in users:
             users[userID] = {"browser": agent,
-                             url: 0}
+                             "pages": {url:0}}
         else:
-            if url in users[userID]:
-                users[userID][url] += logTime
+            if url in users[userID]["pages"]:
+                users[userID]["pages"][url] += logTime
             else:
-                users[userID][url] = 0
+                users[userID]["pages"][url] = 0
 
     #pp.pprint(users)
 
