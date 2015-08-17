@@ -2,7 +2,11 @@ import os
 import pprint
 import re
 import json
-from user_agents import parse
+try:
+    from user_agents import parse
+    hasUserAgents = True
+except ImportError:
+    hasUserAgents = False
 # required to parse user-agent strings: pip install pyyaml ua-parser user-agents
 
 urls = {}
@@ -31,7 +35,7 @@ def analyseUsage():
 
 
 def readFiles():
-    files = os.listdir()
+    files = os.listdir(os.getcwd())
     # Ignore files that are not .log
     files = [f for f in files if f[-4:] == ".log"]
     usageFiles = [f for f in files if f[:5] == "usage"]
@@ -117,7 +121,10 @@ def readUsage(filename):
             uniquesCount += 1
         url = parseURL(line[1])
         agentString = line[6]
-        agent = str(parse(agentString))
+        if (hasUserAgents):
+            agent = str(parse(agentString))
+        else:
+            agent = agentString
         if not userID in users:
             users[userID] = {"browser": agent,
                              "pages": {url:0}}
