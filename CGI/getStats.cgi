@@ -14,7 +14,9 @@ form = cgi.FieldStorage()
 datafile = os.path.join(os.curdir, "stats.json")
 
 print("Status: 200 OK")
-print("Content-type: application/json\n\n")
+print("Access-Control-Allow-Origin: *")
+print("Content-type: application/json\n")
+
 
 # Determine if the data should be reparsed based on how much time has passed since it was last modifed:
 try:

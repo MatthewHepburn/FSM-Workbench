@@ -1,0 +1,66 @@
+#title {
+	text-align: center;
+	font-size: large;
+	margin: 7px;
+}
+
+#x-axis-title {
+	text-align: center;
+	font-size: small;
+	margin: 5px;
+}
+
+#options {
+	margin: 5px;
+	margin-left: 10px;
+	text-decoration: underline;
+	color: steelblue;
+	font-size: small;
+}
+
+#options a:hover {
+	color: #0089FA;
+}
+
+
+.menu {
+	margin-top: 2px;
+	margin-left: 4px;
+}
+body {
+	margin-left: 15px;
+}
+
+rect {
+  fill: steelblue;
+}
+
+rect:hover {
+	fill: #0089FA;
+}
+
+text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.tick text {
+	fill: black;
+}
+
+#x-axis-title {
+	text-anchor: center;
+	fill: black;
+}

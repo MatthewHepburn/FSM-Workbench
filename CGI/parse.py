@@ -26,11 +26,11 @@ def analyseUsage():
         for page in users[user]["pages"]:
             if page not in urls:
                 urls[page] = {}
-            if "uniqueVistitors" not in urls[page]:
-                urls[page]["uniqueVistitors"] = 1
+            if "uniqueVisitors" not in urls[page]:
+                urls[page]["uniqueVisitors"] = 1
                 urls[page]["totalTime"] = users[user]["pages"][page]
             else:
-                urls[page]["uniqueVistitors"] += 1
+                urls[page]["uniqueVisitors"] += 1
                 urls[page]["totalTime"] += users[user]["pages"][page]
 
 
@@ -136,7 +136,7 @@ def readUsage(filename):
 
     # Add to dates only if uniques count > 0
     if date not in dates and uniquesCount > 0:
-        dates[date] = {"uniqueVistitors":uniquesCount}
+        dates[date] = {"uniqueVisitors":uniquesCount}
 
     #pp.pprint(users)
 
