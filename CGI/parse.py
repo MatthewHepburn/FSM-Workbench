@@ -1,6 +1,7 @@
 import os
 import pprint
 import re
+import json
 from user_agents import parse
 # required to parse user-agent strings: pip install pyyaml ua-parser user-agents
 
@@ -13,6 +14,8 @@ pp = pprint.PrettyPrinter(indent=1)
 
 def main():
     readFiles()
+    analyseUsage()
+    writeJSON()
 
 def analyseUsage():
     for user in users:
@@ -40,8 +43,6 @@ def readFiles():
         readAnswers(file)
     for file in ratingFiles:
         readRatings(file)
-    analyseUsage()
-    pp.pprint(urls)
 
 def readAnswers(filename):
     f = open(filename, "r")
@@ -99,8 +100,7 @@ def readUsage(filename):
     f = open(filename, "r")
     date = filename[6:16]
     dailyUniques = []
-    if date not in dates:
-        dates[date] = {"uniqueVistitors":0}
+    uniquesCount = 0
     for l in f:
         line = l.split("    ")
         if len(line) < 7:
@@ -114,7 +114,7 @@ def readUsage(filename):
             continue
         if userID not in dailyUniques:
             dailyUniques += [userID]
-            dates[date]["uniqueVistitors"] += 1
+            uniquesCount += 1
         url = parseURL(line[1])
         agentString = line[6]
         agent = str(parse(agentString))
@@ -127,6 +127,10 @@ def readUsage(filename):
             else:
                 users[userID]["pages"][url] = 0
 
+    # Add to dates only if uniques count > 0
+    if date not in dates and uniquesCount > 0:
+        dates[date] = {"uniqueVistitors":uniquesCount}
+
     #pp.pprint(users)
 
 def parseURL(url):
@@ -135,8 +139,11 @@ def parseURL(url):
         url = url.split("/")[-1:][0][:-5]
     return url
 
-
-
+def writeJSON():
+    out = {"urls":urls, "dates":dates}
+    with open('stats.json', 'w') as outfile:
+        json.dump(out, outfile, indent=4, separators=(',', ': '))
+    print(json.dumps(out, indent=4, separators=(',', ': ')))
 
 
 if __name__ == '__main__':
