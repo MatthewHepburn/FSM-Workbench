@@ -24,13 +24,12 @@ try:
 except OSError:
 	# If file doesn't exist, create it.
 	subprocess.call(["python", "parse.py"])
-	quit()
+	modifedTime = int(os.path.getmtime(datafile))
 currentTime = int(time.time())
 if currentTime - modifedTime > 60 * 60 * 6: # 6 hours
 	# Recreate stats.json
-	# This process will output the json file directly
-	subprocess.call(["python3", "parse.py"])
-else:
-	# Reuse existing json file
-	f = open(datafile, "r")
-	print(f.read())
+	subprocess.call(["python", "parse.py"])
+# Output the file.
+f = open(datafile, "r")
+print(f.read())
+quit()

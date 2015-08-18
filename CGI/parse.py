@@ -150,7 +150,6 @@ def writeJSON():
     out = {"urls":urls, "dates":dates}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
-    print(json.dumps(out, indent=4, separators=(',', ': ')))
 
 
 if __name__ == '__main__':
