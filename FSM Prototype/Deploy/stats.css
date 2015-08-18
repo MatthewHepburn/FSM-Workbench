@@ -12,7 +12,7 @@
 
 #options a {
 	margin: 5px;
-	margin-left: 10px;
+	margin-right: 10px;
 	text-decoration: underline;
 	color: steelblue;
 	font-size: small;
@@ -38,6 +38,24 @@ rect {
 
 rect:hover {
 	fill: #0089FA;
+}
+
+rect.total{
+	fill: #C23D3D;
+}
+
+rect.total:hover{
+	fill: #EC3636;
+}
+
+.blue{
+	font-style: normal;
+	color: steelblue;
+}
+
+.red{
+	font-style: normal;
+	color: #C23D3D;
 }
 
 text {
