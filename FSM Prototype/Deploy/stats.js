@@ -86,12 +86,54 @@ var data = {
         }
         return pageData;
     },
+    getPageRatingData: function(){
+        var questionList = ["select-states-1", "give-list-1", "give-list-2", "satisfy-list-1",
+                    "satisfy-list-2-vending-machine", "satisfy-list-4-2010-resit", "satisfy-definition-1",
+                    "give-list-3-cabbage-goat-wolf", "satisfy-list-3-tower-of-hanoi2", "satisfy-regex-1",
+                    "satisfy-regex-2"];
+        var pageData = []
+        for (var i = 0; i < questionList.length; i++){
+            var thisData = data.json.urls[questionList[i]];
+            if (thisData === undefined){
+                continue;
+            }
+            var totalRatings;
+            var yesRatings;
+            if (thisData.hasOwnProperty("totalRatings")){
+                totalRatings = thisData.totalRatings
+            } else {
+                totalRatings = 0;
+            }
+            if (thisData.hasOwnProperty("yesRatings")){
+                yesRatings = thisData.yesRatings
+            } else {
+                yesRatings = 0;
+            }
+            var thisPage = {"name":questionList[i],
+                            "totalRatings": totalRatings,
+                            "yesRatings": yesRatings,
+                            };
+            pageData.push(thisPage)
+        }
+        return pageData;
+    },
     getMaxAnswersPerPage:function(){
         var max = 0;
         for (url in data.json.urls){
             var answers = data.json.urls[url].totalAnswers;
             if (answers > max) {
                 max = answers;
+            }
+        }
+        return max;
+
+    },
+    getMaxRatingsPerPage:function(){
+        var max = 0;
+        for (url in data.json.urls){
+            var ratings = data.json.urls[url].totalRatings;
+            if (ratings > max) {
+                max = ratings;
             }
         }
         return max;
@@ -288,6 +330,68 @@ var display = {
 
         d3.select("#x-axis-title")
             .html("Number of <i class='blue'>Correct Answers</i> and <i class='red'>Incorrect Answers</i>")
+            .attr("style", "width: " + (display.width - 200) + "px;");
+    },
+    drawPageRatingBarChart:function(){
+        // Draw title
+        d3.select("#title")
+            .html("Positive vs Total Ratings by Question")
+            .attr("style", "width: " + (display.width - 200) + "px;");
+
+        var max = data.getMaxRatingsPerPage()
+        var barMargin = 2;
+        var xMargin = 4;
+        d3.select("#canvas")
+            .html("")
+        pageData = data.getPageRatingData()
+        var barHeight = 30
+        axisWidth = 20
+        var height = axisWidth + (barHeight + barMargin) * pageData.length
+        var chart = d3.select("#canvas");
+        chart
+            .attr("height", height);
+        var scale = d3.scale.linear()
+                    .domain([0, max])
+                    .range([0, display.width - 200]);
+
+        var bar = d3.select("#canvas").selectAll("g")
+                    .data(pageData)
+                .enter().append("g")
+                    .attr("transform", function(d, i) { return "translate(" + xMargin + "," + i * (barHeight + 2) + ")"; })
+                    .classed("bar", true);
+
+        bar.append("rect")
+            .attr("width", function(d) { return scale(d.totalRatings) })
+            .attr("height", barHeight)
+            .classed("total", true)
+
+        bar.append("rect")
+                    .attr("width", function(d) { return scale(d.yesRatings) })
+                    .attr("height", barHeight)
+
+
+
+        bar.append("text")
+            .attr("x", function(d) { return scale(d.totalRatings) + 6; })
+            .attr("y", barHeight / 2)
+            .attr("dy", ".35em")
+            .classed("right-label", true)
+            .text(function(d) { return d.name; });
+
+        var xAxis = d3.svg.axis()
+                        .scale(scale)
+                        .orient("bottom");
+        if (max < 5){
+            xAxis.tickValues([1,2,3,4,5])
+                .tickFormat(d3.format(",.0f"));
+        }
+        chart.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate("+ xMargin + "," + (height - axisWidth) + ")")
+            .call(xAxis);
+
+        d3.select("#x-axis-title")
+            .html("Number of <i class='blue'>Positive Ratings</i> and <i class='red'>Negative Ratings</i>")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
     }
