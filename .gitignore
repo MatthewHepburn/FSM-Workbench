@@ -1,3 +1,22 @@
+# Generated files #
+############
+stats.json
+end.html
+give-list-1.html
+give-list-2.html
+give-list-3-cabbage-goat-wolf.html
+index.html
+satisfy-definition-1.html
+satisfy-list-1.html
+satisfy-list-2-vending-machine.html
+satisfy-list-3-tower-of-hanoi2.html
+satisfy-list-4-2010-resit.html
+satisfy-regex-1.html
+satisfy-regex-2.html
+select-states-1.html
+
+
+
 # Compiled source #
 ###################
 *.com
@@ -6,7 +25,7 @@
 *.exe
 *.o
 *.so
- 
+
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
@@ -19,13 +38,13 @@
 *.rar
 *.tar
 *.zip
- 
+
 # Logs and databases #
 ######################
 *.log
 *.sql
 *.sqlite
- 
+
 # OS generated files #
 ######################
 .DS_Store
