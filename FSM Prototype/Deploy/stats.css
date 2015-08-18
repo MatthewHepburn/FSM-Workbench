@@ -10,7 +10,7 @@
 	margin: 5px;
 }
 
-#options {
+#options a {
 	margin: 5px;
 	margin-left: 10px;
 	text-decoration: underline;
@@ -21,6 +21,7 @@
 #options a:hover {
 	color: #0089FA;
 }
+
 
 
 .menu {
@@ -62,5 +63,10 @@ text {
 
 #x-axis-title {
 	text-anchor: center;
+	fill: black;
+}
+
+.right-label {
+	text-anchor: start;
 	fill: black;
 }
