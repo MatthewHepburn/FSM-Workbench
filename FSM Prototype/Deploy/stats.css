@@ -88,3 +88,10 @@ text {
 	text-anchor: start;
 	fill: black;
 }
+
+#timestamp {
+	font-size: 75%;
+	font-family: monospace;
+	margin-top: 80px;
+	color: grey;
+}

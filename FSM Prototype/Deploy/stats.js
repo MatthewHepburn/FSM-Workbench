@@ -394,21 +394,26 @@ var display = {
             .html("Number of <i class='blue'>Positive Ratings</i> and <i class='red'>Negative Ratings</i>")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
+    },
+    writeTimeStamp:function(){
+        var div = document.querySelector("#timestamp");
+        div.innerHTML = ("Logs parsed at ") + data.json.meta.timeStamp;
     }
 }
 
 var control = {
     initialDraw:function(){
         if (!data.isLoaded){
-            setTimeout(control.initialDraw, 100)
-            return
+            setTimeout(control.initialDraw, 100);
+            return;
         }
-        display.drawDateBarChart()
+        display.drawDateBarChart();
+        display.writeTimeStamp();
     }
 
 }
 
 window.onload = function(){
-    display.setupCanvas()
-    control.initialDraw()
+    display.setupCanvas();
+    control.initialDraw();
 }

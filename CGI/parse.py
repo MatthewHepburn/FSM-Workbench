@@ -2,6 +2,7 @@ import os
 import pprint
 import re
 import json
+import datetime
 try:
     from user_agents import parse
     hasUserAgents = True
@@ -147,7 +148,10 @@ def parseURL(url):
     return url
 
 def writeJSON():
-    out = {"urls":urls, "dates":dates}
+    # Calculate Timestamp:
+    now = datetime.datetime.now()
+    timeStamp = str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)
+    out = {"urls":urls, "dates":dates, "meta":{"timeStamp":timeStamp}}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 
