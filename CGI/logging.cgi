@@ -30,7 +30,7 @@ except KeyError:
 userID = form.getfirst("userID", "none")
 if (userID == "MHepburn" or userID == "debug"):
 	print "Content-type: text/html"
-	prints
+	print
 	print """<html>Done</html>"""
 	raise SystemExit(0)
 url = form.getfirst("url", "none")
