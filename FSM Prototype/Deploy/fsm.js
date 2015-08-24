@@ -23,6 +23,11 @@ var display = {
             }
             form = form + "<div><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
             div.innerHTML += form;
+            if (model.question.prefill){
+                for (key in model.question.prefill){
+                    d3.select("#qf" + key).attr("value", model.question.prefill[key])
+                }
+            }
             return;
         }
         if (model.question.type == "satisfy-list"){
