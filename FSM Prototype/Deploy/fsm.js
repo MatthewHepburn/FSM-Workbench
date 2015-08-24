@@ -160,7 +160,7 @@ var display = {
         var margin = 10;
         var g = svg.append("g")
                     .classed("tracecontrols", true);
-        var tools = ["rewind", "back", "forward", "play", "stop"];
+        var tools = ["rewind", "back", "forward", "stop"];
         // create a button for each tool in tools
         for (var i = 0; i < tools.length; i++){
             g.append("image")
