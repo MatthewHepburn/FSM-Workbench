@@ -389,6 +389,16 @@ var display = {
             };
         }
     },
+    highlightLinks: function(linkIDs){
+        // Clear existing highlights
+        d3.select(".link").classed("highlight", false);
+        if (!linkIDs){
+            return;
+        }
+        for (var i = 0; i < linkIDs.length; i++){
+            d3.select("#link" + linkIDs[i]).classed("highlight", true);
+        }
+    },
     reflexiveLink: function (x, y) {
         // Create two segments, meeting at the top, to allow placement of arrowheads
         // Note this is not needed for arrowheads to display in Chrome, but based on the specification this may be a bug in Chrome.
@@ -535,9 +545,11 @@ var display = {
         if (!backward){
             if (model.currentInput.length != 0 && model.currentStates.length != 0){
                 var linksUsed = model.step()
+                display.highlightLinks(linksUsed)
                 model.traceRecord[model.currentStep] = {
                     states: JSON.parse(JSON.stringify(model.currentStates)),
-                    currentInput: JSON.parse(JSON.stringify(model.currentInput))
+                    currentInput: JSON.parse(JSON.stringify(model.currentInput)),
+                    linkIDs:linksUsed
                 };
                 if (autoPlay){
                     setTimeout(function(){display.traceStep(true);}, 3000);
@@ -558,6 +570,8 @@ var display = {
             model.currentStates = record.states;
             model.currentInput = JSON.parse(JSON.stringify(record.currentInput));
             model.currentStep = model.fullInput.length - model.currentInput.length;
+            var linksUsed = record.linkIDs
+            display.highlightLinks(linksUsed)
             d3.select("#in-comma" + (i-1))
                 .classed("dim", true);
             for (var j = i; j < model.fullInput.length; j++){
@@ -726,6 +740,7 @@ var model = {
                 }
             }
         }
+        return linkIDs
 
     },
     generateDefinition: function(){
@@ -918,7 +933,7 @@ var model = {
         }
         model.currentStates = newStates;
 
-        linkIDs = linkIDs + model.doEpsilonTransitions();
+        linkIDs = linkIDs.concat(model.doEpsilonTransitions());
         model.currentStep++;
 
         return linkIDs;
@@ -1811,6 +1826,18 @@ svg.append("svg:defs").append("svg:marker")
     .append("svg:path")
     .attr("d", "M0,-10L20,0L0,10")
     .attr("fill", "#000");
+
+// Create copy for highlighted arrows:
+var arrow = d3.select("#end-arrow").html()
+d3.select("defs").append("svg:marker").html(arrow)
+    .attr("id", "highlight-arrow")
+    .attr("viewBox", "0 -10 20 20")
+    .attr("refX", 7)
+    .attr("markerWidth", 5)
+    .attr("markerHeight", 5)
+
+d3.select("#highlight-arrow path")
+    .attr("fill", "green")
 
 // line displayed when dragging new nodes
 var drag_line = svg.append("svg:path")

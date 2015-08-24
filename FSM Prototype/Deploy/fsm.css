@@ -41,7 +41,7 @@ svg:not(.active):not(.ctrl) {
 path.link {
   fill: none;
   stroke: #000;
-  cursor: default;  
+  cursor: default;
   transition: stroke-width 0.5s;
 }
 
@@ -68,6 +68,12 @@ path.link:hover{
 
 path.link.hidden {
   stroke-width: 0;
+}
+
+.link.highlight {
+  stroke: green;
+  stroke-width: 4px !important;
+  marker-mid: url("#highlight-arrow") !important;
 }
 
 .link-padding {
@@ -196,9 +202,9 @@ text.nodename {
 }
 
 .input.rejected {
-  
+
 }
-  
+
 
 .input-comma.dim {
   opacity: 0;
