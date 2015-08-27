@@ -823,6 +823,20 @@ var model = {
         var out = nodesStr + ", " + linkStr + ", " + questionStr + ", " + optionsStr;
         return out;
     },
+    generateJSON3:function(){
+        // Generates JSON for use by edit.js
+        // Create a copy of model.links to replace the source + target objects with node IDs
+        var linksTmp = JSON.parse(JSON.stringify(model.links));
+        for (var i = 0; i < linksTmp.length; i++){
+            linksTmp[i].source = linksTmp[i].source.id;
+            linksTmp[i].target = linksTmp[i].target.id;
+        }
+        return {
+            "data-nodes":JSON.stringify(model.nodes),
+            "data-links":JSON.stringify(linksTmp)
+        }
+
+    },
     parseInput: function(string, isCharType){
         // Given a string 'abc', return input in form ['a', 'b', 'c'] if charType
         // or given a string 'stop start go', return input in form ['stop', 'start', 'go']
