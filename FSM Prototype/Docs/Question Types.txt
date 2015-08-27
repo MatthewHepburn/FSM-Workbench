@@ -1,9 +1,9 @@
 Name - Description
 satisfy-regex - create a FSM that satisfies a given regex
-deterministic-satisfy-regex - 
+deterministic-satisfy-regex -
 
 satisfy-list - create a FSM that satisfies a list of terms to accept or reject
-deterministic-satisfy-list - 
+deterministic-satisfy-list -
 
 give-regex - given a FSM, give a regex that is equivilant
 give-list - given a FSM, give a list of sequences of a certain length that the machine accepts
@@ -14,4 +14,4 @@ convert-nfa - given an (image of) a nondeterministic FSM, create an equivilant d
 
 does-accept - given an FSM and some set of inputs, determine for each input if the FSM accepts them.
 
-satisfy-definition - given a formal efinition of an FSM, build that FSM.
+satisfy-definition - given a formal definition of an FSM, build that FSM.
