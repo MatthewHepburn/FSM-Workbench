@@ -17,7 +17,16 @@ edit = {
 			"input": {"description": "The input to be considered for this question", "optional":false, "default":'["a","b","b"]', "expectStr":false}
 		},
 		"satisfy-list":{
-
+			"acceptList": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
+			"rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false}
+		},
+		"satisfy-definition":{
+			"alphabet": {"description": 'A list of the symbols that the machine operates on. Eg ["a","b"]', "optional":false, "default":'["a","b"]', "expectStr":false}
+		},
+		"satisfy-regex":{
+			"regex": {"description": "Regular expression that the machine should accept. In the format accepted by JavaScript regexes. Eg abb(abb)*", "optional":false, "default":"a(a|b)*", "expectStr":true},
+			"alphabet": {"description": 'A list of the symbols that the machine operates on. Eg ["a","b"]', "optional":false, "default":'["a","b"]', "expectStr":false},
+			"minAcceptLength": {"description": "The length of the shortest string that the regex accepts.", "optional":false, "default":4, "expectStr":false}
 		}
 	},
 	createQuestionPrompt:function() {
@@ -108,7 +117,9 @@ edit = {
 		}
 
 		if (!error){
+			modelJSON["filename"] = ""
 			modelJSON["data-question"] = JSON.stringify(q)
+			modelJSON["data-options"] = "{}"
 			var div = document.querySelector(".jsonout").innerHTML = JSON.stringify(modelJSON)
 		}
 
