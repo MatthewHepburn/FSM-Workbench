@@ -41,10 +41,10 @@ if __name__ == "__main__":
             print("--!!Warning - question #" + str(i) + " is missing in questions.JSON. This may break the next/previous links,")
         i = i + 1
         variables = {
-            "nodes": question["data-nodes"],
-            "links": question["data-links"],
-            "options": question["data-options"],
-            "question": question["data-question"],
+            "nodes": question["data-nodes"].replace("'","&apos;" ),
+            "links": question["data-links"].replace("'","&apos;" ),
+            "options": question["data-options"].replace("'","&apos;" ),
+            "question": question["data-question"].replace("'","&apos;" ),
             "title": "FSM - Question #" + str(question["question-number"])
         }
         # Set previous/next urls

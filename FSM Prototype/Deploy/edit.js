@@ -3,14 +3,22 @@ edit = {
 	questionTypes: ["give-list", "satisfy-definition","satisfy-list", "satisfy-regex", "select-states"],
 	questionSchema: {
 		"common":{
-			"text": {"description": "Text of the question. HTML tags allowed.", "optional": false},
-			"alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false},
+			"text": {"description": "Text of the question. HTML tags allowed.", "optional": false, "expectStr":true},
+			"alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true},
 
 		},
 		"give-list":{
-			"lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[1,2]"},
-			"prefill": {"description": "An option to automatically fill in some of the fields. Eg {'0': 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":""}
-			}
+			"lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[1,2]","expectStr":false},
+			"prefill": {"description": "An option to automatically fill in some of the fields. Eg {'0': 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":"", "expectStr":false}
+			},
+		"select-states":{
+			"initialState" : {"description": "A list of the IDs of states that the machine is in at the start of the question. The start state has ID 0.", "optional": false, "default":"[0]", "expectStr":false},
+			"nSteps": {"description": "The number of steps to execute before selecting states. Eg  - 1 would be the set of states directly after initialState", "optional":false, "default":"1", "expectStr":false},
+			"input": {"description": "The input to be considered for this question", "optional":false, "default":'["a","b","b"]', "expectStr":false}
+		},
+		"satisfy-list":{
+
+		}
 	},
 	createQuestionPrompt:function() {
 		var html = "Select question type: <select class='questiontypedropdown'><option value='none'></option>"
@@ -74,7 +82,7 @@ edit = {
 		var modelJSON = model.generateJSON3()
 		var q = {}
 		// Store common variables
-		q.text = document.querySelector("#text").innerHTML
+		q.text = document.querySelector("#text").value
 		q.alphabetType = document.querySelector("#alphabettype").value
 
 		var qType = document.querySelector(".questiontypedropdown").value
@@ -92,6 +100,9 @@ edit = {
 				} else {
 					continue
 				}
+			}
+			if (!schema[fields[i]].expectStr){
+				val = JSON.parse(val)
 			}
 			q[fields[i]] = val
 		}
