@@ -86,10 +86,16 @@ edit = {
 	},
 
 	previewQuestion: function() {
-		console.log("YOLO")
 		var text = document.querySelector("#text").value
 		document.querySelector(".question").innerHTML = text
 
+	},
+
+	escapeHTML: function (text) {
+		//Escape HTML to allow it to be displayed:
+		text = text.replace(/</g, "&lt;");
+		text = text.replace(/\\\\n/g, "&lt;br>");
+		return text;
 	},
 
 	askQuestionCharType:function(description){		
@@ -134,7 +140,7 @@ edit = {
 			modelJSON["filename"] = ""
 			modelJSON["data-question"] = JSON.stringify(q)
 			modelJSON["data-options"] = "{}"
-			var div = document.querySelector(".jsonout").innerHTML = JSON.stringify(modelJSON)
+			var div = document.querySelector(".jsonout").innerHTML = edit.escapeHTML(JSON.stringify(modelJSON));
 		}
 
 	}
