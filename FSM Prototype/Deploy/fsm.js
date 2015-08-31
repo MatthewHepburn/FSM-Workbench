@@ -696,6 +696,7 @@ var model = {
                 return;
             }
         }
+        model.setMaxIDs()
 
     },
     deleteNode: function(id){
@@ -714,6 +715,7 @@ var model = {
             model.deleteLink(toSplice[j].id);
         }
         selected_node = null;
+        model.setMaxIDs()
         restart();
     },
     doEpsilonTransitions: function(){
@@ -879,13 +881,7 @@ var model = {
         model.lastLinkID = maxLinkID;
 
         // Set lastNodeID:
-        var maxNodeID = 0;
-        for (i = 0; i < model.nodes.length; i++){
-            if (model.nodes[i].id > maxNodeID){
-                maxNodeID = model.nodes[i].id;
-            }
-        }
-        model.lastNodeID = maxNodeID;
+        model.setMaxIDs()
 
         // Read in options
         if (body.dataset.options != undefined){
@@ -899,6 +895,26 @@ var model = {
             }
         }
         return true;
+
+    },
+    setMaxIDs: function(){
+        // Set lastNodeID:
+        var maxNodeID = 0;
+        for (var i = 0; i < model.nodes.length; i++){
+            if (model.nodes[i].id > maxNodeID){
+                maxNodeID = model.nodes[i].id;
+            }
+        }
+        model.lastNodeID = maxNodeID;
+
+        //set lastLinkID:
+        var maxLinkID = 0;
+        for (i = 0; i < model.links.length; i++){
+            if (model.links[i].id > maxLinkID){
+                maxLinkID = model.links[i].id;
+            }
+        }
+        model.lastLinkID = maxLinkID
 
     },
     setupQuestion: function(){
