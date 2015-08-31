@@ -1,9 +1,23 @@
 [
   {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":495.08004747857865,\"y\":242.61165070055844,\"index\":1,\"weight\":1,\"px\":495.0797075098056,\"py\":242.61172433901885,\"fixed\":0,\"name\":\"S3\"},{\"id\":2,\"accepting\":false,\"x\":285.5008073963958,\"y\":126.42263479629631,\"index\":2,\"weight\":1,\"px\":285.5008073963958,\"py\":126.42263479629631,\"fixed\":0,\"name\":\"S1\"},{\"id\":3,\"accepting\":false,\"x\":348.2019309956355,\"y\":274.44626762895274,\"index\":3,\"weight\":2,\"px\":348.2021699859898,\"py\":274.4443991303302,\"fixed\":0,\"name\":\"S2\"}]",
+    "data-links": "[{\"source\":0,\"target\":3,\"input\":[\"a\"],\"id\":1},{\"source\":0,\"target\":2,\"input\":[\"b\"],\"id\":2},{\"source\":3,\"target\":1,\"input\":[\"a\",\"b\"],\"id\":4}]",
     "filename": "select-states-1",
+    "data-question": "{\"text\":\"When a Finite State Machine is given an input, it uses that input to chose which state to move to.<br>If the machine was in the initial state (S0) and was given the input ‘a’, which state would it move to?<br>Select that state and click ‘check’.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":1,\"input\":[\"a\"]}",
+    "data-options": "{}"
+  },
+  {
+    "filename": "select-states-2",
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563747406,\"y\":582.6076924391336,\"index\":1,\"weight\":0,\"px\":238.76165563747418,\"py\":582.6076924391332},{\"id\":21,\"accepting\":false,\"x\":349.9779944595717,\"y\":254.22959432942687,\"index\":2,\"weight\":3,\"px\":349.9779944595717,\"py\":254.22959432942687,\"fixed\":0,\"name\":\"S2\"},{\"id\":22,\"accepting\":false,\"x\":499.8943096430126,\"y\":247.41436413584552,\"index\":3,\"weight\":4,\"px\":499.8943096430126,\"py\":247.41436413584552,\"fixed\":0,\"name\":\"S3\"},{\"id\":23,\"accepting\":true,\"x\":430.82014215407577,\"y\":380.95156057225887,\"index\":4,\"weight\":2,\"px\":430.82014215407577,\"py\":380.95156057225887,\"fixed\":0,\"name\":\"S4\"}]",
     "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\",\"b\"],\"id\":8},{\"source\":21,\"target\":22,\"input\":[\"b\"],\"id\":9},{\"source\":22,\"target\":23,\"input\":[\"a\"],\"id\":10},{\"source\":21,\"target\":23,\"input\":[\"a\"],\"id\":11},{\"source\":22,\"target\":22,\"input\":[\"b\"],\"id\":12}]",
-    "data-question": "{\"type\":\"select-states\",\"text\":\"When a Finite State Machine is given an input, it uses that input to change states.<br> If the FSM was in state S2 and was given the input ‘a’, which state would it move to?<br> Select that state and click ‘check’.\",\"alphabetType\":\"char\",\"initialState\":[21],\"input\":[\"a\"],\"nSteps\":1}",
+    "data-question": "{\"type\":\"select-states\",\"text\":\"If the FSM was in state S2 and was given the input ‘a’, which state would it move to?<br> Select that state and click ‘check’.\",\"alphabetType\":\"char\",\"initialState\":[21],\"input\":[\"a\"],\"nSteps\":1}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.0753186396738,\"y\":248.5157282092216,\"index\":1,\"weight\":2,\"px\":350.07542624465594,\"py\":248.5158040903998,\"fixed\":0,\"name\":\"S1\"},{\"id\":2,\"accepting\":true,\"x\":500.15128247534426,\"y\":248.3727732935956,\"index\":2,\"weight\":1,\"px\":500.15128247534426,\"py\":248.3727732935956,\"fixed\":0,\"name\":\"S3\"}]",
+    "data-links":"[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":2,\"input\":[\"a\",\"b\"],\"id\":3}]",
+    "filename": "select-states-3",
+    "data-question": "{\"text\":\"If, starting from the initial state, an input sequence ends with the machine in an <b>accepting state</b>, the machine is said to <b>accept</b> that sequence.<br>Accepting states are shown using a double outline: <img src=\\\"accepting.png\\\" height=\\\"50\\\" width=\\\"50\\\" alt=\\\"An example image showing an accepting state composed of two= concentric circles.\\\" class=\\\"inline-q-img\\\">The machine below accepts the string \\\"ab\\\". Which state does it end in?\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":2,\"input\":[\"a\",\"b\"]}",
     "data-options": "{}"
   },
   {
