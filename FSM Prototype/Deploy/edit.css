@@ -1,0 +1,13 @@
+div.question {
+	margin: 7px;
+	border-color: #A7A7A7;
+	border-width: 1px;
+	border-style: solid;
+	padding:3px;
+	width: 75%;
+}
+div.question:empty { 
+    border: none;
+    margin: 0px;
+    padding: 0px;
+}

@@ -78,13 +78,27 @@ edit = {
 	askQuestionText:function(defaultValue){
 		var html = d3.select(".questiondata").html()
 		html += "<p>text* : <textarea cols='120' id='text' >"+ defaultValue +"</textarea></p>"
+		html += "<a class='pure-button' id='previewtext'>Preview</a>"
 		d3.select(".questiondata").html(html)
+		console.log(document.getElementById("previewtext"))
+		var button = document.getElementById("previewtext")
+		button.addEventListener("click", edit.previewQuestion)
 	},
 
-	askQuestionCharType:function(description){
-		var html = d3.select(".questiondata").html()
-		html += "<p>Alphabet Type* : <select id='alphabettype'><option value='char'>char</option><option value='symbol'>symbol</option></select><a id='descchartype'>   ?</a></p>"
-		d3.select(".questiondata").html(html)
+	previewQuestion: function() {
+		console.log("YOLO")
+		var text = document.querySelector("#text").value
+		document.querySelector(".question").innerHTML = text
+
+	},
+
+	askQuestionCharType:function(description){		
+		var html = "<p>Alphabet Type* : <select id='alphabettype'><option value='char'>char</option><option value='symbol'>symbol</option></select><a id='descchartype'>   ?</a></p>"
+		// Use method below as inserting normally resets the event listener created on the textpreview button
+		var siblings = document.querySelector(".questiondata").children
+		var lastSibling = siblings[siblings.length - 1]
+		lastSibling.insertAdjacentHTML("afterend",html)
+
 		d3.select("#descchartype").on("click", function(){alert(description)}).classed("showdesc", true)
 	},
 	getJSON:function(){
