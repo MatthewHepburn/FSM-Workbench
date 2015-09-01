@@ -86,7 +86,7 @@ edit = {
 	},
 
 	previewQuestion: function() {
-		var text = document.querySelector("#text").value
+		var text = document.querySelector("#text").value.replace(/\n/g, "<br>")
 		document.querySelector(".question").innerHTML = text
 
 	},
