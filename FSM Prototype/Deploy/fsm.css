@@ -276,3 +276,8 @@ text.nodename {
 .inline-q-img {
   display: block;
 }
+
+.extra-next {
+  margin-left: 7px;
+  margin-right: 7px;
+}

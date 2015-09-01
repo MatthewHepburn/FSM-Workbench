@@ -1,3 +1,7 @@
+config = {
+    displayNextOnCorrect: true // Display an extra next button when a question is answered correctly.
+}
+
 var display = {
     nodeRadius: 20,
     acceptingRadius: 14,
@@ -21,7 +25,7 @@ var display = {
                 }
                 form = form + line;
             }
-            form = form + "<div><button class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
+            form = form + "<div><button id='check-button' class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
             div.innerHTML += form;
             if (model.question.prefill){
                 for (key in model.question.prefill){
@@ -56,21 +60,21 @@ var display = {
                     table += "<td></td></tr>";
                 }
             }
-            table += "</table><button class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>";
+            table += "</table><button id='check-button' class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>";
             div.innerHTML += table;
             return;
         }
         if (model.question.type == "satisfy-definition"){
-            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyDefinition()'>Check</button></div>";
+            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyDefinition()'>Check</button></div>";
             return;
         }
         if (model.question.type == "satisfy-regex"){
-            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyRegex()'>Check</button></div>";
+            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyRegex()'>Check</button></div>";
             return;
         }
 
         if (model.question.type == "select-states"){
-            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button class='pure-button' type='submit' onclick='javascript:checkAnswer.selectStates()'>Check</button></div>";
+            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit' onclick='javascript:checkAnswer.selectStates()'>Check</button></div>";
             model.selected = [];
             // Need to wait until nodes are created to register event handlers.
             var f = function(){
@@ -643,6 +647,24 @@ var display = {
         }
         traceStepInProgress = false;
         return;
+    },
+    showNextButton: function(){
+        if (document.querySelector(".extra-next") != null){
+            return;
+        }
+        var nextURL = document.getElementById("nav-next").href;
+        var checkButton = document.getElementById("check-button")
+        var buttonHTML = "<a href='" + nextURL + "' class= 'extra-next";
+        // Copy classes of check button, as some question types use different display methods
+        // TODO - standardise this: make all use a button-div?
+        for (var i = 0; i < checkButton.classList.length; i++){
+            buttonHTML += " " + checkButton.classList[i];
+        }
+        buttonHTML += "'>Next</a>";
+        var siblings = checkButton.parentNode.children
+        var lastSibling = siblings[siblings.length - 1];
+        lastSibling.insertAdjacentHTML("afterend",buttonHTML);
+
     }
 };
 
@@ -1122,6 +1144,7 @@ var checkAnswer = {
         d3.selectAll(".incorrect").classed("incorrect", false);
         var forms = document.querySelectorAll(".qform");
         var answers = [];
+        var allCorrect = true;
         loop1:
         for (var num = 0; num < forms.length; num++){
             // Needed to avoid JS closure strangeness
@@ -1135,6 +1158,7 @@ var checkAnswer = {
             }
             //ignore empty fields:
             if (answers[i].length == 0){
+                allCorrect = false;
                 continue;
             }
 
@@ -1145,6 +1169,7 @@ var checkAnswer = {
                 message.innerHTML = "Incorrect length - expected " + model.question.lengths[i] + " but got " + answers[i].length +".";
                 message.classList.add("feedback");
                 forms[i].parentNode.appendChild(message);
+                allCorrect = false;
                 continue;
             }
             // Check that a unique string has been provided:
@@ -1155,6 +1180,7 @@ var checkAnswer = {
                     message.innerHTML = "Input not unique, same as #" + (j + 1) + ".";
                     message.classList.add("feedback");
                     forms[i].parentNode.appendChild(message);
+                    allCorrect = false;
                     continue loop1;
                 }
             }
@@ -1168,12 +1194,16 @@ var checkAnswer = {
                 message.classList.add("feedback");
                 forms[i].parentNode.appendChild(message);
                 logging.sendAnswer(false, answers);
+                allCorrect = false;
                 continue;
             }
             forms[i].classList.remove("incorrect");
-            forms[i].classList.add("correct");
-            logging.sendAnswer(true, answers);
+            forms[i].classList.add("correct");            
+            logging.sendAnswer(true, answers[i]);
         }
+        if (allCorrect && config.displayNextOnCorrect){
+                display.showNextButton();
+            }
     },
     satisfyDefinition: function(){
         // Declare a feedback function here that each test can use.
@@ -1312,6 +1342,9 @@ var checkAnswer = {
 
         //All tests passed:
         displayFeedback("Correct!");
+        if (config.displayNextOnCorrect){
+                display.showNextButton();
+        }
         logging.sendAnswer(true);
     },
     satisfyList: function(){
@@ -1344,6 +1377,9 @@ var checkAnswer = {
                 }
             }
 
+        }
+        if (passed && config.displayNextOnCorrect){
+            display.showNextButton();
         }
         logging.sendAnswer(passed);
     },
@@ -1423,6 +1459,9 @@ var checkAnswer = {
             }
         }
         displayFeedback("Correct!");
+        if (config.displayNextOnCorrect){
+            display.showNextButton();
+        }
         logging.sendAnswer(true);
     },
     selectStates: function(){
@@ -1469,6 +1508,9 @@ var checkAnswer = {
         }
 
         displayFeedback(true);
+        if (config.displayNextOnCorrect){
+            display.showNextButton();
+        }
         return;
     }
 };
