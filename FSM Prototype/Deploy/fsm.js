@@ -1,5 +1,6 @@
 config = {
-    displayNextOnCorrect: true // Display an extra next button when a question is answered correctly.
+    displayNextOnCorrect: true, // Display an extra next button when a question is answered correctly.
+    displayConstrainedLinkRename: true //Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
 }
 
 var display = {
@@ -444,18 +445,49 @@ var display = {
         var formX = labelPos.x - 40;
         var formY = labelPos.y + 15;
 
-        // create a form over the targeted node
-        svg.append("foreignObject")
-            .attr("width", 80)
-            .attr("height", 50)
-            .attr("x", formX)
-            .attr("y", formY)
-            .attr("class", "rename")
-            .append("xhtml:body")
-            .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='lkfm" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+        if (config.displayConstrainedLinkRename){
+            // Draw a rename form with checkboxes
+            var alphabet = model.question.alphabet
+            //'lcon' for link-constrained:
+            var html = '<form class="renameinput checkboxrename" action="" id = lcon' + id + '>'
+            var isChecked;
+            for (var i = 0; i < alphabet.length; i++){
+                isChecked = d.input.indexOf(alphabet[i]) != -1
 
-        // give form focus
-        document.getElementById("lkfm" + id).focus();
+                html += '<input type="checkbox" name="input" value="' + alphabet[i] + '"'
+                if (isChecked){
+                    html += "checked"
+                }
+                html += '>' + alphabet[i] + '<br>'
+            }
+            html += '<a class="pure-button" id="constrainedrenamesubmit">OK</a></form>'
+
+            svg.append("foreignObject")
+                .attr("width", 120)
+                .attr("height", 50)
+                .attr("x", formX - 40)
+                .attr("y", formY)
+                .attr("class", "rename")
+                .append("xhtml:body")
+                .html(html)
+            document.getElementById("constrainedrenamesubmit").addEventListener("click", controller.renameSubmit)
+
+        } else {
+            // create a text field over the targeted node
+            svg.append("foreignObject")
+                .attr("width", 80)
+                .attr("height", 50)
+                .attr("x", formX)
+                .attr("y", formY)
+                .attr("class", "rename")
+                .append("xhtml:body") //'ltxt' for link-text
+                .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='ltxt" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+
+            // give form focus
+            document.getElementById("ltxt" + id).focus();
+        }
+
+
 
 
         renameMenuShowing = true;
@@ -665,6 +697,21 @@ var display = {
         var lastSibling = siblings[siblings.length - 1];
         lastSibling.insertAdjacentHTML("afterend",buttonHTML);
 
+    },
+    updateLinkLabel:function(linkID){
+        label = svg.select("#linklabel" + linkID);
+        label.text(function(d) {
+            //Funtion to turn array of symbols into the label string
+            if (d.input.length == 0) {
+                return "";
+            } else {
+                var labelString = String(d.input[0]);
+                for (i = 1; i < d.input.length; i++) {
+                    labelString += ", " + d.input[i];
+                }
+                return labelString;
+            }
+        });
     }
 };
 
@@ -914,6 +961,9 @@ var model = {
             }
             if (options.acceptingRadius != undefined){
                 display.acceptingRadius = options.acceptingRadius;
+            }
+            if (options.constrainRename != undefined){
+                config.displayConstrainedLinkRename = options.constrainRename;
             }
         }
         return true;
@@ -1198,7 +1248,7 @@ var checkAnswer = {
                 continue;
             }
             forms[i].classList.remove("incorrect");
-            forms[i].classList.add("correct");            
+            forms[i].classList.add("correct");
             logging.sendAnswer(true, answers[i]);
         }
         if (allCorrect && config.displayNextOnCorrect){
@@ -1828,7 +1878,8 @@ var controller = {
             label = svg.select("#nodename" + nodeID);
             label.text(value);
         }
-        if (type === "lkfm") {
+        //Link rename using a text form:
+        if (type === "ltxt") {
             var linkID = id.slice(4);
             d = query.getLinkData(linkID);
             //Strip whitespace:
@@ -1841,22 +1892,28 @@ var controller = {
                 if (["epsilon", "epssilon", "espilon", "epsillon"].indexOf(toLower) > -1){
                     d.input[i] = "ε";
                 }
+            }
+            display.updateLinkLabel(linkID)
+
+        }
+        //Link rename using a checkbox menu:
+        if (type == "lcon"){
+            var linkID = id.slice(4);
+            d = query.getLinkData(linkID);
+            d.input = [];
+            var element;
+            for (var i = 0; i < menu.children.length; i++){
+                element = menu.children[i]
+                if (element.tagName != "INPUT"){
+                    continue;
+                }
+                if (!element.checked){
+                    continue;
+                }
+                d.input.push(element.value)
 
             }
-            //Change the label
-            label = svg.select("#linklabel" + linkID);
-            label.text(function(d) {
-                //Funtion to turn array of symbols into the label string
-                if (d.input.length == 0) {
-                    return "";
-                } else {
-                    var labelString = String(d.input[0]);
-                    for (i = 1; i < d.input.length; i++) {
-                        labelString += ", " + d.input[i];
-                    }
-                    return labelString;
-                }
-            });
+            display.updateLinkLabel(linkID)
         }
         display.dismissRenameMenu();
     }
