@@ -53,10 +53,6 @@ svg:not(.active):not(.ctrl) path.link {
   cursor: pointer;
 }
 
-path.link.selected {
-  stroke-dasharray: 10,2;
-}
-
 path.link.dragline {
   pointer-events: none;
 }

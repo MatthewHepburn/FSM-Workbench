@@ -1,6 +1,8 @@
 config = {
     displayNextOnCorrect: true, // Display an extra next button when a question is answered correctly.
-    displayConstrainedLinkRename: true //Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
+    displayConstrainedLinkRename: true, //Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
+    showRenameOnLinkCreation: true,
+    submitRenameOnBGclick: false
 }
 
 var display = {
@@ -463,8 +465,8 @@ var display = {
             html += '<a class="pure-button" id="constrainedrenamesubmit">OK</a></form>'
 
             svg.append("foreignObject")
-                .attr("width", 120)
-                .attr("height", 50)
+                .attr("width", 135)
+                .attr("height", 35 + 22 * alphabet.length)
                 .attr("x", formX - 40)
                 .attr("y", formY)
                 .attr("class", "rename")
@@ -1480,13 +1482,19 @@ var checkAnswer = {
         // Next, check that what the regex accepts is a subset of what the machine accepts
         // First, create a list of all possible strings built from the alphabet using Dynamic Programming.
 
-        var alphabet = model.question.alphabet;
+        //Use alphabet with 'ε' removed
+        var alphabet = []
+        for (var i = 0; i < model.question.alphabet.length; i++){
+            if (model.question.alphabet[i] != "ε"){
+                alphabet.push(model.question.alphabet[i])
+            }
+        }
         var strings = ["", alphabet];
         for (var length = 2; length <= pathLength; length++){
             displayFeedback("building string list - on length " + length);
             strings[length] = [];
             strings[length-1].map(function(s){
-                for (var i = 0; i < alphabet.length; i++){
+                for (i = 0; i < alphabet.length; i++){
                     var newString = s + alphabet[i];
                     strings[length].push(newString);
                 }
@@ -1585,9 +1593,11 @@ var eventHandler = {
         if (d3.event.button != 0 || mousedown_node || mousedown_link) return;
 
 
-        // If rename menu is showing, submit it.
+        // If rename menu is showing, submit it if config allows.
         if (renameMenuShowing) {
-            controller.renameSubmit()
+            if (config.submitRenameOnBGclick){
+                controller.renameSubmit()
+            }
             return;
         }
 
@@ -1712,6 +1722,10 @@ var eventHandler = {
                     id: ++model.lastLinkID
                 };
                 model.links.push(link);
+                if (config.showRenameOnLinkCreation){
+                    display.renameLinkForm(link.id);
+                }
+
             }
 
             // select new link
