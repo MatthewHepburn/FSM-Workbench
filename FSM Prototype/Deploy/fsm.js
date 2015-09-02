@@ -1117,7 +1117,10 @@ var query = {
     getPaths: function(node, input, string, pathLength, returnList){
         // Recursively find all accepted paths through the current fsm of length <= pathLength
         if (model.question.alphabetType == "char"){
-            var newString = string + input;
+            var newString = string
+            if (input != "ε"){
+                newString += input;
+            }
         } else {
             alert("TODO - implement symbol type in checkAnswer.satisfyRegex");
             return;
