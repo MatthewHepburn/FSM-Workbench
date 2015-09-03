@@ -70,13 +70,6 @@
     "data-options": "{}"
   },
   {
-    "filename": "satisfy-list-4-2010-resit",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563769064,\"y\":582.6076924382673,\"index\":1,\"weight\":0,\"px\":238.76165563769075,\"py\":582.6076924382669},{\"id\":21,\"accepting\":false,\"x\":350.36243015048876,\"y\":250.02945122848976,\"index\":2,\"weight\":1,\"px\":350.36152344830526,\"py\":250.02945105089555,\"fixed\":0,\"name\":\"2\"}]",
-    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
-    "data-question": "{\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"type\":\"satisfy-list\",\"text\":\"Construct a non-deterministic FSM that accepts the language described by the regular expression (a|bb)*(ba*|c)<br>(Based on question 5 from the 2010/11 resit paper)<br><b>Hint:</b> you can enter \\\"epsilon\\\" as a transition condition.\",\"acceptList\":[\"b\",\"c\",\"aba\",\"bbbbbbbaaaaaaaaaa\",\"aaaaaac\",\"baaaa\",\"baaa\",\"bbac\",\"abbabbabbabbbaa\",\"bbaabbbbaac\"],\"rejectList\":[\"bc\",\"bb\",\"bbbb\",\"abba\",\"acaa\"],\"alphabetType\":\"char\"}",
-    "data-options": "{}"
-  },
-  {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
     "data-links": "[]",
     "filename": "satisfy-definition-1",
@@ -98,17 +91,24 @@
     "data-options": "{}"
   },
   {
-    "filename": "satisfy-regex-2",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563765676,\"y\":582.6076924384029,\"index\":1,\"weight\":0,\"px\":238.76165563765687,\"py\":582.6076924384024},{\"id\":21,\"accepting\":false,\"x\":350.3624301504889,\"y\":250.02945122848965,\"index\":2,\"weight\":1,\"px\":350.36152344830526,\"py\":250.02945105089543,\"fixed\":0,\"name\":\"2\"}]",
-    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
-    "data-question": "{\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"type\":\"satisfy-regex\",\"text\":\"Construct a FSM which matches the regex ‘(ab|c)*’.\",\"alphabetType\":\"char\",\"regex\":\"(ab|c)*\"}",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "satisfy-regex-2-boolean-or",
+    "data-question": "{\"text\":\"Another regular expression operator is or, written as a vertical bar: |. <br>For example <b>aa|bb</b> matches \\\"aa\\\" and \\\"bb\\\" but not \\\"ab\\\"<br>Construct a finite state machine that accepts the language described by <b>aa|bb</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"aa|bb\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":2}",
     "data-options": "{}"
   },
   {
-    "filename": "satisfy-regex-3",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563762288,\"y\":582.6076924385384,\"index\":1,\"weight\":0,\"px\":238.761655637623,\"py\":582.6076924385379},{\"id\":21,\"accepting\":false,\"x\":350.36243015048996,\"y\":250.02945122848953,\"index\":2,\"weight\":1,\"px\":350.36243015048996,\"py\":250.02945122848953,\"fixed\":0,\"name\":\"2\"}]",
-    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
-    "data-question": "{\"alphabet\":[\"a\",\"b\",\"ε\"],\"type\":\"satisfy-regex\",\"text\":\"Construct a FSM which matches the regex ‘abb(abb)*’\",\"alphabetType\":\"char\",\"regex\":\"abb(abb)*\",\"minAcceptLength\":3}",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "satisfy-regex-3-kleene-bracket",
+    "data-question": "{\"text\":\"When the Kleene Star (*) is applied to bracketed expression, it is not necessary for each of the zero or more matches of the expression to be identical, so long as they each match the expression.<br>For example <b>(ab|c)*</b> matches \\\"cab\\\", with the bracketed expression first accepting \\\"c\\\" and then \\\"ab\\\".<br>Construct a finite state machine that accepts the language defined by the regular expression <b>(ab|c)*</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(ab|c)*\",\"alphabet\":[\"a\",\"b\",\"c\"],\"minAcceptLength\":0}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "satisfy-regex-4",
+    "data-question": "{\"text\":\"Construct a finite state machine which accepts the language defined by the expression <b>abb(abb)*</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"abb(abb)*\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":3}",
     "data-options": "{}"
   }
 ]
