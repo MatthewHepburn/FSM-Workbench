@@ -16,7 +16,7 @@ dates = {}
 cutoffTime = 1439447160 # Time url was distributed, ignore entries before this time
 logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
-crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console"]
+crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console", "Google PP Default"]
 
 def main():
     readFiles()
