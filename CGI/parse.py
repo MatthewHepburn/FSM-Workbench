@@ -35,9 +35,10 @@ def analyseUsage():
                 urls[page]["uniqueVisitors"] += 1
                 urls[page]["totalTime"] += users[user]["pages"][page]
     # Combine entries for page "" with "index"
-    urls["index"]["uniqueVisitors"] = urls["index"]["uniqueVisitors"] + urls[""]["uniqueVisitors"]
-    urls[""]["totalTime"] = urls["index"]["totalTime"] + urls[""]["totalTime"]
-    urls.pop("", None)
+    if "" in urls:
+        urls["index"]["uniqueVisitors"] = urls["index"]["uniqueVisitors"] + urls[""]["uniqueVisitors"]
+        urls[""]["totalTime"] = urls["index"]["totalTime"] + urls[""]["totalTime"]
+        urls.pop("", None)
 
 
 
