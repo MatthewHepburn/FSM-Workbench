@@ -91,14 +91,21 @@
     "data-options": "{}"
   },
   {
-    "filename": "satisfy-regex-1",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "satisfy-regex-1-kleene-star",
+    "data-question": "{\"text\":\"Regular expressions can be used to define languages accepted by finite state machines. <br>One operator used in regular expressions is *, the Kleene star. It means that the symbol before it must appear 0 or more times.<br>For example, <b>a*b* </b>means 'a' zero or more times followed by 'b' zero or more time. This language includes the empty string, \\\"a\\\", \\\"b\\\", \\\"ab\\\", \\\"aa\\\", \\\"bb\\\", etc.<br>Construct a finite state machine which is accepts the language definined by the regular expression <b>a*b*</b> \",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"a*b*\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":0}",
+    "data-options": "{}"
+  },
+  {
+    "filename": "satisfy-regex-2",
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563765676,\"y\":582.6076924384029,\"index\":1,\"weight\":0,\"px\":238.76165563765687,\"py\":582.6076924384024},{\"id\":21,\"accepting\":false,\"x\":350.3624301504889,\"y\":250.02945122848965,\"index\":2,\"weight\":1,\"px\":350.36152344830526,\"py\":250.02945105089543,\"fixed\":0,\"name\":\"2\"}]",
     "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
     "data-question": "{\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"type\":\"satisfy-regex\",\"text\":\"Construct a FSM which matches the regex ‘(ab|c)*’.\",\"alphabetType\":\"char\",\"regex\":\"(ab|c)*\"}",
     "data-options": "{}"
   },
   {
-    "filename": "satisfy-regex-2",
+    "filename": "satisfy-regex-3",
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":9,\"accepting\":false,\"x\":238.76165563762288,\"y\":582.6076924385384,\"index\":1,\"weight\":0,\"px\":238.761655637623,\"py\":582.6076924385379},{\"id\":21,\"accepting\":false,\"x\":350.36243015048996,\"y\":250.02945122848953,\"index\":2,\"weight\":1,\"px\":350.36243015048996,\"py\":250.02945122848953,\"fixed\":0,\"name\":\"2\"}]",
     "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
     "data-question": "{\"alphabet\":[\"a\",\"b\",\"ε\"],\"type\":\"satisfy-regex\",\"text\":\"Construct a FSM which matches the regex ‘abb(abb)*’\",\"alphabetType\":\"char\",\"regex\":\"abb(abb)*\",\"minAcceptLength\":3}",

@@ -17,6 +17,8 @@ select-states-1.html
 select-states-*.html
 satisfy-list-*.html
 give-list-*.html
+satisfy-regex-*.html
+satisfy-definition-*.html
 
 
 
