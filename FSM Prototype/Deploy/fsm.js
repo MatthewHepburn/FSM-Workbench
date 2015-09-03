@@ -818,6 +818,7 @@ var model = {
     },
     generateDefinition: function(){
         //Outputs a formal definition of the current model, in the form used by satisfy-definition questions.
+        var definition={}
         var nodes = [];
         for (var i = 0; i < model.nodes.length; i++){
             if (model.nodes[i] == undefined){
@@ -825,7 +826,7 @@ var model = {
             }
             nodes.push(model.nodes[i].name);
         }
-        nodes = '"nodes":' + JSON.stringify(nodes) + ", ";
+        definition.nodes = nodes;
 
         var accepting = [];
         for (i = 0; i < model.nodes.length; i++){
@@ -833,10 +834,10 @@ var model = {
                 accepting.push(model.nodes[i].name);
             }
         }
-        accepting = '"accepting":"' + JSON.stringify(accepting) +'", ';
+        definition.accepting = accepting;
 
         var initial = query.getNodeData(0).name;
-        initial = '"initial":' + initial + ", ";
+        definition.initial = initial;
 
         var links = [];
         for (i = 0; i < model.links.length; i++){
@@ -850,8 +851,9 @@ var model = {
                 links.push(thisLink);
             }
         }
+        definition.links = links
         /*eslint-disable */
-        console.log(accepting + initial + nodes + '"links":' + JSON.stringify(links));
+        console.log(JSON.stringify(JSON.stringify(definition)));
         /*eslint-enable */
     },
     generateJSON: function(){
