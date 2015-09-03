@@ -4,8 +4,7 @@ edit = {
 	questionSchema: {
 		"common":{
 			"text": {"description": "Text of the question. HTML tags allowed.", "optional": false, "expectStr":true},
-			"alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true},
-
+			"alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true}
 		},
 		"give-list":{
 			"lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[1,2]","expectStr":false},
@@ -18,14 +17,15 @@ edit = {
 		},
 		"satisfy-list":{
 			"acceptList": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
-			"rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false}
+			"rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false},
+			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false}
 		},
 		"satisfy-definition":{
-			"alphabet": {"description": 'A list of the symbols that the machine operates on. Eg ["a","b"]', "optional":false, "default":'["a","b"]', "expectStr":false}
+			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false}
 		},
 		"satisfy-regex":{
 			"regex": {"description": "Regular expression that the machine should accept. In the format accepted by JavaScript regexes. Eg abb(abb)*", "optional":false, "default":"a(a|b)*", "expectStr":true},
-			"alphabet": {"description": 'A list of the symbols that the machine operates on. Eg ["a","b"]', "optional":false, "default":'["a","b"]', "expectStr":false},
+			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false},
 			"minAcceptLength": {"description": "The length of the shortest string that the regex accepts.", "optional":false, "default":4, "expectStr":false}
 		}
 	},
@@ -98,7 +98,7 @@ edit = {
 		return text;
 	},
 
-	askQuestionCharType:function(description){		
+	askQuestionCharType:function(description){
 		var html = "<p>Alphabet Type* : <select id='alphabettype'><option value='char'>char</option><option value='symbol'>symbol</option></select><a id='descchartype'>   ?</a></p>"
 		// Use method below as inserting normally resets the event listener created on the textpreview button
 		var siblings = document.querySelector(".questiondata").children
