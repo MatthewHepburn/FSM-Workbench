@@ -16,6 +16,7 @@ dates = {}
 cutoffTime = 1439447160 # Time url was distributed, ignore entries before this time
 logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
+crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console"]
 
 def main():
     readFiles()
@@ -33,6 +34,11 @@ def analyseUsage():
             else:
                 urls[page]["uniqueVisitors"] += 1
                 urls[page]["totalTime"] += users[user]["pages"][page]
+    # Combine entries for page "" with "index"
+    urls["index"]["uniqueVisitors"] = urls["index"]["uniqueVisitors"] + urls[""]["uniqueVisitors"]
+    urls[""]["totalTime"] = urls["index"]["totalTime"] + urls[""]["totalTime"]
+    urls.pop("", None)
+
 
 
 def readFiles():
@@ -112,7 +118,15 @@ def readUsage(filename):
             print("Line too short: ", l)
             continue
         userID = line[0][10:]
-        if userID == "MHepburn": #Ignore testing activity
+        if userID == "MHepburn" or userID == "debug": #Ignore testing activity
+            continue
+        agentString = line[6]
+        ignore = False
+        for agent in crawlerAgents:
+            if agent in agentString:
+                ignore = True
+                break
+        if (ignore):
             continue
         unixTime = int(line[4])
         if unixTime < cutoffTime:
@@ -121,7 +135,6 @@ def readUsage(filename):
             dailyUniques += [userID]
             uniquesCount += 1
         url = parseURL(line[1])
-        agentString = line[6]
         if (hasUserAgents):
             agent = str(parse(agentString))
         else:
