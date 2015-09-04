@@ -1,10 +1,13 @@
 edit = {
 	question: {},
-	questionTypes: ["give-list", "satisfy-definition","satisfy-list", "satisfy-regex", "select-states"],
+	questionTypes: ["does-accept", "give-list", "satisfy-definition","satisfy-list", "satisfy-regex", "select-states"],
 	questionSchema: {
 		"common":{
 			"text": {"description": "Text of the question. HTML tags allowed.", "optional": false, "expectStr":true},
 			"alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true}
+		},
+		"does-accept":{
+			"strList": {"description": 'A list of strings for the user to determine if the machine accepts. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false}
 		},
 		"give-list":{
 			"lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[1,2]","expectStr":false},

@@ -90,6 +90,19 @@ var display = {
             setTimeout(f, 100);
             return;
         }
+        if (model.question.type == "does-accept"){
+            var str;
+            var html = div.innerHTML + "<table id = 'does-accept-table'><tbody>"
+            for (i = 0; i < model.question.strList.length; i++){
+                str = model.question.strList[i]
+                html += '<tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="' + str + '">' + str + '</td><td class="table-space"> </td><td id="feedback-'+ i +'"></td></tr>'
+            }
+            html += "</tbody></table>"
+            html += "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit'>Check</button></div>";
+            div.innerHTML = html;
+            document.querySelector(".button-div button").addEventListener("click", function(){checkAnswer.doesAccept()})
+
+        }
 
     },
     dismissTrace: function(){
@@ -1002,7 +1015,7 @@ var model = {
             return;
         }
         // Set editable flag:
-        if (["give-list", "select-states"].indexOf(model.question.type) != -1){
+        if (["give-list", "select-states", "does-accept"].indexOf(model.question.type) != -1){
             model.editable = false;
         } else {
             model.editable = true;
@@ -1194,6 +1207,29 @@ var query = {
 model.readJSON();
 
 var checkAnswer = {
+    doesAccept: function(){
+        var listLength = model.question.strList.length;
+        var passed = true;
+        var tableRows = document.querySelector("#does-accept-table tbody").children
+        var isChecked;
+        for (var i = 0; i < listLength; i++){
+            // Test element i of strList
+            isChecked = tableRows[i].firstChild.firstChild.checked
+            var input = model.parseInput(model.question.strList[i], model.question.alphabetType == "char");
+            var accepts = model.accepts(input);
+            if (accepts == isChecked){
+                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>";
+            } else {
+                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>";
+                passed = false;
+            }
+        }
+        if (passed && config.displayNextOnCorrect){
+            display.showNextButton();
+        }
+        logging.sendAnswer(passed);
+
+    },
     giveList: function(){
         //First, remove feedback from previous attempt:
         d3.selectAll(".feedback").remove();

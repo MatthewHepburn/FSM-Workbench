@@ -282,3 +282,23 @@ text.nodename {
   margin-left: 40px;
   background-color: rgba(255, 255, 255, 0.73);
 }
+
+.does-accept-cb {
+
+  padding: 10px;
+  margin-top: 10px;
+  margin-right: 22px;
+  margin-bottom: 27px;
+  vertical-align: -2px;
+}
+
+.does-accept-cb input {
+  -ms-transform: scale(2);
+  -moz-transform: scale(2);
+  -webkit-transform: scale(2);
+  -o-transform: scale(2);
+}
+
+#does-accept-table {
+  margin-left: 20px;
+}

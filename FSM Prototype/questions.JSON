@@ -70,6 +70,20 @@
     "data-options": "{}"
   },
   {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"a\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":4,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":349.8029182993605,\"y\":254.1957090917024,\"index\":1,\"weight\":5,\"px\":349.8029182993605,\"py\":254.1957090917024,\"fixed\":0,\"name\":\"b\"},{\"id\":2,\"accepting\":true,\"x\":499.678335491752,\"y\":244.02986373329645,\"index\":2,\"weight\":1,\"px\":499.6774754649591,\"py\":244.02999407767922,\"fixed\":0,\"name\":\"e\"},{\"id\":3,\"accepting\":false,\"x\":409.20329468529906,\"y\":116.32724565888701,\"index\":3,\"weight\":1,\"px\":409.2107502373447,\"py\":116.33044462179444,\"fixed\":0,\"name\":\"c\"},{\"id\":4,\"accepting\":false,\"x\":428.2903942287966,\"y\":382.01075146730966,\"index\":4,\"weight\":1,\"px\":428.29017114379855,\"py\":382.01038815549344,\"fixed\":0,\"name\":\"d\"}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"y\"],\"id\":8},{\"source\":0,\"target\":0,\"input\":[\"y\"],\"id\":9},{\"source\":1,\"target\":3,\"input\":[\"z\"],\"id\":10},{\"source\":1,\"target\":0,\"input\":[\"y\"],\"id\":11},{\"source\":1,\"target\":4,\"input\":[\"x\",\"y\"],\"id\":12},{\"source\":1,\"target\":2,\"input\":[\"x\"],\"id\":13}]",
+    "filename": "select-states-5-nfa-intro",
+    "data-question": "{\"text\":\"If a finite state machine has more than one possible transition out of a state for a particular input symbol, it is said to be <b>non-deterministic</b> or a <b>non-deterministic finite automaton (NFA)</b>.<br>The machine below could be in 3 possible states for the input \\\"y, y\\\". Select them.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":2,\"input\":[\"y\",\"y\"]}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":331.1357017502346,\"y\":322.83720573494685,\"index\":1,\"weight\":3,\"px\":331.1351695169498,\"py\":322.83847698462023,\"fixed\":0,\"name\":\"1\"},{\"id\":2,\"accepting\":true,\"x\":431.1521000454572,\"y\":210.44926401210682,\"index\":2,\"weight\":6,\"px\":431.15215903776414,\"py\":210.45380256941098,\"fixed\":0,\"name\":\"3\"},{\"id\":3,\"accepting\":false,\"x\":477.86574305486045,\"y\":353.6046726183034,\"index\":3,\"weight\":2,\"px\":477.8637247255229,\"py\":353.6061022275224,\"fixed\":0,\"name\":\"2\"},{\"id\":4,\"accepting\":false,\"x\":578.9386541943667,\"y\":237.41605277208046,\"index\":4,\"weight\":4,\"px\":578.9358345607377,\"py\":237.4239774299939,\"fixed\":0}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":0,\"target\":0,\"input\":[\"a\",\"b\"],\"id\":2},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":3},{\"source\":1,\"target\":3,\"input\":[\"b\"],\"id\":4},{\"source\":2,\"target\":4,\"input\":[\"b\"],\"id\":5},{\"source\":4,\"target\":2,\"input\":[\"a\"],\"id\":6},{\"source\":4,\"target\":4,\"input\":[\"a\"],\"id\":7},{\"source\":3,\"target\":2,\"input\":[\"c\"],\"id\":11}]",
+    "filename": "does-accept-1-nfa",
+    "data-question": "{\"text\":\"A non-deterministic finite automaton accepts a sequence if there is <b>at least one path</b> for that sequence that <b>ends in an accepting state</b>.<br>For the sequences below, tick those that the machine would accept. \",\"alphabetType\":\"char\",\"type\":\"does-accept\",\"strList\":[\"aaab\",\"ac\",\"baabc\",\"abb\",\"abba\",\"aaaabcb\"]}",
+    "data-options": "{}"
+  },
+  {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
     "data-links": "[]",
     "filename": "satisfy-definition-1",
