@@ -62,7 +62,6 @@ if __name__ == "__main__":
         # Extract information to do some server-side rendering
         questionJSON = json.loads(variables["question"])
         variables["questionHTML"] = questionJSON["text"]
-        print(variables["questionHTML"])
 
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"

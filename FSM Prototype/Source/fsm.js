@@ -2429,12 +2429,7 @@ function init(){
     height = 500,
     colors = d3.scale.category10();
 
-    svg = d3.select("body")
-        .insert("svg", ".rate")
-        .attr("id", "main-svg")
-        .attr("width", width)
-        .attr("height", height);
-
+    svg = d3.select("#main-svg")
 
 
     // init D3 force layout
@@ -2447,30 +2442,6 @@ function init(){
         .charge(-30)
         .gravity(0.00)//gravity is attraction to the centre, not downwards.
         .on("tick", tick);
-
-    // define arrow markers for graph links
-    svg.append("svg:defs").append("svg:marker")
-        .attr("id", "end-arrow")
-        .attr("viewBox", "0 -10 20 20")
-        .attr("refX", 7)
-        .attr("markerWidth", 5)
-        .attr("markerHeight", 5)
-        .attr("orient", "auto")
-        .append("svg:path")
-        .attr("d", "M0,-10L20,0L0,10")
-        .attr("fill", "#000");
-
-    // Create copy for highlighted arrows:
-    arrow = d3.select("#end-arrow").html()
-    d3.select("defs").append("svg:marker").html(arrow)
-        .attr("id", "highlight-arrow")
-        .attr("viewBox", "0 -10 20 20")
-        .attr("refX", 7)
-        .attr("markerWidth", 5)
-        .attr("markerHeight", 5)
-
-    d3.select("#highlight-arrow path")
-        .attr("fill", "green")
 
     // line displayed when dragging new nodes
     drag_line = svg.append("svg:path")
@@ -2533,5 +2504,4 @@ function init(){
 
 }
 
-document.onload = function(){init();}
-
+init();
