@@ -7,6 +7,7 @@ from pprint import pprint
 from operator import itemgetter
 import sys
 import subprocess
+import shutil
 
 def getDir():
     currentDir = os.getcwd()
@@ -88,30 +89,47 @@ if __name__ == "__main__":
     # Return to previous directory.
     os.chdir(currentDir)
 
-    # Minify if requested:
+    # Minify css and JS if requested:
+    minifyRequested = False
     for arg in sys.argv:
         if arg in ["-m", "-M", "--Minify"]:
-            os.chdir("Source")
-            sourceDir = os.getcwd()
-            jsFiles = [ f for f in os.listdir() if f[-3:] == ".js"]
-            for f in jsFiles:
-                newJS = subprocess.check_output("uglifyjs " + f + " --screw-ie8 --compress", shell=True)
-                outname = os.path.join(deployDir, f)
-                outfile = open(outname, "wb")
-                outfile.write(newJS)
-                outfile.close()
-            os.chdir(sourceDir)
-            cssFiles = [ f for f in os.listdir() if f[-4:] == ".css"]
-            for f in cssFiles:
-                newCSS = subprocess.check_output("uglifycss " + f, shell=True)
-                outname = os.path.join(deployDir, f)
-                outfile = open(outname, "wb")
-                outfile.write(newCSS)
-                outfile.close()
+            minifyRequested = True
+            break
+    if minifyRequested:
+        os.chdir("Source")
+        sourceDir = os.getcwd()
+        jsFiles = [ f for f in os.listdir() if f[-3:] == ".js"]
+        for f in jsFiles:
+            newJS = subprocess.check_output("uglifyjs " + f + " --screw-ie8 --compress", shell=True)
+            outname = os.path.join(deployDir, f)
+            outfile = open(outname, "wb")
+            outfile.write(newJS)
+            outfile.close()
+        os.chdir(sourceDir)
+        cssFiles = [ f for f in os.listdir() if f[-4:] == ".css"]
+        for f in cssFiles:
+            newCSS = subprocess.check_output("uglifycss " + f, shell=True)
+            outname = os.path.join(deployDir, f)
+            outfile = open(outname, "wb")
+            outfile.write(newCSS)
+            outfile.close()
+    else:
+        # Copy JS and CSS unaltered
+        os.chdir("Source")
+        sourceDir = os.getcwd()
+        files = [f for f in os.listdir() if f[-4:] == ".css" or f[-3:] == ".js"]
+        for f in files:
+            shutil.copy(f, deployDir)
 
+    #Regardless of minification, copy any html files present in source unaltered:
+    os.chdir(sourceDir)
+    files = [f for f in os.listdir() if f[-5:] == ".html"]
+    for f in files:
+        shutil.copy(f, deployDir)
 
-            # Return to previous directory.
-            os.chdir(currentDir)
+    # Return to original directory.
+    os.chdir(currentDir)
+
 
 
 
