@@ -12,9 +12,7 @@ var display = {
         if (model.question.type == "none"){
             return;
         }
-        //Display question string
         var div = document.querySelector(".question");
-        div.innerHTML = "<div class='question-text'>" + model.question.text + "</div>";
         //Add forms if recquired by the question:
         if (model.question.type == "give-list"){
             var form = "<form class='pure-form-aligned pure-form qformblock'>";

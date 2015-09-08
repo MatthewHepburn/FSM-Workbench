@@ -2,7 +2,14 @@
 <html lang="en-GB">
   <head>
     <meta charset="utf-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
     <title>{{ title }}</title>
+    <style>
+    div.question-text {
+      margin-bottom: 6px;
+      font-family: 'Ek Mukta',sans-serif;
+    }
+    </style>
     <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
     <link rel="stylesheet" href="fsm.css">
@@ -19,7 +26,9 @@
       <a {{ previous }} class='pure-button'>Previous</a>
       <a {{ next }} class='pure-button' id='nav-next'>Next</a>
     </div>
-  	<div class="question">{{ questionHTML }}</div>
+  	<div class="question">
+      <div class="question-text">{{ questionHTML }}</div>
+    </div>
     <svg id="main-svg" width="960" height="500" class="active">
       <defs>
         <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
