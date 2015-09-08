@@ -20,6 +20,9 @@ give-list-*.html
 satisfy-regex-*.html
 satisfy-definition-*.html
 does-accept-*.html
+**/Deploy/*.css
+**/Deploy/*.js
+**/Deploy/*.html
 
 
 
