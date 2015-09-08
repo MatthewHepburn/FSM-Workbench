@@ -95,7 +95,7 @@ if __name__ == "__main__":
             sourceDir = os.getcwd()
             jsFiles = [ f for f in os.listdir() if f[-3:] == ".js"]
             for f in jsFiles:
-                newJS = subprocess.check_output("uglifyjs " + f + " --screw-ie8", shell=True)
+                newJS = subprocess.check_output("uglifyjs " + f + " --screw-ie8 --compress", shell=True)
                 outname = os.path.join(deployDir, f)
                 outfile = open(outname, "wb")
                 outfile.write(newJS)
