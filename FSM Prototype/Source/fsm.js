@@ -2533,5 +2533,5 @@ function init(){
 
 }
 
-document.querySelector("body").onload = function(){init();}
+document.onload = function(){init();}
 

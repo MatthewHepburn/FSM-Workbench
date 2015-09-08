@@ -59,7 +59,10 @@ if __name__ == "__main__":
             variables["next"] = "href ='end.html'"
             lastQuestion = question["filename"]
 
-        # TODO: Extract information to do some server-side rendering
+        # Extract information to do some server-side rendering
+        questionJSON = json.loads(variables["question"])
+        variables["questionHTML"] = questionJSON["text"]
+        print(variables["questionHTML"])
 
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"
