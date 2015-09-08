@@ -6,19 +6,20 @@ import json
 from pprint import pprint
 from operator import itemgetter
 import sys
+import subprocess
 
 def getDir():
     currentDir = os.getcwd()
-    return os.path.join(currentDir, "Templates")
+    return os.path.join(currentDir, "Source")
 
 
 if __name__ == "__main__":
-        # Load in question data
+    # Load in question data
     with open('questions.JSON') as data_file:
         data = json.load(data_file)
 
     # Setup Jinja
-    templateLoader = jinja2.FileSystemLoader("Templates")
+    templateLoader = jinja2.FileSystemLoader("Source")
     templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True)
     # Also add "lstrip_blocks=True" above if jinja2.7 or greater is available
     templatesDir = getDir()  # TODO work out what this does/if it does anything
@@ -29,6 +30,7 @@ if __name__ == "__main__":
     # Change to /Questions directory
     currentDir = os.getcwd()
     os.chdir("Deploy")
+    deployDir = os.getcwd()
 
     i = 1;
 
@@ -55,6 +57,8 @@ if __name__ == "__main__":
         else:
             variables["next"] = "href ='end.html'"
             lastQuestion = question["filename"]
+
+        # TODO: Extract information to do some server-side rendering
 
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"
@@ -83,3 +87,32 @@ if __name__ == "__main__":
 
     # Return to previous directory.
     os.chdir(currentDir)
+
+    # Minify if requested:
+    for arg in sys.argv:
+        if arg in ["-m", "-M", "--Minify"]:
+            os.chdir("Source")
+            sourceDir = os.getcwd()
+            jsFiles = [ f for f in os.listdir() if f[-3:] == ".js"]
+            for f in jsFiles:
+                newJS = subprocess.check_output("uglifyjs " + f + " --screw-ie8", shell=True)
+                outname = os.path.join(deployDir, f)
+                outfile = open(outname, "wb")
+                outfile.write(newJS)
+                outfile.close()
+            os.chdir(sourceDir)
+            cssFiles = [ f for f in os.listdir() if f[-4:] == ".css"]
+            for f in cssFiles:
+                newCSS = subprocess.check_output("uglifycss " + f, shell=True)
+                outname = os.path.join(deployDir, f)
+                outfile = open(outname, "wb")
+                outfile.write(newCSS)
+                outfile.close()
+
+
+            # Return to previous directory.
+            os.chdir(currentDir)
+
+
+
+

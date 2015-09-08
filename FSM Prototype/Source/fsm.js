@@ -139,7 +139,7 @@ var display = {
                 .attr("y", 0.5 * margin + (i * bwidth))
                 .attr("width", bwidth - margin)
                 .attr("height", bwidth - margin)
-                .attr("xlink:href", "Icons/"+ tools[i] +".svg")
+                .attr("xlink:href", "img/Icons/"+ tools[i] +".svg")
                 .attr("class", "control-img");
             g.append("rect")
                 .attr("width", bwidth)
@@ -188,7 +188,7 @@ var display = {
                 .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + 0.5 * margin + (i * bwidth))
                 .attr("width", bwidth - margin)
                 .attr("height", bwidth - margin)
-                .attr("xlink:href", "Icons/trace-"+ tools[i] +".svg")
+                .attr("xlink:href", "img/Icons/trace-"+ tools[i] +".svg")
                 .attr("class", "control-img");
             g.append("rect")
                 .attr("width", bwidth)
@@ -1216,9 +1216,9 @@ var checkAnswer = {
             var input = model.parseInput(model.question.strList[i], model.question.alphabetType == "char");
             var accepts = model.accepts(input);
             if (accepts == isChecked){
-                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>";
+                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src=img/Icons/check.svg>";
             } else {
-                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>";
+                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src=img/Icons/x.svg>";
                 passed = false;
             }
         }
@@ -1450,9 +1450,9 @@ var checkAnswer = {
                 var input = model.parseInput(model.question.acceptList[i], model.question.alphabetType == "char");
                 var accepts = model.accepts(input);
                 if (accepts){
-                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>";
+                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=img/Icons/check.svg>";
                 } else {
-                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>";
+                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=img/Icons/x.svg>";
                     passed = false;
                 }
             }
@@ -1461,9 +1461,9 @@ var checkAnswer = {
                 var input = model.parseInput(model.question.rejectList[i], model.question.alphabetType == "char");
                 var accepts = model.accepts(input);
                 if (!accepts){
-                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/check.svg>";
+                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=img/Icons/check.svg>";
                 } else {
-                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=Icons/x.svg>";
+                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=img/Icons/x.svg>";
                     passed = false;
                 }
             }
@@ -1572,10 +1572,10 @@ var checkAnswer = {
             var message = document.createElement("p");
             message.classList.add("inline-feedback");
             if (isCorrect){
-                message.innerHTML = "<img class ='x-check-button' src=Icons/check.svg>";
+                message.innerHTML = "<img class ='x-check-button' src=img/Icons/check.svg>";
                 logging.sendAnswer(true, model.selected);
             } else{
-                message.innerHTML = "<img class ='x-check-button' src=Icons/x.svg>";
+                message.innerHTML = "<img class ='x-check-button' src=img/Icons/x.svg>";
                 logging.sendAnswer(false, model.selected);
             }
             document.querySelector(".button-div").appendChild(message)
