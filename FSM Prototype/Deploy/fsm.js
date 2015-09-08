@@ -1203,8 +1203,6 @@ var query = {
         return [true, ""];
     }
 };
-// Read in data as soon as model and query methods are created.
-model.readJSON();
 
 var checkAnswer = {
     doesAccept: function(){
@@ -1975,71 +1973,7 @@ var controller = {
 };
 
 
-// set up SVG for D3
-var width = 960,
-    height = 500,
-    colors = d3.scale.category10();
 
-var svg = d3.select("body")
-    .insert("svg", ".rate")
-    .attr("id", "main-svg")
-    .attr("width", width)
-    .attr("height", height);
-
-
-
-// init D3 force layout
-var force = d3.layout.force()
-    .nodes(model.nodes)
-    .links(model.links)
-    .size([width, height])
-    .linkDistance(150)
-    .chargeDistance(160)
-    .charge(-30)
-    .gravity(0.00)//gravity is attraction to the centre, not downwards.
-    .on("tick", tick);
-
-// define arrow markers for graph links
-svg.append("svg:defs").append("svg:marker")
-    .attr("id", "end-arrow")
-    .attr("viewBox", "0 -10 20 20")
-    .attr("refX", 7)
-    .attr("markerWidth", 5)
-    .attr("markerHeight", 5)
-    .attr("orient", "auto")
-    .append("svg:path")
-    .attr("d", "M0,-10L20,0L0,10")
-    .attr("fill", "#000");
-
-// Create copy for highlighted arrows:
-var arrow = d3.select("#end-arrow").html()
-d3.select("defs").append("svg:marker").html(arrow)
-    .attr("id", "highlight-arrow")
-    .attr("viewBox", "0 -10 20 20")
-    .attr("refX", 7)
-    .attr("markerWidth", 5)
-    .attr("markerHeight", 5)
-
-d3.select("#highlight-arrow path")
-    .attr("fill", "green")
-
-// line displayed when dragging new nodes
-var drag_line = svg.append("svg:path")
-    .attr("class", "link dragline hidden")
-    .attr("d", "M0,0L0,0");
-
-// handles to link and node element groups
-var path = svg.append("svg:g").attr("id", "paths").selectAll("path"),
-    circle = svg.append("svg:g").selectAll("g"),
-    linkLabels = svg.selectAll(".linklabel");
-
-
-// mouse event vars
-var selected_node = null,
-    selected_link = null,
-    mousedown_link = null,
-    mousedown_node = null,
-    mouseup_node = null;
 
 function resetMouseVars() {
     mousedown_node = null;
@@ -2487,43 +2421,117 @@ var logging = {
     }
 };
 
-// app starts here
-model.setupQuestion();
-if (model.editable){
-    display.drawControlPalette();
+
+function init(){
+    model.readJSON();
+    // set up SVG for D3
+    width = 960,
+    height = 500,
+    colors = d3.scale.category10();
+
+    svg = d3.select("body")
+        .insert("svg", ".rate")
+        .attr("id", "main-svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+
+    // init D3 force layout
+    force = d3.layout.force()
+        .nodes(model.nodes)
+        .links(model.links)
+        .size([width, height])
+        .linkDistance(150)
+        .chargeDistance(160)
+        .charge(-30)
+        .gravity(0.00)//gravity is attraction to the centre, not downwards.
+        .on("tick", tick);
+
+    // define arrow markers for graph links
+    svg.append("svg:defs").append("svg:marker")
+        .attr("id", "end-arrow")
+        .attr("viewBox", "0 -10 20 20")
+        .attr("refX", 7)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", "auto")
+        .append("svg:path")
+        .attr("d", "M0,-10L20,0L0,10")
+        .attr("fill", "#000");
+
+    // Create copy for highlighted arrows:
+    arrow = d3.select("#end-arrow").html()
+    d3.select("defs").append("svg:marker").html(arrow)
+        .attr("id", "highlight-arrow")
+        .attr("viewBox", "0 -10 20 20")
+        .attr("refX", 7)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+
+    d3.select("#highlight-arrow path")
+        .attr("fill", "green")
+
+    // line displayed when dragging new nodes
+    drag_line = svg.append("svg:path")
+        .attr("class", "link dragline hidden")
+        .attr("d", "M0,0L0,0");
+
+    // handles to link and node element groups
+    path = svg.append("svg:g").attr("id", "paths").selectAll("path"),
+        circle = svg.append("svg:g").selectAll("g"),
+        linkLabels = svg.selectAll(".linklabel");
+
+
+    // mouse event vars
+    selected_node = null,
+    selected_link = null,
+    mousedown_link = null,
+    mousedown_node = null,
+    mouseup_node = null;
+
+    model.setupQuestion();
+
+    if (model.editable){
+        display.drawControlPalette();
+    }
+    svg.on("mousedown", eventHandler.clickBackground)
+        .on("mousemove", mousemove)
+        .on("touchmove", mousemove)
+        .on("mouseup", mouseup)
+        .on("touchend", mouseup);
+    d3.select(window)
+        .on("keydown", keydown)
+        .on("keyup", keyup);
+    contextMenuShowing = false;
+    renameMenuShowing = false;
+    restart();
+    force.start();
+    circle.call(force.drag);
+    // Add a start arrow to node 0
+    node0 = d3.select("[id='0']").data()[0];
+    tracePlaying = false;
+    display.drawStart(node0.x, node0.y);
+    // Add event listener to the rate buttons
+    d3.selectAll(".rate-button").on("click", eventHandler.rate);
+    hasRated = false;
+    loaded = true;
+    // Keep track of whether the tab is active, for logging purposes
+    isActive = true;
+
+    window.onfocus = function () {
+      isActive = true;
+    };
+
+    window.onblur = function () {
+      isActive = false;
+    };
+
+    // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
+    logging.sendInfo();
+    setInterval(logging.sendInfo, 120000);
+
 }
-svg.on("mousedown", eventHandler.clickBackground)
-    .on("mousemove", mousemove)
-    .on("touchmove", mousemove)
-    .on("mouseup", mouseup)
-    .on("touchend", mouseup);
-d3.select(window)
-    .on("keydown", keydown)
-    .on("keyup", keyup);
-var contextMenuShowing = false;
-var renameMenuShowing = false;
-restart();
-force.start();
-circle.call(force.drag);
-// Add a start arrow to node 0
-var node0 = d3.select("[id='0']").data()[0];
-var tracePlaying = false;
-display.drawStart(node0.x, node0.y);
-// Add event listener to the rate buttons
-d3.selectAll(".rate-button").on("click", eventHandler.rate);
-var hasRated = false;
-var loaded = true;
-// Keep track of whether the tab is active, for logging purposes
-var isActive = true;
 
-window.onfocus = function () {
-  isActive = true;
-};
+document.querySelector("body").onload = function(){init();}
 
-window.onblur = function () {
-  isActive = false;
-};
-
-// Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
-logging.sendInfo();
-setInterval(logging.sendInfo, 120000);
