@@ -13,21 +13,10 @@ var display = {
             return;
         }
         var div = document.querySelector(".question");
-        //Add forms if recquired by the question:
+        //Add forms if required by the question:
         if (model.question.type == "give-list"){
-            var form = "<form class='pure-form-aligned pure-form qformblock'>";
-            for (var i = 0; i < model.question.lengths.length; i++){
-                var numChars = model.question.lengths[i];
-                var id ="qf" + i;
-                var line = "<div class='pure-control-group'><label for='" + id +"'>" + numChars + " symbols</label><input type='text' class='qform', id ='" +id +"'>";
-                if (i < model.question.lengths.length - 1){
-                    //Close div here, unless on the last loop execution
-                    line = line + "</div>";
-                }
-                form = form + line;
-            }
-            form = form + "<div><button id='check-button' class='pure-button qbutton' type='submit' formaction='javascript:checkAnswer.giveList()'>Check</button></div></div></form>";
-            div.innerHTML += form;
+            document.getElementById("check-button").addEventListener("click", checkAnswer.giveList);
+            document.querySelector(".qformblock").addEventListener("submit", function(event){event.preventDefault();checkAnswer.giveList();});
             if (model.question.prefill){
                 for (key in model.question.prefill){
                     d3.select("#qf" + key).attr("value", model.question.prefill[key])
@@ -66,17 +55,17 @@ var display = {
             return;
         }
         if (model.question.type == "satisfy-definition"){
-            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyDefinition()'>Check</button></div>";
+            document.getElementById("check-button").addEventListener("click", checkAnswer.satisfyDefinition);
             return;
         }
         if (model.question.type == "satisfy-regex"){
-            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit' onclick='javascript:checkAnswer.satisfyRegex()'>Check</button></div>";
-            return;
+            document.getElementById("check-button").addEventListener("click", checkAnswer.satisfyRegex)
         }
 
         if (model.question.type == "select-states"){
-            div.innerHTML = div.innerHTML + "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit' onclick='javascript:checkAnswer.selectStates()'>Check</button></div>";
+            document.getElementById("check-button").addEventListener("click", checkAnswer.selectStates)
             model.selected = [];
+            // Enable the selection of states.
             // Need to wait until nodes are created to register event handlers.
             var f = function(){
                 if (loaded){

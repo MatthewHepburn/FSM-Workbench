@@ -62,6 +62,9 @@ if __name__ == "__main__":
         # Extract information to do some server-side rendering
         questionJSON = json.loads(variables["question"])
         variables["questionHTML"] = questionJSON["text"]
+        variables["questionType"] = questionJSON["type"]
+        if variables["questionType"] == "give-list":
+            variables["lengths"] = questionJSON["lengths"]
 
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"
