@@ -50,8 +50,9 @@ var display = {
                     table += "<td></td></tr>";
                 }
             }
-            table += "</table><button id='check-button' class='pure-button qbutton table-button' type='submit' onclick='javascript:checkAnswer.satisfyList()'>Check</button></div>";
-            div.innerHTML += table;
+            table += "</table>";
+            document.querySelector(".question-text").insertAdjacentHTML("afterEnd", table)
+            document.getElementById("check-button").addEventListener("click", checkAnswer.satisfyList);
             return;
         }
         if (model.question.type == "satisfy-definition"){
@@ -79,15 +80,14 @@ var display = {
         }
         if (model.question.type == "does-accept"){
             var str;
-            var html = div.innerHTML + "<table id = 'does-accept-table'><tbody>"
+            var html = "<table id = 'does-accept-table'><tbody>"
             for (i = 0; i < model.question.strList.length; i++){
                 str = model.question.strList[i]
                 html += '<tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="' + str + '">' + str + '</td><td class="table-space"> </td><td id="feedback-'+ i +'"></td></tr>'
             }
             html += "</tbody></table>"
-            html += "<div class = 'button-div'><button id='check-button' class='pure-button' type='submit'>Check</button></div>";
-            div.innerHTML = html;
-            document.querySelector(".button-div button").addEventListener("click", function(){checkAnswer.doesAccept()})
+            document.querySelector(".question-text").insertAdjacentHTML("afterEnd", html);
+            document.getElementById("check-button").addEventListener("click", checkAnswer.doesAccept);
 
         }
 

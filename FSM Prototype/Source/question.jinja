@@ -29,12 +29,12 @@
   	<div class="question">
       <div class="question-text">{{ questionHTML }}</div>
       {%- if lengths -%}
-      <form class="pure-form-aligned pure-form qformblock" name="qform">
-        {%- for len in lengths -%}
-          <div class="pure-control-group"><label for="qf{{ loop.index0 }}">{{ len }} symbols</label><input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value=""></div>
-        {% endfor %}
-        <input type=image src='img/Icons/spacer.gif'>
-        </form>
+        <form class="pure-form-aligned pure-form qformblock" name="qform">
+          {%- for len in lengths -%}
+            <div class="pure-control-group"><label for="qf{{ loop.index0 }}">{{ len }} symbols</label><input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value=""></div>
+          {% endfor %}
+          <input type=image src='img/Icons/spacer.gif'>
+          </form>
       {% endif %}
       <div class="button-div"><button id="check-button" class="pure-button" type="submit">Check</button></div>
     </div>
