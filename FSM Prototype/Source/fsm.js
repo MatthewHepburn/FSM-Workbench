@@ -735,6 +735,7 @@ var model = {
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.currentInput = JSON.parse(JSON.stringify(input));
         model.currentStates = [0];
+        model.doEpsilonTransitions()
         // Simulate until input is consumed
         while (this.currentInput.length > 0){
             if (this.currentStates == []){

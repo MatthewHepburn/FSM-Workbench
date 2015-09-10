@@ -91,6 +91,20 @@
     "data-options": "{}"
   },
   {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.2380685072659,\"y\":249.14221680436393,\"index\":1,\"weight\":2,\"px\":350.2379770996383,\"py\":249.14218966587043,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":500.4759482223204,\"y\":247.57324669526525,\"index\":2,\"weight\":1,\"px\":500.4759482223204,\"py\":247.57324669526525,\"fixed\":0}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":2,\"input\":[\"ε\"],\"id\":4}]",
+    "filename": "select-states-6-epsilon-intro",
+    "data-question": "{\"text\":\"As well as allowing multiple paths out of a state for a single input, non-deterministic finite automata also allow <b>epsilon transitions</b>. These are special transitions (shown as ε) that can be taken <b>without consuming any input</b>. <br>The machine below can end in two different states for the input \\\"a\\\". Select them.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":1,\"input\":[\"a\"]}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":335.90300849042006,\"y\":64.70166697440929,\"index\":1,\"weight\":1,\"px\":335.9039184094848,\"py\":64.7016627846864,\"fixed\":0,\"name\":\"T\"},{\"id\":2,\"accepting\":false,\"x\":486.1733227424616,\"y\":64.01010076449474,\"index\":2,\"weight\":2,\"px\":486.17332579913926,\"py\":64.01007179287943,\"fixed\":0},{\"id\":3,\"accepting\":false,\"x\":636.3467923254912,\"y\":62.51328116761752,\"index\":3,\"weight\":2,\"px\":636.3467923254912,\"py\":62.51328116761752,\"fixed\":0},{\"id\":4,\"accepting\":false,\"x\":344.3456806148473,\"y\":383.9840541146069,\"index\":4,\"weight\":1,\"px\":344.34659029085446,\"py\":383.98403573438367,\"fixed\":0,\"name\":\"Q\"},{\"id\":5,\"accepting\":false,\"x\":494.5869161765905,\"y\":380.9480447742521,\"index\":5,\"weight\":2,\"px\":494.58691987651554,\"py\":380.94807325449955,\"fixed\":0},{\"id\":6,\"accepting\":true,\"x\":795.0179484097905,\"y\":377.5362479386573,\"index\":6,\"weight\":1,\"px\":795.0170358774708,\"py\":377.5362550542402,\"fixed\":0},{\"id\":7,\"accepting\":true,\"x\":786.613611459936,\"y\":61.343333354295034,\"index\":7,\"weight\":1,\"px\":786.613611459936,\"py\":61.343333354295034,\"fixed\":0},{\"id\":8,\"accepting\":false,\"x\":644.7511355910009,\"y\":378.7075373605659,\"index\":8,\"weight\":2,\"px\":644.7511341972071,\"py\":378.7075758460348,\"fixed\":0}]",
+    "data-links": "[{\"source\":1,\"target\":2,\"input\":[\"a\"],\"id\":1},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":2},{\"source\":4,\"target\":5,\"input\":[\"a\"],\"id\":3},{\"source\":3,\"target\":7,\"input\":[\"c\"],\"id\":4},{\"source\":5,\"target\":8,\"input\":[\"a\"],\"id\":5},{\"source\":8,\"target\":6,\"input\":[\"c\"],\"id\":8}]",
+    "filename": "satisfy-list-epsilon-combine",
+    "data-question": "{\"text\":\"Epsilon transitions are useful for combining machines. Below are two machine fragments that accept \\\"abc\\\" and \\\"aac\\\", combine them using epsilon transitions to form a single machine that accepts both \\\"abc\\\" and \\\"aac\\\"\",\"alphabetType\":\"char\",\"type\":\"satisfy-list\",\"acceptList\":[\"abc\",\"aac\"],\"rejectList\":[\"a\",\"b\",\"abcaac\",\"bc\",\"ac\"],\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"]}",
+    "data-options": "{}"
+  },
+  {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
     "data-links": "[]",
     "filename": "satisfy-definition-1",
