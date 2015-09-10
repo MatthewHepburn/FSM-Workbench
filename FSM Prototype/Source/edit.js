@@ -29,7 +29,8 @@ edit = {
 		"satisfy-regex":{
 			"regex": {"description": "Regular expression that the machine should accept. In the format accepted by JavaScript regexes. Eg abb(abb)*", "optional":false, "default":"a(a|b)*", "expectStr":true},
 			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false},
-			"minAcceptLength": {"description": "The length of the shortest string that the regex accepts.", "optional":false, "default":4, "expectStr":false}
+			"minAcceptLength": {"description": "The length of the shortest string that the regex accepts.", "optional":false, "default":4, "expectStr":false},
+			"deterministic": {"description": "Optional parameter. If true, the machine must be deterministic, if false the machine must be nondeterministic. If not specified, either is acceptable", "optional":true, "default":"", "expectStr":false}
 		}
 	},
 	createQuestionPrompt:function() {

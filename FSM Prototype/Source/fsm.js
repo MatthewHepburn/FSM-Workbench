@@ -1142,6 +1142,15 @@ var query = {
         });
         return returnList;
     },
+    hasAcceptingState:function() {
+        //Determine if the machine has at least one accepting state.
+        for (var i = 0; i<model.nodes.length; i++){
+            if (model.nodes[i].accepting){
+                return true
+            }
+        }
+        return false
+    },
     isBezier: function(id) {
         // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
 
@@ -1474,6 +1483,24 @@ var checkAnswer = {
             message.innerHTML = f;
             document.querySelector(".button-div").appendChild(message);
         };
+        //Check if n/dfa has been specifed:
+        if (model.question.deterministic != undefined){
+            var isDeterministic = query.isDeterministic();
+            if (model.question.deterministic && isDeterministic[0] == false){
+                displayFeedback("Incorrect - Machine must be deterministic. " + isDeterministic[1]);
+                return;
+            }
+            if (!model.question.deterministic && isDeterministic[0]){
+                displayFeedback("Incorrect - Machine must be non deterministic.");
+                return;
+            }
+        }
+        //Check if there is an accepting state:
+        if(!query.hasAcceptingState()){
+            displayFeedback("Incorrect - Machine does not have an accepting state.")
+            return;
+        }
+
         var regex = new RegExp(model.question.regex);
         if (model.question.minAcceptLength == undefined){ // minAcceptLength is the length of the shortest string that the regex should accept. Here given a default value of 4.
             var minAcceptLength = 4;
