@@ -1198,6 +1198,55 @@ var query = {
             }
         }
         return [true, ""];
+    },
+    getMinimalDFA: function(){
+        // create a copy to the current machine:
+        var machine = {
+            "nodes": JSON.parse(JSON.stringify(model.nodes)),
+            "links": JSON.parse(JSON.stringify(model.links))
+        }
+
+        // Remove any unreachable states. First find all reachable states:
+        var changed = true;
+        var reachableIDs = [];
+        var frontier = [0]
+        var newfrontier = []
+        var link
+        while (changed){
+            changed = false
+            for (var i = 0; i < frontier.length; i++){
+                var sourceID = frontier[i]
+                for (var j = 0; j< machine.links.length; j++){
+                    link = machine.links[j];
+                    if (link.source.id == sourceID){
+                        var targetID = link.target.id
+                        if (reachableIDs.indexOf(targetID) == -1 && newfrontier.indexOf(targetID) == -1 && frontier.indexOf(targetID)== -1){
+                            newfrontier.push(targetID);
+                            changed = true
+                        }
+                    }
+                }
+            }
+            reachableIDs = reachableIDs.concat(frontier)
+            frontier = newfrontier
+            newfrontier = []
+        }
+        //Then remove any state not appearring in reachableIDs:
+        for (i = 0; i < machine.nodes.length; i++){
+            if (reachableIDs.indexOf(machine.nodes[i].id) == -1){
+                var nodeID = machine.nodes[i].id;
+                machine.nodes.splice(i, 1);
+                // And remove all links to/from it.
+                for (j = 0; j < machine.links.length; j++){
+                    link = machine.links[j]
+                    if (link.source.id == nodeID || link.target.id == nodeID){
+                        machine.links.splice(j, 1)
+                    }
+                }
+            }
+        }
+
+        console.log(machine)
     }
 };
 
