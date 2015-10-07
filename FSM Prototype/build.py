@@ -103,7 +103,8 @@ if __name__ == "__main__":
     if minifyRequested:
         os.chdir("Source")
         sourceDir = os.getcwd()
-        jsFiles = [ f for f in os.listdir() if f[-3:] == ".js"]
+        # Arguement to listdir is optional in python 3.2+ but used here for compatability with DICE
+        jsFiles = [ f for f in os.listdir(sourceDir) if f[-3:] == ".js"]
         for f in jsFiles:
             newJS = subprocess.check_output("uglifyjs " + f + " --screw-ie8 --compress", shell=True)
             outname = os.path.join(deployDir, f)
@@ -111,7 +112,7 @@ if __name__ == "__main__":
             outfile.write(newJS)
             outfile.close()
         os.chdir(sourceDir)
-        cssFiles = [ f for f in os.listdir() if f[-4:] == ".css"]
+        cssFiles = [ f for f in os.listdir(sourceDir) if f[-4:] == ".css"]
         for f in cssFiles:
             newCSS = subprocess.check_output("uglifycss " + f, shell=True)
             outname = os.path.join(deployDir, f)
@@ -122,13 +123,13 @@ if __name__ == "__main__":
         # Copy JS and CSS unaltered
         os.chdir("Source")
         sourceDir = os.getcwd()
-        files = [f for f in os.listdir() if f[-4:] == ".css" or f[-3:] == ".js"]
+        files = [f for f in os.listdir(sourceDir) if f[-4:] == ".css" or f[-3:] == ".js"]
         for f in files:
             shutil.copy(f, deployDir)
 
     #Regardless of minification, copy any html files present in source unaltered:
     os.chdir(sourceDir)
-    files = [f for f in os.listdir() if f[-5:] == ".html"]
+    files = [f for f in os.listdir(sourceDir) if f[-5:] == ".html"]
     for f in files:
         shutil.copy(f, deployDir)
 
