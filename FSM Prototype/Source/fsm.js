@@ -1545,6 +1545,13 @@ var checkAnswer = {
                 return;
             }
         }
+        //Check if a maximum number of states has been specified:
+        if (model.question.maxStates != undefined){
+            if (model.nodes.length > model.question.maxStates){
+                displayFeedback("Machine must have at most " + model.question.maxStates + " states but this machine has " + model.nodes.length + ".");
+                return;
+            }
+        }
         //Check if there is an accepting state:
         if(!query.hasAcceptingState()){
             displayFeedback("Incorrect - Machine does not have an accepting state.")

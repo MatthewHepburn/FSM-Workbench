@@ -1,0 +1,9 @@
+[
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":true,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "Inf2A-1",
+    "data-question": "{\"text\":\"Give an NFA for the language over {a, b} in which a and b alternate: that is, strings not containing aa or bb consecutively.<br>The machine should use fewer than 5 states.\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(a?)(ba)*(b?)\",\"alphabet\":[\"a\",\"b\",\"ε\"],\"minAcceptLength\":0,\"maxStates\":4}",
+    "data-options": "{}"
+  }
+]
