@@ -1199,6 +1199,98 @@ var query = {
         }
         return [true, ""];
     },
+    getCopyForRegex: function(){
+        //Return a deep copy of the current machine as an object with nodes and links properties
+        //Replace the current inital state with a new state with an epsilon transition to the old state
+        var copy = {}
+        copy.nodes = JSON.parse(JSON.stringify(model.nodes))
+        copy.links = JSON.parse(JSON.stringify(model.links));
+        var getNodeByID = function(id){
+            for (var j = 0; j < copy.nodes.length; j++){
+                if (copy.nodes[j].id == id){
+                    return copy.nodes[j]
+                }
+            }
+        }
+        // Replace source and target objects with ids
+        var newID = copy.nodes.length
+        copy.nodes.push(JSON.parse(JSON.stringify(copy.nodes[0])))
+        copy.nodes[newID].id = newID
+        for (var i = 0; i < copy.links.length; i++){
+            if (copy.links[i].source.id != 0){ 
+                copy.links[i].source = getNodeByID(copy.links[i].source.id);}
+            else{
+                copy.links[i].source = getNodeByID(newID)
+            }
+            if (copy.links[i].source.id != 0){ 
+                copy.links[i].target = getNodeByID(copy.links[i].target.id);}
+            else{
+                copy.links[i].target = getNodeByID(newID)
+            }            
+        }
+        copy.links.push({id: copy.links.length-1, source:getNodeByID(0),target:getNodeByID(newID), input:["ε"]})
+
+        return copy;
+    },
+
+    getRegex2: function(){
+        //Using the state elimination method, construct a regex equivilant to the current machine.
+        //Algorithm from http://courses.cs.washington.edu/courses/cse311/14sp/kleene.pdf
+        var m = query.getCopy() // Operate on a copy of the machine
+        // Create a new state that every accepting state has an epsilon transition to.
+        // Make all previously accepting states non-accepting
+        var acceptingID = m.nodes.length
+        m.nodes.push({id: acceptingID, accepting: true})
+        for (var i = 0; i < m.nodes.length; i++){
+            if (!m.nodes[i].accepting){
+                continue;
+            }
+            m.nodes[i].accepting = false;
+            m.links.push({source:m.nodes[i], target: m.nodes[m.nodes.length -1], input:["ε"]})
+        }
+        return m
+    },
+    getRegex: function(){
+        // For each state, get a regex for the transition to itself. Empty string if state has no reflexive link
+        var states = {};
+        var links;
+        var node;
+        var i, j, k;
+        var str;
+        var reflexive;
+        for (i = 0; i < model.nodes.length; i++){
+            reflexive = null
+            node = model.nodes[i];
+            links = query.getLinksFromNode(node)
+            for (j = 0; j < links.length; j++){
+                if (links[j].target === node && links[j].input.length > 0){
+                    reflexive = links[j];
+                    break;
+                }
+            }
+            if(reflexive === null){
+                states[String(node.id)] = ""
+            } else {
+                str = "(" + reflexive.input[0]
+                for (k = 1; k < reflexive.input.length; k++){
+                    str += "|" + reflexive.input[k]
+                }
+                str += ")*"
+                states[String(node.id)] = str;
+            }
+        }
+
+        // For each accepting state, create a base regex:
+        var regexes = {}
+        for(i = 0; i < model.nodes.length; i++){
+            if (!model.nodes[i].accepting){
+                continue;
+            }
+            regexes[String(model.nodes[i].id)] = states[String(model.nodes[i].id)]
+        }
+        return regexes;
+
+    },
     getMinimalDFA: function(){
         // create a copy to the current machine:
         var machine = {
