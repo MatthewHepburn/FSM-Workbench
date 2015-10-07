@@ -1212,6 +1212,14 @@ var query = {
                 }
             }
         }
+        var getExprFromInput = function(input){
+            var expr = "(" + input[0];
+            for (var i = 1; i < input.length; i++){
+                expr += "|" + input[i]
+            }
+            expr += ")";
+            return expr;
+        }
         // Replace source and target objects with ids
         var newID = copy.nodes.length
         copy.nodes.push(JSON.parse(JSON.stringify(copy.nodes[0])))
@@ -1226,19 +1234,77 @@ var query = {
                 copy.links[i].target = getNodeByID(copy.links[i].target.id);}
             else{
                 copy.links[i].target = getNodeByID(newID)
-            }            
+            }
+            copy.links[i].expr = getExprFromInput(copy.links[i].input)            
         }
-        copy.links.push({id: copy.links.length-1, source:getNodeByID(0),target:getNodeByID(newID), input:["ε"]})
+        copy.links.push({expr: "", id: copy.links.length-1, source:getNodeByID(0),target:getNodeByID(newID), input:["ε"]})
 
         return copy;
     },
 
     getRegex2: function(){
+        var getFreeLinkID = function(){
+            var max = 0
+            for (var i = 0; i < m.links.length; i ++){
+                if (m.links[i].id > max){
+                    max = m.links[i].id;
+                }
+            }
+            return max + 1
+        }
+
+        var eliminateState = function(index){
+            var node = m.nodes[index];
+            var inLinks = [];
+            var outLinks = [];
+            var link;
+            var toSplice = [];
+            var reflexiveRegex = ""
+            //Build lists of inlinks, outlinks and the reflexive regex. Remove links to/from the state from m.links
+            for (var i = 0; i < m.links.length; i++){
+                link = m.links[i]
+                if (link.target.id == link.source.id && link.source.id == node.id ){
+                    reflexiveRegex = "(" +  link.expr + ")*"
+                    toSplice.push(i);
+                    continue
+                }
+                if (link.source.id == node.id){
+                    outLinks.push(JSON.parse(JSON.stringify(link)));
+                    toSplice.push(i);
+                    continue;
+                }
+                if (link.target.id == node.id){
+                    inLinks.push(JSON.parse(JSON.stringify(link)));
+                    toSplice.push(i);
+                }
+            }
+            for (i = 0; i < toSplice.length; i++){
+                m.links.splice(toSplice[i], 1)
+            }
+            // For each possible inlink -> outlink pair, create a new link with the appropriate regex 
+            var inLink;
+            var outLink;
+            var newLink
+            for(var inIndex = 0; inIndex < inLinks.length; inIndex++){
+                inLink = inLinks[inIndex]
+                for (var outIndex = 0; outIndex < outLinks.length; outIndex++){
+                    outLink = outLinks[outIndex]
+                    newLink = {target: outLink.target, source: inLink.source, expr:inLink.expr + reflexiveRegex + outLink.expr, id:getFreeLinkID()}
+                    m.links.push(JSON.parse(JSON.stringify(newLink)))
+                }
+            }
+            m.nodes.splice(index, 1)
+        }
+
+
         //Using the state elimination method, construct a regex equivilant to the current machine.
         //Algorithm from http://courses.cs.washington.edu/courses/cse311/14sp/kleene.pdf
-        var m = query.getCopy() // Operate on a copy of the machine
+        var m = query.getCopyForRegex() // Operate on a copy of the machine
         // Create a new state that every accepting state has an epsilon transition to.
         // Make all previously accepting states non-accepting
+
+        //TODO, assign a correct new ID
+        //TODO, enforce no empty links before checking.
         var acceptingID = m.nodes.length
         m.nodes.push({id: acceptingID, accepting: true})
         for (var i = 0; i < m.nodes.length; i++){
@@ -1246,9 +1312,26 @@ var query = {
                 continue;
             }
             m.nodes[i].accepting = false;
-            m.links.push({source:m.nodes[i], target: m.nodes[m.nodes.length -1], input:["ε"]})
+            m.links.push({expr: "", source:m.nodes[i], target: m.nodes[m.nodes.length -1], input:["ε"]})
         }
+        while (m.nodes.length > 2){
+            eliminateState(1)
+        }
+
+        //Combine all links from start to end into a single regex
+        var finalRegex = "(" + m.links[0].expr + ")"
+        for (i = 1; i < m.links.length; i++){
+            if (finalRegex[finalRegex.length-1] == "|"){
+                finalRegex +=m.links[i].expr
+            } else{
+                finalRegex += "|(" + m.links[i].expr + ")"
+            }
+            
+        }
+
         return m
+
+        
     },
     getRegex: function(){
         // For each state, get a regex for the transition to itself. Empty string if state has no reflexive link
