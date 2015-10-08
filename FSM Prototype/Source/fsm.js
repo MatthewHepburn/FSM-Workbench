@@ -1265,22 +1265,22 @@ var query = {
                 link = m.links[i]
                 if (link.target.id == link.source.id && link.source.id == node.id ){
                     reflexiveRegex = "(" +  link.expr + ")*"
-                    toSplice.push(i);
+                    toSplice.push(link);
                     continue
                 }
                 if (link.source.id == node.id){
                     outLinks.push(JSON.parse(JSON.stringify(link)));
-                    toSplice.push(i);
+                    toSplice.push(link);
                     continue;
                 }
                 if (link.target.id == node.id){
                     inLinks.push(JSON.parse(JSON.stringify(link)));
-                    toSplice.push(i);
+                    toSplice.push(link);
                 }
             }
-            for (i = 0; i < toSplice.length; i++){
-                m.links.splice(toSplice[i], 1)
-            }
+            toSplice.map(function(l) {
+                m.links.splice(m.links.indexOf(l), 1);
+            });
             // For each possible inlink -> outlink pair, create a new link with the appropriate regex 
             var inLink;
             var outLink;
@@ -1300,14 +1300,14 @@ var query = {
         //Using the state elimination method, construct a regex equivilant to the current machine.
         //Algorithm from http://courses.cs.washington.edu/courses/cse311/14sp/kleene.pdf
         var m = query.getCopyForRegex() // Operate on a copy of the machine
-        // Create a new state that every accepting state has an epsilon transition to.
+        // Create a new state that every other accepting state has an epsilon transition to.
         // Make all previously accepting states non-accepting
 
         //TODO, assign a correct new ID
         //TODO, enforce no empty links before checking.
         var acceptingID = m.nodes.length
         m.nodes.push({id: acceptingID, accepting: true})
-        for (var i = 0; i < m.nodes.length; i++){
+        for (var i = 0; i < m.nodes.length-1; i++){
             if (!m.nodes[i].accepting){
                 continue;
             }
@@ -1328,7 +1328,7 @@ var query = {
             }
             
         }
-
+        console.log(finalRegex)
         return m
 
         
@@ -1740,7 +1740,7 @@ var checkAnswer = {
             var minAcceptLength = model.question.minAcceptLength;
         }
         // First, check that what the machine accepts is a subset of what the regex accepts (for length <= pathLength)
-        var pathLength = model.links.length * 2
+        var pathLength = model.nodes.length + 1 // TODO prove that this is sufficient.
         if (pathLength < minAcceptLength){
             pathLength = minAcceptLength;
         }
