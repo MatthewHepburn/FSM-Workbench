@@ -463,10 +463,16 @@ var display = {
                 }
                 html += '>' + alphabet[i]
                 if (model.question.isTransducer){
+                	var currentOut = query.getOutput(d, alphabet[i])
                 	html += ' <select id="out-' + alphabet[i] + '"><option value="">No Output</option>'
                 	for (var j = 0; j < model.question.outAlphabet.length; j++){
                 		outChar = model.question.outAlphabet[j]
-                		html += '<option value="' + outChar +'">' + outChar + '</option>'
+                		if (outChar == currentOut){
+                			html += '<option selected="selected" value="' + outChar +'">' + outChar + '</option>'
+                		}else{
+                			html += '<option value="' + outChar +'">' + outChar + '</option>'
+                		}
+
                 	}
                 	html += "</select><br>"
                 }else{
@@ -1112,6 +1118,18 @@ var query = {
             alert("Error in query.getLinkData - link id not found");
         }
         return d;
+    },
+    getOutput: function(link, input){
+    	if(!link.output){
+    		return "" //Catch case where output is not defined/falsey.
+    	}
+    	for (var i = 0; i< link.output.length; i++){
+    		if (link.output[i][0] == input){
+    			return link.output[i][1] //Otherwise search for matchin output and return the first result.
+    		}
+    	}
+    	return ""
+
     },
     getLinksFromNode: function(node){
         var links = [];
