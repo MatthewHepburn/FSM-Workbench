@@ -16,7 +16,7 @@ def getDir():
 
 if __name__ == "__main__":
     # Load in question data
-    with open('2A_questions.JSON') as data_file:
+    with open('questions.JSON') as data_file:
         data = json.load(data_file)
 
     # Setup Jinja

@@ -453,6 +453,7 @@ var display = {
             //'lcon' for link-constrained:
             var html = '<form class="renameinput checkboxrename" action="" id = lcon' + id + '>'
             var isChecked;
+            var outChar;
             for (var i = 0; i < alphabet.length; i++){
                 isChecked = d.input.indexOf(alphabet[i]) != -1
 
@@ -460,12 +461,22 @@ var display = {
                 if (isChecked){
                     html += "checked"
                 }
-                html += '>' + alphabet[i] + '<br>'
+                html += '>' + alphabet[i]
+                if (model.question.isTransducer){
+                	html += ' <select id="out-' + alphabet[i] + '"><option value="">No Output</option>'
+                	for (var j = 0; j < model.question.outAlphabet.length; j++){
+                		outChar = model.question.outAlphabet[j]
+                		html += '<option value="' + outChar +'">' + outChar + '</option>'
+                	}
+                	html += "</select><br>"
+                }else{
+                	html += '<br>'
+                }
             }
             html += '<a class="pure-button" id="constrainedrenamesubmit">OK</a></form>'
 
             svg.append("foreignObject")
-                .attr("width", 135)
+                .attr("width", 300)
                 .attr("height", 35 + 22 * alphabet.length)
                 .attr("x", formX - 40)
                 .attr("y", formY)
@@ -707,11 +718,24 @@ var display = {
             if (d.input.length == 0) {
                 return "";
             } else {
-                var labelString = String(d.input[0]);
-                for (i = 1; i < d.input.length; i++) {
-                    labelString += ", " + d.input[i];
+                var labelString = "";
+                for (var i = 0; i < d.input.length; i++) {
+                	var inchar = d.input[i]
+                	if (model.question.isTransducer){
+                		var outchar = ""
+                		for (var j = 0; j < d.output.length; j++){
+                			if (d.output[j][0] == inchar){
+                				var outchar = ":" + d.output[j][1];
+                				break;
+                			}
+                		}
+                		labelString += inchar + outchar + ", ";
+                	} else {
+                		labelString += inchar + ", ";
+                	}
+
                 }
-                return labelString;
+                return labelString.slice(0,-2);
             }
         });
     }
@@ -1225,17 +1249,17 @@ var query = {
         copy.nodes.push(JSON.parse(JSON.stringify(copy.nodes[0])))
         copy.nodes[newID].id = newID
         for (var i = 0; i < copy.links.length; i++){
-            if (copy.links[i].source.id != 0){ 
+            if (copy.links[i].source.id != 0){
                 copy.links[i].source = getNodeByID(copy.links[i].source.id);}
             else{
                 copy.links[i].source = getNodeByID(newID)
             }
-            if (copy.links[i].source.id != 0){ 
+            if (copy.links[i].source.id != 0){
                 copy.links[i].target = getNodeByID(copy.links[i].target.id);}
             else{
                 copy.links[i].target = getNodeByID(newID)
             }
-            copy.links[i].expr = getExprFromInput(copy.links[i].input)            
+            copy.links[i].expr = getExprFromInput(copy.links[i].input)
         }
         copy.links.push({expr: "", id: copy.links.length-1, source:getNodeByID(0),target:getNodeByID(newID), input:["ε"]})
 
@@ -1281,7 +1305,7 @@ var query = {
             toSplice.map(function(l) {
                 m.links.splice(m.links.indexOf(l), 1);
             });
-            // For each possible inlink -> outlink pair, create a new link with the appropriate regex 
+            // For each possible inlink -> outlink pair, create a new link with the appropriate regex
             var inLink;
             var outLink;
             var newLink
@@ -1326,12 +1350,12 @@ var query = {
             } else{
                 finalRegex += "|(" + m.links[i].expr + ")"
             }
-            
+
         }
         console.log(finalRegex)
         return m
 
-        
+
     },
     getRegex: function(){
         // For each state, get a regex for the transition to itself. Empty string if state has no reflexive link
@@ -2200,17 +2224,27 @@ var controller = {
             var linkID = id.slice(4);
             d = query.getLinkData(linkID);
             d.input = [];
+            d.output = [];
             var element;
+            var insymbol;
             for (var i = 0; i < menu.children.length; i++){
                 element = menu.children[i]
-                if (element.tagName != "INPUT"){
+                if (element.tagName == "INPUT"){
+                    if (!element.checked){
                     continue;
+                	}
+                	d.input.push(element.value)
+                } else if (element.tagName == "SELECT") { //Get output symbols from the dropdown menu
+                	value = element.value
+                	if (value == ""){ //Ignore empty output
+                		continue;
+                	}
+                	insymbol = element.id.slice(4)
+                	if (d.input.indexOf(insymbol) == -1){ //Ignore outputs for input that are not accepted.
+                		continue;
+                	}
+                	d.output.push([insymbol, value])
                 }
-                if (!element.checked){
-                    continue;
-                }
-                d.input.push(element.value)
-
             }
             display.updateLinkLabel(linkID)
         }
