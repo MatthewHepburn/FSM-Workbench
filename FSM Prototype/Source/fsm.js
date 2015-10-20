@@ -756,6 +756,7 @@ var model = {
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     currentStep: 0,
     traceRecord:[],
+    currentOutput:"",
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
     currentInput: ["a", "a"], // This will have symbols removed as they are processed.
     accepts: function(input){
@@ -956,6 +957,7 @@ var model = {
     resetTrace: function(){
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
+        model.currentOutput = "";
         model.doEpsilonTransitions();
         model.currentStep = 0;
         model.traceRecord = [{states:[0], currentInput: JSON.parse(JSON.stringify(model.fullInput))}];
@@ -1069,7 +1071,9 @@ var model = {
             }
         }
         model.currentStates = newStates;
-
+        if (model.question.isTransducer && linkIDs.length == 1 && query.isDeterministic()){
+        	model.currentOutput += query.getOutput(query.getLinkData(linkIDs[0]), curSymbol)
+        }
         linkIDs = linkIDs.concat(model.doEpsilonTransitions());
         model.currentStep++;
 
