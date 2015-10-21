@@ -153,11 +153,18 @@
     "data-question": "{\"text\":\"Text of the question. HTML tags allowed.\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(1|0)*101\",\"alphabet\":[\"1\",\"0\"],\"minAcceptLength\":3}",
     "data-options": "{}"
   },
-    {
+  {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"A\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":4,\"px\":200,\"py\":250},{\"id\":2,\"accepting\":false,\"x\":325.9629645273517,\"y\":168.26031077488693,\"index\":1,\"weight\":5,\"px\":325.9629645273517,\"py\":168.26031077488693,\"fixed\":0,\"name\":\"B\"},{\"id\":3,\"accepting\":false,\"x\":333.4804441990956,\"y\":318.6730114786624,\"index\":2,\"weight\":4,\"px\":333.4804441990956,\"py\":318.6730114786624,\"fixed\":0,\"name\":\"C\"},{\"id\":4,\"accepting\":true,\"x\":459.4159170491954,\"y\":237.01233291539785,\"index\":3,\"weight\":3,\"px\":459.4159170491954,\"py\":237.01233291539785,\"fixed\":0,\"name\":\"D\"}]",
     "data-links": "[{\"source\":2,\"target\":3,\"input\":[\"0\"],\"id\":2},{\"source\":3,\"target\":4,\"input\":[\"1\"],\"id\":3},{\"source\":0,\"target\":2,\"input\":[\"1\"],\"id\":4},{\"source\":0,\"target\":0,\"input\":[\"0\"],\"id\":6},{\"source\":3,\"target\":0,\"input\":[\"1\"],\"id\":8},{\"source\":4,\"target\":3,\"input\":[\"0\"],\"id\":9},{\"source\":4,\"target\":2,\"input\":[\"1\"],\"id\":10},{\"source\":2,\"target\":2,\"input\":[\"1\"],\"id\":11}]",
     "filename": "demo",
     "data-question": "{\"text\":\"Demo\",\"alphabetType\":\"char\",\"type\":\"demo\",\"alphabet\":[\"1\",\"0\"],\"isTransducer\":true}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":292.40689147687544,\"y\":131.3837006448023,\"index\":1,\"weight\":2,\"px\":292.40667487031476,\"py\":131.38525610244167,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":348.9294071596339,\"y\":270.71856165972315,\"index\":2,\"weight\":2,\"px\":348.9294071596339,\"py\":270.71856165972315,\"fixed\":0}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1,\"output\":[[\"a\",\"x\"]]},{\"source\":1,\"target\":2,\"input\":[\"a\"],\"id\":2,\"output\":[[\"a\",\"y\"]]}]",
+    "filename": "demo2",
+    "data-question": "{\"text\":\"Demo text.\",\"alphabetType\":\"char\",\"type\":\"demo\", \"alphabet\":[\"a\", \"b\"]}",
     "data-options": "{}"
   }
 ]

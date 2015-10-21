@@ -1,10 +1,13 @@
 edit = {
 	question: {},
-	questionTypes: ["does-accept", "give-list", "satisfy-definition","satisfy-list", "satisfy-regex", "select-states"],
+	questionTypes: ["demo", "does-accept", "give-list", "satisfy-definition","satisfy-list", "satisfy-regex", "select-states"],
 	questionSchema: {
 		"common":{
 			"text": {"description": "Text of the question. HTML tags allowed.", "optional": false, "expectStr":true},
-			"alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true}
+			"alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true},
+			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false},
+			"isTransducer":{"description": "Is the machine a transducer?", "optional":false, "expectStr":false, "default":false},
+			"outAlphabet": {"description": "The output alphabet of the machine. Only recquired if the machine is a transducer.", "optional":true, "default":"", "expectStr":false}
 		},
 		"does-accept":{
 			"strList": {"description": 'A list of strings for the user to determine if the machine accepts. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false}
@@ -20,18 +23,18 @@ edit = {
 		},
 		"satisfy-list":{
 			"acceptList": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
-			"rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false},
-			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false}
+			"rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false}
 		},
 		"satisfy-definition":{
-			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false}
+
 		},
 		"satisfy-regex":{
 			"regex": {"description": "Regular expression that the machine should accept. In the format accepted by JavaScript regexes. Eg abb(abb)*", "optional":false, "default":"a(a|b)*", "expectStr":true},
-			"alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false},
 			"minAcceptLength": {"description": "The length of the shortest string that the regex accepts.", "optional":false, "default":4, "expectStr":false},
 			"deterministic": {"description": "Optional parameter. If true, the machine must be deterministic, if false the machine must be nondeterministic. If not specified, either is acceptable", "optional":true, "default":"", "expectStr":false},
 			"maxStates": {"description": "Optional parameter. Maximum number of states the machine is allowed to have. NB, allowing too many states can lead to crashes.", "optional":true, "default":4, "expectStr":false}
+		},
+		"demo":{
 		}
 	},
 	createQuestionPrompt:function() {
@@ -47,6 +50,15 @@ edit = {
 		d3.select(".questiondata").html("")
 		edit.askQuestionText(edit.questionSchema.common.text.description)
 		edit.askQuestionCharType(edit.questionSchema.common.alphabetType.description)
+
+		var alphabetQ = edit.questionSchema.common.alphabet
+		edit.askQuestionOption("alphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional)
+
+		edit.askQuestionTransducer(edit.questionSchema.common.isTransducer.description)
+
+		var alphabetQ = edit.questionSchema.common.outAlphabet
+		edit.askQuestionOption("outAlphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional)
+
 		var qType = document.querySelector(".questiontypedropdown").value
 		var q = edit.questionSchema[qType]
 		var fields = Object.keys(q)
@@ -112,12 +124,24 @@ edit = {
 
 		d3.select("#descchartype").on("click", function(){alert(description)}).classed("showdesc", true)
 	},
+	askQuestionTransducer:function(description){
+		var html = "<p>isTransducer* : <select id='istransducer'><option value=false>false</option><option value=true>true</option></select><a id='descistransducer'>   ?</a></p>"
+		// Use method below as inserting normally resets the event listener created on the textpreview button
+		var siblings = document.querySelector(".questiondata").children
+		var lastSibling = siblings[siblings.length - 1]
+		lastSibling.insertAdjacentHTML("afterend",html)
+
+		d3.select("#descistransducer").on("click", function(){alert(description)}).classed("showdesc", true)
+	},
 	getJSON:function(){
 		var modelJSON = model.generateJSON3()
 		var q = {}
 		// Store common variables
-		q.text = document.querySelector("#text").value
-		q.alphabetType = document.querySelector("#alphabettype").value
+		q.text = document.querySelector("#text").value;
+		q.alphabetType = document.querySelector("#alphabettype").value;
+		q.alphabet = JSON.parse(document.querySelector("#alphabet").value);
+		q.isTransducer = JSON.parse(document.querySelector("#istransducer").value);
+		q.outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
 
 		var qType = document.querySelector(".questiontypedropdown").value
 		q.type = qType
