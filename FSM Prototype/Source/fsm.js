@@ -90,6 +90,26 @@ var display = {
             document.getElementById("check-button").addEventListener("click", checkAnswer.doesAccept);
 
         }
+        if (model.question.type == "demo"){
+            var html = "<div id='demo-div'>"
+            // Create buttons for the user to provide the machine with input
+            for (var i = 0; i< model.question.alphabet.length; i++){
+                var inChar = model.question.alphabet[i]
+                html += "<button id='demo-" + inChar +"' class='demo-button pure-button' type='submit'>"+inChar+"</button>"
+            }
+            html += "<button id='demo-reset' class='demo-button pure-button' type='submit'>Reset</button>"
+            document.querySelector(".question-text").insertAdjacentHTML("afterEnd", html);
+            // Add an event listener to each button
+            document.getElementById("demo-reset").addEventListener("click", controller.demoReset);
+            for(i = 0; i < model.question.alphabet.length; i++){
+                var inChar = model.question.alphabet[i];
+                document.getElementById("demo-"+inChar).addEventListener("click", function(){
+                    var symbol = event.target.id.slice(5);
+                    controller.demoInput(symbol)
+                })
+            }
+
+        }
 
     },
     dismissTrace: function(){
@@ -1029,13 +1049,13 @@ var model = {
     setupQuestion: function(){
         // Function uses data in model.question to setup the question environment
         var types = ["satisfy-regex","deterministic-satisfy-regex","satisfy-list","deterministic-satisfy-list","give-regex",
-                    "give-list","select-states","convert-nfa", "does-accept", "satisfy-definition", "none"];
+                    "give-list","select-states","convert-nfa", "does-accept", "satisfy-definition", "demo", "none"];
         if (types.indexOf(model.question.type) == -1){
             alert(model.question.type + " is not a valid question type.");
             return;
         }
         // Set editable flag:
-        if (["give-list", "select-states", "does-accept"].indexOf(model.question.type) != -1){
+        if (["give-list", "select-states", "does-accept", "demo"].indexOf(model.question.type) != -1){
             model.editable = false;
         } else {
             model.editable = true;
@@ -2202,6 +2222,17 @@ var eventHandler = {
 
 
 var controller = {
+    demoInput: function(symbol){
+        alert(symbol)
+        model.fullInput += [symbol]
+        model.currentInput = [symbol]
+        model.step()
+    },
+    demoReset: function(){
+        model.fullInput = []
+        model.resetTrace();
+        display.resetTrace();
+    },
     renameSubmit: function() {
         var menu = d3.select(".renameinput")[0][0];
         //Check menu is present

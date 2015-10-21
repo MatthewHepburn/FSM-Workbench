@@ -66,6 +66,12 @@ if __name__ == "__main__":
         if variables["questionType"] == "give-list":
             variables["lengths"] = questionJSON["lengths"]
 
+        # Omit check button for some question types.
+        if variables["questionType"] != "demo" and variables["questionType"] != "none":
+            variables["hasCheck"] = True
+        else:
+            variables["hasCheck"] = False
+
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"
         f = open(filename, "w")
