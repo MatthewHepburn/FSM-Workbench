@@ -272,20 +272,25 @@ var display = {
         renameMenuShowing = false;
     },
     drawInput: function(){
+        // Displays the current input, used to draw the trace.
         var g = svg.append("g")
             .attr("class", "machine-input");
-        // Displays the current input, used to draw the trace.
-        if (model.fullInput.length < 10){
-            display.colour = d3.scale.category10();
-        } else{
-            display.colour = d3.scale.category20b();
+        if (model.question.type != "demo"){
+            if (model.fullInput.length < 10){
+                display.colour = d3.scale.category10();
+            } else{
+                display.colour = d3.scale.category20b();
+            }
+        } else {
+            //Only use black letters for demo mode
+            display.colour = d3.scale.ordinal().domain(["#000000"])
         }
         var totalInputLength = 0; //No need to account for spaces
         for (var i = 0; i < model.fullInput.length; i++){
             totalInputLength += model.fullInput[i].length;
         }
         var y = 70;
-        var charWidth = 25; // Rough estimate
+        var charWidth = 25; // Rough estimate -TODO align precisely
         var inWidth = totalInputLength * charWidth;
         var x = width/2 - (inWidth/2);
         for (i = 0; i < model.fullInput.length; i++){
@@ -1936,6 +1941,8 @@ var eventHandler = {
         var symbol = event.target.id.slice(5);
         controller.demoInput(symbol);
         display.highlightCurrentStates();
+        d3.selectAll(".machine-input").remove();
+        display.drawInput()
     },
     clickBackground: function() {
         // if click was on element other than background, do nothing further.
@@ -2242,6 +2249,7 @@ var controller = {
     demoReset: function(){
         model.fullInput = []
         model.resetTrace();
+        d3.selectAll(".machine-input").remove()
         display.resetTrace();
     },
     renameSubmit: function() {
@@ -2845,6 +2853,7 @@ function init(){
     //Start demo mode if needed once everything has loaded:
     if(model.question.type == "demo"){
         display.showTrace("");
+        d3.selectAll(".node").attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
     }
 
     // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
