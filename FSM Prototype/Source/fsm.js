@@ -1980,6 +1980,9 @@ var eventHandler = {
 
     },
     clickLink: function(d){
+        if(!model.editable){
+            return;
+        }
         if (selected_link == d){
             selected_link = null;
         } else {
@@ -2022,6 +2025,9 @@ var eventHandler = {
         }
     },
     addLinkMouseDown: function(d) {
+        if (!model.editable){
+            return;
+        }
         if (d3.event.ctrlKey) return;
         selected_node = null;
         restart();
