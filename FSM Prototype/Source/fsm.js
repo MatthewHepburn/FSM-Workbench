@@ -103,10 +103,7 @@ var display = {
             document.getElementById("demo-reset").addEventListener("click", controller.demoReset);
             for(i = 0; i < model.question.alphabet.length; i++){
                 var inChar = model.question.alphabet[i];
-                document.getElementById("demo-"+inChar).addEventListener("click", function(){
-                    var symbol = event.target.id.slice(5);
-                    controller.demoInput(symbol)
-                })
+                document.getElementById("demo-"+inChar).addEventListener("click", eventHandler.demoButton)
             }
 
         }
@@ -418,12 +415,21 @@ var display = {
     },
     highlightLinks: function(linkIDs){
         // Clear existing highlights
-        d3.select(".link").classed("highlight", false);
+        d3.selectAll(".link").classed("highlight", false);
         if (!linkIDs){
             return;
         }
         for (var i = 0; i < linkIDs.length; i++){
             d3.select("#link" + linkIDs[i]).classed("highlight", true);
+        }
+    },
+    highlightCurrentStates: function(){
+        // Highlights the state(s) the machine is currently in
+        // Clear existing state highlights
+        d3.selectAll(".node").classed("highlight", false).classed("dim", true);
+        for (var i = 0; i< model.currentStates.length; i++){
+            d3.select("[id='"+ model.currentStates[i] +"']").classed("highlight", true).classed("dim", false);
+
         }
     },
     reflexiveLink: function (x, y) {
@@ -596,8 +602,9 @@ var display = {
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.resetTrace();
         d3.selectAll(".node").classed("dim", true);
-        display.drawInput();
-        display.drawTraceControls();
+        if (model.question.type != "demo"){
+            display.drawInput();
+            display.drawTraceControls();}
         display.resetTrace();
     },
     toggleSelectedNode: function(id){
@@ -1925,6 +1932,11 @@ var checkAnswer = {
 };
 
 var eventHandler = {
+    demoButton: function(){
+        var symbol = event.target.id.slice(5);
+        controller.demoInput(symbol);
+        display.highlightCurrentStates();
+    },
     clickBackground: function() {
         // if click was on element other than background, do nothing further.
         if (d3.event.target.id != "main-svg"){
@@ -2223,7 +2235,6 @@ var eventHandler = {
 
 var controller = {
     demoInput: function(symbol){
-        alert(symbol)
         model.fullInput += [symbol]
         model.currentInput = [symbol]
         model.step()
@@ -2830,6 +2841,11 @@ function init(){
     window.onblur = function () {
       isActive = false;
     };
+
+    //Start demo mode if needed once everything has loaded:
+    if(model.question.type == "demo"){
+        display.showTrace("");
+    }
 
     // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
     logging.sendInfo();
