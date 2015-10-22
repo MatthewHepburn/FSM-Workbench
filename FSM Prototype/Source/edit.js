@@ -135,11 +135,13 @@ edit = {
 
 		d3.select("#descistransducer").on("click", function(){alert(description)}).classed("showdesc", true)
 		d3.select("#istransducer").on("change", function(){
-			var value = JSON.parse(this.value);
-			model.question.isTransducer = value;
-			if (value){
+			var transducerMode = JSON.parse(this.value);
+			model.question.isTransducer = transducerMode;
+			if (transducerMode){
 				edit.setAlphabet()
 				config.displayConstrainedLinkRename = true;
+			} else {
+				edit.resetOutput();
 			}
 		});
 	},
@@ -190,6 +192,11 @@ edit = {
 	setOutAlphabet:function(){
 		var outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
 		model.question.outAlphabet = outAlphabet
+	},
+	resetOutput: function(){
+		for (var i = 0; i< model.links.length; i++){
+			model.links[i].output = [];
+		}
 	}
 
 }
