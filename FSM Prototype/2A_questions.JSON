@@ -26,5 +26,19 @@
     "filename": "Inf2A-4",
     "data-question": "{\"text\":\"Give an NFA for the language over {a,b,c} of strings where there is at least one occurrence of b between any two occurrences of a. .<br>For example, the language contains the empty string, \\\"aba\\\" and \\\"cabab\\\" but not \\\"baa\\\".\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"[bc]*(a([bc]*b[bc]*a)*)?[bc]*\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"minAcceptLength\":0}",
     "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "Inf2A-5",
+    "data-question": "{\"text\":\"Construct an NFA that corresponds to the regular expression (a* + b*)*.\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(a|b)*\",\"alphabet\":[\"a\",\"b\",\"ε\"],\"minAcceptLength\":0,\"maxStates\":0}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "Inf2A-6",
+    "data-question": "{\"text\":\"Construct an NFA that corresponds to the regular expression (((aa)*bb) + ab)*\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(((aa)*bb)|ab)*\",\"alphabet\":[\"a\",\"b\",\"ε\"],\"minAcceptLength\":0,\"maxStates\":0}",
+    "data-options": "{}"
   }
 ]
