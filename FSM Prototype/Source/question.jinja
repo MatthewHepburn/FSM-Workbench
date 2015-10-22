@@ -36,7 +36,9 @@
           <input type=image src='img/Icons/spacer.gif'>
           </form>
       {% endif %}
+      {%- if hasCheck -%}
       <div class="button-div"><button id="check-button" class="pure-button" type="submit">Check</button></div>
+      {% endif %}
     </div>
     <svg id="main-svg" width="960" height="500" class="active">
       <defs>

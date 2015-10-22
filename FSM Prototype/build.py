@@ -16,7 +16,7 @@ def getDir():
 
 if __name__ == "__main__":
     # Load in question data
-    with open('2A_questions.JSON') as data_file:
+    with open('questions.JSON') as data_file:
         data = json.load(data_file)
 
     # Setup Jinja
@@ -65,6 +65,12 @@ if __name__ == "__main__":
         variables["questionType"] = questionJSON["type"]
         if variables["questionType"] == "give-list":
             variables["lengths"] = questionJSON["lengths"]
+
+        # Omit check button for some question types.
+        if variables["questionType"] != "demo" and variables["questionType"] != "none":
+            variables["hasCheck"] = True
+        else:
+            variables["hasCheck"] = False
 
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"

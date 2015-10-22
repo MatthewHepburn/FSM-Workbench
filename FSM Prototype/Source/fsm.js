@@ -90,6 +90,23 @@ var display = {
             document.getElementById("check-button").addEventListener("click", checkAnswer.doesAccept);
 
         }
+        if (model.question.type == "demo"){
+            var html = "<div id='demo-div'>"
+            // Create buttons for the user to provide the machine with input
+            for (var i = 0; i< model.question.alphabet.length; i++){
+                var inChar = model.question.alphabet[i]
+                html += "<button id='demo-" + inChar +"' class='demo-button pure-button' type='submit'>"+inChar+"</button>"
+            }
+            html += "<button id='demo-reset' class='demo-button pure-button' type='submit'>Reset</button>"
+            document.querySelector(".question-text").insertAdjacentHTML("afterEnd", html);
+            // Add an event listener to each button
+            document.getElementById("demo-reset").addEventListener("click", controller.demoReset);
+            for(i = 0; i < model.question.alphabet.length; i++){
+                var inChar = model.question.alphabet[i];
+                document.getElementById("demo-"+inChar).addEventListener("click", eventHandler.demoButton)
+            }
+
+        }
 
     },
     dismissTrace: function(){
@@ -255,20 +272,25 @@ var display = {
         renameMenuShowing = false;
     },
     drawInput: function(){
+        // Displays the current input, used to draw the trace.
         var g = svg.append("g")
             .attr("class", "machine-input");
-        // Displays the current input, used to draw the trace.
-        if (model.fullInput.length < 10){
-            display.colour = d3.scale.category10();
-        } else{
-            display.colour = d3.scale.category20b();
+        if (model.question.type != "demo"){
+            if (model.fullInput.length < 10){
+                display.colour = d3.scale.category10();
+            } else{
+                display.colour = d3.scale.category20b();
+            }
+        } else {
+            //Only use black letters for demo mode
+            display.colour = d3.scale.ordinal().domain(["#000000"])
         }
         var totalInputLength = 0; //No need to account for spaces
         for (var i = 0; i < model.fullInput.length; i++){
             totalInputLength += model.fullInput[i].length;
         }
         var y = 70;
-        var charWidth = 25; // Rough estimate
+        var charWidth = 25; // Rough estimate -TODO align precisely
         var inWidth = totalInputLength * charWidth;
         var x = width/2 - (inWidth/2);
         for (i = 0; i < model.fullInput.length; i++){
@@ -398,12 +420,21 @@ var display = {
     },
     highlightLinks: function(linkIDs){
         // Clear existing highlights
-        d3.select(".link").classed("highlight", false);
+        d3.selectAll(".link").classed("highlight", false);
         if (!linkIDs){
             return;
         }
         for (var i = 0; i < linkIDs.length; i++){
             d3.select("#link" + linkIDs[i]).classed("highlight", true);
+        }
+    },
+    highlightCurrentStates: function(){
+        // Highlights the state(s) the machine is currently in
+        // Clear existing state highlights
+        d3.selectAll(".node").classed("highlight", false).classed("dim", true);
+        for (var i = 0; i< model.currentStates.length; i++){
+            d3.select("[id='"+ model.currentStates[i] +"']").classed("highlight", true).classed("dim", false);
+
         }
     },
     reflexiveLink: function (x, y) {
@@ -453,6 +484,7 @@ var display = {
             //'lcon' for link-constrained:
             var html = '<form class="renameinput checkboxrename" action="" id = lcon' + id + '>'
             var isChecked;
+            var outChar;
             for (var i = 0; i < alphabet.length; i++){
                 isChecked = d.input.indexOf(alphabet[i]) != -1
 
@@ -460,12 +492,28 @@ var display = {
                 if (isChecked){
                     html += "checked"
                 }
-                html += '>' + alphabet[i] + '<br>'
+                html += '>' + alphabet[i]
+                if (model.question.isTransducer){
+                	var currentOut = query.getOutput(d, alphabet[i])
+                	html += ' <select id="out-' + alphabet[i] + '"><option value="">No Output</option>'
+                	for (var j = 0; j < model.question.outAlphabet.length; j++){
+                		outChar = model.question.outAlphabet[j]
+                		if (outChar == currentOut){
+                			html += '<option selected="selected" value="' + outChar +'">' + outChar + '</option>'
+                		}else{
+                			html += '<option value="' + outChar +'">' + outChar + '</option>'
+                		}
+
+                	}
+                	html += "</select><br>"
+                }else{
+                	html += '<br>'
+                }
             }
             html += '<a class="pure-button" id="constrainedrenamesubmit">OK</a></form>'
 
             svg.append("foreignObject")
-                .attr("width", 135)
+                .attr("width", 300)
                 .attr("height", 35 + 22 * alphabet.length)
                 .attr("x", formX - 40)
                 .attr("y", formY)
@@ -559,8 +607,9 @@ var display = {
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.resetTrace();
         d3.selectAll(".node").classed("dim", true);
-        display.drawInput();
-        display.drawTraceControls();
+        if (model.question.type != "demo"){
+            display.drawInput();
+            display.drawTraceControls();}
         display.resetTrace();
     },
     toggleSelectedNode: function(id){
@@ -707,11 +756,24 @@ var display = {
             if (d.input.length == 0) {
                 return "";
             } else {
-                var labelString = String(d.input[0]);
-                for (i = 1; i < d.input.length; i++) {
-                    labelString += ", " + d.input[i];
+                var labelString = "";
+                for (var i = 0; i < d.input.length; i++) {
+                	var inchar = d.input[i]
+                	if (model.question.isTransducer){
+                		var outchar = ""
+                		for (var j = 0; j < d.output.length; j++){
+                			if (d.output[j][0] == inchar){
+                				var outchar = ":" + d.output[j][1];
+                				break;
+                			}
+                		}
+                		labelString += inchar + outchar + ", ";
+                	} else {
+                		labelString += inchar + ", ";
+                	}
+
                 }
-                return labelString;
+                return labelString.slice(0,-2);
             }
         });
     }
@@ -726,6 +788,7 @@ var model = {
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     currentStep: 0,
     traceRecord:[],
+    currentOutput:"",
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
     currentInput: ["a", "a"], // This will have symbols removed as they are processed.
     accepts: function(input){
@@ -926,6 +989,7 @@ var model = {
     resetTrace: function(){
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
+        model.currentOutput = "";
         model.doEpsilonTransitions();
         model.currentStep = 0;
         model.traceRecord = [{states:[0], currentInput: JSON.parse(JSON.stringify(model.fullInput))}];
@@ -997,13 +1061,13 @@ var model = {
     setupQuestion: function(){
         // Function uses data in model.question to setup the question environment
         var types = ["satisfy-regex","deterministic-satisfy-regex","satisfy-list","deterministic-satisfy-list","give-regex",
-                    "give-list","select-states","convert-nfa", "does-accept", "satisfy-definition", "none"];
+                    "give-list","select-states","convert-nfa", "does-accept", "satisfy-definition", "demo", "none"];
         if (types.indexOf(model.question.type) == -1){
             alert(model.question.type + " is not a valid question type.");
             return;
         }
         // Set editable flag:
-        if (["give-list", "select-states", "does-accept"].indexOf(model.question.type) != -1){
+        if (["give-list", "select-states", "does-accept", "demo"].indexOf(model.question.type) != -1){
             model.editable = false;
         } else {
             model.editable = true;
@@ -1039,7 +1103,9 @@ var model = {
             }
         }
         model.currentStates = newStates;
-
+        if (model.question.isTransducer && linkIDs.length == 1 && query.isDeterministic()){
+        	model.currentOutput += query.getOutput(query.getLinkData(linkIDs[0]), curSymbol)
+        }
         linkIDs = linkIDs.concat(model.doEpsilonTransitions());
         model.currentStep++;
 
@@ -1088,6 +1154,18 @@ var query = {
             alert("Error in query.getLinkData - link id not found");
         }
         return d;
+    },
+    getOutput: function(link, input){
+    	if(!link.output){
+    		return "" //Catch case where output is not defined/falsey.
+    	}
+    	for (var i = 0; i< link.output.length; i++){
+    		if (link.output[i][0] == input){
+    			return link.output[i][1] //Otherwise search for matchin output and return the first result.
+    		}
+    	}
+    	return ""
+
     },
     getLinksFromNode: function(node){
         var links = [];
@@ -1225,17 +1303,17 @@ var query = {
         copy.nodes.push(JSON.parse(JSON.stringify(copy.nodes[0])))
         copy.nodes[newID].id = newID
         for (var i = 0; i < copy.links.length; i++){
-            if (copy.links[i].source.id != 0){ 
+            if (copy.links[i].source.id != 0){
                 copy.links[i].source = getNodeByID(copy.links[i].source.id);}
             else{
                 copy.links[i].source = getNodeByID(newID)
             }
-            if (copy.links[i].source.id != 0){ 
+            if (copy.links[i].source.id != 0){
                 copy.links[i].target = getNodeByID(copy.links[i].target.id);}
             else{
                 copy.links[i].target = getNodeByID(newID)
             }
-            copy.links[i].expr = getExprFromInput(copy.links[i].input)            
+            copy.links[i].expr = getExprFromInput(copy.links[i].input)
         }
         copy.links.push({expr: "", id: copy.links.length-1, source:getNodeByID(0),target:getNodeByID(newID), input:["ε"]})
 
@@ -1281,7 +1359,7 @@ var query = {
             toSplice.map(function(l) {
                 m.links.splice(m.links.indexOf(l), 1);
             });
-            // For each possible inlink -> outlink pair, create a new link with the appropriate regex 
+            // For each possible inlink -> outlink pair, create a new link with the appropriate regex
             var inLink;
             var outLink;
             var newLink
@@ -1326,12 +1404,12 @@ var query = {
             } else{
                 finalRegex += "|(" + m.links[i].expr + ")"
             }
-            
+
         }
         console.log(finalRegex)
         return m
 
-        
+
     },
     getRegex: function(){
         // For each state, get a regex for the transition to itself. Empty string if state has no reflexive link
@@ -1859,6 +1937,13 @@ var checkAnswer = {
 };
 
 var eventHandler = {
+    demoButton: function(){
+        var symbol = event.target.id.slice(5);
+        controller.demoInput(symbol);
+        display.highlightCurrentStates();
+        d3.selectAll(".machine-input").remove();
+        display.drawInput()
+    },
     clickBackground: function() {
         // if click was on element other than background, do nothing further.
         if (d3.event.target.id != "main-svg"){
@@ -1895,6 +1980,9 @@ var eventHandler = {
 
     },
     clickLink: function(d){
+        if(!model.editable){
+            return;
+        }
         if (selected_link == d){
             selected_link = null;
         } else {
@@ -1937,6 +2025,9 @@ var eventHandler = {
         }
     },
     addLinkMouseDown: function(d) {
+        if (!model.editable){
+            return;
+        }
         if (d3.event.ctrlKey) return;
         selected_node = null;
         restart();
@@ -2156,6 +2247,17 @@ var eventHandler = {
 
 
 var controller = {
+    demoInput: function(symbol){
+        model.fullInput += [symbol]
+        model.currentInput = [symbol]
+        model.step()
+    },
+    demoReset: function(){
+        model.fullInput = []
+        model.resetTrace();
+        d3.selectAll(".machine-input").remove()
+        display.resetTrace();
+    },
     renameSubmit: function() {
         var menu = d3.select(".renameinput")[0][0];
         //Check menu is present
@@ -2200,17 +2302,27 @@ var controller = {
             var linkID = id.slice(4);
             d = query.getLinkData(linkID);
             d.input = [];
+            d.output = [];
             var element;
+            var insymbol;
             for (var i = 0; i < menu.children.length; i++){
                 element = menu.children[i]
-                if (element.tagName != "INPUT"){
+                if (element.tagName == "INPUT"){
+                    if (!element.checked){
                     continue;
+                	}
+                	d.input.push(element.value)
+                } else if (element.tagName == "SELECT") { //Get output symbols from the dropdown menu
+                	value = element.value
+                	if (value == ""){ //Ignore empty output
+                		continue;
+                	}
+                	insymbol = element.id.slice(4)
+                	if (d.input.indexOf(insymbol) == -1){ //Ignore outputs for input that are not accepted.
+                		continue;
+                	}
+                	d.output.push([insymbol, value])
                 }
-                if (!element.checked){
-                    continue;
-                }
-                d.input.push(element.value)
-
             }
             display.updateLinkLabel(linkID)
         }
@@ -2743,6 +2855,12 @@ function init(){
     window.onblur = function () {
       isActive = false;
     };
+
+    //Start demo mode if needed once everything has loaded:
+    if(model.question.type == "demo"){
+        display.showTrace("");
+        d3.selectAll(".node").attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
+    }
 
     // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
     logging.sendInfo();
