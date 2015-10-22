@@ -53,11 +53,13 @@ edit = {
 
 		var alphabetQ = edit.questionSchema.common.alphabet
 		edit.askQuestionOption("alphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional)
+		d3.select("#alphabet").on("change", edit.setAlphabet)
 
 		edit.askQuestionTransducer(edit.questionSchema.common.isTransducer.description)
 
 		var alphabetQ = edit.questionSchema.common.outAlphabet
 		edit.askQuestionOption("outAlphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional)
+		d3.select("#outAlphabet").on("change", edit.setOutAlphabet)
 
 		var qType = document.querySelector(".questiontypedropdown").value
 		var q = edit.questionSchema[qType]
@@ -132,6 +134,14 @@ edit = {
 		lastSibling.insertAdjacentHTML("afterend",html)
 
 		d3.select("#descistransducer").on("click", function(){alert(description)}).classed("showdesc", true)
+		d3.select("#istransducer").on("change", function(){
+			var value = JSON.parse(this.value);
+			model.question.isTransducer = value;
+			if (value){
+				edit.setAlphabet()
+				config.displayConstrainedLinkRename = true;
+			}
+		});
 	},
 	getJSON:function(){
 		var modelJSON = model.generateJSON3()
@@ -172,6 +182,14 @@ edit = {
 			var div = document.querySelector(".jsonout").innerHTML = edit.escapeHTML(JSON.stringify(modelJSON));
 		}
 
+	}, 
+	setAlphabet:function(){
+		var alphabet = JSON.parse(document.querySelector("#alphabet").value)
+		model.question.alphabet = alphabet
+	},
+	setOutAlphabet:function(){
+		var outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
+		model.question.outAlphabet = outAlphabet
 	}
 
 }

@@ -1940,9 +1940,6 @@ var eventHandler = {
     demoButton: function(){
         var symbol = event.target.id.slice(5);
         controller.demoInput(symbol);
-        display.highlightCurrentStates();
-        d3.selectAll(".machine-input").remove();
-        display.drawInput()
     },
     clickBackground: function() {
         // if click was on element other than background, do nothing further.
@@ -2250,7 +2247,11 @@ var controller = {
     demoInput: function(symbol){
         model.fullInput += [symbol]
         model.currentInput = [symbol]
-        model.step()
+        var linkIDs = model.step()        
+        display.highlightCurrentStates();
+        display.highlightLinks(linkIDs)
+        d3.selectAll(".machine-input").remove();
+        display.drawInput()
     },
     demoReset: function(){
         model.fullInput = []
