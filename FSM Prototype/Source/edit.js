@@ -35,7 +35,8 @@ edit = {
 			"maxStates": {"description": "Optional parameter. Maximum number of states the machine is allowed to have. NB, allowing too many states can lead to crashes.", "optional":true, "default":4, "expectStr":false}
 		},
 		"demo":{
-		}
+			"hasGoal": {"description": "If true - the user is correct if they enter a sequence ending on an accepting state", "optional":false, "default":false, "expectStr":false, "isBoolean":true}
+		},
 	},
 	createQuestionPrompt:function() {
 		var html = "Select question type: <select class='questiontypedropdown'><option value='none'></option>"
@@ -69,18 +70,33 @@ edit = {
 			var description = q[name].description
 			var isOptional = q[name].optional
 			var defaultValue = q[name]["default"]
-			edit.askQuestionOption(name, description, defaultValue, isOptional)
+			var isBoolean = false;
+			if (q[name].isBoolean != undefined){
+				isBoolean = q[name].isBoolean
+			}
+			edit.askQuestionOption(name, description, defaultValue, isOptional, isBoolean)
 		}
 		var button = "<a class='pure-button' id='getjson'>Get JSON</a>"
 		document.querySelector(".buttondiv").innerHTML = button;
 		document.querySelector("#getjson").addEventListener("click", edit.getJSON);
 	},
-	askQuestionOption:function(name, description,defaultValue, isOptional){
+	askQuestionOption:function(name, description,defaultValue, isOptional, isBoolean){
 		var html = "<p>" + name
-		if (!isOptional){
-			html += "* "
+		if (isBoolean){
+			if (defaultValue == true){
+				html += "<select id='" + name +"'><option selected='selected' value=true>True</option><option value=false>False</option></select>"
+			} else{
+				html += "<select id='" + name +"'><option value=true>True</option><option selected='selected' value=false>False</option></select>"
+			}
 		}
-		html += ": <input type='text' id='" + name +"' value='" + defaultValue + "''><a id='desc" + name + "'>  ?</a></p>"
+		else{
+			if (!isOptional){
+			html += "* "
+			}
+			html += ": <input type='text' id='" + name +"' value='" + defaultValue + "''>"
+		}
+		html += "<a id='desc" + name + "'>  ?</a></p>"
+		
 		// Use method below as inserting normally resets the event listeners
 		var siblings = document.querySelector(".questiondata").children
 		var lastSibling = siblings[siblings.length - 1]
@@ -153,7 +169,9 @@ edit = {
 		q.alphabetType = document.querySelector("#alphabettype").value;
 		q.alphabet = JSON.parse(document.querySelector("#alphabet").value);
 		q.isTransducer = JSON.parse(document.querySelector("#istransducer").value);
-		q.outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
+		if(q.isTransducer){
+			q.outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
+		}
 
 		var qType = document.querySelector(".questiontypedropdown").value
 		q.type = qType
