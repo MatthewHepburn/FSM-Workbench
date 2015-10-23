@@ -313,6 +313,22 @@ var display = {
             }
         }
     },
+    drawOutput: function(){
+        //Draw the output of the machine if it is a transducer
+        if (!model.question.isTransducer){
+            return;
+        }
+        var charWidth = 8; // Rough estimate
+        var x = width/2 - (model.currentOutput.length * charWidth /2);
+        var y = 100;
+        var g = svg.append("g")
+        .classed("machine-output", true)
+        .append("text")
+            .text(model.currentOutput)
+            .attr("id", "output")
+            .attr("x", x)
+            .attr("y", y)
+    },
     drawStart: function(x, y) {
         var length = 200;
         var start = String((x - length) + "," +y);
@@ -2243,12 +2259,16 @@ var controller = {
         display.highlightCurrentStates();
         display.highlightLinks(linkIDs)
         d3.selectAll(".machine-input").remove();
-        display.drawInput()
+        d3.selectAll(".machine-output").remove();
+        display.drawInput();
+        display.drawOutput();
+
     },
     demoReset: function(){
         model.fullInput = []
         model.resetTrace();
         d3.selectAll(".machine-input").remove()
+        d3.selectAll(".machine-output").remove()
         display.resetTrace();
     },
     renameSubmit: function() {

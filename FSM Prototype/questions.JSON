@@ -166,5 +166,12 @@
     "filename": "demo2",
     "data-question": "{\"text\":\"Demo text.\",\"alphabetType\":\"char\",\"type\":\"demo\", \"alphabet\":[\"a\", \"b\"]}",
     "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":5,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":278.05744265906753,\"y\":378.261166878749,\"index\":1,\"weight\":3,\"px\":278.0569562860126,\"py\":378.25588374421943,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":349.9524656871798,\"y\":246.1934566574817,\"index\":2,\"weight\":3,\"px\":349.95096821169557,\"py\":246.19678256138383,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":499.95117613248925,\"y\":246.5140408835113,\"index\":3,\"weight\":3,\"px\":499.95117862593077,\"py\":246.51404088923522,\"fixed\":0}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1,\"output\":[[\"a\",\"x\"]]},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":2,\"output\":[[\"b\",\"y\"]]},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":3,\"output\":[[\"b\",\"z\"]]},{\"source\":3,\"target\":3,\"input\":[\"a\",\"b\"],\"id\":4,\"output\":[]},{\"source\":2,\"target\":0,\"input\":[\"a\"],\"id\":7,\"output\":[]},{\"source\":0,\"target\":0,\"input\":[\"b\"],\"id\":8,\"output\":[]},{\"source\":1,\"target\":0,\"input\":[\"a\"],\"id\":9,\"output\":[]}]",
+    "filename": "demo3",
+    "data-question": "{\"text\":\"Demo 3 - Transducer\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":true,\"outAlphabet\":[\"x\",\"y\",\"z\"],\"type\":\"demo\"}",
+    "data-options": "{}"
   }
 ]

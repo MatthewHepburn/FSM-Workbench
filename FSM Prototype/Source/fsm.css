@@ -186,6 +186,14 @@ text.nodename {
   font-style: normal;
 }
 
+.machine-output{
+  font-size: large;
+  font-family: sans-serif;
+  font-style: normal;
+}
+
+}
+
 .input.dim {
     opacity: 0.3;
     transition: 0.75s;
