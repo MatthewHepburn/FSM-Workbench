@@ -1,8 +1,8 @@
 config = {
     displayNextOnCorrect: true, // Display an extra next button when a question is answered correctly.
     displayConstrainedLinkRename: true, //Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
-    showRenameOnLinkCreation: true,
-    submitRenameOnBGclick: false
+    showRenameOnLinkCreation: true, //Automatically open the rename menu when the user creates a links.
+    submitRenameOnBGclick: false // If a rename menu is open, a click on the background will close the menu and submit the rename.
 }
 
 var display = {
@@ -105,9 +105,7 @@ var display = {
                 var inChar = model.question.alphabet[i];
                 document.getElementById("demo-"+inChar).addEventListener("click", eventHandler.demoButton)
             }
-
         }
-
     },
     dismissTrace: function(){
         //First, remove controls + displayed input
@@ -175,8 +173,6 @@ var display = {
             .attr("offset", "65%")
             .attr("stop-color", "black")
             .attr("stop-opacity", 0.1)
-
-
     },
     drawTraceControls: function(){
         var bwidth = 40; //button width
@@ -537,9 +533,6 @@ var display = {
             document.getElementById("ltxt" + id).focus();
         }
 
-
-
-
         renameMenuShowing = true;
         display.dismissContextMenu();
     },
@@ -749,33 +742,34 @@ var display = {
         lastSibling.insertAdjacentHTML("afterend",buttonHTML);
 
     },
+    linkLabelText:function(link){        
+        //Create the label string for a link
+        if (link.input.length == 0) {
+            return "";
+        } else {
+            var labelString = "";
+            for (var i = 0; i < link.input.length; i++) {
+                var inchar = link.input[i]
+                if (model.question.isTransducer){
+                    var outchar = ""
+                    for (var j = 0; j < link.output.length; j++){
+                        if (link.output[j][0] == inchar){
+                            var outchar = ":" + link.output[j][1];
+                            break;
+                        }
+                    }
+                    labelString += inchar + outchar + ", ";
+                } else {
+                    labelString += inchar + ", ";
+                }
+            }
+            return labelString.slice(0,-2);
+        }            
+
+    },
     updateLinkLabel:function(linkID){
         label = svg.select("#linklabel" + linkID);
-        label.text(function(d) {
-            //Funtion to turn array of symbols into the label string
-            if (d.input.length == 0) {
-                return "";
-            } else {
-                var labelString = "";
-                for (var i = 0; i < d.input.length; i++) {
-                	var inchar = d.input[i]
-                	if (model.question.isTransducer){
-                		var outchar = ""
-                		for (var j = 0; j < d.output.length; j++){
-                			if (d.output[j][0] == inchar){
-                				var outchar = ":" + d.output[j][1];
-                				break;
-                			}
-                		}
-                		labelString += inchar + outchar + ", ";
-                	} else {
-                		labelString += inchar + ", ";
-                	}
-
-                }
-                return labelString.slice(0,-2);
-            }
-        });
+        label.text(function(d) {return display.linkLabelText(d)});
     }
 };
 
@@ -1525,7 +1519,6 @@ var checkAnswer = {
             display.showNextButton();
         }
         logging.sendAnswer(passed);
-
     },
     giveList: function(){
         //First, remove feedback from previous attempt:
@@ -1593,7 +1586,7 @@ var checkAnswer = {
         }
         if (allCorrect && config.displayNextOnCorrect){
                 display.showNextButton();
-            }
+        }
     },
     satisfyDefinition: function(){
         // Declare a feedback function here that each test can use.
@@ -2183,10 +2176,9 @@ var eventHandler = {
         d3.select(".control-rect.selected").classed("selected", false)
             .attr("fill", "white");
         var newMode = d3.event.target.id;
-        // If current mode is texttool, submit any open rename forms:
-        if (model.toolMode == "texttool"){
-            controller.renameSubmit();
-        }
+        // Submit any open rename forms:
+        controller.renameSubmit();
+       
         // Reinstate drag-to-move if previous mode did not allow it.
         if(model.toolMode == "linetool"|| model.toolMode == "texttool" || model.toolMode == "acceptingtool" || model.toolMode == "deletetool" || model.toolMode == "nodetool"){
             circle.call(force.drag);
@@ -2481,18 +2473,7 @@ function restart() {
         return d.id;
     });
     linkLabels.enter().append("svg:text")
-        .text(function(d) {
-            //Funtion to turn array of symbols into the label string
-            if (d.input.length == 0) {
-                return "";
-            } else {
-                var labelString = String(d.input[0]);
-                for (var i = 1; i < d.input.length; i++) {
-                    labelString += ", " + d.input[i];
-                }
-                return labelString;
-            }
-        })
+        .text((function(d) {return display.linkLabelText(d);}))
         .attr("class", "linklabel")
         .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
         .on("click", function(d){
@@ -2714,7 +2695,7 @@ var logging = {
             localStorage.setItem("userID", uuid);
         }
     },
-  // answer is an optional parameter, if not specified the current state will be sent.
+    // answer is an optional parameter, if not specified the current state will be sent.
     sendAnswer: function(isCorrect, answer) {
         if (answer == undefined){
             answer = model.generateJSON2();
