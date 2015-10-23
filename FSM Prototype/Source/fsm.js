@@ -286,7 +286,7 @@ var display = {
             totalInputLength += model.fullInput[i].length;
         }
         var y = 70;
-        var charWidth = 25; // Rough estimate -TODO align precisely
+        var charWidth = 32; // Rough estimate
         var inWidth = totalInputLength * charWidth;
         var x = width/2 - (inWidth/2);
         for (i = 0; i < model.fullInput.length; i++){
