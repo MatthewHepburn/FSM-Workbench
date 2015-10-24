@@ -2310,6 +2310,7 @@ var controller = {
         model.resetTrace();
         d3.selectAll(".machine-input").remove()
         d3.selectAll(".machine-output").remove()
+        display.highlightLinks([]);
         display.resetTrace();
     },
     renameSubmit: function() {
