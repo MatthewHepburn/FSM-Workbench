@@ -27,5 +27,19 @@
     "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8}]",
     "data-question": "{\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"type\":\"satisfy-list\",\"text\":\"Construct a non-deterministic FSM that accepts the language described by the regular expression (a|bb)*(ba*|c)<br>(Based on question 5 from the 2010/11 resit paper)<br><b>Hint:</b> you can enter \\\"epsilon\\\" as a transition condition.\",\"acceptList\":[\"b\",\"c\",\"aba\",\"bbbbbbbaaaaaaaaaa\",\"aaaaaac\",\"baaaa\",\"baaa\",\"bbac\",\"abbabbabbabbbaa\",\"bbaabbbbaac\"],\"rejectList\":[\"bc\",\"bb\",\"bbbb\",\"abba\",\"acaa\"],\"alphabetType\":\"char\"}",
     "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":495.08004747857865,\"y\":242.61165070055844,\"index\":1,\"weight\":1,\"px\":495.0797075098056,\"py\":242.61172433901885,\"fixed\":0,\"name\":\"S3\"},{\"id\":2,\"accepting\":false,\"x\":285.5008073963958,\"y\":126.42263479629631,\"index\":2,\"weight\":1,\"px\":285.5008073963958,\"py\":126.42263479629631,\"fixed\":0,\"name\":\"S1\"},{\"id\":3,\"accepting\":false,\"x\":348.2019309956355,\"y\":274.44626762895274,\"index\":3,\"weight\":2,\"px\":348.2021699859898,\"py\":274.4443991303302,\"fixed\":0,\"name\":\"S2\"}]",
+    "data-links": "[{\"source\":0,\"target\":3,\"input\":[\"a\"],\"id\":1},{\"source\":0,\"target\":2,\"input\":[\"b\"],\"id\":2},{\"source\":3,\"target\":1,\"input\":[\"a\",\"b\"],\"id\":4}]",
+    "filename": "select-states-1",
+    "data-question": "{\"text\":\"When a Finite State Machine is given an input, it uses that input to chose which state to move to.<br>If the machine was in the initial state (S0) and was given the input ‘a’, which state would it move to?<br>Select that state and click ‘check’.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":1,\"input\":[\"a\"]}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":5,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":278.05744265906753,\"y\":378.261166878749,\"index\":1,\"weight\":3,\"px\":278.0569562860126,\"py\":378.25588374421943,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":349.9524656871798,\"y\":246.1934566574817,\"index\":2,\"weight\":3,\"px\":349.95096821169557,\"py\":246.19678256138383,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":499.95117613248925,\"y\":246.5140408835113,\"index\":3,\"weight\":3,\"px\":499.95117862593077,\"py\":246.51404088923522,\"fixed\":0}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1,\"output\":[[\"a\",\"x\"]]},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":2,\"output\":[[\"b\",\"y\"]]},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":3,\"output\":[[\"b\",\"z\"]]},{\"source\":3,\"target\":3,\"input\":[\"a\",\"b\"],\"id\":4,\"output\":[]},{\"source\":2,\"target\":0,\"input\":[\"a\"],\"id\":7,\"output\":[]},{\"source\":0,\"target\":0,\"input\":[\"b\"],\"id\":8,\"output\":[]},{\"source\":1,\"target\":0,\"input\":[\"a\"],\"id\":9,\"output\":[]}]",
+    "filename": "demo3-transducer",
+    "data-question": "{\"text\":\"Demo 3 - Transducer\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":true,\"outAlphabet\":[\"x\",\"y\",\"z\"],\"type\":\"demo\"}",
+    "data-options": "{}"
   }
 ]

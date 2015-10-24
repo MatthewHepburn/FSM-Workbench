@@ -1,9 +1,9 @@
 [
   {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":495.08004747857865,\"y\":242.61165070055844,\"index\":1,\"weight\":1,\"px\":495.0797075098056,\"py\":242.61172433901885,\"fixed\":0,\"name\":\"S3\"},{\"id\":2,\"accepting\":false,\"x\":285.5008073963958,\"y\":126.42263479629631,\"index\":2,\"weight\":1,\"px\":285.5008073963958,\"py\":126.42263479629631,\"fixed\":0,\"name\":\"S1\"},{\"id\":3,\"accepting\":false,\"x\":348.2019309956355,\"y\":274.44626762895274,\"index\":3,\"weight\":2,\"px\":348.2021699859898,\"py\":274.4443991303302,\"fixed\":0,\"name\":\"S2\"}]",
-    "data-links": "[{\"source\":0,\"target\":3,\"input\":[\"a\"],\"id\":1},{\"source\":0,\"target\":2,\"input\":[\"b\"],\"id\":2},{\"source\":3,\"target\":1,\"input\":[\"a\",\"b\"],\"id\":4}]",
-    "filename": "select-states-1",
-    "data-question": "{\"text\":\"When a Finite State Machine is given an input, it uses that input to chose which state to move to.<br>If the machine was in the initial state (S0) and was given the input ‘a’, which state would it move to?<br>Select that state and click ‘check’.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":1,\"input\":[\"a\"]}",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.19109994567384,\"y\":252.0153893518297,\"index\":1,\"weight\":4,\"px\":350.1911049739956,\"py\":252.015384540263,\"fixed\":0,\"name\":\"1\"},{\"id\":2,\"accepting\":false,\"x\":500.3389454437565,\"y\":253.79812058126547,\"index\":2,\"weight\":3,\"px\":500.33894639409704,\"py\":253.79811901118413,\"fixed\":0,\"name\":\"2\"},{\"id\":3,\"accepting\":true,\"x\":650.6925043157144,\"y\":255.32282544453238,\"index\":3,\"weight\":3,\"px\":650.6915915798334,\"py\":255.32281618865224,\"fixed\":0,\"name\":\"3\"}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"A\",\"B\"],\"id\":6},{\"source\":1,\"target\":0,\"input\":[\"B\"],\"id\":7},{\"source\":1,\"target\":2,\"input\":[\"A\"],\"id\":8},{\"source\":2,\"target\":1,\"input\":[\"A\"],\"id\":9},{\"source\":2,\"target\":3,\"input\":[\"B\"],\"id\":10},{\"source\":3,\"target\":3,\"input\":[\"A\",\"B\"],\"id\":13}]",
+    "filename": "demo4-intro-to-fsm",
+    "data-question": "{\"text\":\"When a Finite State Machine is given an input, it uses that input to chose which state to move to.<br>Use the buttons below to give the machine an input that moves it to state 3.\",\"alphabetType\":\"char\",\"alphabet\":[\"A\",\"B\"],\"isTransducer\":false,\"type\":\"demo\",\"hasGoal\":true}",
     "data-options": "{}"
   },
   {
@@ -144,41 +144,6 @@
     "data-links": "[]",
     "filename": "satisfy-regex-5",
     "data-question": "{\"text\":\"Construct a finite state machine which accepts the language defined by the expression <b>abb(abb)*</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"abb(abb)*\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":3}",
-    "data-options": "{}"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"A\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":4,\"px\":200,\"py\":250},{\"id\":2,\"accepting\":false,\"x\":325.9629645273517,\"y\":168.26031077488693,\"index\":1,\"weight\":5,\"px\":325.9629645273517,\"py\":168.26031077488693,\"fixed\":0,\"name\":\"B\"},{\"id\":3,\"accepting\":false,\"x\":333.4804441990956,\"y\":318.6730114786624,\"index\":2,\"weight\":4,\"px\":333.4804441990956,\"py\":318.6730114786624,\"fixed\":0,\"name\":\"C\"},{\"id\":4,\"accepting\":true,\"x\":459.4159170491954,\"y\":237.01233291539785,\"index\":3,\"weight\":3,\"px\":459.4159170491954,\"py\":237.01233291539785,\"fixed\":0,\"name\":\"D\"}]",
-    "data-links": "[{\"source\":2,\"target\":3,\"input\":[\"0\"],\"id\":2},{\"source\":3,\"target\":4,\"input\":[\"1\"],\"id\":3},{\"source\":0,\"target\":2,\"input\":[\"1\"],\"id\":4},{\"source\":0,\"target\":0,\"input\":[\"0\"],\"id\":6},{\"source\":3,\"target\":0,\"input\":[\"1\"],\"id\":8},{\"source\":4,\"target\":3,\"input\":[\"0\"],\"id\":9},{\"source\":4,\"target\":2,\"input\":[\"1\"],\"id\":10},{\"source\":2,\"target\":2,\"input\":[\"1\"],\"id\":11}]",
-    "filename": "test",
-    "data-question": "{\"text\":\"Text of the question. HTML tags allowed.\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(1|0)*101\",\"alphabet\":[\"1\",\"0\"],\"minAcceptLength\":3}",
-    "data-options": "{}"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"A\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":4,\"px\":200,\"py\":250},{\"id\":2,\"accepting\":false,\"x\":325.9629645273517,\"y\":168.26031077488693,\"index\":1,\"weight\":5,\"px\":325.9629645273517,\"py\":168.26031077488693,\"fixed\":0,\"name\":\"B\"},{\"id\":3,\"accepting\":false,\"x\":333.4804441990956,\"y\":318.6730114786624,\"index\":2,\"weight\":4,\"px\":333.4804441990956,\"py\":318.6730114786624,\"fixed\":0,\"name\":\"C\"},{\"id\":4,\"accepting\":true,\"x\":459.4159170491954,\"y\":237.01233291539785,\"index\":3,\"weight\":3,\"px\":459.4159170491954,\"py\":237.01233291539785,\"fixed\":0,\"name\":\"D\"}]",
-    "data-links": "[{\"source\":2,\"target\":3,\"input\":[\"0\"],\"id\":2},{\"source\":3,\"target\":4,\"input\":[\"1\"],\"id\":3},{\"source\":0,\"target\":2,\"input\":[\"1\"],\"id\":4},{\"source\":0,\"target\":0,\"input\":[\"0\"],\"id\":6},{\"source\":3,\"target\":0,\"input\":[\"1\"],\"id\":8},{\"source\":4,\"target\":3,\"input\":[\"0\"],\"id\":9},{\"source\":4,\"target\":2,\"input\":[\"1\"],\"id\":10},{\"source\":2,\"target\":2,\"input\":[\"1\"],\"id\":11}]",
-    "filename": "demo",
-    "data-question": "{\"text\":\"Demo\",\"alphabetType\":\"char\",\"type\":\"demo\",\"alphabet\":[\"1\",\"0\"],\"isTransducer\":true}",
-    "data-options": "{}"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":292.40689147687544,\"y\":131.3837006448023,\"index\":1,\"weight\":2,\"px\":292.40667487031476,\"py\":131.38525610244167,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":348.9294071596339,\"y\":270.71856165972315,\"index\":2,\"weight\":2,\"px\":348.9294071596339,\"py\":270.71856165972315,\"fixed\":0}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1,\"output\":[[\"a\",\"x\"]]},{\"source\":1,\"target\":2,\"input\":[\"a\"],\"id\":2,\"output\":[[\"a\",\"y\"]]}]",
-    "filename": "demo2",
-    "data-question": "{\"text\":\"Demo text.\",\"alphabetType\":\"char\",\"type\":\"demo\", \"alphabet\":[\"a\", \"b\"]}",
-    "data-options": "{}"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":5,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":278.05744265906753,\"y\":378.261166878749,\"index\":1,\"weight\":3,\"px\":278.0569562860126,\"py\":378.25588374421943,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":349.9524656871798,\"y\":246.1934566574817,\"index\":2,\"weight\":3,\"px\":349.95096821169557,\"py\":246.19678256138383,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":499.95117613248925,\"y\":246.5140408835113,\"index\":3,\"weight\":3,\"px\":499.95117862593077,\"py\":246.51404088923522,\"fixed\":0}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1,\"output\":[[\"a\",\"x\"]]},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":2,\"output\":[[\"b\",\"y\"]]},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":3,\"output\":[[\"b\",\"z\"]]},{\"source\":3,\"target\":3,\"input\":[\"a\",\"b\"],\"id\":4,\"output\":[]},{\"source\":2,\"target\":0,\"input\":[\"a\"],\"id\":7,\"output\":[]},{\"source\":0,\"target\":0,\"input\":[\"b\"],\"id\":8,\"output\":[]},{\"source\":1,\"target\":0,\"input\":[\"a\"],\"id\":9,\"output\":[]}]",
-    "filename": "demo3",
-    "data-question": "{\"text\":\"Demo 3 - Transducer\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":true,\"outAlphabet\":[\"x\",\"y\",\"z\"],\"type\":\"demo\"}",
-    "data-options": "{}"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.19109994567384,\"y\":252.0153893518297,\"index\":1,\"weight\":4,\"px\":350.1911049739956,\"py\":252.015384540263,\"fixed\":0,\"name\":\"1\"},{\"id\":2,\"accepting\":false,\"x\":500.3389454437565,\"y\":253.79812058126547,\"index\":2,\"weight\":3,\"px\":500.33894639409704,\"py\":253.79811901118413,\"fixed\":0,\"name\":\"2\"},{\"id\":3,\"accepting\":true,\"x\":650.6925043157144,\"y\":255.32282544453238,\"index\":3,\"weight\":3,\"px\":650.6915915798334,\"py\":255.32281618865224,\"fixed\":0,\"name\":\"3\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"A\",\"B\"],\"id\":6},{\"source\":1,\"target\":0,\"input\":[\"B\"],\"id\":7},{\"source\":1,\"target\":2,\"input\":[\"A\"],\"id\":8},{\"source\":2,\"target\":1,\"input\":[\"A\"],\"id\":9},{\"source\":2,\"target\":3,\"input\":[\"B\"],\"id\":10},{\"source\":3,\"target\":3,\"input\":[\"A\",\"B\"],\"id\":13}]",
-    "filename": "demo4-intro-to-fsm",
-    "data-question": "{\"text\":\"When a Finite State Machine is given an input, it uses that input to chose which state to move to.<br>Use the buttons below to give the machine an input that moves it to state 3.\",\"alphabetType\":\"char\",\"alphabet\":[\"A\",\"B\"],\"isTransducer\":false,\"type\":\"demo\",\"hasGoal\":true}",
     "data-options": "{}"
   }
 ]

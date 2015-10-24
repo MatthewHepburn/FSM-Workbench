@@ -28,7 +28,7 @@ if __name__ == "__main__":
     index_template = templateEnv.get_template("index.jinja")
     end_template = templateEnv.get_template("end.jinja")
 
-    # Change to /Questions directory
+    # Change to /Deploy directory
     currentDir = os.getcwd()
     os.chdir("Deploy")
     deployDir = os.getcwd()
