@@ -145,5 +145,12 @@
     "filename": "satisfy-regex-5",
     "data-question": "{\"text\":\"Construct a finite state machine which accepts the language defined by the expression <b>abb(abb)*</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"abb(abb)*\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":3}",
     "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":198,\"y\":298,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":198,\"py\":298},{\"id\":1,\"accepting\":false,\"x\":348.12524006888555,\"y\":289.8839844805494,\"index\":1,\"weight\":3,\"px\":348.12654785926065,\"py\":289.88965660819525,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":461.6736054244399,\"y\":191.3210619400754,\"index\":2,\"weight\":4,\"px\":461.670535067634,\"py\":191.32643531722374,\"fixed\":0},{\"id\":3,\"accepting\":false,\"x\":466.2376152561475,\"y\":382.92814332214675,\"index\":3,\"weight\":2,\"px\":466.23445811657444,\"py\":382.93366406621726,\"fixed\":0},{\"id\":4,\"accepting\":true,\"x\":579.798090596253,\"y\":284.3665547879796,\"index\":4,\"weight\":4,\"px\":579.7883543319833,\"py\":284.37227995079706,\"fixed\":0}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"b\"],\"id\":2,\"output\":[[\"b\",\"F\"]]},{\"source\":0,\"target\":0,\"input\":[\"a\"],\"id\":4,\"output\":[[\"a\",\"M\"]]},{\"source\":1,\"target\":2,\"input\":[\"a\"],\"id\":5,\"output\":[[\"a\",\"S\"]]},{\"source\":2,\"target\":4,\"input\":[\"b\"],\"id\":6,\"output\":[[\"b\",\"M\"]]},{\"source\":2,\"target\":2,\"input\":[\"a\"],\"id\":7,\"output\":[]},{\"source\":1,\"target\":3,\"input\":[\"b\"],\"id\":8,\"output\":[]},{\"source\":3,\"target\":4,\"input\":[\"a\",\"b\"],\"id\":9,\"output\":[[\"a\",\"M\"]]},{\"source\":4,\"target\":4,\"input\":[\"a\",\"b\"],\"id\":12,\"output\":[]}]",
+    "filename": "demo-intro-to-transducers",
+    "data-question": "{\"text\":\"<b>Transducers</b> are Finite State Machines which have <b>output</b>. <br>The machine below has an input alphabet of {a, b} and an output alphabet of {F, M, S}. <br>Give it an input such that its output is the string \\\"FSM\\\".\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":true,\"outAlphabet\":[\"F\",\"S\",\"M\"],\"type\":\"demo\",\"hasGoal\":true,\"goalType\":\"output\",\"outputTarget\":\"FSM\"}",
+    "data-options": "{}"
   }
 ]

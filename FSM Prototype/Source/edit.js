@@ -35,7 +35,9 @@ edit = {
 			"maxStates": {"description": "Optional parameter. Maximum number of states the machine is allowed to have. NB, allowing too many states can lead to crashes.", "optional":true, "default":4, "expectStr":false}
 		},
 		"demo":{
-			"hasGoal": {"description": "If true - the user is correct if they enter a sequence ending on an accepting state", "optional":false, "default":false, "expectStr":false, "isBoolean":true}
+			"hasGoal": {"description": "If true - the user is correct if they enter a sequence ending on an accepting state", "optional":false, "default":false, "expectStr":false, "isBoolean":true},
+			"goalType": {"description": "Only needed if hasGoal = true. Can be 'accepting' - the user must get the machine to an accepting state - or 'output' - the user must make the machine give a particular output", "optional":true, "default":"accepting", "expectStr":true, "isBoolean":false},
+			"outputTarget" :{"description": "Only needed if goalType=output. The output string the user must make the machine output", "optional":true, "default":"abccba", "expectStr":true, "isBoolean":false}
 		},
 	},
 	createQuestionPrompt:function() {
@@ -96,7 +98,7 @@ edit = {
 			html += ": <input type='text' id='" + name +"' value='" + defaultValue + "''>"
 		}
 		html += "<a id='desc" + name + "'>  ?</a></p>"
-		
+
 		// Use method below as inserting normally resets the event listeners
 		var siblings = document.querySelector(".questiondata").children
 		var lastSibling = siblings[siblings.length - 1]
@@ -202,7 +204,7 @@ edit = {
 			var div = document.querySelector(".jsonout").innerHTML = edit.escapeHTML(JSON.stringify(modelJSON));
 		}
 
-	}, 
+	},
 	setAlphabet:function(){
 		var alphabet = JSON.parse(document.querySelector("#alphabet").value)
 		model.question.alphabet = alphabet

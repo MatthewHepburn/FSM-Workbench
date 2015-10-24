@@ -1528,29 +1528,42 @@ var query = {
 var checkAnswer = {
 	demo: function(){
 		//Checks success condition for demo mode, if one has been set
-		//Demo succeeds if machine reaches an accepting state.
 		if(!model.question.hasGoal){
 			return;
 		}
-		if(!query.inAcceptingState()){
-			return
-		}
-		//Machine is in an accepting state so display feedback and a next button
-		var nextURL = document.getElementById("nav-next").href;
-		var newHTML = "<img class ='x-check-button inline-feedback' src=img/Icons/check.svg><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
-		if(config.removeInputButtonsOnDemoSuccess){
-			//Replace the input buttons
-			document.querySelector("#demo-div").innerHTML = newHTML
-		} else{
-			// Or insert after the buttons, preserving event listeners
-	        var siblings = document.querySelector("#demo-div").children
-	        var lastSibling = siblings[siblings.length - 1];
-	        lastSibling.insertAdjacentHTML("afterend",newHTML);
-		}
-		//Set hasGoal to false to prevent duplicate feedback:
-		model.question.hasGoal = false;
-        logging.sendAnswer(true);
+		//define a function to to give feedback if the user is correct.
+		var isCorrect = function(){
+			var nextURL = document.getElementById("nav-next").href;
+			var newHTML = "<img class ='x-check-button inline-feedback' src=img/Icons/check.svg><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
+			if(config.removeInputButtonsOnDemoSuccess){
+				//Replace the input buttons
+				document.querySelector("#demo-div").innerHTML = newHTML
+			} else{
+				// Or insert after the buttons, preserving event listeners
+		        var siblings = document.querySelector("#demo-div").children
+		        var lastSibling = siblings[siblings.length - 1];
+		        lastSibling.insertAdjacentHTML("afterend",newHTML);
+			}
+			//Set hasGoal to false to prevent duplicate feedback:
+			model.question.hasGoal = false;
+	        logging.sendAnswer(true);
+	       	}
 
+		if(model.question.goalType == "accepting"){
+			// User succeeds if the machine is in an accepting state
+			if(query.inAcceptingState()){
+				isCorrect();
+				return;
+			}
+		}
+	    else if(model.question.goalType == "output"){
+	    	// User succeeds if the machine output matches the goal output.
+	    	if (model.currentOutput == model.question.outputTarget){
+	    		isCorrect()
+	    	}
+	    } else{
+	    	alert("Invalid value for goalType");
+	    }
 	},
     doesAccept: function(){
         var listLength = model.question.strList.length;
