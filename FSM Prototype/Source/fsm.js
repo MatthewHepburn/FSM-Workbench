@@ -1,6 +1,7 @@
 config = {
     displayNextOnCorrect: true, // Display an extra next button when a question is answered correctly.
     displayConstrainedLinkRename: true, //Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
+    removeInputButtonsOnDemoSuccess: false, //Remove the input buttons in demo mode when the user enters the success state (if there is one)
     showRenameOnLinkCreation: true, //Automatically open the rename menu when the user creates a links.
     submitRenameOnBGclick: false // If a rename menu is open, a click on the background will close the menu and submit the rename.
 }
@@ -758,7 +759,7 @@ var display = {
         lastSibling.insertAdjacentHTML("afterend",buttonHTML);
 
     },
-    linkLabelText:function(link){        
+    linkLabelText:function(link){
         //Create the label string for a link
         if (link.input.length == 0) {
             return "";
@@ -780,7 +781,7 @@ var display = {
                 }
             }
             return labelString.slice(0,-2);
-        }            
+        }
 
     },
     updateLinkLabel:function(linkID){
@@ -1287,6 +1288,17 @@ var query = {
         }
         return [true, ""];
     },
+    inAcceptingState: function(){
+    	//Return true if the macjine is currently in an accepting state
+    	for(var i = 0; i < model.currentStates.length; i++){
+    		var stateID = model.currentStates[i];
+    		var state = query.getNodeData(stateID);
+    		if(state.accepting){
+    			return true;
+    		}
+    	}
+    	return false;
+    },
     getCopyForRegex: function(){
         //Return a deep copy of the current machine as an object with nodes and links properties
         //Replace the current inital state with a new state with an epsilon transition to the old state
@@ -1514,6 +1526,32 @@ var query = {
 };
 
 var checkAnswer = {
+	demo: function(){
+		//Checks success condition for demo mode, if one has been set
+		//Demo succeeds if machine reaches an accepting state.
+		if(!model.question.hasGoal){
+			return;
+		}
+		if(!query.inAcceptingState()){
+			return
+		}
+		//Machine is in an accepting state so display feedback and a next button
+		var nextURL = document.getElementById("nav-next").href;
+		var newHTML = "<img class ='x-check-button inline-feedback' src=img/Icons/check.svg><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
+		if(config.removeInputButtonsOnDemoSuccess){
+			//Replace the input buttons
+			document.querySelector("#demo-div").innerHTML = newHTML
+		} else{
+			// Or insert after the buttons, preserving event listeners
+	        var siblings = document.querySelector("#demo-div").children
+	        var lastSibling = siblings[siblings.length - 1];
+	        lastSibling.insertAdjacentHTML("afterend",newHTML);
+		}
+		//Set hasGoal to false to prevent duplicate feedback:
+		model.question.hasGoal = false;
+        logging.sendAnswer(true);
+
+	},
     doesAccept: function(){
         var listLength = model.question.strList.length;
         var passed = true;
@@ -2194,7 +2232,7 @@ var eventHandler = {
         var newMode = d3.event.target.id;
         // Submit any open rename forms:
         controller.renameSubmit();
-       
+
         // Reinstate drag-to-move if previous mode did not allow it.
         if(model.toolMode == "linetool"|| model.toolMode == "texttool" || model.toolMode == "acceptingtool" || model.toolMode == "deletetool" || model.toolMode == "nodetool"){
             circle.call(force.drag);
@@ -2255,13 +2293,16 @@ var controller = {
     demoInput: function(symbol){
         model.fullInput += [symbol]
         model.currentInput = [symbol]
-        var linkIDs = model.step()        
+        var linkIDs = model.step()
         display.highlightCurrentStates();
         display.highlightLinks(linkIDs)
         d3.selectAll(".machine-input").remove();
         d3.selectAll(".machine-output").remove();
         display.drawInput();
         display.drawOutput();
+        if (model.question.hasGoal){
+        	checkAnswer.demo()
+        }
 
     },
     demoReset: function(){
