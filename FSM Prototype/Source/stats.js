@@ -28,10 +28,7 @@ var data = {
         return dates
     },
     getPageVisitData: function(){
-        var pageList = ["index", "select-states-1", "give-list-1", "give-list-2", "satisfy-list-1",
-                    "satisfy-list-2-vending-machine", "satisfy-list-4-2010-resit", "satisfy-definition-1",
-                    "give-list-3-cabbage-goat-wolf", "satisfy-list-3-tower-of-hanoi2", "satisfy-regex-1",
-                    "satisfy-regex-2", "end", "about", "help"];
+        var pageList = data.pageList;
         var pageData = []
         for (var i = 0; i < pageList.length; i++){
             var thisData = data.json.urls[pageList[i]];
@@ -53,10 +50,7 @@ var data = {
 
     },
     getPageAnswersData: function(){
-        var questionList = ["select-states-1", "give-list-1", "give-list-2", "satisfy-list-1",
-                    "satisfy-list-2-vending-machine", "satisfy-list-4-2010-resit", "satisfy-definition-1",
-                    "give-list-3-cabbage-goat-wolf", "satisfy-list-3-tower-of-hanoi2", "satisfy-regex-1",
-                    "satisfy-regex-2"];
+        var questionList = data.questionList;
         var pageData = []
         for (var i = 0; i < questionList.length; i++){
             var thisData = data.json.urls[questionList[i]];
@@ -87,10 +81,7 @@ var data = {
         return pageData;
     },
     getPageRatingData: function(){
-        var questionList = ["select-states-1", "give-list-1", "give-list-2", "satisfy-list-1",
-                    "satisfy-list-2-vending-machine", "satisfy-list-4-2010-resit", "satisfy-definition-1",
-                    "give-list-3-cabbage-goat-wolf", "satisfy-list-3-tower-of-hanoi2", "satisfy-regex-1",
-                    "satisfy-regex-2"];
+        var questionList = data.questionList
         var pageData = []
         for (var i = 0; i < questionList.length; i++){
             var thisData = data.json.urls[questionList[i]];
@@ -158,6 +149,34 @@ var data = {
             }
         }
         return max;
+    },
+    setLists:function(){
+        //Create the page and question lists
+        data.pageList = [];
+        data.questionList = [];
+        var nonQuestions = ["index", "help", "about", "stats", "end"] //Pages which are not questions
+        //Populate questionList with all the question names from the JSON file.
+        for (property in data.json.urls){
+            if(nonQuestions.indexOf(property) == -1){
+                data.questionList.push(property)
+            }
+        }
+        //Sort questionList by number of unique visitors
+        data.questionList.sort(data.sortPages);
+        //Construct pageList by adding the non-questions
+        data.pageList = nonQuestions.concat(data.questionList);
+    },
+    sortPages:function(a, b){
+        //Sort function to sort URLS by number of unique visitors in descending order
+        var aUniques = data.json.urls[a].uniqueVisitors;
+        var bUniques = data.json.urls[b].uniqueVisitors;
+        if (aUniques < bUniques){
+            return 1;
+        }
+        if (aUniques == bUniques){
+            return 0;
+        }
+        return -1;
     }
 }
 
@@ -407,6 +426,7 @@ var control = {
             setTimeout(control.initialDraw, 100);
             return;
         }
+        data.setLists();
         display.drawDateBarChart();
         display.writeTimeStamp();
     }
