@@ -1,10 +1,15 @@
 config = {
-    displayNextOnCorrect: true, // Display an extra next button when a question is answered correctly.
-    displayConstrainedLinkRename: true, //Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
-    removeInputButtonsOnDemoSuccess: false, //Remove the input buttons in demo mode when the user enters the success state (if there is one)
-    showRenameOnLinkCreation: true, //Automatically open the rename menu when the user creates a links.
-    submitRenameOnBGclick: false // If a rename menu is open, a click on the background will close the menu and submit the rename.
-}
+	// Display an extra next button when a question is answered correctly.
+    displayNextOnCorrect: true,
+    // Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
+    displayConstrainedLinkRename: true,
+    // Remove the input buttons in demo mode when the user enters the success state (if there is one)
+    removeInputButtonsOnDemoSuccess: false,
+    // Automatically open the rename menu when the user creates a links.
+    showRenameOnLinkCreation: true,
+    // If a rename menu is open, a click on the background will close the menu and submit the rename.
+    submitRenameOnBGclick: false
+};
 
 var display = {
     nodeRadius: 20,
