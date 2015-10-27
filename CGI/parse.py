@@ -18,6 +18,7 @@ logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
 crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console", "Google PP Default"]
 
+
 def main():
     readFiles()
     analyseUsage()
@@ -61,17 +62,31 @@ def readAnswers(filename):
     questionName = filename.split(" ")[1][:-4]
     total = 0
     correct = 0
+    usersAttempted = 0
+    usersCorrect = 0
     for l in f:
         line = l.split("    ")
         userID = line[0][10:]
         if userID == "MHepburn": #Ignore testing activity
             continue
         unixTime = int(line[3])
+        #Ignore logs before the cutoffTime
         if unixTime < cutoffTime:
             continue
+        if userID not in users:
+            user[userID] = {
+                attemptedQuestions: [],
+                correctQuestions: []
+            }
+        if questionName not in users[userID]["attemptedQuestions"]:
+            users[userID]["attemptedQuestions"] += [questionName]
+            usersAttempted += 1
         total += 1
         isCorrect = line[6]
         if isCorrect == "true":
+            if questionName not in users[userID]["correctQuestions"]:
+                users[userID]["correctQuestions"] += [questionName]
+                usersCorrect += 1
             correct += 1
         elif isCorrect != "false":
             print("Error expected 'true' or 'false' in: ", l)
@@ -80,6 +95,8 @@ def readAnswers(filename):
         urls[questionName] = {}
     urls[questionName]["correctAnswers"] = correct
     urls[questionName]["totalAnswers"] = total
+    urls[questionName]["usersCorrect"] = usersCorrect
+    urls[questionName]["usersAttempted"] = usersAttempted
 
 def readRatings(filename):
     f = open(filename, "r")
@@ -142,7 +159,9 @@ def readUsage(filename):
             agent = agentString
         if not userID in users:
             users[userID] = {"browser": agent,
-                             "pages": {url:0}}
+                             "pages": {url:0},
+                             "attemptedQuestions":[],
+                             "correctQuestions":[]}
         else:
             if url in users[userID]["pages"]:
                 users[userID]["pages"][url] += logTime
@@ -165,7 +184,7 @@ def writeJSON():
     # Calculate Timestamp:
     now = datetime.datetime.now()
     timeStamp = str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)
-    out = {"urls":urls, "dates":dates, "meta":{"timeStamp":timeStamp}}
+    out = {"urls":urls, "dates":dates, "meta":{"timeStamp":timeStamp}, "users":users}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 
