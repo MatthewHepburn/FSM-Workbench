@@ -38,7 +38,9 @@ def addToURLs(name):
         "yesRatings": 0,
         "totalRatings": 0,
         "uniqueVisitors": 0,
-        "totalTime": 0
+        "totalTime": 0,
+        "totalTimeToCorrect":0,
+        "numOfTimeToCorrectRecorded":0
         }
 
 def analyseUsage():
@@ -160,10 +162,23 @@ def readAnswers(filename):
             usersAttempted += 1
         total += 1
         isCorrect = line[6]
+        timeToCorrect = line[8]
+        try:
+            timeToCorrect = int(timeToCorrect)
+        except ValueError:
+            timeToCorrect = None
+        if timeToCorrect > 60 * 60: #cap time at 1 hour
+            timeToCorrect = None
         if isCorrect == "true":
             if questionName not in users[userID]["correctQuestions"]:
                 users[userID]["correctQuestions"] += [questionName]
                 usersCorrect += 1
+                if timeToCorrect != None:
+                    if "totalTimeToCorrect" not in urls[questionName]:
+                        urls[questionName]["totalTimeToCorrect"] = 0
+                        urls[questionName]["numOfTimeToCorrectRecorded"] = 0
+                    urls[questionName]["totalTimeToCorrect"] += timeToCorrect
+                    urls[questionName]["numOfTimeToCorrectRecorded"] += 1
             correct += 1
         elif isCorrect != "false":
             print("Error expected 'true' or 'false' in: ", l)
