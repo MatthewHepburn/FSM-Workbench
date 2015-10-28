@@ -60,6 +60,8 @@ var data = {
             var totalAnswers;
             var correctAnswers;
             var incorrectAnswers;
+            var usersAttempted;
+            var usersCorrect;
             if (thisData.hasOwnProperty("totalAnswers")){
                 totalAnswers = thisData.totalAnswers
             } else {
@@ -70,11 +72,25 @@ var data = {
             } else {
                 correctAnswers = 0;
             }
+            if (thisData.hasOwnProperty("usersAttempted")){
+                usersAttempted = thisData.usersAttempted
+            } else {
+                usersAttempted = 0;
+            }
+            if (thisData.hasOwnProperty("usersCorrect")){
+                usersCorrect = thisData.usersCorrect
+            } else {
+                usersCorrect = 0;
+            }
             incorrectAnswers = totalAnswers - correctAnswers
+            usersNotCorrect = usersCorrect - usersAttempted
             var thisPage = {"name":questionList[i],
                             "correctAnswers": correctAnswers,
                             "totalAnswers": totalAnswers,
-                            "incorrectAnswers": incorrectAnswers
+                            "incorrectAnswers": incorrectAnswers,
+                            "usersCorrect": usersCorrect,
+                            "usersAttempted":usersAttempted,
+                            "usersNotCorrect":usersNotCorrect
                             };
             pageData.push(thisPage)
         }
@@ -112,6 +128,17 @@ var data = {
         var max = 0;
         for (url in data.json.urls){
             var answers = data.json.urls[url].totalAnswers;
+            if (answers > max) {
+                max = answers;
+            }
+        }
+        return max;
+
+    },
+    getMaxUsersAttemptedPerPage:function(){
+        var max = 0;
+        for (url in data.json.urls){
+            var answers = data.json.urls[url].usersAttempted;
             if (answers > max) {
                 max = answers;
             }
@@ -413,6 +440,65 @@ var display = {
             .html("Number of <i class='blue'>Positive Ratings</i> and <i class='red'>Negative Ratings</i>")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
+    },
+    drawPageUserOutcomesBarChart:function(){
+        // Draw title
+        d3.select("#title")
+            .html("User Outcomes by Question")
+            .attr("style", "width: " + (display.width - 200) + "px;");
+
+        var max = data.getMaxUsersAttemptedPerPage()
+        var barMargin = 2;
+        var xMargin = 4;
+        d3.select("#canvas")
+            .html("")
+        pageData = data.getPageAnswersData()
+        var barHeight = 30
+        axisWidth = 20
+        var height = axisWidth + (barHeight + barMargin) * pageData.length
+        var chart = d3.select("#canvas");
+        chart
+            .attr("height", height);
+        var scale = d3.scale.linear()
+                    .domain([0, max])
+                    .range([0, display.width - 200]);
+
+        var bar = d3.select("#canvas").selectAll("g")
+                    .data(pageData)
+                .enter().append("g")
+                    .attr("transform", function(d, i) { return "translate(" + xMargin + "," + i * (barHeight + 2) + ")"; })
+                    .classed("bar", true);
+
+        bar.append("rect")
+            .attr("width", function(d) { return scale(d.usersAttempted) })
+            .attr("height", barHeight)
+            .classed("total", true)
+
+        bar.append("rect")
+                    .attr("width", function(d) { return scale(d.usersCorrect) })
+                    .attr("height", barHeight)
+
+
+
+        bar.append("text")
+            .attr("x", function(d) { return scale(d.usersAttempted) + 6; })
+            .attr("y", barHeight / 2)
+            .attr("dy", ".35em")
+            .classed("right-label", true)
+            .text(function(d) { return d.name; });
+
+        var xAxis = d3.svg.axis()
+                        .scale(scale)
+                        .orient("bottom");
+        chart.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate("+ xMargin + "," + (height - axisWidth) + ")")
+            .call(xAxis);
+
+        d3.select("#x-axis-title")
+            .html("Number of <i class='blue'>users who give a correct answer</i> and <i class='red'>users attempting the question but not giving a correct answer</i>")
+            .attr("style", "width: " + (display.width - 200) + "px;");
+        d3.selectAll(".y .axis")
     },
     writeTimeStamp:function(){
         var div = document.querySelector("#timestamp");

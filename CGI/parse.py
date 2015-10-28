@@ -184,7 +184,7 @@ def writeJSON():
     # Calculate Timestamp:
     now = datetime.datetime.now()
     timeStamp = str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)
-    out = {"urls":urls, "dates":dates, "meta":{"timeStamp":timeStamp}, "users":users}
+    out = {"urls":urls, "dates":dates, "meta":{"timeStamp":timeStamp}}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 
