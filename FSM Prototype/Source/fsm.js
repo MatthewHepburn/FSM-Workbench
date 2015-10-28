@@ -1551,7 +1551,8 @@ var checkAnswer = {
 			}
 			//Set hasGoal to false to prevent duplicate feedback:
 			model.question.hasGoal = false;
-	        logging.sendAnswer(true);
+            //Don't send full model for a demo question - pointless.
+	        logging.sendAnswer(true, null);
 	       	}
 
 		if(model.question.goalType == "accepting"){
@@ -2751,6 +2752,7 @@ function keyup() {
 }
 
 var logging = {
+    loadTime: Math.floor(Date.now() / 1000),
     userID: undefined,
     generateUserID: function() {
         //Use local storage if it is available
@@ -2777,7 +2779,7 @@ var logging = {
     },
     // answer is an optional parameter, if not specified the current state will be sent.
     sendAnswer: function(isCorrect, answer) {
-        if (answer == undefined){
+        if (answer === undefined){
             answer = model.generateJSON2();
         } else {
             answer = JSON.stringify(answer);
@@ -2787,13 +2789,13 @@ var logging = {
         } else {
             isCorrect = "false";
         }
-        // Record different information if the model is editable
+        var timeElapsed = Math.floor(Date.now() / 1000) - logging.loadTime;
         var url = window.location.href;
         if (logging.userID == undefined){
             logging.generateUserID();
         }
         var data = "url=" + encodeURIComponent(url) + "&userID=" + encodeURIComponent(logging.userID);
-        data = data + "&isCorrect=" + isCorrect + "&answer=" + answer;
+        data = data + "&isCorrect=" + isCorrect + "&answer=" + answer + "&timeElapsed=" + timeElapsed;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;

@@ -35,8 +35,9 @@ if url != "none":
 	url = re.search("[^/]*(?=\.html$)", url).group(0)
 isCorrect = form.getfirst("isCorrect", "none")
 answer = form.getfirst("answer", "none")
+timeElapsed = form.getfirst("timeElapsed", "none")
 
-string = userID + "    "+url+"    "+remoteIp+"    "+timeEpoch+"    "+timeHuman+"    "+agent+"    "+isCorrect + "    " + answer
+string = userID + "    "+url+"    "+remoteIp+"    "+timeEpoch+"    "+timeHuman+"    "+agent+"    "+isCorrect + "    " + answer+ "    "+timeElapsed
 
 date = str(datetime.date.today())
 
