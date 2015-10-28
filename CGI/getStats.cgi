@@ -26,7 +26,7 @@ except OSError:
 	subprocess.call(["python", "parse.py"])
 	modifedTime = int(os.path.getmtime(datafile))
 currentTime = int(time.time())
-if currentTime - modifedTime > 60 * 60 * 6: # 6 hours
+if currentTime - modifedTime > 60 * 5: # 5 minutes
 	# Recreate stats.json
 	subprocess.call(["python", "parse.py"])
 # Output the file.
