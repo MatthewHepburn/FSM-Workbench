@@ -413,6 +413,11 @@ var display = {
         var vpx = -1 * vy;
         var vpy = vx;
 
+        //Normalise this vector:
+        var magnitude = Math.sqrt(vpx * vpx + vpy * vpy);
+        vpx = vpx / magnitude;
+        vpy = vpy /magnitude;
+
         //find angle of the line relative to x axis. From -180 to 180.
         var angle = (Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI);
         if (Math.abs(angle) > 90) {
@@ -421,14 +426,14 @@ var display = {
 
         var scale;
         if (!isBezier) {
-            scale = 0.11;
+            scale = 18;
             return {
                 x: cx + scale * vpx,
                 y: cy + scale * vpy,
                 rotation: angle
             };
         } else {
-            scale = 0.21;
+            scale = 36;
             return {
                 x: cx + scale * vpx,
                 y: cy + scale * vpy,
