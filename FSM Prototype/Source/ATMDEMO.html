@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <title>ATM DEMO</title>
+    <style>
+    div.question-text {
+      margin-bottom: 6px;
+      font-family: 'Ek Mukta',sans-serif;
+    }
+    </style>
+    <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="fsm.css">
+  </head>
+
+  <body class="canvas" data-nodes='[{"id":0,"accepting":false,"name":"","x":204,"y":86,"fixed":1,"index":0,"weight":4,"px":204,"py":86},{"id":1,"accepting":false,"x":379.79411622694096,"y":84.02739178463725,"index":1,"weight":3,"px":379.79411622694096,"py":84.02739178463725,"fixed":true},{"id":2,"accepting":false,"x":565.5421698393883,"y":94.46205315471434,"index":2,"weight":3,"px":565.5421698393883,"py":94.46205315471434,"fixed":true},{"id":3,"accepting":false,"x":295.082909999535,"y":289.31836879308526,"index":3,"weight":3,"px":295.082909999535,"py":289.31836879308526,"fixed":1},{"id":4,"accepting":false,"x":582.9064770084419,"y":215.3555808616344,"index":4,"weight":3,"px":582.9064770084419,"py":215.3555808616344,"fixed":true},{"id":5,"accepting":false,"x":738.091741869494,"y":342.56451035315797,"index":5,"weight":3,"px":738.091741869494,"py":342.56451035315797,"fixed":true,"name":"ok?"},{"id":6,"accepting":false,"x":730.6845563371334,"y":192.55960590671455,"index":6,"weight":3,"px":730.6845563371334,"py":192.55960590671455,"fixed":true},{"id":7,"accepting":false,"x":591.6751411876553,"y":376.2417686039847,"index":7,"weight":2,"px":591.6751411876553,"py":376.2417686039847,"fixed":1},{"id":8,"accepting":false,"x":123.15114982133161,"y":355.0895394953377,"index":8,"weight":2,"px":123.15114982133161,"py":355.0895394953377,"fixed":1,"name":"£"}]'
+  data-links='[{"source":0,"target":1,"input":["insert_card"],"id":1,"output":[]},{"source":1,"target":0,"input":["wrong_PIN"],"id":2,"output":[]},{"source":1,"target":2,"input":["PIN_ok"],"id":3,"output":[]},{"source":2,"target":3,"input":["balance"],"id":4,"output":[]},{"source":3,"target":0,"input":["return_card"],"id":5,"output":[]},{"source":2,"target":4,"input":["withdraw"],"id":6,"output":[]},{"source":3,"target":4,"input":["withdraw"],"id":8,"output":[]},{"source":4,"target":6,"input":["choose_a/c"],"id":9,"output":[]},{"source":6,"target":5,"input":["amount"],"id":10,"output":[]},{"source":5,"target":6,"input":["no"],"id":11,"output":[]},{"source":5,"target":7,"input":["yes"],"id":12,"output":[]},{"source":7,"target":8,"input":["return_card"],"id":13,"output":[]},{"source":8,"target":0,"input":["take_money"],"id":14,"output":[]}]'
+  data-options='{"displayInputOnRight":true}'
+  data-question = '{"text":"<h1>ATM</h1>","alphabetType":"symbol","alphabet":["insert_card","wrong_PIN","PIN_ok","balance","return_card","withdraw","choose_a/c","amount","yes","no","take_money"],"isTransducer":false,"type":"demo","hasGoal":false,"goalType":"accepting","outputTarget":"abccba"}'>
+   <div class="menu">
+    </div>
+  	<div class="question">
+      <div class="question-text"><h1>ATM</h1></div>    </div>
+    <svg id="main-svg" width="960" height="500" class="active">
+      <defs>
+        <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
+        <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
+      </defs>
+    </svg>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+  <script defer src="fsm.js"></script>
+  </body>
+</html>
