@@ -310,3 +310,15 @@ text.nodename {
 #does-accept-table {
   margin-left: 20px;
 }
+
+.rightinput{
+  font-size: x-large;
+}
+
+#demo-reset{
+  background-color: #DA3737;
+}
+
+.demo-button {
+    margin-right: 2px;
+}

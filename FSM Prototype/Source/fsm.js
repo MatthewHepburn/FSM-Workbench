@@ -8,7 +8,9 @@ config = {
     // Automatically open the rename menu when the user creates a links.
     showRenameOnLinkCreation: true,
     // If a rename menu is open, a click on the background will close the menu and submit the rename.
-    submitRenameOnBGclick: false
+    submitRenameOnBGclick: false,
+    // In demo mode, draw the input on the right of the screen.
+    displayInputOnRight: false
 };
 
 var display = {
@@ -318,6 +320,25 @@ var display = {
                     .attr("y", y);
             }
         }
+    },
+    drawInputOnRight: function(){
+    	//Create Div if not already there
+    	if (document.querySelector(".rightinput") == null){
+    		d3.select("body")
+    		  .insert("div", '#main-svg + *')
+    		  .classed("rightinput", true)
+    		  .style("display","inline-block")
+    		  .style("vertical-align", "top")
+    		d3.select("#main-svg")
+    		  .style("display", "inline")
+    	}
+    	var html = ""
+    	var input = model.fullInput.split(",")
+    	for (var i = 0; i< input.length; i++){
+    		html += "<p class='rightinput'>" + input[i] + "</p>"
+    	}
+    	d3.select(".rightinput")
+    	  .html(html)
     },
     drawOutput: function(){
         //Draw the output of the machine if it is a transducer
@@ -1054,6 +1075,9 @@ var model = {
             }
             if (options.constrainRename != undefined){
                 config.displayConstrainedLinkRename = options.constrainRename;
+            }
+            if (options.displayInputOnRight != undefined){
+            	config.displayInputOnRight = options.displayInputOnRight;
             }
         }
         return true;
@@ -2315,14 +2339,24 @@ var eventHandler = {
 
 var controller = {
     demoInput: function(symbol){
-        model.fullInput += [symbol]
-        model.currentInput = [symbol]
+    	if (model.question.alphabetType == "char"){
+    		model.fullInput += [symbol]
+	        model.currentInput = [symbol]
+    	} else {
+    		 model.fullInput += [",", symbol]
+    		 model.currentInput = [symbol]
+    	}
+
         var linkIDs = model.step()
         display.highlightCurrentStates();
         display.highlightLinks(linkIDs)
         d3.selectAll(".machine-input").remove();
         d3.selectAll(".machine-output").remove();
-        display.drawInput();
+        if (!config.displayInputOnRight){
+	    	display.drawInput();
+        } else {
+        	display.drawInputOnRight();
+        }
         display.drawOutput();
         if (model.question.hasGoal){
         	checkAnswer.demo()
@@ -2334,6 +2368,7 @@ var controller = {
         model.resetTrace();
         d3.selectAll(".machine-input").remove()
         d3.selectAll(".machine-output").remove()
+        d3.selectAll(".rightinput").remove()
         display.highlightLinks([]);
         display.resetTrace();
     },
