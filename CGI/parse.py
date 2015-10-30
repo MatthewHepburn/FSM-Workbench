@@ -139,10 +139,32 @@ def readAnswers(filename):
     questionName = filename.split(" ")[1][:-4]
     if questionName not in urls:
         addToURLs(questionName)
-    total = urls[questionName]["totalAnswers"]
-    correct = urls[questionName]["correctAnswers"]
-    usersAttempted = urls[questionName]["usersAttempted"]
-    usersCorrect = urls[questionName]["usersCorrect"]
+
+    if "totalAnswers" in urls[questionName]:
+        total = urls[questionName]["totalAnswers"]
+    else:
+        total = 0
+        urls[questionName]["totalAnswers"] = 0
+
+    if "correctAnswers" in urls[questionName]:
+        correct = urls[questionName]["correctAnswers"]
+    else:
+        correct = 0
+        urls[questionName]["correctAnswers"] = 0
+
+    if "usersAttempted" in urls[questionName]:
+        usersAttempted = urls[questionName]["usersAttempted"]
+    else:
+        usersAttempted = 0
+        urls[questionName]["usersAttempted"] = 0
+
+    if "usersCorrect" in urls[questionName]:
+        usersCorrect = urls[questionName]["usersCorrect"]
+    else:
+        usersCorrect = 0
+        urls[questionName]["usersCorrect"] = 0
+
+
     for l in f:
         line = l.split("    ")
         userID = line[0][10:]
