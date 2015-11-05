@@ -43,7 +43,7 @@ var display = {
                 var parsedInput;
                 var string;
                 if (i < accLength){
-                    parsedInput = JSON.stringify(model.parseInput(model.question.acceptList[i], model.question.alphabetType == "char"));
+                    parsedInput = JSON.stringify(model.parseInput(model.question.acceptList[i]));
                     string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.acceptList[i] + "'</a>";
                     table += "<td id=td-acc-" + i + "'>" + string + "</td><td id=\'td-acc-adj-" + i +"'> </td>";
                 } else {
@@ -51,7 +51,7 @@ var display = {
                 }
                 // Build html for element i of the rejectList
                 if (i < rejLength){
-                    parsedInput = JSON.stringify(model.parseInput(model.question.rejectList[i], model.question.alphabetType == "char"));
+                    parsedInput = JSON.stringify(model.parseInput(model.question.rejectList[i]));
                     string = "<a class='trace-link' onclick='javascript:display.showTrace(" + parsedInput + ");'>'" + model.question.rejectList[i] + "'</a>";
                     table += "<td id=td-rej-" + i + "'>" + string + "</td><td id=\'td-rej-adj-" + i +"'> </td></tr>";
                 } else {
@@ -1018,11 +1018,20 @@ var model = {
         }
 
     },
-    parseInput: function(string, isCharType){
+    parseInput: function(string){
         // Given a string 'abc', return input in form ['a', 'b', 'c'] if charType
         // or given a string 'stop start go', return input in form ['stop', 'start', 'go']
+        var isCharType = model.question.alphabetType == "char";
         if (isCharType){
-            return string.split("");
+            var chars =  string.split("");
+            //Remove commas + whitespace
+            var removeIllegalChars = function(value){
+                if(value == "," || value == " "){
+                    return false;
+                }
+                return true
+            }
+            return chars.filter(removeIllegalChars)
         } else {
             return string.split(/\ |,\ |,/);
         }
@@ -1608,7 +1617,7 @@ var checkAnswer = {
         for (var i = 0; i < listLength; i++){
             // Test element i of strList
             isChecked = tableRows[i].firstChild.firstChild.checked
-            var input = model.parseInput(model.question.strList[i], model.question.alphabetType == "char");
+            var input = model.parseInput(model.question.strList[i]);
             var accepts = model.accepts(input);
             if (accepts == isChecked){
                 document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src=img/Icons/check.svg>";
@@ -1841,7 +1850,7 @@ var checkAnswer = {
             var i = num;
             // Test element i of acceptList
             if (i < accLength){
-                var input = model.parseInput(model.question.acceptList[i], model.question.alphabetType == "char");
+                var input = model.parseInput(model.question.acceptList[i]);
                 var accepts = model.accepts(input);
                 if (accepts){
                     document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src=img/Icons/check.svg>";
@@ -1852,7 +1861,7 @@ var checkAnswer = {
             }
             // Test element i of rejectList
             if (i < rejLength){
-                var input = model.parseInput(model.question.rejectList[i], model.question.alphabetType == "char");
+                var input = model.parseInput(model.question.rejectList[i]);
                 var accepts = model.accepts(input);
                 if (!accepts){
                     document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src=img/Icons/check.svg>";
@@ -1966,7 +1975,7 @@ var checkAnswer = {
                 displayFeedback("Analysing " + string);
                 if (regex.exec(string) != null && regex.exec(string)[0] ==  string){
                         //If the regex accepts the string, check the machine accepts it
-                    if (!model.accepts(model.parseInput(string, model.question.alphabetType))){
+                    if (!model.accepts(model.parseInput(string))){
                         displayFeedback("Incorrect - the machine rejects the string '" + string + "' which it should accept.");
                         logging.sendAnswer(false);
                         return;
