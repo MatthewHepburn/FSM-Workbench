@@ -10,7 +10,9 @@ config = {
     // If a rename menu is open, a click on the background will close the menu and submit the rename.
     submitRenameOnBGclick: false,
     // In demo mode, draw the input on the right of the screen.
-    displayInputOnRight: false
+    displayInputOnRight: false,
+    // Draw the trace letters in different colours
+    useColouredLettersInTrace: false
 };
 
 var display = {
@@ -279,14 +281,15 @@ var display = {
         // Displays the current input, used to draw the trace.
         var g = svg.append("g")
             .attr("class", "machine-input");
-        if (model.question.type != "demo"){
+        if (model.question.type != "demo" && config.useColouredLettersInTrace){
+            //use coloured letters
             if (model.fullInput.length < 10){
                 display.colour = d3.scale.category10();
             } else{
                 display.colour = d3.scale.category20b();
             }
         } else {
-            //Only use black letters for demo mode
+            //Only use black letters
             display.colour = d3.scale.ordinal().domain(["#000000"])
         }
         var totalInputLength = 0; //No need to account for spaces
@@ -668,16 +671,33 @@ var display = {
         }
 
         d3.selectAll(".node").classed("dim", true);
-        d3.selectAll(".highlight").classed("highlight", false);
         var i = model.currentStep + 1;
         if (!backward){
             if (model.currentInput.length != 0 && model.currentStates.length != 0){
                 var linksUsed = model.step()
-                // If the input has now been rejected, stop here
+                display.highlightLinks(linksUsed)
+                // If the input has now been rejected shake the rejected symbol and then stop here.
                 if (model.currentStates.length == 0){
+                    var x = document.querySelector("#in"+(i-1)).getBBox().x
+                    d3.select("#in" + (i-1))
+                        .classed("rejected", true)
+                        .transition()
+                        .duration(100)
+                        .attr("x", x + 10)
+                        .each("end", function(){
+                            d3.select(this)
+                                .transition()
+                                .duration(120)
+                                .attr("x", x - 10)
+                                .each("end", function(){
+                                    d3.select(this)
+                                        .transition()
+                                        .duration(100)
+                                        .attr("x", x);
+                                })
+                        })
                     return;
                 }
-                display.highlightLinks(linksUsed)
                 model.traceRecord[model.currentStep] = {
                     states: JSON.parse(JSON.stringify(model.currentStates)),
                     currentInput: JSON.parse(JSON.stringify(model.currentInput)),
@@ -729,7 +749,7 @@ var display = {
             d3.select("[id='" + stateID + "']")
                 .classed("dim", false)
                 .classed("highlight", true)
-                .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +"; stroke:rgb(0,0,0);");
+                .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
         }
 
         // check if most recent letter was consumed:
