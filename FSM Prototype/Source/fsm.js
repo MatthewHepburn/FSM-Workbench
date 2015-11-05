@@ -2808,36 +2808,36 @@ function keydown() {
         svg.classed("ctrl", true);
     }
 
-    if (!selected_node && !selected_link) return;
-    switch (d3.event.keyCode) {
-    case 8: // backspace
-    case 46: // delete
-        // Do nothing if the rename menu is open
-        if (renameMenuShowing) {
-            break;
-        }
-        if (selected_node) {
-            model.nodes.splice(model.nodes.indexOf(selected_node), 1);
-            spliceLinksForNode(selected_node);
-        } else if (selected_link) {
-            model.deleteLink(selected_link.id);
-        }
-        selected_link = null;
-        selected_node = null;
-        restart();
-        break;
-    case 82: // R
-        if (selected_node) {
-            // toggle whether node is accepting
-            selected_node.accepting = !selected_node.accepting;
-        } else if (selected_link) {
-            // set link direction to right only
-            selected_link.left = false;
-            selected_link.right = true;
-        }
-        restart();
-        break;
-    }
+    // if (!selected_node && !selected_link) return;
+    // switch (d3.event.keyCode) {
+    // case 8: // backspace
+    // case 46: // delete
+    //     // Do nothing if the rename menu is open
+    //     if (renameMenuShowing) {
+    //         break;
+    //     }
+    //     if (selected_node) {
+    //         model.nodes.splice(model.nodes.indexOf(selected_node), 1);
+    //         spliceLinksForNode(selected_node);
+    //     } else if (selected_link) {
+    //         model.deleteLink(selected_link.id);
+    //     }
+    //     selected_link = null;
+    //     selected_node = null;
+    //     restart();
+    //     break;
+    // case 82: // R
+    //     if (selected_node) {
+    //         // toggle whether node is accepting
+    //         selected_node.accepting = !selected_node.accepting;
+    //     } else if (selected_link) {
+    //         // set link direction to right only
+    //         selected_link.left = false;
+    //         selected_link.right = true;
+    //     }
+    //     restart();
+    //     break;
+    // }
 }
 
 function keyup() {
