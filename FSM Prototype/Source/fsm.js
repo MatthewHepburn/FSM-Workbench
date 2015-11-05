@@ -1228,6 +1228,7 @@ var model = {
         	model.currentOutput += query.getOutput(query.getLinkData(linkIDs[0]), curSymbol)
         }
         linkIDs = linkIDs.concat(model.doEpsilonTransitions());
+        model.linksUsed = linkIDs;
         model.currentStep++;
 
         return linkIDs;
@@ -1242,6 +1243,7 @@ var model = {
         var record = model.traceRecord[model.currentStep];
         model.currentInput = record.currentInput;
         model.currentStates = record.states;
+        model.linksUsed = record.linkIDs;
         return record.linkIDs;
      },
     toggleAccepting: function(id) {
@@ -2132,7 +2134,6 @@ var eventHandler = {
         if (d3.event.target.id != "main-svg"){
             return;
         }
-        console.log(d3.event);
 
         // Dismiss context menu if it is present
         if (contextMenuShowing) {
@@ -2567,14 +2568,11 @@ var controller = {
         // Move the model back 1 step and update the trace
         var linksUsed = model.stepBack();
         display.updateTrace(linksUsed);
-        console.log(model.currentStep);
     },
     traceForward:function(){
         // Advances the model and the trace display one step;
         var linksUsed = model.step(true);
         display.updateTrace(linksUsed);
-        console.log(model.currentStep);
-
     }
 };
 
