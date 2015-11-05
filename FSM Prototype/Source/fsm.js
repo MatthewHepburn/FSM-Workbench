@@ -658,21 +658,25 @@ var display = {
         node.classed("qselect", !node.classed("qselect"));
     },
     traceStep: function(autoPlay, backward){
-        traceStepInProgress = true;
-        if (backward && model.currentStep == 0){
-            traceStepInProgress = false;
-            return;
-        }
+        // Do nothing if going forward and input has been rejected
         if (!backward && model.currentStates.length == 0){
             return;
         }
-        d3.selectAll(".dim").classed("dim", false);
+        // Do nothing if going forward and there is no input left
+        if (!backward && model.currentInput.length == 0){
+            return;
+        }
+
         d3.selectAll(".node").classed("dim", true);
         d3.selectAll(".highlight").classed("highlight", false);
         var i = model.currentStep + 1;
         if (!backward){
             if (model.currentInput.length != 0 && model.currentStates.length != 0){
                 var linksUsed = model.step()
+                // If the input has now been rejected, stop here
+                if (model.currentStates.length == 0){
+                    return;
+                }
                 display.highlightLinks(linksUsed)
                 model.traceRecord[model.currentStep] = {
                     states: JSON.parse(JSON.stringify(model.currentStates)),
@@ -685,24 +689,20 @@ var display = {
             }
             else {
                 traceInProgress = false;
-                traceStepInProgress = false;
                 return;
             }
         }
         else {
             if (model.traceRecord.length == 0){
-                traceStepInProgress = false;
                 return;
             }
-            var record = model.traceRecord[model.currentStep -1];
+            var record = model.traceRecord[model.currentStep];
             model.currentStates = record.states;
-            model.currentInput = JSON.parse(JSON.stringify(record.currentInput));
-            model.currentStep = model.fullInput.length - model.currentInput.length;
             var linksUsed = record.linkIDs
             display.highlightLinks(linksUsed)
             d3.select("#in-comma" + (i-1))
                 .classed("dim", true);
-            for (var j = i; j < model.fullInput.length; j++){
+            for (var j = i-1; j >= 0; j--){
                 d3.select("#in" + j)
                     .transition()
                     .duration(50)
@@ -732,11 +732,6 @@ var display = {
                 .attr("style","fill: " + d3.rgb(display.colour(i -1)).toString() +"; stroke:rgb(0,0,0);");
         }
 
-        if (backward && model.currentStep == 0){
-            traceStepInProgress = false;
-            return;
-        }
-
         // check if most recent letter was consumed:
         if (!backward && model.currentStates.length > 0){
             d3.select("#in" + (i -1))
@@ -748,28 +743,13 @@ var display = {
                 .classed("dim", true);
             d3.select("#in" + i).classed("highlight", true);
         } else {
-            var x = document.querySelector("#in"+(i-1)).getBBox().x;
-            d3.select("#in" + (i-1))
-                .classed("rejected", true)
-                .transition()
-                .duration(100)
-                .attr("x", x + 10)
-                .each("end", function(){
-                    d3.select(this)
-                        .transition()
-                        .duration(120)
-                        .attr("x", x - 10)
-                        .each("end", function(){
-                            d3.select(this)
-                                .transition()
-                                .duration(100)
-                                .attr("x", x);
-                        });
-                });
+            var element = d3.select("#in" + (i - 1))
+            element.classed("dim", false)
+                   .classed("highlight", false)
+                   .attr("transform", "translate(0, 0)");
             d3.select("#in-comma" + (i-1))
                 .classed("dim", false);
         }
-        traceStepInProgress = false;
         return;
     },
     showNextButton: function(){
@@ -1165,6 +1145,14 @@ var model = {
 
         return linkIDs;
     },
+    stepBack: function(){
+        //Steps back one simulation step
+        if (model.currentStep == 0){
+            return;
+        }
+        model.currentStep = model.currentStep - 1;
+        model.currentInput = [model.fullInput[model.currentInput.length]].concat(model.currentInput);
+     },
     toggleAccepting: function(id) {
         //Check editing is allowed:
         if (model.editable == false){
@@ -2319,6 +2307,7 @@ var eventHandler = {
         }
         if (button == "back"){
             if (!tracePlaying){
+                model.stepBack();
                 display.traceStep(false, true);
             }
         }

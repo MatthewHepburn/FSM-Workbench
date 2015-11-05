@@ -7,6 +7,7 @@ create = {
         d3.select("#traceform-button")
             .on("click", function(){
                 var input = model.parseInput(document.querySelector("#traceform").value);
+                display.showTrace(input);
                 console.log(input);
             });
     }
