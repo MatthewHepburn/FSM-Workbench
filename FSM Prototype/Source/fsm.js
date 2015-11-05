@@ -480,8 +480,10 @@ var display = {
         // Clear existing state highlights
         d3.selectAll(".node").classed("highlight", false).classed("dim", true);
         for (var i = 0; i< model.currentStates.length; i++){
-            d3.select("[id='"+ model.currentStates[i] +"']").classed("highlight", true).classed("dim", false);
-
+            d3.select("[id='"+ model.currentStates[i] +"']")
+                .classed("highlight", true)
+                .classed("dim", false)
+                .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
         }
     },
     reflexiveLink: function (x, y) {
@@ -645,6 +647,7 @@ var display = {
                     .attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
             }
         }
+        display.highlightLinks([]);
 
     },
     showTrace: function(input){
@@ -822,6 +825,11 @@ var display = {
     updateLinkLabel:function(linkID){
         label = svg.select("#linklabel" + linkID);
         label.text(function(d) {return display.linkLabelText(d)});
+    },
+    updateTrace: function(linkIDs){
+        display.highlightLinks(linkIDs);
+        display.highlightCurrentStates();
+
     }
 };
 
@@ -834,6 +842,7 @@ var model = {
     currentStates: [0], //IDs of state(s) that the simulation could be in. Initially [0], the start state.
     currentStep: 0,
     traceRecord:[],
+    linksUsed:[],
     currentOutput:"",
     fullInput: ["a", "a"], // The complete input the machine is processing, this should not be changed during simulation.
     currentInput: ["a", "a"], // This will have symbols removed as they are processed.
@@ -844,7 +853,7 @@ var model = {
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.currentInput = JSON.parse(JSON.stringify(input));
         model.currentStates = [0];
-        model.doEpsilonTransitions()
+        model.doEpsilonTransitions();
         // Simulate until input is consumed
         while (this.currentInput.length > 0){
             if (this.currentStates == []){
@@ -929,6 +938,7 @@ var model = {
                 }
             }
         }
+        model.linksUsed = model.linksUsed.concat(linkIDs)
         return linkIDs
 
     },
@@ -1051,9 +1061,10 @@ var model = {
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
         model.currentOutput = "";
+        model.linksUsed = []
         model.doEpsilonTransitions();
         model.currentStep = 0;
-        model.traceRecord = [{states:[0], currentInput: JSON.parse(JSON.stringify(model.fullInput))}];
+        model.traceRecord = [{states:model.currentStates, currentInput: JSON.parse(JSON.stringify(model.fullInput))}];
     },
     readJSON: function(){
         // Need to read in nodes + links separately as links refer directly to nodes
@@ -1142,7 +1153,21 @@ var model = {
         }
         display.askQuestion(model.question.text);
     },
-    step: function(){
+    step: function(keepTraceRecord){
+        if (keepTraceRecord == undefined){
+            keepTraceRecord = false;
+        }
+        if (model.currentInput.length == 0){
+            return [];
+        }
+        if(keepTraceRecord){
+            model.traceRecord[model.currentStep] = {
+                states: JSONcopy(model.currentStates),
+                currentInput: JSONcopy(model.currentInput),
+                linkIDs: JSONcopy(model.linksUsed)
+            }
+        }
+
         // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
         // Returns a list of the ids of links used in this step.
         var curSymbol = model.currentInput.shift();
@@ -1176,12 +1201,16 @@ var model = {
         return linkIDs;
     },
     stepBack: function(){
-        //Steps back one simulation step
+        //Steps back one simulation step and returns the links that were used to get there (when going forwards)
         if (model.currentStep == 0){
-            return;
+            model.resetTrace()
+            return [];
         }
         model.currentStep = model.currentStep - 1;
-        model.currentInput = [model.fullInput[model.currentInput.length]].concat(model.currentInput);
+        var record = model.traceRecord[model.currentStep];
+        model.currentInput = record.currentInput;
+        model.currentStates = record.states;
+        return record.linkIDs;
      },
     toggleAccepting: function(id) {
         //Check editing is allowed:
@@ -2366,13 +2395,12 @@ var eventHandler = {
         }
         if (button == "back"){
             if (!tracePlaying){
-                model.stepBack();
-                display.traceStep(false, true);
+                controller.traceBackward();
             }
         }
         if (button == "forward"){
             if (!tracePlaying){
-                display.traceStep(false, false);
+                controller.traceForward();
             }
         }
         if (button == "play"){
@@ -2502,6 +2530,19 @@ var controller = {
             display.updateLinkLabel(linkID)
         }
         display.dismissRenameMenu();
+    },
+    traceBackward:function(){
+        // Move the model back 1 step and update the trace
+        var linksUsed = model.stepBack();
+        display.updateTrace(linksUsed);
+        console.log(model.currentStep);
+    },
+    traceForward:function(){
+        // Advances the model and the trace display one step;
+        var linksUsed = model.step(true);
+        display.updateTrace(linksUsed);
+        console.log(model.currentStep);
+
     }
 };
 
@@ -2746,6 +2787,10 @@ function restart() {
     d3.selectAll(".link-padding")
         .on("contextmenu", function(){eventHandler.linkContextMenu(d3.select(this).attr("data-link-id"));});
 
+}
+
+function JSONcopy(a){
+    return JSON.parse(JSON.stringify(a));
 }
 
 
