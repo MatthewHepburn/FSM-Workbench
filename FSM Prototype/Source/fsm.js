@@ -646,7 +646,8 @@ var display = {
     },
     showTrace: function(input){
         // Takes input in form ['a', 'b', 'c']
-        display.dismissTrace();
+        controller.endTrace();
+        model.question.editable = false;
         traceInProgress = true;
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.resetTrace();
@@ -2347,8 +2348,7 @@ var eventHandler = {
             return;
         }
         if (button == "stop"){
-            model.resetTrace();
-            display.dismissTrace();
+            controller.endTrace()
             return;
         }
     }
@@ -2389,6 +2389,11 @@ var controller = {
         d3.selectAll(".rightinput").remove()
         display.highlightLinks([]);
         display.resetTrace();
+    },
+    endTrace:function(){
+        display.dismissTrace();
+        model.resetTrace();
+        traceInProgress = false;
     },
     renameSubmit: function() {
         var menu = d3.select(".renameinput")[0][0];
