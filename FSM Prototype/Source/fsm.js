@@ -512,6 +512,9 @@ var display = {
         if (renameMenuShowing) {
             display.dismissRenameMenu();
         }
+        if (traceInProgress){
+            controller.endTrace();
+        }
         //Get the data associated with the link
         var d = query.getLinkData(id);
 
@@ -863,6 +866,9 @@ var model = {
         if (model.editable == false){
             return;
         }
+        if (traceInProgress){
+            controller.endTrace();
+        }
         for (var i = 0; i < model.links.length; i++){
             if (model.links[i].id == id){
                 model.links.splice(i, 1);
@@ -881,6 +887,9 @@ var model = {
         // Check that editing is allowed and that node0 is not target:
         if (model.editable == false || id == 0){
             return;
+        }
+        if (traceInProgress){
+            controller.endTrace();
         }
         var node = query.getNodeData(id);
         model.nodes.splice(model.nodes.indexOf(node), 1);
@@ -1178,6 +1187,9 @@ var model = {
         //Check editing is allowed:
         if (model.editable == false){
             return;
+        }
+        if(traceInProgress){
+            controller.endTrace();
         }
         // Change state in nodes
         var state = query.getNodeData(id);
@@ -2081,6 +2093,10 @@ var eventHandler = {
             return;
         }
 
+        if (traceInProgress){
+            return;
+        }
+
 
         if (model.toolMode == "nodetool" || model.toolMode == "acceptingtool"){
             d3.event.preventDefault()
@@ -2091,6 +2107,9 @@ var eventHandler = {
     },
     clickLink: function(d){
         if(!model.editable){
+            return;
+        }
+        if(traceInProgress){
             return;
         }
         if (selected_link == d){
@@ -2110,6 +2129,9 @@ var eventHandler = {
 
     },
     clickLinkPadding: function(d){
+        if(traceInProgress){
+            return;
+        }
         if (model.toolMode == "nodetool" || model.toolMode == "acceptingtool"){
             eventHandler.createNode();
         }
@@ -2118,6 +2140,9 @@ var eventHandler = {
         }
     },
     clickNode: function(d) {
+        if(traceInProgress){
+            return;
+        }
         if (model.toolMode == "acceptingtool"){
             model.toggleAccepting(d.id);
             return;
@@ -2135,6 +2160,9 @@ var eventHandler = {
         }
     },
     addLinkMouseDown: function(d) {
+        if(traceInProgress){
+            return;
+        }
         if (!model.editable){
             return;
         }
@@ -2143,6 +2171,9 @@ var eventHandler = {
         restart();
     },
     createLink: function(d, eventType) {
+        if(traceInProgress){
+            return;
+        }
         if (model.toolMode != "linetool"){
             return;
         }
@@ -2222,6 +2253,9 @@ var eventHandler = {
         }
     },
     createNode: function(){
+        if(traceInProgress){
+            return;
+        }
         // insert new node at point
         var point = d3.mouse(d3.select("#main-svg")[0][0]),
             node = {
@@ -2292,6 +2326,10 @@ var eventHandler = {
     },
     //Function to handle clicks to the control palette:
     toolSelect: function() {
+        if(traceInProgress){
+            //End trace if one is in progress
+            controller.endTrace();
+        }
         //Clear previous selection:
         d3.select(".control-rect.selected").classed("selected", false)
             .attr("fill", "white");
@@ -2947,6 +2985,7 @@ function init(){
     mouseup_node = null;
 
     model.setupQuestion();
+    traceInProgress = false;
 
     if (model.editable){
         display.drawControlPalette();
