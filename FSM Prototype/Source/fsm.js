@@ -465,6 +465,34 @@ var display = {
             };
         }
     },
+    hideConsumedInput: function(){
+        //Helper function for the trace display.
+        var charsConsumed = model.fullInput.length - model.currentInput.length;
+        //Hide input symbols that have been consumed
+        for (var i = 0; i < charsConsumed; i++){
+            d3.select("#in" + i)
+                .classed("highlight", false)
+                .classed("dim", true)
+                .classed("ishidden", true)
+                .transition().duration(1000)
+                .attr("transform", "translate(0, 1000)");
+            d3.select("#in-comma" + i)
+                .classed("dim", true);
+        }
+        //Unhide any symbols that have not been consumed
+        for(var j = charsConsumed; j<model.fullInput.length; j++){
+            var symbol = d3.select("#in"+j)
+            if (symbol.classed("ishidden")){
+                symbol.transition()
+                    .duration(50)
+                    .attr("transform", "translate(0, 0)");
+                symbol.classed("ishidden", false)
+                      .classed("dim", false)
+            }
+            d3.select("#in-comma" + i)
+                .classed("dim", false)
+        }
+    },
     highlightLinks: function(linkIDs){
         // Clear existing highlights
         d3.selectAll(".link").classed("highlight", false);
@@ -826,10 +854,11 @@ var display = {
         label = svg.select("#linklabel" + linkID);
         label.text(function(d) {return display.linkLabelText(d)});
     },
-    updateTrace: function(linkIDs){
-        display.highlightLinks(linkIDs);
+    updateTrace: function(){
+        display.highlightLinks(model.linksUsed);
         display.highlightCurrentStates();
-
+        display.hideConsumedInput();
+        //Highlight next char?
     }
 };
 
@@ -1159,6 +1188,9 @@ var model = {
         }
         if (model.currentInput.length == 0){
             return [];
+        }
+        if (model.currentStates.length == 0){
+            return[];
         }
         if(keepTraceRecord){
             model.traceRecord[model.currentStep] = {
