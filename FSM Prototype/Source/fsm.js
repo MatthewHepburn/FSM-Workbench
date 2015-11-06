@@ -1,4 +1,6 @@
 config = {
+    displayHeight: 960,
+    displayWidth: 500,    
 	// Display an extra next button when a question is answered correctly.
     displayNextOnCorrect: true,
     // Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
@@ -373,16 +375,29 @@ var display = {
         var vx = x2 - x1;
         var vy = y2 - y1;
 
-        // Find suitable control points by rotating v left 90deg and scaling
-        var vlx = -0.15 * vy;
-        var vly = 0.15 * vx;
+        // Find suitable control points by rotating v left 90deg, normalising and scaling
+        var vlx = -1 * vy;
+        var vly = 1 * vx;
+
+        var normal_vlx = vlx/Math.sqrt(vlx*vlx + vly*vly);
+        var normal_vly = vly/Math.sqrt(vlx*vlx + vly*vly);
+
+        var scaled_vlx = 18 * normal_vlx;
+        var scaled_vly = 18 * normal_vly;
+
+        //offset the start and end points along vl
+        x1 += 5 * normal_vlx;
+        y1 += 5 * normal_vly;
+        x2 += 5 * normal_vlx;
+        y2 += 5 * normal_vly;
+
 
         // Can now define the control points by adding vl to P1 and P2
-        var c1x = x1 + vlx;
-        var c1y = y1 + vly;
+        var c1x = x1 + scaled_vlx;
+        var c1y = y1 + scaled_vly;
 
-        var c2x = x2 + vlx;
-        var c2y = y2 + vly;
+        var c2x = x2 + scaled_vlx;
+        var c2y = y2 + scaled_vly;
 
         // We need an explicit midpoint to allow a direction arrow to be placed
         var m1x = c1x + 0.5 * vx;
@@ -1137,6 +1152,12 @@ var model = {
             }
             if (options.displayInputOnRight != undefined){
             	config.displayInputOnRight = options.displayInputOnRight;
+            }
+            if (options.displayHeight != undefined){
+                config.displayHeight = options.displayHeight;
+            }
+            if (options.displayWidth != undefined){
+                config.displayWidth = options.displayWidth;
             }
         }
         return true;
@@ -3023,8 +3044,8 @@ var logging = {
 function init(){
     model.readJSON();
     // set up SVG for D3
-    width = 960,
-    height = 500,
+    width = config.displayWidth;
+    height = config.displayHeight;
     colors = d3.scale.category10();
 
     svg = d3.select("#main-svg")
