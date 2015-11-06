@@ -251,10 +251,23 @@ var display = {
                     .attr("height", barHeight)
 
         bar.append("text")
-            .attr("x", function(d) { return scale(d.uniqueVisitors) - 3; })
+            .attr("x", function(d) { return scale(d.uniqueVisitors) + 6; })
             .attr("y", barHeight / 2)
             .attr("dy", ".35em")
+            .classed("right-label", true)
             .text(function(d) { return d.date; });
+
+        bar.append("text")
+            .attr("x", function(d) { return scale(d.uniqueVisitors) - 3; })
+            .attr("y", barHeight/2)
+            .attr("dy", ".35em")
+            .text(function(d){
+                if (scale(d.uniqueVisitors)> 15){
+                    return d.uniqueVisitors;
+                } else {
+                    return "";
+                }
+            });
 
         var xAxis = d3.svg.axis()
                         .scale(scale)
