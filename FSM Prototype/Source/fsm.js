@@ -7,6 +7,8 @@ config = {
     displayConstrainedLinkRename: true,
     // Remove the input buttons in demo mode when the user enters the success state (if there is one)
     removeInputButtonsOnDemoSuccess: false,
+    // Make the model editable regardless of question specific settings
+    forceEditable: false,
     // Automatically open the rename menu when the user creates a links.
     showRenameOnLinkCreation: true,
     // If a rename menu is open, a click on the background will close the menu and submit the rename.
@@ -14,7 +16,9 @@ config = {
     // In demo mode, draw the input on the right of the screen.
     displayInputOnRight: false,
     // Draw the trace letters in different colours
-    useColouredLettersInTrace: false
+    useColouredLettersInTrace: false,
+    // Pin nodes in place on creation, preventing physics from acting on them.
+    pinNewNodes: false
 };
 
 var display = {
@@ -1159,6 +1163,12 @@ var model = {
             if (options.displayWidth != undefined){
                 config.displayWidth = options.displayWidth;
             }
+            if (options.forceEditable != undefined){
+                config.forceEditable = options.forceEditable;
+            }
+            if (options.pinNewNodes != undefined){
+                config.pinNewNodes = options.pinNewNodes;
+            }
         }
         return true;
 
@@ -1197,6 +1207,11 @@ var model = {
         } else {
             model.editable = true;
         }
+
+        if (config.forceEditable === true){
+            model.editable = true;
+        }
+
         // Stop here if type is "none"
         if (model.question.type == "none"){
             return;
@@ -2347,6 +2362,9 @@ var eventHandler = {
             };
         node.x = point[0];
         node.y = point[1];
+        if (config.pinNewNodes === true){
+            node.fixed = true;
+        }
         model.nodes.push(node);
         force.start();
         restart();
