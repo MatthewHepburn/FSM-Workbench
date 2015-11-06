@@ -181,7 +181,7 @@ var data = {
         //Create the page and question lists
         data.pageList = [];
         data.questionList = [];
-        var nonQuestions = ["index", "help", "about", "stats", "end"] //Pages which are not questions
+        var nonQuestions = ["index", "help", "about", "stats", "end", "create", "atm", "edit"] //Pages which are not questions
         //Populate questionList with all the question names from the JSON file.
         for (property in data.json.urls){
             if(nonQuestions.indexOf(property) == -1){
@@ -319,6 +319,18 @@ var display = {
             .attr("dy", ".35em")
             .classed("right-label", true)
             .text(function(d) { return d.name; });
+
+        bar.append("text")
+            .attr("x", function(d) { return scale(d.uniqueVisitors) - 3; })
+            .attr("y", barHeight/2)
+            .attr("dy", ".35em")
+            .text(function(d){
+                if (scale(d.uniqueVisitors)> 15){
+                    return d.uniqueVisitors;
+                } else {
+                    return "";
+                }
+            });
 
         var xAxis = d3.svg.axis()
                         .scale(scale)
