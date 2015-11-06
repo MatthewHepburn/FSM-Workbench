@@ -2161,7 +2161,8 @@ var checkAnswer = {
 };
 
 var eventHandler = {
-    demoButton: function(){
+    demoButton: function(event){
+        //Need to specify event parameter for firefox. Chrome uses global variable to mimic IE weirdness.
         var symbol = event.target.id.slice(5);
         controller.demoInput(symbol);
     },
