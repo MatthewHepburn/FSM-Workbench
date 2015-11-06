@@ -1,6 +1,6 @@
 config = {
-    displayHeight: 960,
-    displayWidth: 500,    
+    displayHeight: 500,
+    displayWidth: 960,    
 	// Display an extra next button when a question is answered correctly.
     displayNextOnCorrect: true,
     // Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
