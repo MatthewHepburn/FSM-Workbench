@@ -1,6 +1,6 @@
 config = {
     displayHeight: 500,
-    displayWidth: 960,    
+    displayWidth: 960,
 	// Display an extra next button when a question is answered correctly.
     displayNextOnCorrect: true,
     // Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
@@ -904,7 +904,7 @@ var model = {
         model.doEpsilonTransitions();
         // Simulate until input is consumed
         while (this.currentInput.length > 0){
-            if (this.currentStates == []){
+            if (this.currentStates.length === 0){
                 return false;
             }
             this.step();
