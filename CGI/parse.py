@@ -167,6 +167,9 @@ def readAnswers(filename):
 
     for l in f:
         line = l.split("    ")
+        if len(line) < 9:
+            print("Line too short in + ", filename, ": ", l)
+            continue
         userID = line[0][10:]
         if userID == "MHepburn": #Ignore testing activity
             continue
@@ -273,7 +276,7 @@ def readUsage(filename):
     for l in f:
         line = l.split("    ")
         if len(line) < 7:
-            print("Line too short: ", l)
+            print("Line too short in + ", filename, ": ", l)
             continue
         userID = line[0][10:]
         if userID == "MHepburn" or userID == "debug": #Ignore testing activity
