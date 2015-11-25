@@ -1,0 +1,9 @@
+[
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "2014-Dec-5-d-i",
+    "data-question": "{\"text\":\"<i>[From December 2014 exam - question 5(d)i.]</i><br><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><br><center><b>xy*</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"x\",\"y\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"xy*\",\"minAcceptLength\":1,\"maxStates\":7}",
+    "data-options": "{}"
+  }
+]
