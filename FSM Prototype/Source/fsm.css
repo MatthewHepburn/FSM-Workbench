@@ -243,7 +243,7 @@ text.nodename {
 }
 
 .table-div {
-  display: inline-block;
+  display: table;
 }
 
 .table-button {
