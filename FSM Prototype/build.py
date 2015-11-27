@@ -43,7 +43,7 @@ def setAddresses(toDeploy):
         addresses = {
             "jsAddress": "../",
             "cssAddress": "../",
-            "iconAddress": "../img/Icons",
+            "iconAddress": "../img/Icons/",
             "imgAddress": "../img/"
         }
 

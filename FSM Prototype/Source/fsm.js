@@ -137,6 +137,7 @@ var display = {
             });
     },
     drawControlPalette: function(){
+        var iconAddress = document.querySelector("body").dataset.iconaddress
         var bwidth = 40; //button width
         var strokeWidth = 2;
         var margin = 10;
@@ -157,7 +158,7 @@ var display = {
                 .attr("y", 0.5 * margin + (i * bwidth))
                 .attr("width", bwidth - margin)
                 .attr("height", bwidth - margin)
-                .attr("xlink:href", "img/Icons/"+ tools[i] +".svg")
+                .attr("xlink:href", iconAddress + tools[i] +".svg")
                 .attr("class", "control-img");
             g.append("rect")
                 .attr("width", bwidth)

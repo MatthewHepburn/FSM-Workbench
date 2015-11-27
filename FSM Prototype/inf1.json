@@ -17,7 +17,7 @@
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.0753186396738,\"y\":248.5157282092216,\"index\":1,\"weight\":2,\"px\":350.07542624465594,\"py\":248.5158040903998,\"fixed\":0,\"name\":\"S1\"},{\"id\":2,\"accepting\":true,\"x\":500.15128247534426,\"y\":248.3727732935956,\"index\":2,\"weight\":1,\"px\":500.15128247534426,\"py\":248.3727732935956,\"fixed\":0,\"name\":\"S3\"}]",
     "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":2,\"input\":[\"a\",\"b\"],\"id\":3}]",
     "filename": "select-states-2-accepting-state",
-    "data-question": "{\"text\":\"If, starting from the initial state, an input sequence ends with the machine in an <b>accepting state</b>, the machine is said to <b>accept</b> that sequence.<br>Accepting states are shown using a double outline: <img src=\\\"img/accepting.png\\\" height=\\\"50\\\" width=\\\"50\\\" alt=\\\"An example image showing an accepting state composed of two= concentric circles.\\\" class=\\\"inline-q-img\\\">The machine below accepts the string \\\"ab\\\". Which state does it end in?\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":2,\"input\":[\"a\",\"b\"]}",
+    "data-question": "{\"text\":\"If, starting from the initial state, an input sequence ends with the machine in an <b>accepting state</b>, the machine is said to <b>accept</b> that sequence.<br>Accepting states are shown using a double outline: <img src=\\\"../img/accepting.png\\\" height=\\\"50\\\" width=\\\"50\\\" alt=\\\"An example image showing an accepting state composed of two= concentric circles.\\\" class=\\\"inline-q-img\\\">The machine below accepts the string \\\"ab\\\". Which state does it end in?\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":2,\"input\":[\"a\",\"b\"]}",
     "data-options": "{}"
   },
   {
@@ -87,13 +87,13 @@
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":4,\"px\":200,\"py\":250}]",
     "data-links": "[{\"source\":0,\"target\":0,\"input\":[\"0\",\"1\"],\"id\":6}]",
     "filename": "satisfy-regex-1-101-nfa",
-    "data-question": "{\"text\":\"Non-deterministic finite state machines are often easier to read than their deterministic equivalents. Consider the deterministic machine below, which accepts all strings from the alphabet {0,1} which end in 101:<br><img src=\\\"img/101deterministic.png\\\" height='200'><br>Construct an <b>equivalent non-deterministic machine</b>. \",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(1|0)*101\",\"alphabet\":[\"1\",\"0\"],\"minAcceptLength\":3,\"deterministic\":false}",
+    "data-question": "{\"text\":\"Non-deterministic finite state machines are often easier to read than their deterministic equivalents. Consider the deterministic machine below, which accepts all strings from the alphabet {0,1} which end in 101:<br><img src=\\\"../img/101deterministic.png\\\" height='200'><br>Construct an <b>equivalent non-deterministic machine</b>. \",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(1|0)*101\",\"alphabet\":[\"1\",\"0\"],\"minAcceptLength\":3,\"deterministic\":false}",
     "data-options": "{}"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.2380685072659,\"y\":249.14221680436393,\"index\":1,\"weight\":2,\"px\":350.2379770996383,\"py\":249.14218966587043,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":500.4759482223204,\"y\":247.57324669526525,\"index\":2,\"weight\":1,\"px\":500.4759482223204,\"py\":247.57324669526525,\"fixed\":0}]",
     "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":2,\"input\":[\"ε\"],\"id\":4}]",
-    "filename": "select-states-5-epsilon-intro",
+    "filename": "select-states-6-epsilon-intro",
     "data-question": "{\"text\":\"As well as allowing multiple paths out of a state for a single input, non-deterministic finite automata also allow <b>epsilon transitions</b>. These are special transitions (shown as ε) that can be taken <b>without consuming any input</b>. <br>The machine below can end in two different states for the input \\\"a\\\". Select them.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":1,\"input\":[\"a\"]}",
     "data-options": "{}"
   },
