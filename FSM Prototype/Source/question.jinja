@@ -12,7 +12,7 @@
     </style>
     <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-    <link rel="stylesheet" href="fsm.css">
+    <link rel="stylesheet" href="{{ addresses.cssAddress }}fsm.css">
   </head>
 
   <body class="canvas" data-nodes='{{ nodes }}'
@@ -33,7 +33,7 @@
           {%- for len in lengths -%}
             <div class="pure-control-group"><label for="qf{{ loop.index0 }}">{{ len }} symbols</label><input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value=""></div>
           {% endfor %}
-          <input type=image src='img/Icons/spacer.gif'>
+          <input type=image src='{{ addresses.iconAddress }}spacer.gif'>
           </form>
       {% endif %}
       {%- if hasCheck -%}
@@ -49,6 +49,6 @@
     <div class="rate"> Good question? <br><a id='rate-yes' class='rate-button pure-button'>Yes</a><a id='rate-no' class='rate-button pure-button'>No</a> </div>
   <div class='survey'><a href="https://www.surveymonkey.com/r/L33JCRN">Take survey</a></div>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
-  <script defer src="fsm.js"></script>
+  <script defer src="{{ addresses.jsAddress }}fsm.js"></script>
   </body>
 </html>
