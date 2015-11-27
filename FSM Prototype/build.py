@@ -21,6 +21,9 @@ sourceDir = ""
 deployDir = ""
 startDir = os.getcwd()
 
+# Keep a list of questions to be used by the stats page
+questionList = []
+
 def setAddresses(toDeploy):
     # Pass in the address of the JS and CSS files
     # Eg if fsm.js is at www.example.com/static/fsm.js then jsAddress would be http://www.example.com/static/
@@ -54,6 +57,7 @@ def setDirs():
 
 def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
     global deployDir
+    global questionList
  
     # Load in the question data for this questionSet
     os.chdir(startDir)
@@ -73,6 +77,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
 
     for question in data:
         print(question["filename"])
+        questionList.append(question["filename"])
         question["question-number"] = i
         i = i + 1
         variables = {
@@ -126,6 +131,13 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
     f.close()
     print("end.html")
 
+def writeQuestionList():
+    global questionList
+    global deployDir
+
+    os.chdir(deployDir)
+    with open('questionlist.json', 'w') as outfile:
+        json.dump(questionList, outfile, indent=4, separators=(',', ': '))
 
 if __name__ == "__main__":
 
@@ -212,8 +224,12 @@ if __name__ == "__main__":
     for f in files:
         shutil.copy(f, deployDir)
 
+    writeQuestionList()
+
     # Return to original directory.
     os.chdir(startDir)
+
+
 
 
 
