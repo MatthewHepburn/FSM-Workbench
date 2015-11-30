@@ -6,5 +6,9 @@
   {
   	"file":"inf1-revision.json",
   	"directory": "inf1-revision"
+  },
+  {
+  	"file":"inf1-revision solutions.json",
+  	"directory": "solutions"
   }
 ]
