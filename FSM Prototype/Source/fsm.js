@@ -1313,7 +1313,35 @@ var model = {
             model.selected.splice(model.selected.indexOf(node), 1);
         }
         display.toggleSelectedNode(id);
-    }
+    },
+    tokeniseString:function(s){
+        //Takes a string (assumed to be made up of one or more alphabet symbols) and returns a
+        // string with commas between the symbols
+        var regex = "";
+        regex = model.question.alphabet.reduce(function(regex, symbol){
+            if(symbol == "ε"){
+                return regex;
+            }
+            if(regex == ""){
+                return symbol;
+            } else{
+                return regex + "|" + symbol;
+            }
+        }, regex);
+        regex = new RegExp(regex);
+        var commadString = ""
+        // Reduce with side effects - probably a better way to do this
+        s.split("").reduce(function(string, char){
+            var newString = string + char;
+            if (regex.exec(newString) != null && regex.exec(newString)[0] == newString){
+                commadString += newString + ","
+                return ""
+            } else {
+                return newString;
+            }
+        }, "")
+        return commadString.substr(0, commadString.length - 1);
+    },
 };
 
 var query = {
@@ -1370,7 +1398,7 @@ var query = {
         return d;
 
     },
-    getPaths: function(node, input, string, pathLength, returnList){
+    getPaths: function(node, input, string, stringLength, pathLength, returnList){
         // Recursively find all accepted paths through the current fsm of length <= pathLength
         if (model.question.alphabetType == "char"){
             var newString = string
@@ -1378,20 +1406,26 @@ var query = {
                 newString += input;
             }
         } else {
-            alert("TODO - implement symbol type in checkAnswer.satisfyRegex");
-            return;
+            var newString = string
+            if (input != "ε"){
+                if (newString === ""){
+                    newString = input;
+                } else {
+                    newString += " " + input;
+                }
+            }
         }
         if (node.accepting){
             returnList.push(newString);
         }
 
-        if (newString.length == pathLength){
+        if (stringLength + 1 == pathLength){
             return returnList;
         }
         var links = query.getLinksFromNode(node);
         links.map(function(link){
             link.input.map(function(m){
-                returnList = returnList.concat(query.getPaths(link.target, m, JSON.parse(JSON.stringify(newString)), pathLength, []));
+                returnList = returnList.concat(query.getPaths(link.target, m, JSON.parse(JSON.stringify(newString)), stringLength +1, pathLength, []));
             });
         });
         return returnList;
@@ -2047,9 +2081,15 @@ var checkAnswer = {
         if (pathLength < minAcceptLength){
             pathLength = minAcceptLength;
         }
-        var paths = query.getPaths(query.getNodeData(0), "", "", pathLength, []);
+        var paths = query.getPaths(query.getNodeData(0), "", "", 0, pathLength, []);
         var errorFound = false;
-        paths.map(function(string){
+        paths.map(function(instring){
+            //Remove whitespace if question type is not char
+            if(model.question.alphabetType != "char"){
+                var string = instring.replace(/ /g, "");
+            } else {
+                var string = instring;
+            }
             if (errorFound){
                 return;
             }
@@ -2057,7 +2097,7 @@ var checkAnswer = {
                 if (string == ""){
                     displayFeedback("Incorrect - the machine accepts the empty string ('') which it should reject.");
                 } else{
-                    displayFeedback("Incorrect - the machine accepts the string '" + string + "' which it should reject.");
+                    displayFeedback("Incorrect - the machine accepts the string '" + instring + "' which it should reject.");
                 }
                 errorFound = true;
             }
@@ -2095,7 +2135,10 @@ var checkAnswer = {
                 var string = strings[length][k];
                 displayFeedback("Analysing " + string);
                 if (regex.exec(string) != null && regex.exec(string)[0] ==  string){
-                        //If the regex accepts the string, check the machine accepts it
+                    //If the regex accepts the string, check the machine accepts it
+                    if (model.question.alphabetType == "symbol"){
+                        string = model.tokeniseString(string)
+                    }
                     if (!model.accepts(model.parseInput(string))){
                         displayFeedback("Incorrect - the machine rejects the string '" + string + "' which it should accept.");
                         logging.sendAnswer(false);

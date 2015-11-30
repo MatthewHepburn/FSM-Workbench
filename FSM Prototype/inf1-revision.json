@@ -40,5 +40,19 @@
     "filename": "2013-Dec-5",
     "data-question": "{\"text\":\"<i>[From December 2013 exam - question 5.]</i><br> Design a deterministic finite state machine over the alphabet {0, 1, 2} which accepts only those strings which are <br>representations of <b>odd numbers</b> both in <b>base 3</b> and <b>base 4</b>. <br><br>The machine is fed the representation with the lowest-order digit first (i.e., it reads the number from <b>right to left</b>).<br>\",\"alphabetType\":\"char\",\"alphabet\":[\"0\",\"1\",\"2\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(0|2)(1(0|2|11)*1|(0|2|11))*\",\"minAcceptLength\":1,\"deterministic\":true,\"maxStates\":8}",
     "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "2013-Aug-5",
+    "data-question": "{\"text\":\"<i>[From August 2013 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(a*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(c|a*)\",\"minAcceptLength\":0,\"maxStates\":7}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "2013-Aug-6",
+    "data-question": "{\"text\":\"<i>[From August 2013 exam - question 6.]</i><br>The following is a description, in English, of the rules of a simple grammar:<br><br>A sentence consists of a conjunct followed by a verbphrase. A conjunct consists of either a nounphrase or, alternatively, a nounphrase<br>followed by the word “and” followed by a conjunct. A nounphrase consists of a determiner followed by a noun. A verbphrase consists<br>of either a verb or, alternatively, a verb followed by a conjunct. The word “bit” is the only verb. The words “cat” and “dog” are the only <br>nouns. The word “the” is the only determiner.<br><br>Examples of word sequences accepted by this grammar are:<ul><li>“the cat bit”.</li><li>“the cat and the cat bit”.</li><li>“the cat bit the dog”.</li><li>“the cat and the dog bit the dog”.</li><li>“the dog and the dog bit the dog and the cat”.</li></ul>Examples of word sequences <b>not</b> accepted by this grammar are:<ul><li>“the cat”.</li><li>“the rabbit and the dog bit the dog”.</li><li>“bit the cat”.</li></ul><br>Write a finite state acceptor for this grammar.\",\"alphabetType\":\"symbol\",\"alphabet\":[\"and\",\"bit\",\"cat\",\"dog\",\"the\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(the)(cat|dog)(and(the)(cat|dog))*(bit(the)(cat|dog)(and(the)(cat|dog))*|bit)\",\"minAcceptLength\":3,\"maxStates\":8}",
+    "data-options": "{}"
   }
 ]
