@@ -58,7 +58,7 @@ def setDirs():
 def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
     global deployDir
     global questionList
- 
+
     # Load in the question data for this questionSet
     os.chdir(startDir)
     with open(jsonFilename) as data_file:
@@ -148,10 +148,14 @@ if __name__ == "__main__":
             toDeploy = True
             break
     # Set the address global
-    setAddresses(toDeploy) 
+    setAddresses(toDeploy)
 
     # Set up the local directory globals
     setDirs()
+
+    # Create the deploy directory if it doesn't already exist:
+    if not os.path.isdir(deployDir):
+        os.mkdir(deployDir)
 
     # Load in the list of question files - which contains the filename of each question set's json file.
     with open('questionFiles.json') as data_file:
@@ -170,7 +174,7 @@ if __name__ == "__main__":
         buildQuestionSet(questionSet["file"], questionSet["directory"], question_template, end_template)
 
     #Return to deploy directory
-    os.chdir(deployDir)   
+    os.chdir(deployDir)
 
     # Output index.html
     variables = {"q1": "inf1/demo1-intro-to-fsm" + ".html"}
@@ -218,11 +222,17 @@ if __name__ == "__main__":
         for f in files:
             shutil.copy(f, deployDir)
 
-    #Regardless of minification, copy any html files present in source unaltered:
+    #Regardless of minification, copy any html files and the .htaccess file to the deploy directory:
     os.chdir(sourceDir)
-    files = [f for f in os.listdir(sourceDir) if f[-5:] == ".html"]
+    files = [f for f in os.listdir(sourceDir) if f[-5:] == ".html" or f == ".htaccess"]
     for f in files:
         shutil.copy(f, deployDir)
+
+    # Copy the img folder to the deploy directory
+    # First, the existing folder must be removed:
+    shutil.rmtree(os.path.join(deployDir, "img"), True)
+    shutil.copytree(os.path.join(sourceDir, "img"), os.path.join(deployDir, "img"))
+
 
     writeQuestionList()
 
