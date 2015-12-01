@@ -2,7 +2,12 @@ var data = {
     isLoaded: false,
     getData:function(){
         var xhr = new XMLHttpRequest();
-        xhr.open('get', "http://homepages.inf.ed.ac.uk/cgi/s1020995/getStats.cgi", true);
+        if (document.querySelector("body").dataset.dataaddress != undefined){
+            var url = document.querySelector("body").dataset.dataaddress
+        } else{
+            var url = "http://homepages.inf.ed.ac.uk/cgi/s1020995/getStats.cgi"
+        }
+        xhr.open('get', url, true);
         xhr.responseType = 'json';
         xhr.onload = function(){
             data.json = xhr.response;
