@@ -2,7 +2,7 @@ var data = {
     isLoaded: false,
     getData:function(){
         var xhr = new XMLHttpRequest();
-        if (document.querySelector("body").dataset.dataaddress != undefined){
+        if (document.querySelector("body").dataset.dataaddress){
             var url = document.querySelector("body").dataset.dataaddress
         } else{
             var url = "http://homepages.inf.ed.ac.uk/cgi/s1020995/getStats.cgi"
