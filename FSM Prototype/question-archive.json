@@ -62,5 +62,12 @@
     "data-question": "{\"text\":\"<i>[From August 2013 exam - question 6.]</i><br>The following is a description, in English, of the rules of a simple grammar:<br><br>A sentence consists of a conjunct followed by a verbphrase. A conjunct consists of either a nounphrase or, alternatively, a nounphrase<br>followed by the word “and” followed by a conjunct. A nounphrase consists of a determiner followed by a noun. A verbphrase consists<br>of either a verb or, alternatively, a verb followed by a conjunct. The word “bit” is the only verb. The words “cat” and “dog” are the only <br>nouns. The word “the” is the only determiner.<br><br>Examples of word sequences accepted by this grammar are:<ul><li>“the cat bit”.</li><li>“the cat and the cat bit”.</li><li>“the cat bit the dog”.</li><li>“the cat and the dog bit the dog”.</li><li>“the dog and the dog bit the dog and the cat”.</li></ul>Examples of word sequences <b>not</b> accepted by this grammar are:<ul><li>“the cat”.</li><li>“the rabbit and the dog bit the dog”.</li><li>“bit the cat”.</li></ul><br>Write a finite state acceptor for this grammar.\",\"alphabetType\":\"symbol\",\"alphabet\":[\"and\",\"bit\",\"cat\",\"dog\",\"the\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(the)(cat|dog)(and(the)(cat|dog))*(bit(the)(cat|dog)(and(the)(cat|dog))*|bit)\",\"minAcceptLength\":3,\"maxStates\":8}",
     "data-options": "{}",
     "filename": "2013-Aug-6-SOLUTION"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":4,\"px\":200,\"py\":250}]",
+    "data-links": "[{\"source\":0,\"target\":0,\"input\":[\"0\",\"1\"],\"id\":6}]",
+    "filename": "satisfy-regex-1-101-nfa",
+    "data-question": "{\"text\":\"Non-deterministic finite state machines are often easier to read than their deterministic equivalents. Consider the deterministic machine below, which accepts all strings from the alphabet {0,1} which end in 101:<br><img src=\\\"../img/101deterministic.png\\\" height='200'><br>Construct an <b>equivalent non-deterministic machine</b>. \",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(1|0)*101\",\"alphabet\":[\"1\",\"0\"],\"minAcceptLength\":3,\"deterministic\":false}",
+    "data-options": "{}"
   }
 ]
