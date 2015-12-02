@@ -2,29 +2,7 @@
 ############
 full_stats.json
 stats.json
-end.html
-give-list-1.html
-give-list-2.html
-give-list-3-cabbage-goat-wolf.html
-index.html
-satisfy-definition-1.html
-satisfy-list-1.html
-satisfy-list-2-vending-machine.html
-satisfy-list-3-tower-of-hanoi2.html
-satisfy-list-4-2010-resit.html
-satisfy-regex-1.html
-satisfy-regex-2.html
-select-states-1.html
-select-states-*.html
-satisfy-list-*.html
-give-list-*.html
-satisfy-regex-*.html
-satisfy-definition-*.html
-does-accept-*.html
-**/Deploy/*.css
-**/Deploy/*.js
-**/Deploy/*.html
-
+Deploy/
 
 
 # Compiled source #
