@@ -177,7 +177,8 @@ if __name__ == "__main__":
     os.chdir(deployDir)
 
     # Output index.html
-    variables = {"q1": "inf1/demo1-intro-to-fsm" + ".html"}
+    variables = {"ex1": "inf1/demo1-intro-to-fsm.html",
+                 "pp1": "inf1-revision/2014-Dec-5-a.html"}
     outputText = index_template.render(variables)
     f = open("index.html", "w")
     f.write(outputText)
