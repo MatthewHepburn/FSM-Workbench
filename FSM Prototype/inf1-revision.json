@@ -1,5 +1,12 @@
 [
   {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":198.64171822456493,\"y\":99.85444918133778,\"index\":1,\"weight\":2,\"px\":198.64172720834046,\"py\":99.8554393185821,\"fixed\":0,\"name\":\"0\"},{\"id\":2,\"accepting\":false,\"x\":350.1469151742008,\"y\":248.88350046391503,\"index\":2,\"weight\":2,\"px\":350.14691498561916,\"py\":248.8835029907318,\"fixed\":0,\"name\":\"2\"},{\"id\":3,\"accepting\":false,\"x\":500.3239494254122,\"y\":247.83173650552504,\"index\":3,\"weight\":2,\"px\":500.3239442629317,\"py\":247.8317287346816,\"fixed\":0,\"name\":\"3\"},{\"id\":4,\"accepting\":true,\"x\":650.5899894749676,\"y\":246.5807698361274,\"index\":4,\"weight\":1,\"px\":650.5889873443803,\"py\":246.58077817828894,\"fixed\":0,\"name\":\"4\"}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":0,\"input\":[\"b\"],\"id\":2},{\"source\":0,\"target\":2,\"input\":[\"a\"],\"id\":3},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":4},{\"source\":3,\"target\":4,\"input\":[\"b\"],\"id\":5}]",
+    "filename": "2014-Dec-5-a",
+    "data-question": "{\"text\":\"<i>[From December 2014 exam - question 5(a).]</i><br>Select the strings which are accepted by the NFA in the diagram.<br>(The start state is indicated by an arrow and the accepting state by a double border.)\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":false,\"type\":\"does-accept\",\"strList\":[\"abb\",\"abababaabb\",\"abababababb\"]}",
+    "data-options": "{}"
+  },
+  {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
     "data-links": "[]",
     "filename": "2014-Dec-5-d-i",
@@ -21,10 +28,17 @@
     "data-options": "{}"
   },
   {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":198.64171822456493,\"y\":99.85444918133778,\"index\":1,\"weight\":2,\"px\":198.64172720834046,\"py\":99.8554393185821,\"fixed\":0,\"name\":\"0\"},{\"id\":2,\"accepting\":false,\"x\":350.1469151742008,\"y\":248.88350046391503,\"index\":2,\"weight\":2,\"px\":350.14691498561916,\"py\":248.8835029907318,\"fixed\":0,\"name\":\"2\"},{\"id\":3,\"accepting\":false,\"x\":500.3239494254122,\"y\":247.83173650552504,\"index\":3,\"weight\":2,\"px\":500.3239442629317,\"py\":247.8317287346816,\"fixed\":0,\"name\":\"3\"},{\"id\":4,\"accepting\":true,\"x\":650.5899894749676,\"y\":246.5807698361274,\"index\":4,\"weight\":1,\"px\":650.5889873443803,\"py\":246.58077817828894,\"fixed\":0,\"name\":\"4\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":0,\"input\":[\"b\"],\"id\":2},{\"source\":0,\"target\":2,\"input\":[\"a\"],\"id\":3},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":4},{\"source\":3,\"target\":4,\"input\":[\"b\"],\"id\":5}]",
-    "filename": "2014-Dec-5-a",
-    "data-question": "{\"text\":\"<i>[From December 2014 exam - question 5(a).]</i><br>Select the strings which are accepted by the NFA in the diagram.<br>(The start state is indicated by an arrow and the accepting state by a double border.)\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":false,\"type\":\"does-accept\",\"strList\":[\"abb\",\"abababaabb\",\"abababababb\"]}",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "2013-Aug-5",
+    "data-question": "{\"text\":\"<i>[From August 2013 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(a*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(c|a*)\",\"minAcceptLength\":0,\"maxStates\":7}",
+    "data-options": "{}"
+  },
+  {
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
+    "data-links": "[]",
+    "filename": "2011-Aug-5",
+    "data-question": "{\"text\":\"<i>[From August 2011 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(ba*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(ba*|c)\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}"
   },
   {
@@ -39,20 +53,6 @@
     "data-links": "[]",
     "filename": "2013-Dec-5",
     "data-question": "{\"text\":\"<i>[From December 2013 exam - question 5.]</i><br> Design a deterministic finite state machine over the alphabet {0, 1, 2} which accepts only those strings which are <br>representations of <b>odd numbers</b> both in <b>base 3</b> and <b>base 4</b>. <br><br>The machine is fed the representation with the lowest-order digit first (i.e., it reads the number from <b>right to left</b>).<br>\",\"alphabetType\":\"char\",\"alphabet\":[\"0\",\"1\",\"2\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(0|2)(1(0|2|11)*1|(0|2|11))*\",\"minAcceptLength\":1,\"deterministic\":true,\"maxStates\":8}",
-    "data-options": "{}"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "2013-Aug-5",
-    "data-question": "{\"text\":\"<i>[From August 2013 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(a*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(c|a*)\",\"minAcceptLength\":0,\"maxStates\":7}",
-    "data-options": "{}"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "2011-Aug-5",
-    "data-question": "{\"text\":\"<i>[From August 2011 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(ba*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(ba*|c)\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}"
   }
 ]
