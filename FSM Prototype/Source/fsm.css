@@ -323,3 +323,13 @@ text.nodename {
 .demo-button {
     margin-right: 2px;
 }
+
+.maindiv {
+  float: left;
+  display: block;
+}
+
+.sidebar {
+  float: right;
+  display: inline-block;
+}

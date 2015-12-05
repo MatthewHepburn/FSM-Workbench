@@ -55,6 +55,20 @@ def setDirs():
     sourceDir = os.path.join(startDir, "Source")
     deployDir = os.path.join(startDir, "Deploy")
 
+def buildQuestionList(jsonData, dirName):
+    questions = []
+    i = 0;
+    for q in jsonData:
+        i = i + 1
+        questions.append({
+            "name" : q["name"],
+            "filename": q["filename"],
+            "question-number": i,
+            "url": q["filename"] + ".html"
+            })
+    return questions
+
+
 def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
     global deployDir
     global questionList
@@ -73,11 +87,12 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
         os.makedirs(dirName)
         os.chdir(dirName)
 
-    i = 1;
+    thisQuestionList = buildQuestionList(data, dirName)
+    questionList += thisQuestionList
 
+    i = 1
     for question in data:
         print(question["filename"])
-        questionList.append(question["filename"])
         question["question-number"] = i
         i = i + 1
         variables = {
@@ -86,7 +101,10 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
             "options": question["data-options"].replace("'","&apos;" ),
             "question": question["data-question"].replace("'","&apos;" ),
             "title": "FSM - Question #" + str(question["question-number"]),
-            "addresses": addresses
+            "addresses": addresses,
+            "showSidebar": True,
+            "questionList": thisQuestionList,
+            "url": question["filename"] + ".html"
         }
         # Set previous/next urls
         # NB - question numbering begins at 1.

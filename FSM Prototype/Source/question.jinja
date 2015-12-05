@@ -20,6 +20,7 @@
   data-options='{{ options }}'
   data-question = '{{ question }}'
   data-iconaddress = '{{ addresses.iconAddress }}'>
+  <div class="maindiv">
    <div class="menu">
       <a href="../index.html" class='pure-button'>Home</a>
       <a href="../about.html" class='pure-button'>About</a>
@@ -51,5 +52,17 @@
   <div class='survey'><a href="https://www.surveymonkey.com/r/L33JCRN">Take survey</a></div>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
   <script defer src="{{ addresses.jsAddress }}fsm.js"></script>
+  </div>
+  {% if showSidebar %}
+  <div class="sidebar">
+    {% for q in questionList %}
+      {% if q.url == url-%}
+        <a class="sidebar-thisq">{{ q.name }}</a><br>
+      {% else %}
+        <a href="{{ q.url }}" class="sidebar-otherq">{{ q.name }}</a><br>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
   </body>
 </html>
