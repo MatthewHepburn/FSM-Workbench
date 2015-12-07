@@ -234,8 +234,14 @@ def readRatings(filename):
     questionName = filename.split(" ")[1][:-4]
     if questionName not in urls:
         addToURLs(questionName)
-    total = urls[questionName]["totalRatings"]
-    yes =  urls[questionName]["yesRatings"]
+    if "totalRatings" in urls[questionName]:
+        total = urls[questionName]["totalRatings"]
+    else:
+        total = 0
+    if "yesRatings" in urls[questionName]:
+        yes =  urls[questionName]["yesRatings"]
+    else:
+        yes = 0
     for l in f:
         line = l.split("    ")
         userID = line[0][10:]
