@@ -2458,6 +2458,22 @@ var eventHandler = {
         logging.sendRating(rating);
         hasRated = true;
     },
+    resizeHandler: function(){
+    	console.log("RESIZE!")
+    	width = window.innerWidth, height = window.innerHeight;
+	    force.size([width, height]).resume();
+	    restart();
+
+	    // Reinstate draggable nodes if they are allowed by the current tool:
+	    if(global.toolsWithDragAllowed.indexOf(model.toolMode) != -1){
+	    	// Need to wait, otherwise this doesn't work
+	    	window.setTimeout(function(){
+		    	console.log("RESTART DRAG!")
+	            circle.call(force.drag);
+         	}, 300)
+	    }
+
+    },
     //Provides right-click functionality for states.
     stateContextMenu: function() {
         d3.event.preventDefault();
@@ -2488,7 +2504,7 @@ var eventHandler = {
         controller.renameSubmit();
 
         // Reinstate drag-to-move if previous mode did not allow it.
-        if(model.toolMode == "linetool"|| model.toolMode == "texttool" || model.toolMode == "acceptingtool" || model.toolMode == "deletetool" || model.toolMode == "nodetool"){
+        if(global.toolsWithDragAllowed.indexOf(model.toolMode) != -1){
             circle.call(force.drag);
         }
         // If current mode is the same as the new mode, deselect it:
@@ -3185,6 +3201,9 @@ function init(){
       isActive = false;
     };
 
+    eventHandler.resizeHandler();
+    d3.select(window).on("resize", eventHandler.resizeHandler);
+
     //Start demo mode if needed once everything has loaded:
     if(model.question.type == "demo"){
         display.showTrace("");
@@ -3194,7 +3213,13 @@ function init(){
     // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
     logging.sendInfo();
     setInterval(logging.sendInfo, 120000);
+}
 
+global = {
+	// Not certain if this is a good idea - object to hold global vars
+	// Some globals useful to avoid keeping duplicated code in sync - this seems like
+	// a more readable way of doing that than scattering global vars throughout the codebase
+	"toolsWithDragAllowed": ["none"]
 }
 
 init();

@@ -10,6 +10,11 @@ svg {
   user-select: none;
 }
 
+svg#main-svg {
+    width: 78%;
+    height: 70%;
+}
+
 body {
   margin-left: 15px;
   margin-top: 2px;
@@ -324,12 +329,16 @@ text.nodename {
     margin-right: 2px;
 }
 
+$sidebar-width: 20%;
+
 .maindiv {
-  float: left;
-  display: block;
+   margin-right: $sidebar-width;
+   float: left;
+   width: 80%;
 }
 
 .sidebar {
-  float: right;
-  display: inline-block;
+  box-sizing: border-box;
+  padding-left: 20px;
+  width: $sidebar-width;
 }
