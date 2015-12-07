@@ -1174,6 +1174,22 @@ var model = {
         return true;
 
     },
+    resizePosition:function(newWidth, newHeight){
+    	var xScale = d3.scale.linear().domain([0,global.lastWidth]).range([0,newWidth]).clamp([true]);
+    	var yScale = d3.scale.linear().domain([0,global.lastHeight]).range([0,newHeight]).clamp([true]);
+    	var repositionNode = function(node){
+    		node.x = xScale(node.x);
+    		node.px = node.x;
+    		node.y = yScale(node.y);
+    		node.py = node.y;
+    		return node;
+    	}
+    	model.nodes.map(repositionNode);
+    	global.lastWidth = newWidth;
+    	global.lastHeight = newHeight;
+    	console.log("positions scaled!");
+
+    },
     setMaxIDs: function(){
         // Set lastNodeID:
         var maxNodeID = 0;
@@ -2460,8 +2476,10 @@ var eventHandler = {
     },
     resizeHandler: function(){
     	console.log("RESIZE!")
-    	width = window.innerWidth, height = window.innerHeight;
+    	width = 0.78 *window.innerWidth, height = 0.7 * window.innerHeight;
+    	svg.attr("width", width).attr("height", height);
 	    force.size([width, height]).resume();
+	    model.resizePosition(width, height);
 	    restart();
 
 	    // Reinstate draggable nodes if they are allowed by the current tool:
@@ -3219,7 +3237,9 @@ global = {
 	// Not certain if this is a good idea - object to hold global vars
 	// Some globals useful to avoid keeping duplicated code in sync - this seems like
 	// a more readable way of doing that than scattering global vars throughout the codebase
-	"toolsWithDragAllowed": ["none"]
+	"toolsWithDragAllowed": ["none"],
+	"lastWidth": 960,
+	"lastHeight": 500
 }
 
 init();
