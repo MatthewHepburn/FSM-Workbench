@@ -363,6 +363,7 @@ var display = {
         if (!model.question.isTransducer){
             return;
         }
+        var width = display.getWidth();
         var charWidth = 8; // Rough estimate
         var x = width/2 - (model.currentOutput.length * charWidth /2);
         var y = 100;
