@@ -196,12 +196,15 @@ var display = {
             .attr("stop-opacity", 0.1)
     },
     drawTraceControls: function(){
+    	var iconAddress = document.querySelector("body").dataset.iconaddress
         var bwidth = 40; //button width
         var strokeWidth = 2;
         var margin = 10;
         var g = svg.append("g")
                     .classed("tracecontrols", true);
         var tools = ["rewind", "back", "forward", "stop"];
+        var width = display.getWidth();
+        var height = display.getHeight();
         // create a button for each tool in tools
         for (var i = 0; i < tools.length; i++){
             g.append("image")
@@ -209,7 +212,7 @@ var display = {
                 .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + 0.5 * margin + (i * bwidth))
                 .attr("width", bwidth - margin)
                 .attr("height", bwidth - margin)
-                .attr("xlink:href", "img/Icons/trace-"+ tools[i] +".svg")
+                .attr("xlink:href", iconAddress +"trace-"+ tools[i] +".svg")
                 .attr("class", "control-img");
             g.append("rect")
                 .attr("width", bwidth)
@@ -310,6 +313,7 @@ var display = {
         var y = 70;
         var charWidth = 32; // Rough estimate
         var inWidth = totalInputLength * charWidth;
+        var width = document.querySelector("#main-svg").width.baseVal.value;
         var x = width/2 - (inWidth/2);
         for (i = 0; i < model.fullInput.length; i++){
             g.append("text")
@@ -488,6 +492,14 @@ var display = {
                 rotation: angle
             };
         }
+    },
+    getWidth: function () {
+    	// Returns the width of the main svg container
+    	return global.mainSVG.width.baseVal.value;
+    },
+    getHeight: function () {
+    	// Returns the width of the main svg container
+    	return global.mainSVG.height.baseVal.value;
     },
     hideConsumedInput: function(){
         //Helper function for the trace display.
@@ -3263,7 +3275,8 @@ global = {
 	// a more readable way of doing that than scattering global vars throughout the codebase
 	"toolsWithDragAllowed": ["none"],
 	"lastWidth": 960,
-	"lastHeight": 500
+	"lastHeight": 500,
+	"mainSVG": document.querySelector("#main-svg")
 }
 
 init();
