@@ -102,7 +102,7 @@ var display = {
             var html = "<table id = 'does-accept-table'><tbody>";
             for (i = 0; i < model.question.strList.length; i++){
                 str = model.question.strList[i];
-                html += '<tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="' + str + '">' + str + '</td><td class="table-space"> </td><td id="feedback-'+ i +'"></td></tr>';
+                html += "<tr class='does-accept-cb'><td><input class='does-accept-cb' type='checkbox' value='" + str + "'>" + str + "</td><td class='table-space'> </td><td id='feedback-" + i +"'></td></tr>";
             }
             html += "</tbody></table>";
             document.querySelector(".question-text").insertAdjacentHTML("afterEnd", html);
@@ -284,15 +284,15 @@ var display = {
     dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
         d3.select(".context-menu-holder").remove();
-        contextMenuShowing = false;
+        global.contextMenuShowing = false;
     },
     dismissRenameMenu: function() {
         d3.select(".rename").remove();
-        renameMenuShowing = false;
+        global.renameMenuShowing = false;
     },
     drawInput: function(){
         // Displays the current input, used to draw the trace.
-        var g = svg.append("g")
+        var g = global.mainSVG.append("g")
             .attr("class", "machine-input");
         if (model.question.type != "demo" && config.useColouredLettersInTrace){
             //use coloured letters
@@ -303,7 +303,7 @@ var display = {
             }
         } else {
             //Only use black letters
-            display.colour = d3.scale.ordinal().domain(["#000000"])
+            display.colour = d3.scale.ordinal().domain(["#000000"]);
         }
         var totalInputLength = 0; //No need to account for spaces
         for (var i = 0; i < model.fullInput.length; i++){
@@ -342,20 +342,20 @@ var display = {
         //Create Div if not already there
         if (document.querySelector(".rightinput") == null){
             d3.select("body")
-              .insert("div", '#main-svg + *')
+              .insert("div", "#main-svg + *")
               .classed("rightinput", true)
               .style("display","inline-block")
-              .style("vertical-align", "top")
+              .style("vertical-align", "top");
             d3.select("#main-svg")
-              .style("display", "inline")
+              .style("display", "inline");
         }
-        var html = ""
-        var input = model.fullInput.split(",")
+        var html = "";
+        var input = model.fullInput.split(",");
         for (var i = 0; i< input.length; i++){
-            html += "<p class='rightinput'>" + input[i] + "</p>"
+            html += "<p class='rightinput'>" + input[i] + "</p>";
         }
         d3.select(".rightinput")
-          .html(html)
+          .html(html);
     },
     drawOutput: function(){
         //Draw the output of the machine if it is a transducer
@@ -366,19 +366,19 @@ var display = {
         var charWidth = 8; // Rough estimate
         var x = width/2 - (model.currentOutput.length * charWidth /2);
         var y = 100;
-        var g = svg.append("g")
-        .classed("machine-output", true)
-        .append("text")
+        global.mainSVG.append("g")
+            .classed("machine-output", true)
+            .append("text")
             .text(model.currentOutput)
             .attr("id", "output")
             .attr("x", x)
-            .attr("y", y)
+            .attr("y", y);
     },
     drawStart: function(x, y) {
         var length = 200;
         var start = String((x - length) + "," +y);
         var end = String(x + "," + y);
-        svg.append("svg:path")
+        global.mainSVG.append("svg:path")
             .attr("class", "link start")
             .attr("d", "M" + start + " L" + end);
 
@@ -517,16 +517,16 @@ var display = {
         }
         //Unhide any symbols that have not been consumed
         for(var j = charsConsumed; j<model.fullInput.length; j++){
-            var symbol = d3.select("#in"+j)
+            var symbol = d3.select("#in"+j);
             if (symbol.classed("ishidden")){
                 symbol.transition()
                     .duration(50)
                     .attr("transform", "translate(0, 0)");
                 symbol.classed("ishidden", false)
-                      .classed("dim", false)
+                      .classed("dim", false);
             }
             d3.select("#in-comma" + i)
-                .classed("dim", false)
+                .classed("dim", false);
         }
     },
     highlightLinks: function(linkIDs){
@@ -558,8 +558,8 @@ var display = {
 
         var P1 = x1 + "," + y1;
 
-        var x2 = x
-        var y2 = y - 22.9129 - 20
+        var x2 = x;
+        var y2 = y - 22.9129 - 20;
         var x3 = x + 10;
         var y3 = y1;
 
@@ -575,10 +575,10 @@ var display = {
 
     },
     renameLinkForm: function(id) {
-        if (renameMenuShowing) {
+        if (global.renameMenuShowing === true) {
             display.dismissRenameMenu();
         }
-        if (traceInProgress){
+        if (global.traceInProgress){
             controller.endTrace();
         }
         //Get the data associated with the link
@@ -596,51 +596,50 @@ var display = {
 
         if (config.displayConstrainedLinkRename){
             // Draw a rename form with checkboxes
-            var alphabet = model.question.alphabet
+            var alphabet = model.question.alphabet;
             //'lcon' for link-constrained:
-            var html = '<form class="renameinput checkboxrename" action="" id = lcon' + id + '>'
+            var html = "<form class='renameinput checkboxrename' action='' id = lcon" + id + ">";
             var isChecked;
             var outChar;
             for (var i = 0; i < alphabet.length; i++){
-                isChecked = d.input.indexOf(alphabet[i]) != -1
-
-                html += '<input type="checkbox" name="input" value="' + alphabet[i] + '"'
+                isChecked = d.input.indexOf(alphabet[i]) != -1;
+                html += "<input type='checkbox' name='input' value='" + alphabet[i] + "'";
                 if (isChecked){
-                    html += "checked"
+                    html += "checked";
                 }
-                html += '>' + alphabet[i]
+                html += ">" + alphabet[i];
                 if (model.question.isTransducer){
-                    var currentOut = query.getOutput(d, alphabet[i])
-                    html += ' <select id="out-' + alphabet[i] + '"><option value="">No Output</option>'
+                    var currentOut = query.getOutput(d, alphabet[i]);
+                    html += " <select id='out-" + alphabet[i] + "'><option value=''>No Output</option>";
                     for (var j = 0; j < model.question.outAlphabet.length; j++){
-                        outChar = model.question.outAlphabet[j]
+                        outChar = model.question.outAlphabet[j];
                         if (outChar == currentOut){
-                            html += '<option selected="selected" value="' + outChar +'">' + outChar + '</option>'
+                            html += "<option selected='selected' value='" + outChar +"'>" + outChar + "</option>";
                         }else{
-                            html += '<option value="' + outChar +'">' + outChar + '</option>'
+                            html += "<option value='" + outChar +">" + outChar + "</option>";
                         }
 
                     }
-                    html += "</select><br>"
+                    html += "</select><br>";
                 }else{
-                    html += '<br>'
+                    html += "<br>";
                 }
             }
-            html += '<a class="pure-button" id="constrainedrenamesubmit">OK</a></form>'
+            html += "<a class='pure-button' id='constrainedrenamesubmit'>OK</a></form>";
 
-            svg.append("foreignObject")
+            global.mainSVG.append("foreignObject")
                 .attr("width", 300)
                 .attr("height", 35 + 22 * alphabet.length)
                 .attr("x", formX - 40)
                 .attr("y", formY)
                 .attr("class", "rename")
                 .append("xhtml:body")
-                .html(html)
-            document.getElementById("constrainedrenamesubmit").addEventListener("click", controller.renameSubmit)
+                .html(html);
+            document.getElementById("constrainedrenamesubmit").addEventListener("click", controller.renameSubmit);
 
         } else {
             // create a text field over the targeted node
-            svg.append("foreignObject")
+            global.mainSVG.append("foreignObject")
                 .attr("width", 80)
                 .attr("height", 50)
                 .attr("x", formX)
@@ -653,11 +652,11 @@ var display = {
             document.getElementById("ltxt" + id).focus();
         }
 
-        renameMenuShowing = true;
+        global.renameMenuShowing = true;
         display.dismissContextMenu();
     },
     renameStateForm: function(id) {
-        if (renameMenuShowing) {
+        if (global.renameMenuShowing === true) {
             display.dismissRenameMenu();
         }
         var d = query.getNodeData(id);
@@ -666,7 +665,7 @@ var display = {
             currentName = "";
         }
         // create a form over the targeted node
-        svg.append("foreignObject")
+        global.mainSVG.append("foreignObject")
             .attr("width", 80)
             .attr("height", 50)
             .attr("x", d.x + 30)
@@ -678,7 +677,7 @@ var display = {
         // give form focus
         document.getElementById("node" + id).focus();
 
-        renameMenuShowing = true;
+        global.renameMenuShowing = true;
         display.dismissContextMenu();
     },
     resetTrace: function(){
@@ -718,7 +717,7 @@ var display = {
         // Takes input in form ['a', 'b', 'c']
         controller.endTrace();
         model.question.editable = false;
-        traceInProgress = true;
+        global.traceInProgress = true;
         model.fullInput = JSON.parse(JSON.stringify(input));
         model.resetTrace();
         d3.selectAll(".node").classed("dim", true);
@@ -745,11 +744,11 @@ var display = {
         var i = model.currentStep + 1;
         if (!backward){
             if (model.currentInput.length != 0 && model.currentStates.length != 0){
-                var linksUsed = model.step()
-                display.highlightLinks(linksUsed)
+                var linksUsed = model.step();
+                display.highlightLinks(linksUsed);
                 // If the input has now been rejected shake the rejected symbol and then stop here.
                 if (model.currentStates.length == 0){
-                    var x = document.querySelector("#in"+(i-1)).getBBox().x
+                    var x = document.querySelector("#in"+(i-1)).getBBox().x;
                     d3.select("#in" + (i-1))
                         .classed("rejected", true)
                         .transition()
@@ -765,8 +764,8 @@ var display = {
                                         .transition()
                                         .duration(100)
                                         .attr("x", x);
-                                })
-                        })
+                                });
+                        });
                     return;
                 }
                 model.traceRecord[model.currentStep] = {
@@ -779,7 +778,7 @@ var display = {
                 }
             }
             else {
-                traceInProgress = false;
+                global.traceInProgress = false;
                 return;
             }
         }
@@ -789,8 +788,8 @@ var display = {
             }
             var record = model.traceRecord[model.currentStep];
             model.currentStates = record.states;
-            var linksUsed = record.linkIDs
-            display.highlightLinks(linksUsed)
+            linksUsed = record.linkIDs;
+            display.highlightLinks(linksUsed);
             d3.select("#in-comma" + (i-1))
                 .classed("dim", true);
             for (var j = i-1; j >= 0; j--){
@@ -834,7 +833,7 @@ var display = {
                 .classed("dim", true);
             d3.select("#in" + i).classed("highlight", true);
         } else {
-            var element = d3.select("#in" + (i - 1))
+            var element = d3.select("#in" + (i - 1));
             element.classed("dim", false)
                    .classed("highlight", false)
                    .attr("transform", "translate(0, 0)");
@@ -847,7 +846,7 @@ var display = {
         if (config.responsiveResize){
             var widthPercent = String((config.widthFraction * 100) + "%");
             var heightPercent = String((config.heightPercent * 100) + "%");
-            d3.select("#main-svg").style("width", widthPercent).style("height", heightPercent)
+            d3.select("#main-svg").style("width", widthPercent).style("height", heightPercent);
         }
     },
     showNextButton: function(){
@@ -855,7 +854,7 @@ var display = {
             return;
         }
         var nextURL = document.getElementById("nav-next").href;
-        var checkButton = document.getElementById("check-button")
+        var checkButton = document.getElementById("check-button");
         var buttonHTML = "<a href='" + nextURL + "' class= 'extra-next";
         // Copy classes of check button, as some question types use different display methods
         // TODO - standardise this: make all use a button-div?
@@ -863,7 +862,7 @@ var display = {
             buttonHTML += " " + checkButton.classList[i];
         }
         buttonHTML += "'>Next</a>";
-        var siblings = checkButton.parentNode.children
+        var siblings = checkButton.parentNode.children;
         var lastSibling = siblings[siblings.length - 1];
         lastSibling.insertAdjacentHTML("afterend",buttonHTML);
 
@@ -875,12 +874,12 @@ var display = {
         } else {
             var labelString = "";
             for (var i = 0; i < link.input.length; i++) {
-                var inchar = link.input[i]
+                var inchar = link.input[i];
                 if (model.question.isTransducer){
-                    var outchar = ""
+                    var outchar = "";
                     for (var j = 0; j < link.output.length; j++){
                         if (link.output[j][0] == inchar){
-                            var outchar = ":" + link.output[j][1];
+                            outchar = ":" + link.output[j][1];
                             break;
                         }
                     }
@@ -894,8 +893,8 @@ var display = {
 
     },
     updateLinkLabel:function(linkID){
-        label = svg.select("#linklabel" + linkID);
-        label.text(function(d) {return display.linkLabelText(d)});
+        var label = global.mainSVG.select("#linklabel" + linkID);
+        label.text(function(d) {return display.linkLabelText(d);});
     },
     updateTrace: function(){
         display.highlightLinks(model.linksUsed);
@@ -947,21 +946,21 @@ var model = {
         if (model.editable == false){
             return;
         }
-        if (traceInProgress){
+        if (global.traceInProgress){
             controller.endTrace();
         }
         for (var i = 0; i < model.links.length; i++){
             if (model.links[i].id == id){
                 model.links.splice(i, 1);
-                selected_link = null;
+                global.mousevars.selected_link = null;
                 d3.select("#linklabel"+id).remove();
                 d3.select("#linkpad" + id).remove();
-                linkLabels.exit().remove();
+                global.linkLabels.exit().remove();
                 restart();
                 return;
             }
         }
-        model.setMaxIDs()
+        model.setMaxIDs();
 
     },
     deleteNode: function(id){
@@ -969,7 +968,7 @@ var model = {
         if (model.editable == false || id == 0){
             return;
         }
-        if (traceInProgress){
+        if (global.traceInProgress){
             controller.endTrace();
         }
         var node = query.getNodeData(id);
@@ -982,8 +981,8 @@ var model = {
         for (var j = 0; j < toSplice.length; j++){
             model.deleteLink(toSplice[j].id);
         }
-        selected_node = null;
-        model.setMaxIDs()
+        global.mousevars.selected_node = null;
+        model.setMaxIDs();
         restart();
     },
     doEpsilonTransitions: function(){
@@ -1010,13 +1009,13 @@ var model = {
                 }
             }
         }
-        model.linksUsed = model.linksUsed.concat(linkIDs)
-        return linkIDs
+        model.linksUsed = model.linksUsed.concat(linkIDs);
+        return linkIDs;
 
     },
     generateDefinition: function(){
         //Outputs a formal definition of the current model, in the form used by satisfy-definition questions.
-        var definition={}
+        var definition = {};
         var nodes = [];
         for (var i = 0; i < model.nodes.length; i++){
             if (model.nodes[i] == undefined){
@@ -1049,7 +1048,7 @@ var model = {
                 links.push(thisLink);
             }
         }
-        definition.links = links
+        definition.links = links;
         /*eslint-disable */
         console.log(JSON.stringify(JSON.stringify(definition)));
         /*eslint-enable */
@@ -2269,19 +2268,19 @@ var eventHandler = {
         }
 
         // Dismiss context menu if it is present
-        if (contextMenuShowing) {
+        if (global.contextMenuShowing == false) {
             display.dismissContextMenu();
             return;
         }
 
         // because :active only works in WebKit?
-        svg.classed("active", true);
+        // TODO - work out what this does/if it is needed
+        global.mainSVG.classed("active", true);
 
-        if (d3.event.button != 0 || mousedown_node || mousedown_link) return;
-
+        if (d3.event.button != 0 || global.mousevars.mousedown_node || global.mousevars.mousedown_link) return;
 
         // If rename menu is showing, submit it if config allows.
-        if (renameMenuShowing) {
+        if (global.renameMenuShowing) {
             if (config.submitRenameOnBGclick){
                 controller.renameSubmit()
             }
@@ -2387,7 +2386,7 @@ var eventHandler = {
                 .attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + mousedown_node.x + "," + mousedown_node.y);
             restart();
         } else if (eventType == "mouseup") {
-            if (!mousedown_node || (d3.event.button != 0 && d3.event.button != undefined)) return;
+            if (!global.mousevars.mousedown_node || (d3.event.button != 0 && d3.event.button != undefined)) return;
 
             // needed by FF
             drag_line
@@ -2396,14 +2395,14 @@ var eventHandler = {
 
             // Extract target for touch events
             if(d3.event.button == 0){
-                mouseup_node = d;
+                global.mousevars.mouseup_node = d;
             } else {
                 var touch = d3.event.changedTouches[0];
                 var elem = document.elementFromPoint(touch.clientX, touch.clientY);
                 if (!elem.classList.contains("node")){
                     return;
                 } else {
-                    mouseup_node = query.getNodeData(elem.id);
+                    global.mousevars.mouseup_node = query.getNodeData(elem.id);
                 }
             }
 
@@ -2417,8 +2416,8 @@ var eventHandler = {
             // add link to graph (update if exists)
             // NB: links are strictly source < target; arrows separately specified by booleans
             var source, target;
-            source = mousedown_node;
-            target = mouseup_node;
+            source = global.mousevars.mousedown_node;
+            target = global.mousevars.mouseup_node;
 
             //Check if link already exists. Create it if it doesn't.
             var link;
@@ -2441,14 +2440,14 @@ var eventHandler = {
             }
 
             // select new link
-            selected_link = link;
-            selected_node = null;
-            force.start();
+            global.mousevars.selected_link = link;
+            global.mousevars.selected_node = null;
+            global.force.start();
             restart();
         }
     },
     createNode: function(){
-        if(traceInProgress){
+        if(global.traceInProgress){
             return;
         }
         // insert new node at point
@@ -2463,7 +2462,7 @@ var eventHandler = {
             node.fixed = true;
         }
         model.nodes.push(node);
-        force.start();
+        global.force.start();
         restart();
         return;
     },
@@ -2472,7 +2471,7 @@ var eventHandler = {
         d3.event.preventDefault();
 
         //If menu already present, dismiss it.
-        if (contextMenuShowing) {
+        if (global.contextMenuShowing) {
             display.dismissContextMenu();
         }
         if (id == undefined){
@@ -2480,16 +2479,16 @@ var eventHandler = {
             id = d3.event.target.id.slice(4);
         }
 
-        var canvas = svg;
-        contextMenuShowing = true;
-        var mousePosition = d3.mouse(svg.node());
+        var canvas = global.mainSVG;
+        global.contextMenuShowing = true;
+        var mousePosition = d3.mouse(global.mainSVG.node());
 
         display.createLinkContextMenu(canvas, id, mousePosition);
 
     },
     rate: function() {
         var rating;
-        if (hasRated){
+        if (global.hasRated){
             return;
         }
         // Event handeler for the question-rating buttons
@@ -2504,7 +2503,7 @@ var eventHandler = {
             .style("opacity", "0.1")
             .remove();
         logging.sendRating(rating);
-        hasRated = true;
+        global.hasRated = true;
     },
     resizeHandler: function(){
         console.log("RESIZE!")
@@ -2582,14 +2581,10 @@ var eventHandler = {
             return;
         }
         if (button == "back"){
-            if (!tracePlaying){
-                controller.traceBackward();
-            }
+            controller.traceBackward();
         }
         if (button == "forward"){
-            if (!tracePlaying){
-                controller.traceForward();
-            }
+            controller.traceForward();
         }
         if (button == "play"){
             model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
@@ -2822,23 +2817,23 @@ function tick() {
 
 // update graph (called when needed)
 function restart() {
-    var colors = global.colours;
+    var colours = global.colours;
 
     // path (link) group
-    path = path.data(model.links, function(d){return d.id;});
+    global.path = global.path.data(model.links, function(d){return d.id;});
 
     // update existing links
-    path.classed("selected", function(d) {
-            return d === selected_link;
-        })
-        .style("marker-mid", "url(#end-arrow)");
+    global.path.classed("selected", function(d) {
+        return d === global.mousevars.selected_link;
+    })
+    .style("marker-mid", "url(#end-arrow)");
 
     // add new links
-    var newLinks = path.enter();
+    var newLinks = global.path.enter();
     newLinks.append("svg:path")
         .attr("class", "link")
         .classed("selected", function(d) {
-            return d === selected_link;
+            return d === global.mousevars.selected_link;
         })
         .style("marker-mid", "url(#end-arrow)")
         .on("mousedown", function(d) {
@@ -2860,29 +2855,29 @@ function restart() {
 
 
     // remove old links
-    path.exit().remove();
+    global.path.exit().remove();
 
 
     // circle (node) group
-    // NB: the function arg is crucial here! nodes are known by id, not by index!
-    circle = circle.data(model.nodes, function(d) {
+    // NB: the function arg is needed here - nodes are known by id, not by index!
+    global.circle = global.circle.data(model.nodes, function(d) {
         return d.id;
     });
 
     // update existing nodes (accepting & selected visual states)
-    circle.selectAll("circle")
+    global.circle.selectAll("circle")
         .style("fill", function(d) {
-            return (d === selected_node) ? d3.rgb(global.colors(d.id)).brighter().toString() : colors(d.id);
+            return (d === global.mousevars.selected_node) ? d3.rgb(colours(d.id)).brighter().toString() : colours(d.id);
         })
         .classed("accepting", function(d) {
             return d.accepting;
-        })
+        });
 
     // Add link labels
-    linkLabels = linkLabels.data(model.links, function(d){
+    global.linkLabels = global.linkLabels.data(model.links, function(d){
         return d.id;
     });
-    linkLabels.enter().append("svg:text")
+    global.linkLabels.enter().append("svg:text")
         .text((function(d) {return display.linkLabelText(d);}))
         .attr("class", "linklabel")
         .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
@@ -2894,16 +2889,16 @@ function restart() {
         });
 
     // add new nodes
-    var g = circle.enter().append("svg:g");
+    var g = global.circle.enter().append("svg:g");
 
     g.append("svg:circle")
         .attr("class", "node")
         .attr("r", display.nodeRadius)
         .style("fill", function(d) {
-            return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id);
+            return (d === global.mousevars.selected_node) ? d3.rgb(colours(d.id)).brighter().toString() : colours(d.id);
         })
         .style("stroke", function(d) {
-            return d3.rgb(colors(d.id)).darker().toString();
+            return d3.rgb(colours(d.id)).darker().toString();
         })
         .classed("accepting", function(d) {
             return d.accepting;
@@ -2957,9 +2952,8 @@ function restart() {
         });
 
 
-
     // remove old nodes
-    circle.exit().remove();
+    global.circle.exit().remove();
 
     // add listeners
     d3.selectAll(".node")
@@ -2983,8 +2977,8 @@ function JSONcopy(a){
 
 
 function mousemove() {
-    if (!mousedown_node) return;
-
+    if (!global.mousevars.mousedown_node) return;
+    var mousedown_node = global.mousevars.mousedown_node;
     d3.event.preventDefault();
 
     // update drag line
@@ -2994,7 +2988,7 @@ function mousemove() {
 }
 
 function mouseup() {
-    if (mousedown_node) {
+    if (global.mousevars.mousedown_node) {
         // hide drag line
         drag_line
             .classed("hidden", true)
@@ -3002,20 +2996,13 @@ function mouseup() {
     }
 
     // because :active only works in WebKit?
-    svg.classed("active", false);
+    // TODO - work out what this does
+    global.mainSVG.classed("active", false);
 
     // clear mouse event vars
     resetMouseVars();
 }
 
-function spliceLinksForNode(node) {
-    var toSplice = model.links.filter(function(l) {
-        return (l.source === node || l.target === node);
-    });
-    toSplice.map(function(l) {
-        model.links.splice(model.links.indexOf(l), 1);
-    });
-}
 
 // only respond once per keydown
 var lastKeyDown = -1;
@@ -3029,47 +3016,16 @@ function keydown() {
     //return / enter
     if (d3.event.keyCode == 13) {
         //Call the rename handler if there is a rename menu showing.
-        if (renameMenuShowing) {
+        if (global.renameMenuShowing) {
             controller.renameSubmit();
         }
     }
 
     // ctrl
     if (d3.event.keyCode === 17) {
-        circle.call(force.drag);
-        svg.classed("ctrl", true);
+        global.mainSVG.circle.call(global.force.drag);
+        global.mainSVG.classed("ctrl", true);
     }
-
-    // if (!selected_node && !selected_link) return;
-    // switch (d3.event.keyCode) {
-    // case 8: // backspace
-    // case 46: // delete
-    //     // Do nothing if the rename menu is open
-    //     if (renameMenuShowing) {
-    //         break;
-    //     }
-    //     if (selected_node) {
-    //         model.nodes.splice(model.nodes.indexOf(selected_node), 1);
-    //         spliceLinksForNode(selected_node);
-    //     } else if (selected_link) {
-    //         model.deleteLink(selected_link.id);
-    //     }
-    //     selected_link = null;
-    //     selected_node = null;
-    //     restart();
-    //     break;
-    // case 82: // R
-    //     if (selected_node) {
-    //         // toggle whether node is accepting
-    //         selected_node.accepting = !selected_node.accepting;
-    //     } else if (selected_link) {
-    //         // set link direction to right only
-    //         selected_link.left = false;
-    //         selected_link.right = true;
-    //     }
-    //     restart();
-    //     break;
-    // }
 }
 
 function keyup() {
@@ -3077,10 +3033,10 @@ function keyup() {
 
     // ctrl
     if (d3.event.keyCode === 17) {
-        circle
+        global.circle
             .on("mousedown.drag", null)
             .on("touchstart.drag", null);
-        svg.classed("ctrl", false);
+        global.mainSVG.classed("ctrl", false);
     }
 }
 
@@ -3182,13 +3138,11 @@ function init(){
     // set up SVG for D3
     var width = config.displayWidth;
     var height = config.displayHeight;
-    var colors = global.colours;
-
-    svg = d3.select("#main-svg")
+    var svg = d3.select("#main-svg");
 
 
     // init D3 force layout
-    force = d3.layout.force()
+    global.force = d3.layout.force()
         .nodes(model.nodes)
         .links(model.links)
         .size([width, height])
@@ -3198,26 +3152,13 @@ function init(){
         .gravity(0.00)//gravity is attraction to the centre, not downwards.
         .on("tick", tick);
 
+
     // line displayed when dragging new nodes
-    drag_line = svg.append("svg:path")
+    global.dragline
         .attr("class", "link dragline hidden")
         .attr("d", "M0,0L0,0");
 
-    // handles to link and node element groups
-    path = svg.append("svg:g").attr("id", "paths").selectAll("path"),
-        circle = svg.append("svg:g").selectAll("g"),
-        linkLabels = svg.selectAll(".linklabel");
-
-
-    // mouse event vars
-    selected_node = null,
-    selected_link = null,
-    mousedown_link = null,
-    mousedown_node = null,
-    mouseup_node = null;
-
     model.setupQuestion();
-    traceInProgress = false;
 
     if (model.editable){
         display.drawControlPalette();
@@ -3230,28 +3171,28 @@ function init(){
     d3.select(window)
         .on("keydown", keydown)
         .on("keyup", keyup);
-    contextMenuShowing = false;
-    renameMenuShowing = false;
+
     restart();
-    force.start();
-    circle.call(force.drag);
+    global.force.start();
+    global.circle.call(global.force.drag);
+
     // Add a start arrow to node 0
-    node0 = d3.select("[id='0']").data()[0];
-    tracePlaying = false;
+    var node0 = d3.select("[id='0']").data()[0];
     display.drawStart(node0.x, node0.y);
+
     // Add event listener to the rate buttons
     d3.selectAll(".rate-button").on("click", eventHandler.rate);
-    hasRated = false;
+
     global.pageLoaded = true;
     // Keep track of whether the tab is active, for logging purposes
-    isActive = true;
+    global.isActive = true;
 
     window.onfocus = function () {
-      isActive = true;
+        global.isActive = true;
     };
 
     window.onblur = function () {
-      isActive = false;
+        global.isActive = false;
     };
 
     if(config.responsiveResize === true){
@@ -3275,13 +3216,31 @@ var global = {
     // Not certain if this is a good idea - object to hold global vars
     // Some globals useful to avoid keeping duplicated code in sync - this seems like
     // a more readable way of doing that than scattering global vars throughout the codebase
+    "mousevars": {
+        "selected_node": null,
+        "selected_link": null,
+        "mousedown_link": null,
+        "mousedown_node": null,
+        "mouseup_node": null
+    },
     "toolsWithDragAllowed": ["none"],
     "lastWidth": 960,
     "lastHeight": 500,
-    "mainSVG": d3.select("#main-svg"),
     "pageLoaded": false,
     "colours": d3.scale.category10(),
-    "iconAddress": document.querySelector("body").dataset.iconaddress
+    "iconAddress": document.querySelector("body").dataset.iconaddress,
+    //Track state
+    "renameMenuShowing":false,
+    "contextMenuShowing":false,
+    "traceInProgress": false,
+    "isActive": true,
+    "hasRated": false,
+    //Selections
+    "mainSVG": d3.select("#main-svg"),
+    "path": d3.select("#main-svg").append("svg:g").attr("id", "paths").selectAll("path"),
+    "circle": d3.select("#main-svg").append("svg:g").selectAll("g"),
+    "linkLabels": d3.select("#main-svg").selectAll(".linklabel"),
+    "drag_line": d3.select("#main-svg").append("svg:path")
 };
 
 init();
