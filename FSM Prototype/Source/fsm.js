@@ -1,5 +1,5 @@
-config = {
-	// Display an extra next button when a question is answered correctly.
+var config = {
+    // Display an extra next button when a question is answered correctly.
     displayNextOnCorrect: true,
     // Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
     displayConstrainedLinkRename: true,
@@ -32,14 +32,13 @@ var display = {
         if (model.question.type == "none"){
             return;
         }
-        var div = document.querySelector(".question");
         //Add forms if required by the question:
         if (model.question.type == "give-list"){
             document.getElementById("check-button").addEventListener("click", checkAnswer.giveList);
             document.querySelector(".qformblock").addEventListener("submit", function(event){event.preventDefault();checkAnswer.giveList();});
             if (model.question.prefill){
-                for (key in model.question.prefill){
-                    d3.select("#qf" + key).attr("value", model.question.prefill[key])
+                for (var key in model.question.prefill){
+                    d3.select("#qf" + key).attr("value", model.question.prefill[key]);
                 }
             }
             return;
@@ -71,7 +70,7 @@ var display = {
                 }
             }
             table += "</table>";
-            document.querySelector(".question-text").insertAdjacentHTML("afterEnd", table)
+            document.querySelector(".question-text").insertAdjacentHTML("afterEnd", table);
             document.getElementById("check-button").addEventListener("click", checkAnswer.satisfyList);
             return;
         }
@@ -80,16 +79,16 @@ var display = {
             return;
         }
         if (model.question.type == "satisfy-regex"){
-            document.getElementById("check-button").addEventListener("click", checkAnswer.satisfyRegex)
+            document.getElementById("check-button").addEventListener("click", checkAnswer.satisfyRegex);
         }
 
         if (model.question.type == "select-states"){
-            document.getElementById("check-button").addEventListener("click", checkAnswer.selectStates)
+            document.getElementById("check-button").addEventListener("click", checkAnswer.selectStates);
             model.selected = [];
             // Enable the selection of states.
             // Need to wait until nodes are created to register event handlers.
             var f = function(){
-                if (loaded){
+                if (global.pageLoaded){
                     d3.selectAll(".node").on("click", model.toggleSelectedNode);
                 } else {
                     setTimeout(f, 100);
@@ -100,30 +99,30 @@ var display = {
         }
         if (model.question.type == "does-accept"){
             var str;
-            var html = "<table id = 'does-accept-table'><tbody>"
+            var html = "<table id = 'does-accept-table'><tbody>";
             for (i = 0; i < model.question.strList.length; i++){
-                str = model.question.strList[i]
-                html += '<tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="' + str + '">' + str + '</td><td class="table-space"> </td><td id="feedback-'+ i +'"></td></tr>'
+                str = model.question.strList[i];
+                html += '<tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="' + str + '">' + str + '</td><td class="table-space"> </td><td id="feedback-'+ i +'"></td></tr>';
             }
-            html += "</tbody></table>"
+            html += "</tbody></table>";
             document.querySelector(".question-text").insertAdjacentHTML("afterEnd", html);
             document.getElementById("check-button").addEventListener("click", checkAnswer.doesAccept);
 
         }
         if (model.question.type == "demo"){
-            var html = "<div id='demo-div'>"
+            html = "<div id='demo-div'>";
             // Create buttons for the user to provide the machine with input
             for (var i = 0; i< model.question.alphabet.length; i++){
-                var inChar = model.question.alphabet[i]
-                html += "<button id='demo-" + inChar +"' class='demo-button pure-button' type='submit'>"+inChar+"</button>"
+                var inChar = model.question.alphabet[i];
+                html += "<button id='demo-" + inChar +"' class='demo-button pure-button' type='submit'>"+inChar+"</button>";
             }
-            html += "<button id='demo-reset' class='demo-button pure-button' type='submit'>Reset</button>"
+            html += "<button id='demo-reset' class='demo-button pure-button' type='submit'>Reset</button>";
             document.querySelector(".question-text").insertAdjacentHTML("afterEnd", html);
             // Add an event listener to each button
             document.getElementById("demo-reset").addEventListener("click", controller.demoReset);
             for(i = 0; i < model.question.alphabet.length; i++){
-                var inChar = model.question.alphabet[i];
-                document.getElementById("demo-"+inChar).addEventListener("click", eventHandler.demoButton)
+                inChar = model.question.alphabet[i];
+                document.getElementById("demo-"+inChar).addEventListener("click", eventHandler.demoButton);
             }
         }
     },
@@ -137,15 +136,15 @@ var display = {
         //Restore nodes to their initial colours:
         d3.selectAll(".node")
             .style("fill", function(d){
-                return colors(d.id);
+                return global.colours(d.id);
             });
     },
     drawControlPalette: function(){
-        var iconAddress = document.querySelector("body").dataset.iconaddress
+        var iconAddress = global.iconAddress;
         var bwidth = 40; //button width
         var strokeWidth = 2;
         var margin = 10;
-        var g = svg.append("g")
+        var g = global.mainSVG.append("g")
                     .classed("controls", true);
         var tools = ["nodetool", "linetool","texttool", "acceptingtool", "deletetool"];
         var tooltips = {
@@ -183,24 +182,24 @@ var display = {
             .attr("x1", "0")
             .attr("x2", "1")
             .attr("y1", "0")
-            .attr("y2", "1")
+            .attr("y2", "1");
 
         grad.append("svg:stop")
             .attr("offset", "0%")
             .attr("stop-color", "black")
-            .attr("stop-opacity", 0.7)
+            .attr("stop-opacity", 0.7);
 
         grad.append("svg:stop")
             .attr("offset", "65%")
             .attr("stop-color", "black")
-            .attr("stop-opacity", 0.1)
+            .attr("stop-opacity", 0.1);
     },
     drawTraceControls: function(){
-    	var iconAddress = document.querySelector("body").dataset.iconaddress
+        var iconAddress = global.iconAddress;
         var bwidth = 40; //button width
         var strokeWidth = 2;
         var margin = 10;
-        var g = svg.append("g")
+        var g = global.mainSVG.append("g")
                     .classed("tracecontrols", true);
         var tools = ["rewind", "back", "forward", "stop"];
         var width = display.getWidth();
@@ -243,7 +242,7 @@ var display = {
             .html(html);
 
         d3.select(".changeconditions").on("click", function(){display.renameLinkForm(id);});
-        d3.select(".deletelink").on("click", function(d){model.deleteLink(id); display.dismissContextMenu();});
+        d3.select(".deletelink").on("click", function(){model.deleteLink(id); display.dismissContextMenu();});
 
         // Disable system menu on right-clicking the context menu
         menu.on("contextmenu", function() {
@@ -340,23 +339,23 @@ var display = {
         }
     },
     drawInputOnRight: function(){
-    	//Create Div if not already there
-    	if (document.querySelector(".rightinput") == null){
-    		d3.select("body")
-    		  .insert("div", '#main-svg + *')
-    		  .classed("rightinput", true)
-    		  .style("display","inline-block")
-    		  .style("vertical-align", "top")
-    		d3.select("#main-svg")
-    		  .style("display", "inline")
-    	}
-    	var html = ""
-    	var input = model.fullInput.split(",")
-    	for (var i = 0; i< input.length; i++){
-    		html += "<p class='rightinput'>" + input[i] + "</p>"
-    	}
-    	d3.select(".rightinput")
-    	  .html(html)
+        //Create Div if not already there
+        if (document.querySelector(".rightinput") == null){
+            d3.select("body")
+              .insert("div", '#main-svg + *')
+              .classed("rightinput", true)
+              .style("display","inline-block")
+              .style("vertical-align", "top")
+            d3.select("#main-svg")
+              .style("display", "inline")
+        }
+        var html = ""
+        var input = model.fullInput.split(",")
+        for (var i = 0; i< input.length; i++){
+            html += "<p class='rightinput'>" + input[i] + "</p>"
+        }
+        d3.select(".rightinput")
+          .html(html)
     },
     drawOutput: function(){
         //Draw the output of the machine if it is a transducer
@@ -495,12 +494,12 @@ var display = {
         }
     },
     getWidth: function () {
-    	// Returns the width of the main svg container
-    	return global.mainSVG.width.baseVal.value;
+        // Returns the width of the main svg container
+        return Number(global.mainSVG.attr("width"));
     },
     getHeight: function () {
-    	// Returns the width of the main svg container
-    	return global.mainSVG.height.baseVal.value;
+        // Returns the width of the main svg container
+        return Number(global.mainSVG.attr("height"));
     },
     hideConsumedInput: function(){
         //Helper function for the trace display.
@@ -611,20 +610,20 @@ var display = {
                 }
                 html += '>' + alphabet[i]
                 if (model.question.isTransducer){
-                	var currentOut = query.getOutput(d, alphabet[i])
-                	html += ' <select id="out-' + alphabet[i] + '"><option value="">No Output</option>'
-                	for (var j = 0; j < model.question.outAlphabet.length; j++){
-                		outChar = model.question.outAlphabet[j]
-                		if (outChar == currentOut){
-                			html += '<option selected="selected" value="' + outChar +'">' + outChar + '</option>'
-                		}else{
-                			html += '<option value="' + outChar +'">' + outChar + '</option>'
-                		}
+                    var currentOut = query.getOutput(d, alphabet[i])
+                    html += ' <select id="out-' + alphabet[i] + '"><option value="">No Output</option>'
+                    for (var j = 0; j < model.question.outAlphabet.length; j++){
+                        outChar = model.question.outAlphabet[j]
+                        if (outChar == currentOut){
+                            html += '<option selected="selected" value="' + outChar +'">' + outChar + '</option>'
+                        }else{
+                            html += '<option value="' + outChar +'">' + outChar + '</option>'
+                        }
 
-                	}
-                	html += "</select><br>"
+                    }
+                    html += "</select><br>"
                 }else{
-                	html += '<br>'
+                    html += '<br>'
                 }
             }
             html += '<a class="pure-button" id="constrainedrenamesubmit">OK</a></form>'
@@ -845,11 +844,11 @@ var display = {
         return;
     },
     setSVGsize: function(){
-    	if (config.responsiveResize){
-    		var widthPercent = String((config.widthFraction * 100) + "%");
-    		var heightPercent = String((config.heightPercent * 100) + "%");
-    		d3.select("#main-svg").style("width", widthPercent).style("height", heightPercent)
-    	}
+        if (config.responsiveResize){
+            var widthPercent = String((config.widthFraction * 100) + "%");
+            var heightPercent = String((config.heightPercent * 100) + "%");
+            d3.select("#main-svg").style("width", widthPercent).style("height", heightPercent)
+        }
     },
     showNextButton: function(){
         if (document.querySelector(".extra-next") != null){
@@ -1180,7 +1179,7 @@ var model = {
                 config.displayConstrainedLinkRename = options.constrainRename;
             }
             if (options.displayInputOnRight != undefined){
-            	config.displayInputOnRight = options.displayInputOnRight;
+                config.displayInputOnRight = options.displayInputOnRight;
             }
             if (options.displayHeight != undefined){
                 config.displayHeight = options.displayHeight;
@@ -1195,32 +1194,32 @@ var model = {
                 config.pinNewNodes = options.pinNewNodes;
             }
             if (options.widthFraction != undefined){
-            	config.widthFraction = options.widthFraction;
+                config.widthFraction = options.widthFraction;
             }
             if (options.heightFraction != undefined){
-            	config.heightFraction = options.heightFraction
+                config.heightFraction = options.heightFraction
             }
             if(options.responsiveResize != undefined){
-            	config.responsiveResize  = options.responsiveResize
+                config.responsiveResize  = options.responsiveResize
             }
         }
         return true;
 
     },
     resizePosition:function(newWidth, newHeight){
-    	var xScale = d3.scale.linear().domain([0,global.lastWidth]).range([0,newWidth]).clamp([true]);
-    	var yScale = d3.scale.linear().domain([0,global.lastHeight]).range([0,newHeight]).clamp([true]);
-    	var repositionNode = function(node){
-    		node.x = xScale(node.x);
-    		node.px = node.x;
-    		node.y = yScale(node.y);
-    		node.py = node.y;
-    		return node;
-    	}
-    	model.nodes.map(repositionNode);
-    	global.lastWidth = newWidth;
-    	global.lastHeight = newHeight;
-    	console.log("positions scaled!");
+        var xScale = d3.scale.linear().domain([0,global.lastWidth]).range([0,newWidth]).clamp([true]);
+        var yScale = d3.scale.linear().domain([0,global.lastHeight]).range([0,newHeight]).clamp([true]);
+        var repositionNode = function(node){
+            node.x = xScale(node.x);
+            node.px = node.x;
+            node.y = yScale(node.y);
+            node.py = node.y;
+            return node;
+        }
+        model.nodes.map(repositionNode);
+        global.lastWidth = newWidth;
+        global.lastHeight = newHeight;
+        console.log("positions scaled!");
 
     },
     setMaxIDs: function(){
@@ -1311,7 +1310,7 @@ var model = {
         }
         model.currentStates = newStates;
         if (model.question.isTransducer && linkIDs.length == 1 && query.isDeterministic()){
-        	model.currentOutput += query.getOutput(query.getLinkData(linkIDs[0]), curSymbol)
+            model.currentOutput += query.getOutput(query.getLinkData(linkIDs[0]), curSymbol)
         }
         linkIDs = linkIDs.concat(model.doEpsilonTransitions());
         model.linksUsed = linkIDs;
@@ -1408,15 +1407,15 @@ var query = {
         return d;
     },
     getOutput: function(link, input){
-    	if(!link.output){
-    		return "" //Catch case where output is not defined/falsey.
-    	}
-    	for (var i = 0; i< link.output.length; i++){
-    		if (link.output[i][0] == input){
-    			return link.output[i][1] //Otherwise search for matchin output and return the first result.
-    		}
-    	}
-    	return ""
+        if(!link.output){
+            return "" //Catch case where output is not defined/falsey.
+        }
+        for (var i = 0; i< link.output.length; i++){
+            if (link.output[i][0] == input){
+                return link.output[i][1] //Otherwise search for matchin output and return the first result.
+            }
+        }
+        return ""
 
     },
     getLinksFromNode: function(node){
@@ -1536,15 +1535,15 @@ var query = {
         return [true, ""];
     },
     inAcceptingState: function(){
-    	//Return true if the macjine is currently in an accepting state
-    	for(var i = 0; i < model.currentStates.length; i++){
-    		var stateID = model.currentStates[i];
-    		var state = query.getNodeData(stateID);
-    		if(state.accepting){
-    			return true;
-    		}
-    	}
-    	return false;
+        //Return true if the macjine is currently in an accepting state
+        for(var i = 0; i < model.currentStates.length; i++){
+            var stateID = model.currentStates[i];
+            var state = query.getNodeData(stateID);
+            if(state.accepting){
+                return true;
+            }
+        }
+        return false;
     },
     getCopyForRegex: function(){
         //Return a deep copy of the current machine as an object with nodes and links properties
@@ -1773,49 +1772,49 @@ var query = {
 };
 
 var checkAnswer = {
-	demo: function(){
-		//Checks success condition for demo mode, if one has been set
-		if(!model.question.hasGoal){
-			return;
-		}
-		//define a function to to give feedback if the user is correct.
-		var isCorrect = function(){
-			var iconAddress = document.querySelector("body").dataset.iconaddress
-			var nextURL = document.getElementById("nav-next").href;
-			var newHTML = "<img class ='x-check-button inline-feedback' src='" + iconAddress +"check.svg'><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
-			if(config.removeInputButtonsOnDemoSuccess){
-				//Replace the input buttons
-				document.querySelector("#demo-div").innerHTML = newHTML
-			} else{
-				// Or insert after the buttons, preserving event listeners
-		        var siblings = document.querySelector("#demo-div").children
-		        var lastSibling = siblings[siblings.length - 1];
-		        lastSibling.insertAdjacentHTML("afterend",newHTML);
-			}
-			//Set hasGoal to false to prevent duplicate feedback:
-			model.question.hasGoal = false;
+    demo: function(){
+        //Checks success condition for demo mode, if one has been set
+        if(!model.question.hasGoal){
+            return;
+        }
+        //define a function to to give feedback if the user is correct.
+        var isCorrect = function(){
+            var iconAddress = global.iconAddress
+            var nextURL = document.getElementById("nav-next").href;
+            var newHTML = "<img class ='x-check-button inline-feedback' src='" + iconAddress +"check.svg'><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
+            if(config.removeInputButtonsOnDemoSuccess){
+                //Replace the input buttons
+                document.querySelector("#demo-div").innerHTML = newHTML
+            } else{
+                // Or insert after the buttons, preserving event listeners
+                var siblings = document.querySelector("#demo-div").children
+                var lastSibling = siblings[siblings.length - 1];
+                lastSibling.insertAdjacentHTML("afterend",newHTML);
+            }
+            //Set hasGoal to false to prevent duplicate feedback:
+            model.question.hasGoal = false;
             //Don't send full model for a demo question - pointless.
-	        logging.sendAnswer(true, null);
-	       	}
+            logging.sendAnswer(true, null);
+            }
 
-		if(model.question.goalType == "accepting"){
-			// User succeeds if the machine is in an accepting state
-			if(query.inAcceptingState()){
-				isCorrect();
-				return;
-			}
-		}
-	    else if(model.question.goalType == "output"){
-	    	// User succeeds if the machine output matches the goal output.
-	    	if (model.currentOutput == model.question.outputTarget){
-	    		isCorrect()
-	    	}
-	    } else{
-	    	alert("Invalid value for goalType");
-	    }
-	},
+        if(model.question.goalType == "accepting"){
+            // User succeeds if the machine is in an accepting state
+            if(query.inAcceptingState()){
+                isCorrect();
+                return;
+            }
+        }
+        else if(model.question.goalType == "output"){
+            // User succeeds if the machine output matches the goal output.
+            if (model.currentOutput == model.question.outputTarget){
+                isCorrect()
+            }
+        } else{
+            alert("Invalid value for goalType");
+        }
+    },
     doesAccept: function(){
-    	var iconAddress = document.querySelector("body").dataset.iconaddress
+        var iconAddress = global.iconAddress
         var listLength = model.question.strList.length;
         var passed = true;
         var tableRows = document.querySelector("#does-accept-table tbody").children
@@ -2048,7 +2047,7 @@ var checkAnswer = {
         logging.sendAnswer(true);
     },
     satisfyList: function(){
-    	var iconAddress = document.querySelector("body").dataset.iconaddress
+        var iconAddress = global.iconAddress
         var accLength = model.question.acceptList.length;
         var rejLength = model.question.rejectList.length;
         var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length);
@@ -2214,7 +2213,7 @@ var checkAnswer = {
                 feedback.remove();
             }
             var message = document.createElement("p");
-            var iconAddress = document.querySelector("body").dataset.iconaddress
+            var iconAddress = global.iconAddress
             message.classList.add("inline-feedback");
             if (isCorrect){
                 message.innerHTML = "<img class ='x-check-button' src='" + iconAddress + "check.svg'>";
@@ -2508,22 +2507,22 @@ var eventHandler = {
         hasRated = true;
     },
     resizeHandler: function(){
-    	console.log("RESIZE!")
-    	var width = config.widthFraction * window.innerWidth;
-    	var height = config.heightFraction * window.innerHeight;
-    	svg.attr("width", width).attr("height", height);
-	    force.size([width, height]).resume();
-	    model.resizePosition(width, height);
-	    restart();
+        console.log("RESIZE!")
+        var width = config.widthFraction * window.innerWidth;
+        var height = config.heightFraction * window.innerHeight;
+        svg.attr("width", width).attr("height", height);
+        force.size([width, height]).resume();
+        model.resizePosition(width, height);
+        restart();
 
-	    // Reinstate draggable nodes if they are allowed by the current tool:
-	    if(global.toolsWithDragAllowed.indexOf(model.toolMode) != -1){
-	    	// Need to wait, otherwise this doesn't work
-	    	window.setTimeout(function(){
-		    	console.log("RESTART DRAG!")
-	            circle.call(force.drag);
-         	}, 300)
-	    }
+        // Reinstate draggable nodes if they are allowed by the current tool:
+        if(global.toolsWithDragAllowed.indexOf(model.toolMode) != -1){
+            // Need to wait, otherwise this doesn't work
+            window.setTimeout(function(){
+                console.log("RESTART DRAG!")
+                circle.call(force.drag);
+            }, 300)
+        }
 
     },
     //Provides right-click functionality for states.
@@ -2612,13 +2611,13 @@ var eventHandler = {
 
 var controller = {
     demoInput: function(symbol){
-    	if (model.question.alphabetType == "char"){
-    		model.fullInput += [symbol]
-	        model.currentInput = [symbol]
-    	} else {
-    		 model.fullInput += [",", symbol]
-    		 model.currentInput = [symbol]
-    	}
+        if (model.question.alphabetType == "char"){
+            model.fullInput += [symbol]
+            model.currentInput = [symbol]
+        } else {
+             model.fullInput += [",", symbol]
+             model.currentInput = [symbol]
+        }
 
         var linkIDs = model.step()
         display.highlightCurrentStates();
@@ -2626,13 +2625,13 @@ var controller = {
         d3.selectAll(".machine-input").remove();
         d3.selectAll(".machine-output").remove();
         if (!config.displayInputOnRight){
-	    	display.drawInput();
+            display.drawInput();
         } else {
-        	display.drawInputOnRight();
+            display.drawInputOnRight();
         }
         display.drawOutput();
         if (model.question.hasGoal){
-        	checkAnswer.demo()
+            checkAnswer.demo()
         }
 
     },
@@ -2702,18 +2701,18 @@ var controller = {
                 if (element.tagName == "INPUT"){
                     if (!element.checked){
                     continue;
-                	}
-                	d.input.push(element.value)
+                    }
+                    d.input.push(element.value)
                 } else if (element.tagName == "SELECT") { //Get output symbols from the dropdown menu
-                	value = element.value
-                	if (value == ""){ //Ignore empty output
-                		continue;
-                	}
-                	insymbol = element.id.slice(4)
-                	if (d.input.indexOf(insymbol) == -1){ //Ignore outputs for input that are not accepted.
-                		continue;
-                	}
-                	d.output.push([insymbol, value])
+                    value = element.value
+                    if (value == ""){ //Ignore empty output
+                        continue;
+                    }
+                    insymbol = element.id.slice(4)
+                    if (d.input.indexOf(insymbol) == -1){ //Ignore outputs for input that are not accepted.
+                        continue;
+                    }
+                    d.output.push([insymbol, value])
                 }
             }
             display.updateLinkLabel(linkID)
@@ -2823,6 +2822,8 @@ function tick() {
 
 // update graph (called when needed)
 function restart() {
+    var colors = global.colours;
+
     // path (link) group
     path = path.data(model.links, function(d){return d.id;});
 
@@ -2871,7 +2872,7 @@ function restart() {
     // update existing nodes (accepting & selected visual states)
     circle.selectAll("circle")
         .style("fill", function(d) {
-            return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id);
+            return (d === selected_node) ? d3.rgb(global.colors(d.id)).brighter().toString() : colors(d.id);
         })
         .classed("accepting", function(d) {
             return d.accepting;
@@ -3179,9 +3180,9 @@ var logging = {
 function init(){
     model.readJSON();
     // set up SVG for D3
-    width = config.displayWidth;
-    height = config.displayHeight;
-    colors = d3.scale.category10();
+    var width = config.displayWidth;
+    var height = config.displayHeight;
+    var colors = global.colours;
 
     svg = d3.select("#main-svg")
 
@@ -3241,7 +3242,7 @@ function init(){
     // Add event listener to the rate buttons
     d3.selectAll(".rate-button").on("click", eventHandler.rate);
     hasRated = false;
-    loaded = true;
+    global.pageLoaded = true;
     // Keep track of whether the tab is active, for logging purposes
     isActive = true;
 
@@ -3254,9 +3255,9 @@ function init(){
     };
 
     if(config.responsiveResize === true){
-    	display.setSVGsize();
-    	eventHandler.resizeHandler();
-	    d3.select(window).on("resize", eventHandler.resizeHandler);
+        display.setSVGsize();
+        eventHandler.resizeHandler();
+        d3.select(window).on("resize", eventHandler.resizeHandler);
     }
 
     //Start demo mode if needed once everything has loaded:
@@ -3270,14 +3271,17 @@ function init(){
     setInterval(logging.sendInfo, 120000);
 }
 
-global = {
-	// Not certain if this is a good idea - object to hold global vars
-	// Some globals useful to avoid keeping duplicated code in sync - this seems like
-	// a more readable way of doing that than scattering global vars throughout the codebase
-	"toolsWithDragAllowed": ["none"],
-	"lastWidth": 960,
-	"lastHeight": 500,
-	"mainSVG": document.querySelector("#main-svg")
-}
+var global = {
+    // Not certain if this is a good idea - object to hold global vars
+    // Some globals useful to avoid keeping duplicated code in sync - this seems like
+    // a more readable way of doing that than scattering global vars throughout the codebase
+    "toolsWithDragAllowed": ["none"],
+    "lastWidth": 960,
+    "lastHeight": 500,
+    "mainSVG": d3.select("#main-svg"),
+    "pageLoaded": false,
+    "colours": d3.scale.category10(),
+    "iconAddress": document.querySelector("body").dataset.iconaddress
+};
 
 init();
