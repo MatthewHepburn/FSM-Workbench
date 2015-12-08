@@ -1,6 +1,4 @@
 config = {
-    displayHeight: 500,
-    displayWidth: 960,
 	// Display an extra next button when a question is answered correctly.
     displayNextOnCorrect: true,
     // Give a list of options from the alphabet when renaming links, rather than presenting the user with a text field.
@@ -18,7 +16,13 @@ config = {
     // Draw the trace letters in different colours
     useColouredLettersInTrace: false,
     // Pin nodes in place on creation, preventing physics from acting on them.
-    pinNewNodes: false
+    pinNewNodes: false,
+    // Default fractions of the screen for the main SVG to occupy
+    widthFraction: 0.78,
+    heightFraction: 0.7,
+    // If true, resize the main svg based on the available screen space
+    responsiveResize: true
+
 };
 
 var display = {
@@ -827,6 +831,13 @@ var display = {
         }
         return;
     },
+    setSVGsize: function(){
+    	if (config.responsiveResize){
+    		var widthPercent = String((config.widthFraction * 100) + "%");
+    		var heightPercent = String((config.heightPercent * 100) + "%");
+    		d3.select("#main-svg").style("width", widthPercent).style("height", heightPercent)
+    	}
+    },
     showNextButton: function(){
         if (document.querySelector(".extra-next") != null){
             return;
@@ -1169,6 +1180,15 @@ var model = {
             }
             if (options.pinNewNodes != undefined){
                 config.pinNewNodes = options.pinNewNodes;
+            }
+            if (options.widthFraction != undefined){
+            	config.widthFraction = options.widthFraction;
+            }
+            if (options.heightFraction != undefined){
+            	config.heightFraction = options.heightFraction
+            }
+            if(options.responsiveResize != undefined){
+            	config.responsiveResize  = options.responsiveResize
             }
         }
         return true;
@@ -2476,7 +2496,8 @@ var eventHandler = {
     },
     resizeHandler: function(){
     	console.log("RESIZE!")
-    	width = 0.78 *window.innerWidth, height = 0.7 * window.innerHeight;
+    	var width = config.widthFraction * window.innerWidth;
+    	var height = config.heightFraction * window.innerHeight;
     	svg.attr("width", width).attr("height", height);
 	    force.size([width, height]).resume();
 	    model.resizePosition(width, height);
@@ -3219,8 +3240,11 @@ function init(){
       isActive = false;
     };
 
-    eventHandler.resizeHandler();
-    d3.select(window).on("resize", eventHandler.resizeHandler);
+    if(config.responsiveResize === true){
+    	display.setSVGsize();
+    	eventHandler.resizeHandler();
+	    d3.select(window).on("resize", eventHandler.resizeHandler);
+    }
 
     //Start demo mode if needed once everything has loaded:
     if(model.question.type == "demo"){

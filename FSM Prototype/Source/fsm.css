@@ -10,11 +10,6 @@ svg {
   user-select: none;
 }
 
-svg#main-svg {
-    width: 78%;
-    height: 70%;
-}
-
 body {
   margin-left: 15px;
   margin-top: 2px;
