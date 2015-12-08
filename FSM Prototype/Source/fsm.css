@@ -324,16 +324,33 @@ text.nodename {
     margin-right: 2px;
 }
 
-$sidebar-width: 20%;
 
 .maindiv {
-   margin-right: $sidebar-width;
    float: left;
-   width: 80%;
+   width: 85%;
 }
 
 .sidebar {
   box-sizing: border-box;
-  padding-left: 20px;
-  width: $sidebar-width;
+  padding-left: 7px;
+  width: 15%;
+  float:right;
+  font-family: "Calibre", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+.sidebar a:visited{
+  color: #585858;
+  text-decoration: none;
+}
+
+.sidebar{
+  color: black;
+  text-decoration: none;
+  margin-top: 3%;
+}
+
+.sidebar a{
+  display: block;
+  font-size: small;
+  margin-bottom: 5%;
+}
+

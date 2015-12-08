@@ -57,9 +57,9 @@
   <div class="sidebar">
     {% for q in questionList %}
       {% if q.url == url-%}
-        <a class="sidebar-thisq">{{ q.name }}</a><br>
+        <a class="sidebar-thisq">{{ q.name }}</a>
       {% else %}
-        <a href="{{ q.url }}" class="sidebar-otherq">{{ q.name }}</a><br>
+        <a href="{{ q.url }}" class="sidebar-otherq">{{ q.name }}</a>
       {% endif %}
     {% endfor %}
   </div>

@@ -18,7 +18,7 @@ config = {
     // Pin nodes in place on creation, preventing physics from acting on them.
     pinNewNodes: false,
     // Default fractions of the screen for the main SVG to occupy
-    widthFraction: 0.78,
+    widthFraction: 1,
     heightFraction: 0.7,
     // If true, resize the main svg based on the available screen space
     responsiveResize: true
