@@ -2262,7 +2262,7 @@ var eventHandler = {
         }
 
         // Dismiss context menu if it is present
-        if (global.contextMenuShowing == false) {
+        if (global.contextMenuShowing === true) {
             display.dismissContextMenu();
             return;
         }
@@ -3135,7 +3135,6 @@ function init(){
     // set up SVG for D3
     var width = config.displayWidth;
     var height = config.displayHeight;
-    var svg = d3.select("#main-svg");
 
 
     // init D3 force layout
@@ -3161,7 +3160,7 @@ function init(){
     if (model.editable){
         display.drawControlPalette();
     }
-    svg.on("mousedown", eventHandler.clickBackground)
+    global.mainSVG.on("mousedown", eventHandler.clickBackground)
         .on("mousemove", mousemove)
         .on("touchmove", mousemove)
         .on("mouseup", mouseup)
