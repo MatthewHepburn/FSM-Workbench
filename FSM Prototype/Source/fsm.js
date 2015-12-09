@@ -1774,7 +1774,7 @@ var checkAnswer = {
         var isCorrect = function(){
             var iconAddress = global.iconAddress;
             var nextURL = document.getElementById("nav-next").href;
-            var newHTML = "<img class ='x-check-button inline-feedback' src='" + iconAddress +"check.svg'><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
+            var newHTML = "<img class ='tick x-check-button inline-feedback' src='" + iconAddress +"check.svg'><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
             if(config.removeInputButtonsOnDemoSuccess){
                 //Replace the input buttons
                 document.querySelector("#demo-div").innerHTML = newHTML;
@@ -1818,9 +1818,9 @@ var checkAnswer = {
             var input = model.parseInput(model.question.strList[i]);
             var accepts = model.accepts(input);
             if (accepts == isChecked){
-                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src='" + iconAddress +"check.svg'>";
+                document.querySelector("#feedback-"+i).innerHTML = "<img class ='tick x-check' src='" + iconAddress +"check.svg'>";
             } else {
-                document.querySelector("#feedback-"+i).innerHTML = "<img class ='x-check' src='" + iconAddress +"x.svg'>";
+                document.querySelector("#feedback-"+i).innerHTML = "<img class ='cross x-check' src='" + iconAddress +"x.svg'>";
                 passed = false;
             }
         }
@@ -2052,9 +2052,9 @@ var checkAnswer = {
                 var input = model.parseInput(model.question.acceptList[i]);
                 var accepts = model.accepts(input);
                 if (accepts){
-                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src='" +iconAddress + "check.svg'>";
+                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='tick x-check' src='" +iconAddress + "check.svg'>";
                 } else {
-                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='x-check' src='" +iconAddress + "x.svg'>";
+                    document.querySelector("#td-acc-adj-"+i).innerHTML = "<img class ='cross x-check' src='" +iconAddress + "x.svg'>";
                     passed = false;
                 }
             }
@@ -2063,9 +2063,9 @@ var checkAnswer = {
                 input = model.parseInput(model.question.rejectList[i]);
                 accepts = model.accepts(input);
                 if (!accepts){
-                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src='" +iconAddress + "check.svg'>";
+                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='tick x-check' src='" +iconAddress + "check.svg'>";
                 } else {
-                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src='" +iconAddress + "x.svg'>";
+                    document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='cross x-check' src='" +iconAddress + "x.svg'>";
                     passed = false;
                 }
             }
@@ -2209,10 +2209,10 @@ var checkAnswer = {
             var iconAddress = global.iconAddress;
             message.classList.add("inline-feedback");
             if (isCorrect){
-                message.innerHTML = "<img class ='x-check-button' src='" + iconAddress + "check.svg'>";
+                message.innerHTML = "<img class ='tick x-check-button' src='" + iconAddress + "check.svg'>";
                 logging.sendAnswer(true, model.selected);
             } else{
-                message.innerHTML = "<img class ='x-check-button' src='" + iconAddress + "x.svg'>";
+                message.innerHTML = "<img class ='cross x-check-button' src='" + iconAddress + "x.svg'>";
                 logging.sendAnswer(false, model.selected);
             }
             document.querySelector(".button-div").appendChild(message);
@@ -3151,7 +3151,8 @@ function init(){
 
 
     // line displayed when dragging new nodes
-    global.dragline
+    global.drag_line = d3.select("#main-svg").append("svg:path");
+    global.drag_line
         .attr("class", "link dragline hidden")
         .attr("d", "M0,0L0,0");
 
@@ -3237,7 +3238,7 @@ var global = {
     "path": d3.select("#main-svg").append("svg:g").attr("id", "paths").selectAll("path"),
     "circle": d3.select("#main-svg").append("svg:g").selectAll("g"),
     "linkLabels": d3.select("#main-svg").selectAll(".linklabel"),
-    "drag_line": d3.select("#main-svg").append("svg:path")
+    "drag_line": undefined
 };
 
 init();
