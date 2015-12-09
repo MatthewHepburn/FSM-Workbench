@@ -1106,7 +1106,7 @@ var model = {
         return {
             "data-nodes":JSON.stringify(model.nodes),
             "data-links":JSON.stringify(linksTmp)
-        }
+        };
 
     },
     parseInput: function(string){
@@ -1120,9 +1120,9 @@ var model = {
                 if(value == "," || value == " "){
                     return false;
                 }
-                return true
-            }
-            return chars.filter(removeIllegalChars)
+                return true;
+            };
+            return chars.filter(removeIllegalChars);
         } else {
             return string.split(/\ |,\ |,/);
         }
@@ -1132,7 +1132,7 @@ var model = {
         model.currentInput = JSON.parse(JSON.stringify(model.fullInput));
         model.currentStates = [0];
         model.currentOutput = "";
-        model.linksUsed = []
+        model.linksUsed = [];
         model.doEpsilonTransitions();
         model.currentStep = 0;
         model.traceRecord = [{states:model.currentStates, currentInput: JSON.parse(JSON.stringify(model.fullInput))}];
@@ -1162,7 +1162,7 @@ var model = {
         model.lastLinkID = maxLinkID;
 
         // Set lastNodeID:
-        model.setMaxIDs()
+        model.setMaxIDs();
 
         // Read in options
         if (body.dataset.options != undefined){
@@ -1196,10 +1196,10 @@ var model = {
                 config.widthFraction = options.widthFraction;
             }
             if (options.heightFraction != undefined){
-                config.heightFraction = options.heightFraction
+                config.heightFraction = options.heightFraction;
             }
             if(options.responsiveResize != undefined){
-                config.responsiveResize  = options.responsiveResize
+                config.responsiveResize  = options.responsiveResize;
             }
         }
         return true;
@@ -1214,12 +1214,10 @@ var model = {
             node.y = yScale(node.y);
             node.py = node.y;
             return node;
-        }
+        };
         model.nodes.map(repositionNode);
         global.lastWidth = newWidth;
         global.lastHeight = newHeight;
-        console.log("positions scaled!");
-
     },
     setMaxIDs: function(){
         // Set lastNodeID:
@@ -1238,7 +1236,7 @@ var model = {
                 maxLinkID = model.links[i].id;
             }
         }
-        model.lastLinkID = maxLinkID
+        model.lastLinkID = maxLinkID;
 
     },
     setupQuestion: function(){
@@ -1281,7 +1279,7 @@ var model = {
                 states: JSONcopy(model.currentStates),
                 currentInput: JSONcopy(model.currentInput),
                 linkIDs: JSONcopy(model.linksUsed)
-            }
+            };
         }
 
         // Perfoms one simulation step, consuming the first symbol in currentInput and updating currentStates.
@@ -1309,7 +1307,7 @@ var model = {
         }
         model.currentStates = newStates;
         if (model.question.isTransducer && linkIDs.length == 1 && query.isDeterministic()){
-            model.currentOutput += query.getOutput(query.getLinkData(linkIDs[0]), curSymbol)
+            model.currentOutput += query.getOutput(query.getLinkData(linkIDs[0]), curSymbol);
         }
         linkIDs = linkIDs.concat(model.doEpsilonTransitions());
         model.linksUsed = linkIDs;
@@ -1320,7 +1318,7 @@ var model = {
     stepBack: function(){
         //Steps back one simulation step and returns the links that were used to get there (when going forwards)
         if (model.currentStep == 0){
-            model.resetTrace()
+            model.resetTrace();
             return [];
         }
         model.currentStep = model.currentStep - 1;
@@ -1329,13 +1327,13 @@ var model = {
         model.currentStates = record.states;
         model.linksUsed = record.linkIDs;
         return record.linkIDs;
-     },
+    },
     toggleAccepting: function(id) {
         //Check editing is allowed:
         if (model.editable == false){
             return;
         }
-        if(traceInProgress){
+        if(global.traceInProgress){
             controller.endTrace();
         }
         // Change state in nodes
@@ -1376,19 +1374,19 @@ var model = {
             }
         }, regex);
         regex = new RegExp(regex);
-        var commadString = ""
+        var commadString = "";
         // Reduce with side effects - probably a better way to do this
         s.split("").reduce(function(string, char){
             var newString = string + char;
             if (regex.exec(newString) != null && regex.exec(newString)[0] == newString){
-                commadString += newString + ","
-                return ""
+                commadString += newString + ",";
+                return "";
             } else {
                 return newString;
             }
-        }, "")
+        }, "");
         return commadString.substr(0, commadString.length - 1);
-    },
+    }
 };
 
 var query = {
@@ -1407,14 +1405,14 @@ var query = {
     },
     getOutput: function(link, input){
         if(!link.output){
-            return "" //Catch case where output is not defined/falsey.
+            return ""; //Catch case where output is not defined/falsey.
         }
         for (var i = 0; i< link.output.length; i++){
             if (link.output[i][0] == input){
-                return link.output[i][1] //Otherwise search for matchin output and return the first result.
+                return link.output[i][1]; //Otherwise search for matchin output and return the first result.
             }
         }
-        return ""
+        return "";
 
     },
     getLinksFromNode: function(node){
@@ -1448,12 +1446,12 @@ var query = {
     getPaths: function(node, input, string, stringLength, pathLength, returnList){
         // Recursively find all accepted paths through the current fsm of length <= pathLength
         if (model.question.alphabetType == "char"){
-            var newString = string
+            var newString = string;
             if (input != "ε"){
                 newString += input;
             }
         } else {
-            var newString = string
+            newString = string;
             if (input != "ε"){
                 if (newString === ""){
                     newString = input;
@@ -1481,10 +1479,10 @@ var query = {
         //Determine if the machine has at least one accepting state.
         for (var i = 0; i<model.nodes.length; i++){
             if (model.nodes[i].accepting){
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     },
     isBezier: function(id) {
         // Determine if a given link is drawn as a curve. IE if there is link in the opposite direction
@@ -1547,56 +1545,56 @@ var query = {
     getCopyForRegex: function(){
         //Return a deep copy of the current machine as an object with nodes and links properties
         //Replace the current inital state with a new state with an epsilon transition to the old state
-        var copy = {}
-        copy.nodes = JSON.parse(JSON.stringify(model.nodes))
+        var copy = {};
+        copy.nodes = JSON.parse(JSON.stringify(model.nodes));
         copy.links = JSON.parse(JSON.stringify(model.links));
         var getNodeByID = function(id){
             for (var j = 0; j < copy.nodes.length; j++){
                 if (copy.nodes[j].id == id){
-                    return copy.nodes[j]
+                    return copy.nodes[j];
                 }
             }
-        }
+        };
         var getExprFromInput = function(input){
             var expr = "(" + input[0];
             for (var i = 1; i < input.length; i++){
-                expr += "|" + input[i]
+                expr += "|" + input[i];
             }
             expr += ")";
             return expr;
-        }
+        };
         // Replace source and target objects with ids
-        var newID = copy.nodes.length
-        copy.nodes.push(JSON.parse(JSON.stringify(copy.nodes[0])))
-        copy.nodes[newID].id = newID
+        var newID = copy.nodes.length;
+        copy.nodes.push(JSON.parse(JSON.stringify(copy.nodes[0])));
+        copy.nodes[newID].id = newID;
         for (var i = 0; i < copy.links.length; i++){
             if (copy.links[i].source.id != 0){
                 copy.links[i].source = getNodeByID(copy.links[i].source.id);}
             else{
-                copy.links[i].source = getNodeByID(newID)
+                copy.links[i].source = getNodeByID(newID);
             }
             if (copy.links[i].source.id != 0){
                 copy.links[i].target = getNodeByID(copy.links[i].target.id);}
             else{
-                copy.links[i].target = getNodeByID(newID)
+                copy.links[i].target = getNodeByID(newID);
             }
-            copy.links[i].expr = getExprFromInput(copy.links[i].input)
+            copy.links[i].expr = getExprFromInput(copy.links[i].input);
         }
-        copy.links.push({expr: "", id: copy.links.length-1, source:getNodeByID(0),target:getNodeByID(newID), input:["ε"]})
+        copy.links.push({expr: "", id: copy.links.length-1, source:getNodeByID(0),target:getNodeByID(newID), input:["ε"]});
 
         return copy;
     },
 
     getRegex2: function(){
         var getFreeLinkID = function(){
-            var max = 0
+            var max = 0;
             for (var i = 0; i < m.links.length; i ++){
                 if (m.links[i].id > max){
                     max = m.links[i].id;
                 }
             }
-            return max + 1
-        }
+            return max + 1;
+        };
 
         var eliminateState = function(index){
             var node = m.nodes[index];
@@ -1604,14 +1602,14 @@ var query = {
             var outLinks = [];
             var link;
             var toSplice = [];
-            var reflexiveRegex = ""
+            var reflexiveRegex = "";
             //Build lists of inlinks, outlinks and the reflexive regex. Remove links to/from the state from m.links
             for (var i = 0; i < m.links.length; i++){
-                link = m.links[i]
+                link = m.links[i];
                 if (link.target.id == link.source.id && link.source.id == node.id ){
-                    reflexiveRegex = "(" +  link.expr + ")*"
+                    reflexiveRegex = "(" +  link.expr + ")*";
                     toSplice.push(link);
-                    continue
+                    continue;
                 }
                 if (link.source.id == node.id){
                     outLinks.push(JSON.parse(JSON.stringify(link)));
@@ -1629,52 +1627,50 @@ var query = {
             // For each possible inlink -> outlink pair, create a new link with the appropriate regex
             var inLink;
             var outLink;
-            var newLink
+            var newLink;
             for(var inIndex = 0; inIndex < inLinks.length; inIndex++){
-                inLink = inLinks[inIndex]
+                inLink = inLinks[inIndex];
                 for (var outIndex = 0; outIndex < outLinks.length; outIndex++){
-                    outLink = outLinks[outIndex]
-                    newLink = {target: outLink.target, source: inLink.source, expr:inLink.expr + reflexiveRegex + outLink.expr, id:getFreeLinkID()}
-                    m.links.push(JSON.parse(JSON.stringify(newLink)))
+                    outLink = outLinks[outIndex];
+                    newLink = {target: outLink.target, source: inLink.source, expr:inLink.expr + reflexiveRegex + outLink.expr, id:getFreeLinkID()};
+                    m.links.push(JSON.parse(JSON.stringify(newLink)));
                 }
             }
-            m.nodes.splice(index, 1)
-        }
+            m.nodes.splice(index, 1);
+        };
 
 
         //Using the state elimination method, construct a regex equivilant to the current machine.
         //Algorithm from http://courses.cs.washington.edu/courses/cse311/14sp/kleene.pdf
-        var m = query.getCopyForRegex() // Operate on a copy of the machine
+        var m = query.getCopyForRegex(); // Operate on a copy of the machine
         // Create a new state that every other accepting state has an epsilon transition to.
         // Make all previously accepting states non-accepting
 
         //TODO, assign a correct new ID
         //TODO, enforce no empty links before checking.
-        var acceptingID = m.nodes.length
-        m.nodes.push({id: acceptingID, accepting: true})
+        var acceptingID = m.nodes.length;
+        m.nodes.push({id: acceptingID, accepting: true});
         for (var i = 0; i < m.nodes.length-1; i++){
             if (!m.nodes[i].accepting){
                 continue;
             }
             m.nodes[i].accepting = false;
-            m.links.push({expr: "", source:m.nodes[i], target: m.nodes[m.nodes.length -1], input:["ε"]})
+            m.links.push({expr: "", source:m.nodes[i], target: m.nodes[m.nodes.length -1], input:["ε"]});
         }
         while (m.nodes.length > 2){
-            eliminateState(1)
+            eliminateState(1);
         }
 
         //Combine all links from start to end into a single regex
-        var finalRegex = "(" + m.links[0].expr + ")"
+        var finalRegex = "(" + m.links[0].expr + ")";
         for (i = 1; i < m.links.length; i++){
             if (finalRegex[finalRegex.length-1] == "|"){
-                finalRegex +=m.links[i].expr
+                finalRegex +=m.links[i].expr;
             } else{
-                finalRegex += "|(" + m.links[i].expr + ")"
+                finalRegex += "|(" + m.links[i].expr + ")";
             }
-
         }
-        console.log(finalRegex)
-        return m
+        return m;
 
 
     },
@@ -1687,9 +1683,9 @@ var query = {
         var str;
         var reflexive;
         for (i = 0; i < model.nodes.length; i++){
-            reflexive = null
+            reflexive = null;
             node = model.nodes[i];
-            links = query.getLinksFromNode(node)
+            links = query.getLinksFromNode(node);
             for (j = 0; j < links.length; j++){
                 if (links[j].target === node && links[j].input.length > 0){
                     reflexive = links[j];
@@ -1697,24 +1693,24 @@ var query = {
                 }
             }
             if(reflexive === null){
-                states[String(node.id)] = ""
+                states[String(node.id)] = "";
             } else {
-                str = "(" + reflexive.input[0]
+                str = "(" + reflexive.input[0];
                 for (k = 1; k < reflexive.input.length; k++){
-                    str += "|" + reflexive.input[k]
+                    str += "|" + reflexive.input[k];
                 }
-                str += ")*"
+                str += ")*";
                 states[String(node.id)] = str;
             }
         }
 
         // For each accepting state, create a base regex:
-        var regexes = {}
+        var regexes = {};
         for(i = 0; i < model.nodes.length; i++){
             if (!model.nodes[i].accepting){
                 continue;
             }
-            regexes[String(model.nodes[i].id)] = states[String(model.nodes[i].id)]
+            regexes[String(model.nodes[i].id)] = states[String(model.nodes[i].id)];
         }
         return regexes;
 
@@ -1724,32 +1720,32 @@ var query = {
         var machine = {
             "nodes": JSON.parse(JSON.stringify(model.nodes)),
             "links": JSON.parse(JSON.stringify(model.links))
-        }
+        };
 
         // Remove any unreachable states. First find all reachable states:
         var changed = true;
         var reachableIDs = [];
-        var frontier = [0]
-        var newfrontier = []
-        var link
+        var frontier = [0];
+        var newfrontier = [];
+        var link;
         while (changed){
-            changed = false
+            changed = false;
             for (var i = 0; i < frontier.length; i++){
-                var sourceID = frontier[i]
+                var sourceID = frontier[i];
                 for (var j = 0; j< machine.links.length; j++){
                     link = machine.links[j];
                     if (link.source.id == sourceID){
-                        var targetID = link.target.id
+                        var targetID = link.target.id;
                         if (reachableIDs.indexOf(targetID) == -1 && newfrontier.indexOf(targetID) == -1 && frontier.indexOf(targetID)== -1){
                             newfrontier.push(targetID);
-                            changed = true
+                            changed = true;
                         }
                     }
                 }
             }
-            reachableIDs = reachableIDs.concat(frontier)
-            frontier = newfrontier
-            newfrontier = []
+            reachableIDs = reachableIDs.concat(frontier);
+            frontier = newfrontier;
+            newfrontier = [];
         }
         //Then remove any state not appearring in reachableIDs:
         for (i = 0; i < machine.nodes.length; i++){
@@ -1758,15 +1754,13 @@ var query = {
                 machine.nodes.splice(i, 1);
                 // And remove all links to/from it.
                 for (j = 0; j < machine.links.length; j++){
-                    link = machine.links[j]
+                    link = machine.links[j];
                     if (link.source.id == nodeID || link.target.id == nodeID){
-                        machine.links.splice(j, 1)
+                        machine.links.splice(j, 1);
                     }
                 }
             }
         }
-
-        console.log(machine)
     }
 };
 
@@ -1778,15 +1772,15 @@ var checkAnswer = {
         }
         //define a function to to give feedback if the user is correct.
         var isCorrect = function(){
-            var iconAddress = global.iconAddress
+            var iconAddress = global.iconAddress;
             var nextURL = document.getElementById("nav-next").href;
             var newHTML = "<img class ='x-check-button inline-feedback' src='" + iconAddress +"check.svg'><a href="+nextURL+" class='extra-next pure-button'>Next</a>";
             if(config.removeInputButtonsOnDemoSuccess){
                 //Replace the input buttons
-                document.querySelector("#demo-div").innerHTML = newHTML
+                document.querySelector("#demo-div").innerHTML = newHTML;
             } else{
                 // Or insert after the buttons, preserving event listeners
-                var siblings = document.querySelector("#demo-div").children
+                var siblings = document.querySelector("#demo-div").children;
                 var lastSibling = siblings[siblings.length - 1];
                 lastSibling.insertAdjacentHTML("afterend",newHTML);
             }
@@ -1794,7 +1788,7 @@ var checkAnswer = {
             model.question.hasGoal = false;
             //Don't send full model for a demo question - pointless.
             logging.sendAnswer(true, null);
-            }
+        };
 
         if(model.question.goalType == "accepting"){
             // User succeeds if the machine is in an accepting state
@@ -1806,21 +1800,21 @@ var checkAnswer = {
         else if(model.question.goalType == "output"){
             // User succeeds if the machine output matches the goal output.
             if (model.currentOutput == model.question.outputTarget){
-                isCorrect()
+                isCorrect();
             }
         } else{
             alert("Invalid value for goalType");
         }
     },
     doesAccept: function(){
-        var iconAddress = global.iconAddress
+        var iconAddress = global.iconAddress;
         var listLength = model.question.strList.length;
         var passed = true;
-        var tableRows = document.querySelector("#does-accept-table tbody").children
+        var tableRows = document.querySelector("#does-accept-table tbody").children;
         var isChecked;
         for (var i = 0; i < listLength; i++){
             // Test element i of strList
-            isChecked = tableRows[i].firstChild.firstChild.checked
+            isChecked = tableRows[i].firstChild.firstChild.checked;
             var input = model.parseInput(model.question.strList[i]);
             var accepts = model.accepts(input);
             if (accepts == isChecked){
@@ -1874,7 +1868,7 @@ var checkAnswer = {
             for (var j = i - 1; j > -1; j--){
                 if (JSON.stringify(answers[i]) == JSON.stringify(answers[j])){
                     forms[i].classList.add("incorrect");
-                    var message = document.createElement("p");
+                    message = document.createElement("p");
                     message.innerHTML = "Input not unique, same as #" + (j + 1) + ".";
                     message.classList.add("feedback");
                     forms[i].parentNode.appendChild(message);
@@ -1886,7 +1880,7 @@ var checkAnswer = {
             // Check that FSM accepts answer
             if (!model.accepts(answers[i])){
                 forms[i].classList.add("incorrect");
-                var message = document.createElement("p");
+                message = document.createElement("p");
                 var trace = "<a class='pure-button' href='javascript:display.showTrace("+JSON.stringify(answers[i])+")'>Show trace.</a>";
                 message.innerHTML = "Incorrect - input not accepted by machine. " + trace;
                 message.classList.add("feedback");
@@ -1900,7 +1894,7 @@ var checkAnswer = {
             logging.sendAnswer(true, answers[i]);
         }
         if (allCorrect && config.displayNextOnCorrect){
-                display.showNextButton();
+            display.showNextButton();
         }
     },
     satisfyDefinition: function(){
@@ -1942,23 +1936,23 @@ var checkAnswer = {
         }
         // Test that the correct state is the intial state:
         if (query.getNodeData(0).name != model.question.initial){
-            var expected = model.question.initial;
+            expected = model.question.initial;
             if (expected == undefined){
-                expected = "unnamed"
+                expected = "unnamed";
             }
             else{
-                expected = "'" + expected + "'"
+                expected = "'" + expected + "'";
             }
-            var actual = query.getNodeData(0).name;
+            actual = query.getNodeData(0).name;
             displayFeedback("Incorrect - the initial state should be " + expected +" not '" + actual + "'.");
             logging.sendAnswer(false);
             return;
         }
         // Test if the correct state(s) are accepting:
         for (i = 0; i < model.question.accepting.length; i++){
-            var questionNode = model.question.accepting[i];
+            questionNode = model.question.accepting[i];
             for (j = 0; j < model.nodes; j++){
-                var thisNode = model.nodes[j];
+                thisNode = model.nodes[j];
                 if (thisNode.name != questionNode){
                     continue;
                 } else {
@@ -1977,7 +1971,7 @@ var checkAnswer = {
             if (!thisNode.accepting){
                 continue;
             } else {
-                var found = false;
+                found = false;
                 for (j = 0; j < model.question.accepting.length; j++){
                     if (thisNode.name == model.question.accepting[j]){
                         found = true;
@@ -2003,7 +1997,7 @@ var checkAnswer = {
             var thisLink = model.links[i];
             for (j = 0; j < thisLink.input.length; j++){
                 var thisInput = thisLink.input[j];
-                var found = false;
+                found = false;
                 for (var k = 0; k < model.question.links.length && found == false; k++){
                     var questionLink = model.question.links[k];
                     if (questionLink.source != thisLink.source.name){
@@ -2041,12 +2035,12 @@ var checkAnswer = {
         //All tests passed:
         displayFeedback("Correct!");
         if (config.displayNextOnCorrect){
-                display.showNextButton();
+            display.showNextButton();
         }
         logging.sendAnswer(true);
     },
     satisfyList: function(){
-        var iconAddress = global.iconAddress
+        var iconAddress = global.iconAddress;
         var accLength = model.question.acceptList.length;
         var rejLength = model.question.rejectList.length;
         var nRows = Math.max(model.question.acceptList.length, model.question.rejectList.length);
@@ -2066,8 +2060,8 @@ var checkAnswer = {
             }
             // Test element i of rejectList
             if (i < rejLength){
-                var input = model.parseInput(model.question.rejectList[i]);
-                var accepts = model.accepts(input);
+                input = model.parseInput(model.question.rejectList[i]);
+                accepts = model.accepts(input);
                 if (!accepts){
                     document.querySelector("#td-rej-adj-"+i).innerHTML = "<img class ='x-check' src='" +iconAddress + "check.svg'>";
                 } else {
@@ -2116,7 +2110,7 @@ var checkAnswer = {
         }
         //Check if there is an accepting state:
         if(!query.hasAcceptingState()){
-            displayFeedback("Incorrect - Machine does not have an accepting state.")
+            displayFeedback("Incorrect - Machine does not have an accepting state.");
             return;
         }
 
@@ -2124,10 +2118,10 @@ var checkAnswer = {
         if (model.question.minAcceptLength == undefined){ // minAcceptLength is the length of the shortest string that the regex should accept. Here given a default value of 4.
             var minAcceptLength = 4;
         } else {
-            var minAcceptLength = model.question.minAcceptLength;
+            minAcceptLength = model.question.minAcceptLength;
         }
         // First, check that what the machine accepts is a subset of what the regex accepts (for length <= pathLength)
-        var pathLength = model.nodes.length + 1 // TODO prove that this is sufficient.
+        var pathLength = model.nodes.length + 1; // TODO prove that this is sufficient.
         if (pathLength < minAcceptLength){
             pathLength = minAcceptLength;
         }
@@ -2138,7 +2132,7 @@ var checkAnswer = {
             if(model.question.alphabetType != "char"){
                 var string = instring.replace(/ /g, "");
             } else {
-                var string = instring;
+                string = instring;
             }
             if (errorFound){
                 return;
@@ -2161,10 +2155,10 @@ var checkAnswer = {
         // First, create a list of all possible strings built from the alphabet using Dynamic Programming.
 
         //Use alphabet with 'ε' removed
-        var alphabet = []
+        var alphabet = [];
         for (var i = 0; i < model.question.alphabet.length; i++){
             if (model.question.alphabet[i] != "ε"){
-                alphabet.push(model.question.alphabet[i])
+                alphabet.push(model.question.alphabet[i]);
             }
         }
         var strings = ["", alphabet];
@@ -2187,7 +2181,7 @@ var checkAnswer = {
                 if (regex.exec(string) != null && regex.exec(string)[0] ==  string){
                     //If the regex accepts the string, check the machine accepts it
                     if (model.question.alphabetType == "symbol"){
-                        string = model.tokeniseString(string)
+                        string = model.tokeniseString(string);
                     }
                     if (!model.accepts(model.parseInput(string))){
                         displayFeedback("Incorrect - the machine rejects the string '" + string + "' which it should accept.");
@@ -2212,7 +2206,7 @@ var checkAnswer = {
                 feedback.remove();
             }
             var message = document.createElement("p");
-            var iconAddress = global.iconAddress
+            var iconAddress = global.iconAddress;
             message.classList.add("inline-feedback");
             if (isCorrect){
                 message.innerHTML = "<img class ='x-check-button' src='" + iconAddress + "check.svg'>";
@@ -2221,7 +2215,7 @@ var checkAnswer = {
                 message.innerHTML = "<img class ='x-check-button' src='" + iconAddress + "x.svg'>";
                 logging.sendAnswer(false, model.selected);
             }
-            document.querySelector(".button-div").appendChild(message)
+            document.querySelector(".button-div").appendChild(message);
         };
         //Put machine into state described by the question.
         model.currentStates = JSON.parse(JSON.stringify(model.question.initialState));
@@ -2282,19 +2276,19 @@ var eventHandler = {
         // If rename menu is showing, submit it if config allows.
         if (global.renameMenuShowing) {
             if (config.submitRenameOnBGclick){
-                controller.renameSubmit()
+                controller.renameSubmit();
             }
             return;
         }
 
-        if (traceInProgress){
+        if (global.traceInProgress){
             return;
         }
 
 
         if (model.toolMode == "nodetool" || model.toolMode == "acceptingtool"){
-            d3.event.preventDefault()
-            eventHandler.createNode()
+            d3.event.preventDefault();
+            eventHandler.createNode();
             return;
         }
 
@@ -2303,13 +2297,13 @@ var eventHandler = {
         if(!model.editable){
             return;
         }
-        if(traceInProgress){
+        if(global.traceInProgress){
             return;
         }
-        if (selected_link == d){
-            selected_link = null;
+        if (global.mousevars.selected_link == d){
+            global.mousevars.selected_link = null;
         } else {
-            selected_link = d;
+            global.mousevars.selected_link = d;
         }
         restart();
         if (model.toolMode == "texttool"){
@@ -2323,7 +2317,7 @@ var eventHandler = {
 
     },
     clickLinkPadding: function(d){
-        if(traceInProgress){
+        if(global.mousevars.traceInProgress){
             return;
         }
         if (model.toolMode == "nodetool" || model.toolMode == "acceptingtool"){
@@ -2334,7 +2328,7 @@ var eventHandler = {
         }
     },
     clickNode: function(d) {
-        if(traceInProgress){
+        if(global.mousevars.traceInProgress){
             return;
         }
         if (model.toolMode == "acceptingtool"){
@@ -2353,19 +2347,19 @@ var eventHandler = {
             eventHandler.createNode();
         }
     },
-    addLinkMouseDown: function(d) {
-        if(traceInProgress){
+    addLinkMouseDown: function() {
+        if(global.traceInProgress){
             return;
         }
         if (!model.editable){
             return;
         }
         if (d3.event.ctrlKey) return;
-        selected_node = null;
+        global.mousevars.selected_node = null;
         restart();
     },
     createLink: function(d, eventType) {
-        if(traceInProgress){
+        if(global.traceInProgress){
             return;
         }
         if (model.toolMode != "linetool"){
@@ -2374,22 +2368,27 @@ var eventHandler = {
         if (eventType == "mousedown") {
             if (d3.event.ctrlKey || (d3.event.button != 0 && d3.event.button != undefined)) return;
             // select node
-            mousedown_node = d;
-            if (mousedown_node === selected_node) selected_node = null;
-            else selected_node = mousedown_node;
-            selected_link = null;
+            global.mousevars.mousedown_node = d;
+            if (global.mousevars.mousedown_node === global.mousevars.selected_node){
+                global.mousevars.selected_node = null;
+            } else {
+                global.mousevars.selected_node = global.mousevars.mousedown_node;
+            }
+            global.mousevars.selected_link = null;
 
             // reposition drag line
-            drag_line
+            var x = global.mousevars.mousedown_node.x;
+            var y = global.mousevars.mousedown_node.y;
+            global.drag_line
                 .style("marker-end", "url(#end-arrow)")
                 .classed("hidden", false)
-                .attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + mousedown_node.x + "," + mousedown_node.y);
+                .attr("d", "M" + x + "," + y + "L" + x + "," + y);
             restart();
         } else if (eventType == "mouseup") {
             if (!global.mousevars.mousedown_node || (d3.event.button != 0 && d3.event.button != undefined)) return;
 
             // needed by FF
-            drag_line
+            global.drag_line
                 .classed("hidden", true)
                 .style("marker-end", "");
 
@@ -2506,11 +2505,10 @@ var eventHandler = {
         global.hasRated = true;
     },
     resizeHandler: function(){
-        console.log("RESIZE!")
         var width = config.widthFraction * window.innerWidth;
         var height = config.heightFraction * window.innerHeight;
-        svg.attr("width", width).attr("height", height);
-        force.size([width, height]).resume();
+        global.mainSVG.attr("width", width).attr("height", height);
+        global.force.size([width, height]).resume();
         model.resizePosition(width, height);
         restart();
 
@@ -2518,9 +2516,8 @@ var eventHandler = {
         if(global.toolsWithDragAllowed.indexOf(model.toolMode) != -1){
             // Need to wait, otherwise this doesn't work
             window.setTimeout(function(){
-                console.log("RESTART DRAG!")
-                circle.call(force.drag);
-            }, 300)
+                global.circle.call(global.force.drag);
+            }, 300);
         }
 
     },
@@ -2529,20 +2526,20 @@ var eventHandler = {
         d3.event.preventDefault();
 
         //If menu already present, dismiss it.
-        if (contextMenuShowing) {
+        if (global.contextMenuShowing) {
             display.dismissContextMenu();
         }
         // Get the id of the clicked state:
         var id = d3.event.target.id;
 
-        contextMenuShowing = true;
-        var mousePosition = d3.mouse(svg.node());
+        global.contextMenuShowing = true;
+        var mousePosition = d3.mouse(global.mainSVG.node());
 
-        display.createStateContextMenu(svg, id, mousePosition);
+        display.createStateContextMenu(global.mainSVG, id, mousePosition);
     },
     //Function to handle clicks to the control palette:
     toolSelect: function() {
-        if(traceInProgress){
+        if(global.traceInProgress){
             //End trace if one is in progress
             controller.endTrace();
         }
@@ -2555,7 +2552,7 @@ var eventHandler = {
 
         // Reinstate drag-to-move if previous mode did not allow it.
         if(global.toolsWithDragAllowed.indexOf(model.toolMode) != -1){
-            circle.call(force.drag);
+            global.circle.call(global.force.drag);
         }
         // If current mode is the same as the new mode, deselect it:
         if (model.toolMode == newMode){
@@ -2568,7 +2565,7 @@ var eventHandler = {
         }
         //  disable node dragging if needed by new mode:
         if (newMode == "linetool" || newMode == "texttool" || newMode == "acceptingtool" || newMode == "deletetool" || newMode == "nodetool"){
-            circle
+            global.circle
                 .on("mousedown.drag", null)
                 .on("touchstart.drag", null);
         }
@@ -2597,7 +2594,7 @@ var eventHandler = {
             return;
         }
         if (button == "stop"){
-            controller.endTrace()
+            controller.endTrace();
             return;
         }
     }
@@ -2607,16 +2604,16 @@ var eventHandler = {
 var controller = {
     demoInput: function(symbol){
         if (model.question.alphabetType == "char"){
-            model.fullInput += [symbol]
-            model.currentInput = [symbol]
+            model.fullInput += [symbol];
+            model.currentInput = [symbol];
         } else {
-             model.fullInput += [",", symbol]
-             model.currentInput = [symbol]
+            model.fullInput += [",", symbol];
+            model.currentInput = [symbol];
         }
 
-        var linkIDs = model.step()
+        var linkIDs = model.step();
         display.highlightCurrentStates();
-        display.highlightLinks(linkIDs)
+        display.highlightLinks(linkIDs);
         d3.selectAll(".machine-input").remove();
         d3.selectAll(".machine-output").remove();
         if (!config.displayInputOnRight){
@@ -2626,23 +2623,23 @@ var controller = {
         }
         display.drawOutput();
         if (model.question.hasGoal){
-            checkAnswer.demo()
+            checkAnswer.demo();
         }
 
     },
     demoReset: function(){
-        model.fullInput = []
+        model.fullInput = [];
         model.resetTrace();
-        d3.selectAll(".machine-input").remove()
-        d3.selectAll(".machine-output").remove()
-        d3.selectAll(".rightinput").remove()
+        d3.selectAll(".machine-input").remove();
+        d3.selectAll(".machine-output").remove();
+        d3.selectAll(".rightinput").remove();
         display.highlightLinks([]);
         display.resetTrace();
     },
     endTrace:function(){
         display.dismissTrace();
         model.resetTrace();
-        traceInProgress = false;
+        global.traceInProgress = false;
     },
     renameSubmit: function() {
         var menu = d3.select(".renameinput")[0][0];
@@ -2662,7 +2659,7 @@ var controller = {
             d = d3.select("[id='" + nodeID + "']").data()[0];
             d.name = value;
             //Change the displayed label to the new name
-            label = svg.select("#nodename" + nodeID);
+            label = global.mainSVG.select("#nodename" + nodeID);
             label.text(value);
         }
         //Link rename using a text form:
@@ -2680,37 +2677,37 @@ var controller = {
                     d.input[i] = "ε";
                 }
             }
-            display.updateLinkLabel(linkID)
+            display.updateLinkLabel(linkID);
 
         }
         //Link rename using a checkbox menu:
         if (type == "lcon"){
-            var linkID = id.slice(4);
+            linkID = id.slice(4);
             d = query.getLinkData(linkID);
             d.input = [];
             d.output = [];
             var element;
             var insymbol;
-            for (var i = 0; i < menu.children.length; i++){
-                element = menu.children[i]
+            for (i = 0; i < menu.children.length; i++){
+                element = menu.children[i];
                 if (element.tagName == "INPUT"){
                     if (!element.checked){
-                    continue;
+                        continue;
                     }
-                    d.input.push(element.value)
+                    d.input.push(element.value);
                 } else if (element.tagName == "SELECT") { //Get output symbols from the dropdown menu
-                    value = element.value
+                    value = element.value;
                     if (value == ""){ //Ignore empty output
                         continue;
                     }
-                    insymbol = element.id.slice(4)
+                    insymbol = element.id.slice(4);
                     if (d.input.indexOf(insymbol) == -1){ //Ignore outputs for input that are not accepted.
                         continue;
                     }
-                    d.output.push([insymbol, value])
+                    d.output.push([insymbol, value]);
                 }
             }
-            display.updateLinkLabel(linkID)
+            display.updateLinkLabel(linkID);
         }
         display.dismissRenameMenu();
     },
@@ -2730,57 +2727,57 @@ var controller = {
 
 
 function resetMouseVars() {
-    mousedown_node = null;
-    mouseup_node = null;
-    mousedown_link = null;
+    global.mousevars.mousedown_node = null;
+    global.mousevars.mouseup_node = null;
+    global.mousevars.mousedown_link = null;
 }
 
 // update force layout (called automatically each iteration)
 function tick() {
     // draw directed edges with proper padding from node centers
-    path.attr("d", function(d) {
-            // Check for reflexive links
-            if (d.source == d.target){
-                return display.reflexiveLink(d.source.x, d.source.y - 18);
-            }
+    global.path.attr("d", function(d) {
+        // Check for reflexive links
+        if (d.source == d.target){
+            return display.reflexiveLink(d.source.x, d.source.y - 18);
+        }
 
-            var deltaX = d.target.x - d.source.x,
-                deltaY = d.target.y - d.source.y,
-                dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+        var deltaX = d.target.x - d.source.x,
+            deltaY = d.target.y - d.source.y,
+            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
 
-                //Define unit vectors
-                unitX = deltaX / dist,
-                unitY = deltaY / dist,
+            //Define unit vectors
+            unitX = deltaX / dist,
+            unitY = deltaY / dist,
 
-                padding = 18,
-                sourceX = d.source.x + (padding * unitX),
-                sourceY = d.source.y + (padding * unitY),
-                targetX = d.target.x - (padding * unitX),
-                targetY = d.target.y - (padding * unitY);
+            padding = 18,
+            sourceX = d.source.x + (padding * unitX),
+            sourceY = d.source.y + (padding * unitY),
+            targetX = d.target.x - (padding * unitX),
+            targetY = d.target.y - (padding * unitY);
 
-            // Determine if there is a link in the other direction.
-            // If there is, we will use a bezier curve to allow both to be visible
-            if (query.isBezier(d.id)) {
-                return display.bezierCurve(sourceX, sourceY, targetX, targetY);
-            } else {
-                return display.line(sourceX, sourceY, targetX, targetY);
-            }
-        })
-        .style("stroke-width", 2)
-        .attr("id", function(d) {
-            return "link" + d.id;
-        });
+        // Determine if there is a link in the other direction.
+        // If there is, we will use a bezier curve to allow both to be visible
+        if (query.isBezier(d.id)) {
+            return display.bezierCurve(sourceX, sourceY, targetX, targetY);
+        } else {
+            return display.line(sourceX, sourceY, targetX, targetY);
+        }
+    })
+    .style("stroke-width", 2)
+    .attr("id", function(d) {
+        return "link" + d.id;
+    });
 
     //Update the path padding
     model.links.map(function(l){
         var path = d3.select("#link" + l.id);
         var padding = d3.select("#linkpad" + l.id);
-        padding.attr("d", path.attr("d"))
-    })
+        padding.attr("d", path.attr("d"));
+    });
 
 
     // Move the input labels
-    linkLabels.attr("transform", function(d) {
+    global.linkLabels.attr("transform", function(d) {
         // Determine if there is a link in the other direction.
         // We need this as labels will be placed differently for curved links.
         var sourceId = d.source.id;
@@ -2794,12 +2791,12 @@ function tick() {
 
         return "translate(" + position.x + "," + position.y + ") rotate(" + position.rotation + ")";
     });
-    linkLabels.attr("id", function(d) {
+    global.linkLabels.attr("id", function(d) {
         return "linklabel" + d.id;
     });
 
     // Draw the nodes in their new positions
-    circle.attr("transform", function(d) {
+    global.circle.attr("transform", function(d) {
         return "translate(" + d.x + "," + d.y + ")";
     });
 
@@ -2982,7 +2979,7 @@ function mousemove() {
     d3.event.preventDefault();
 
     // update drag line
-    drag_line.attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + d3.mouse(this)[0] + "," + d3.mouse(this)[1]);
+    global.drag_line.attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + d3.mouse(this)[0] + "," + d3.mouse(this)[1]);
 
     restart();
 }
@@ -2990,7 +2987,7 @@ function mousemove() {
 function mouseup() {
     if (global.mousevars.mousedown_node) {
         // hide drag line
-        drag_line
+        global.drag_line
             .classed("hidden", true)
             .style("marker-end", "");
     }
@@ -3097,7 +3094,7 @@ var logging = {
     },
     sendInfo: function() {
         var url = window.location.href;
-        if (!isActive){
+        if (!global.isActive){
             // Don't log if the window is not active
             return;
         }
