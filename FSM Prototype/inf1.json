@@ -32,20 +32,12 @@
     "name": "Accepting states II"
   },
   {
-    "filename": "give-list-2",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":true,\"name\":\"2\",\"x\":350.0006347292775,\"y\":251.08626712151133,\"index\":1,\"weight\":3,\"px\":350.00063633801693,\"py\":251.0860726484399,\"fixed\":0},{\"id\":2,\"accepting\":false,\"name\":\"3\",\"x\":500.0017709653978,\"y\":249.16851859051098,\"index\":2,\"weight\":1,\"px\":500.00203870477065,\"py\":249.16851516806275,\"fixed\":0}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\",\"b\"],\"id\":0},{\"source\":1,\"target\":2,\"input\":[\"a\",\"b\",\"c\"],\"id\":1},{\"source\":1,\"target\":0,\"input\":[\"a\"],\"id\":2}]",
-    "data-question": "{\"type\":\"give-list\",\"lengths\":[3,3,5,7],\"text\":\"A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, state ‘2’  is an accepting state. <br>For each of the lengths given, give a sequence that the machine will accept. For example ‘aab’.\",\"alphabetType\":\"char\",\"prefill\":{\"0\":\"aab\"}}",
-    "data-options": "{}",
-    "name": "Accepting states III"
-  },
-  {
-    "filename": "give-list-3",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"name\":\"2\",\"x\":350.15032120079667,\"y\":250.475260487718,\"index\":1,\"weight\":2,\"px\":350.1503209617719,\"py\":250.47526958470755,\"fixed\":0},{\"id\":2,\"accepting\":false,\"name\":\"3\",\"x\":500.3293871545822,\"y\":251.17886507380038,\"index\":2,\"weight\":2,\"px\":500.3293821052963,\"py\":251.17882771815624,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":650.6004584943366,\"y\":250.95221832253597,\"index\":3,\"weight\":1,\"px\":650.5994361672165,\"py\":250.95221986159427,\"fixed\":0,\"name\":\"4\"},{\"id\":4,\"accepting\":false,\"x\":196.31303007981728,\"y\":99.89358118674825,\"index\":4,\"weight\":2,\"px\":196.31305489187685,\"py\":99.89459124923395,\"fixed\":0,\"name\":\"0\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":0},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":1},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":3},{\"source\":0,\"target\":4,\"input\":[\"a\"],\"id\":4},{\"source\":4,\"target\":0,\"input\":[\"b\"],\"id\":5}]",
-    "data-question": "{\"type\":\"give-list\",\"lengths\":[3,7],\"text\":\"For each of the lengths given, give a sequence that the Finite State Machine will accept.\",\"alphabetType\":\"char\"}",
-    "data-options": "{}",
-    "name": "Introducing cycles"
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":257.2086177740776,\"y\":111.32064224896024,\"index\":1,\"weight\":2,\"px\":257.2098908020626,\"py\":111.32164934087207,\"name\":\"2\"},{\"id\":2,\"accepting\":false,\"x\":349.0088140537526,\"y\":230.36294014538473,\"index\":2,\"weight\":2,\"px\":349.00746983681194,\"py\":230.3631279810466,\"name\":\"1\"},{\"id\":3,\"accepting\":false,\"x\":275.9656281076838,\"y\":379.5827047002902,\"index\":3,\"weight\":2,\"px\":275.970823131842,\"py\":379.579077305579},{\"id\":4,\"accepting\":true,\"x\":425.87153304251456,\"y\":370.69025808291764,\"index\":4,\"weight\":1,\"px\":425.876325626183,\"py\":370.6884507544535}]",
+    "data-links": "[{\"source\":0,\"target\":2,\"input\":[\"a\"],\"id\":1},{\"source\":2,\"target\":1,\"input\":[\"a\"],\"id\":2},{\"source\":1,\"target\":0,\"input\":[\"a\"],\"id\":3},{\"source\":0,\"target\":3,\"input\":[\"b\"],\"id\":4},{\"source\":3,\"target\":4,\"input\":[\"b\"],\"id\":5}]",
+    "filename": "give-list-cycles",
+    "name": "Introducing cycles",
+    "data-question": "{\"text\":\"FSMs can be in a particular state more than once. The machine shown accepts<br>inputs consisting of N times '<i>a</i>' followed by '<i>bb</i>' where N modulo 3 = 0.<br><b>For each of the lengths given, give an input the machine will accept</b> \",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":false,\"type\":\"give-list\",\"lengths\":[2,5,8],\"prefill\":{\"0\":\"bb\"}}",
+    "data-options": "{}"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":366,\"y\":250,\"index\":1,\"weight\":0,\"px\":366,\"py\":250,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":542,\"y\":250,\"index\":2,\"weight\":0,\"px\":542,\"py\":250,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":712,\"y\":250,\"index\":3,\"weight\":0,\"px\":712,\"py\":250}]",
@@ -94,6 +86,14 @@
     "data-question": "{\"text\":\"A non-deterministic finite automaton accepts a sequence if there is <b>at least one path</b> for that sequence that <b>ends in an accepting state</b>.<br>For the sequences below, tick those that the machine would accept. \",\"alphabetType\":\"char\",\"type\":\"does-accept\",\"strList\":[\"aaab\",\"ac\",\"baabc\",\"abb\",\"abba\",\"aaaabcb\"]}",
     "data-options": "{}",
     "name": "Nondeterministic transitions II"
+  },
+  {
+    "filename": "give-list-3",
+    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"name\":\"2\",\"x\":350.15032120079667,\"y\":250.475260487718,\"index\":1,\"weight\":2,\"px\":350.1503209617719,\"py\":250.47526958470755,\"fixed\":0},{\"id\":2,\"accepting\":false,\"name\":\"3\",\"x\":500.3293871545822,\"y\":251.17886507380038,\"index\":2,\"weight\":2,\"px\":500.3293821052963,\"py\":251.17882771815624,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":650.6004584943366,\"y\":250.95221832253597,\"index\":3,\"weight\":1,\"px\":650.5994361672165,\"py\":250.95221986159427,\"fixed\":0,\"name\":\"4\"},{\"id\":4,\"accepting\":false,\"x\":196.31303007981728,\"y\":99.89358118674825,\"index\":4,\"weight\":2,\"px\":196.31305489187685,\"py\":99.89459124923395,\"fixed\":0,\"name\":\"0\"}]",
+    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":0},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":1},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":3},{\"source\":0,\"target\":4,\"input\":[\"a\"],\"id\":4},{\"source\":4,\"target\":0,\"input\":[\"b\"],\"id\":5}]",
+    "data-question": "{\"type\":\"give-list\",\"lengths\":[3,7],\"text\":\"For each of the lengths given, give a sequence that the Finite State Machine will accept.\",\"alphabetType\":\"char\"}",
+    "data-options": "{}",
+    "name": "Nondeterministic transitions III"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.2380685072659,\"y\":249.14221680436393,\"index\":1,\"weight\":2,\"px\":350.2379770996383,\"py\":249.14218966587043,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":500.4759482223204,\"y\":247.57324669526525,\"index\":2,\"weight\":1,\"px\":500.4759482223204,\"py\":247.57324669526525,\"fixed\":0}]",
