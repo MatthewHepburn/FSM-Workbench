@@ -57,7 +57,7 @@
   <div class="sidebar">
     {% for q in questionList %}
       {% if q.url == url-%}
-        <a class="sidebar-thisq">{{ q.name }}</a>
+        <a class="sidebar-thisq">&#x25B6 {{ q.name }}</a>
       {% else %}
         <a href="{{ q.url }}" class="sidebar-otherq">{{ q.name }}</a>
       {% endif %}
