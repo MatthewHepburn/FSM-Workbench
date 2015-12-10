@@ -5,7 +5,8 @@
     "data-question": "{\"text\":\"<i>[From August 2014 exam - question 4(b).]</i><br>Design a finite-state machine over the alphabet {0, 1} which accepts all<br>strings which have <b>length a multiple of 4</b> and which have an <b>odd number of 1s.</b>\",\"alphabetType\":\"char\",\"alphabet\":[\"0\",\"1\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(0000|0011|0110|1100|1111|1001|1010|0101)*(0001|0010|0100|1000|0111|1011|1101|1110)(0000|0011|0110|1100|1111|1001|1010|0101)*(0000|0011|0110|1100|1111|1001|1010|0101)*((0001|0010|0100|1000|0111|1011|1101|1110)(0000|0011|0110|1100|1111|1001|1010|0101)*(0001|0010|0100|1000|0111|1011|1101|1110))*(0000|0011|0110|1100|1111|1001|1010|0101)*\",\"minAcceptLength\":4,\"maxStates\":12}",
     "data-options": "{\"pinNewNodes\":true}",
     "filename": "2014-Aug-4-b-SOLUTION",
-    "name": "2014-Aug-4-b-SOLUTION"
+    "name": "2014-Aug-4-b-SOLUTION",
+    "id": "181cb74c6e15440599c6a18724d1a175"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":true,\"x\":350.8659648431374,\"y\":249.71648204085054,\"index\":1,\"weight\":5,\"px\":350.8659681391019,\"py\":249.7163641484027,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":500.8736505891089,\"y\":242.88821742291475,\"index\":2,\"weight\":4,\"px\":500.8736505891089,\"py\":242.88821742291475,\"fixed\":0}]",
@@ -13,7 +14,8 @@
     "data-question": "{\"text\":\"<i>[From December 2013 exam - question 5.]</i><br> Design a deterministic finite state machine over the alphabet {0, 1, 2} which accepts only those strings which are <br>representations of <b>odd numbers</b> both in <b>base 3</b> and <b>base 4</b>. <br><br>The machine is fed the representation with the lowest-order digit first (i.e., it reads the number from <b>right to left</b>).<br>\",\"alphabetType\":\"char\",\"alphabet\":[\"0\",\"1\",\"2\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(0|2)(1(0|2|11)*1|(0|2|11))*\",\"minAcceptLength\":1,\"deterministic\":true,\"maxStates\":8}",
     "data-options": "{}",
     "filename": "2013-Dec-5-SOLUTION",
-    "name": "2013-Dec-5-SOLUTION"
+    "name": "2013-Dec-5-SOLUTION",
+    "id": "e6c9a9a32dd640fab46f9990916fc585"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":true,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":5,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":212.01569926958854,\"y\":399.64579235645425,\"index\":1,\"weight\":2,\"px\":212.01562682285456,\"py\":399.64489007589884,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":350.0744068347412,\"y\":243.43840013021412,\"index\":2,\"weight\":1,\"px\":350.07351254633016,\"py\":243.43843925718582,\"fixed\":0}]",
@@ -21,7 +23,8 @@
     "data-question": "{\"text\":\"<i>[From August 2013 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(a*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(c|a*)\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}",
     "filename": "2013-Aug-5-SOLUTION",
-    "name": "2013-Aug-5-SOLUTION"
+    "name": "2013-Aug-5-SOLUTION",
+    "id": "5b320071d1814f188002e2296b83abe1"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":6,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":208.46764760802503,\"y\":399.7953388879688,\"index\":1,\"weight\":2,\"px\":208.471866967281,\"py\":399.7949783756775,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":319.5014197133927,\"y\":158.66587748373362,\"index\":2,\"weight\":3,\"px\":319.50556366400673,\"py\":158.67353757581512,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":339.02763867041125,\"y\":307.30457755400784,\"index\":3,\"weight\":1,\"px\":339.0278040673163,\"py\":307.29990696722894,\"fixed\":0}]",
@@ -29,6 +32,7 @@
     "data-question": "{\"text\":\"<i>[From August 2011 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(ba*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(ba*|c)\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}",
     "filename": "2011-Aug-5-SOLUTION",
-    "name": "2011-Aug-5-SOLUTION"
+    "name": "2011-Aug-5-SOLUTION",
+    "id": "14e438f2998f4e54bd23b3efac3c5ad5"
   }
 ]

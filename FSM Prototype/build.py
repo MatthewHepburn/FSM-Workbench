@@ -21,8 +21,8 @@ sourceDir = ""
 deployDir = ""
 startDir = os.getcwd()
 
-# Keep a list of questions to be used by the stats page
-questionList = []
+# Keep a dict of questions, with their guid as key
+questionList = {}
 
 def setAddresses(toDeploy):
     # Pass in the address of the JS and CSS files
@@ -56,16 +56,17 @@ def setDirs():
     deployDir = os.path.join(startDir, "Deploy")
 
 def buildQuestionList(jsonData, dirName):
-    questions = []
+    questions = {}
     i = 0;
     for q in jsonData:
         i = i + 1
-        questions.append({
-            "name" : q["name"],
+        questions[q["id"]] = {
             "filename": q["filename"],
+            "name" : q["name"],
             "question-number": i,
+            "set":dirName,
             "url": q["filename"] + ".html"
-            })
+        }
     return questions
 
 
@@ -88,7 +89,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
         os.chdir(dirName)
 
     thisQuestionList = buildQuestionList(data, dirName)
-    questionList += thisQuestionList
+    questionList.update(thisQuestionList)
 
     i = 1
     for question in data:
@@ -96,14 +97,15 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
         question["question-number"] = i
         i = i + 1
         variables = {
-            "nodes": question["data-nodes"].replace("'","&apos;" ),
+            "addresses": addresses,
             "links": question["data-links"].replace("'","&apos;" ),
+            "nodes": question["data-nodes"].replace("'","&apos;" ),
             "options": question["data-options"].replace("'","&apos;" ),
             "question": question["data-question"].replace("'","&apos;" ),
-            "title": "FSM - Question #" + str(question["question-number"]),
-            "addresses": addresses,
-            "showSidebar": True,
+            "questionID": question["id"],
             "questionList": thisQuestionList,
+            "showSidebar": True,
+            "title": "FSM - Question #" + str(question["question-number"]),
             "url": question["filename"] + ".html"
         }
         # Set previous/next urls

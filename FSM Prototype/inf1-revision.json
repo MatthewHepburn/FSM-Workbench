@@ -5,7 +5,8 @@
     "filename": "2014-Dec-5-a",
     "data-question": "{\"text\":\"<i>[From December 2014 exam - question 5(a).]</i><br>Select the strings which are accepted by the NFA in the diagram.<br>(The start state is indicated by an arrow and the accepting state by a double border.)\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":false,\"type\":\"does-accept\",\"strList\":[\"abb\",\"abababaabb\",\"abababababb\"]}",
     "data-options": "{}",
-    "name":"December 2014 exam - 5(a)"
+    "name":"December 2014 exam - 5(a)",
+    "id": "c55f7ec9375e4700b0577e02f8490602"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
@@ -13,7 +14,8 @@
     "filename": "2014-Dec-5-d-i",
     "data-question": "{\"text\":\"<i>[From December 2014 exam - question 5(d)i.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>xy*</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"x\",\"y\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"xy*\",\"minAcceptLength\":1,\"maxStates\":7}",
     "data-options": "{}",
-    "name":"December 2014 exam - 5(d)i"
+    "name":"December 2014 exam - 5(d)i",
+    "id": "f66821c8086040a7951a00ca67030f77"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
@@ -21,7 +23,8 @@
     "filename": "2014-Dec-5-d-ii",
     "data-question": "{\"text\":\"<i>[From December 2014 exam - question 5(d)ii.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(x|y)*</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"x\",\"y\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(x|y)*\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}",
-    "name":"December 2014 exam - 5(d)ii"
+    "name":"December 2014 exam - 5(d)ii",
+    "id": "8371b769af8644bab5114b0d45e8abcb"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
@@ -29,7 +32,8 @@
     "filename": "2014-Dec-5-d-iii",
     "data-question": "{\"text\":\"<i>[From December 2014 exam - question 5(d)iii.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(xy)*</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"x\",\"y\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(xy)*\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}",
-    "name":"December 2014 exam - 5(d)iii"
+    "name":"December 2014 exam - 5(d)iii",
+    "id": "cd276e56eb914357a26fb863825373fb"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
@@ -37,7 +41,8 @@
     "filename": "2013-Aug-5",
     "data-question": "{\"text\":\"<i>[From August 2013 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(a*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(c|a*)\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}",
-    "name":"August 2013 exam - 5"
+    "name":"August 2013 exam - 5",
+    "id": "139898762c2b49508b5ac6553f9607e1"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
@@ -45,7 +50,8 @@
     "filename": "2011-Aug-5",
     "data-question": "{\"text\":\"<i>[From August 2011 exam - question 5.]</i><br>Build a non-deterministic finite state machine that accepts the language described by the regular expression:<br><center><b>(a|bb)*(ba*|c)</b></center><br>\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(a|bb)*(ba*|c)\",\"minAcceptLength\":0,\"maxStates\":7}",
     "data-options": "{}",
-    "name":"August 2011 exam - 5"
+    "name":"August 2011 exam - 5",
+    "id": "5975f52a66f04dbc9955c823fd14c5fe"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
@@ -53,7 +59,8 @@
     "filename": "2014-Aug-4-b",
     "data-question": "{\"text\":\"<i>[From August 2014 exam - question 4(b).]</i><br>Design a finite-state machine over the alphabet {0, 1} which accepts all<br>strings which have <b>length a multiple of 4</b> and which have an <b>odd number of 1s.</b>\",\"alphabetType\":\"char\",\"alphabet\":[\"0\",\"1\",\"ε\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(0000|0011|0110|1100|1111|1001|1010|0101)*(0001|0010|0100|1000|0111|1011|1101|1110)(0000|0011|0110|1100|1111|1001|1010|0101)*(0000|0011|0110|1100|1111|1001|1010|0101)*((0001|0010|0100|1000|0111|1011|1101|1110)(0000|0011|0110|1100|1111|1001|1010|0101)*(0001|0010|0100|1000|0111|1011|1101|1110))*(0000|0011|0110|1100|1111|1001|1010|0101)*\",\"minAcceptLength\":4,\"maxStates\":12}",
     "data-options": "{\"pinNewNodes\":true}",
-    "name":" August 2014 exam - 4(b)"
+    "name":" August 2014 exam - 4(b)",
+    "id": "34a12763c2b04174a95ad41f64bf08f3"
   },
   {
     "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
@@ -61,6 +68,7 @@
     "filename": "2013-Dec-5",
     "data-question": "{\"text\":\"<i>[From December 2013 exam - question 5.]</i><br> Design a deterministic finite state machine over the alphabet {0, 1, 2} which accepts only those strings which are <br>representations of <b>odd numbers</b> both in <b>base 3</b> and <b>base 4</b>. <br><br>The machine is fed the representation with the lowest-order digit first (i.e., it reads the number from <b>right to left</b>).<br>\",\"alphabetType\":\"char\",\"alphabet\":[\"0\",\"1\",\"2\"],\"isTransducer\":false,\"type\":\"satisfy-regex\",\"regex\":\"(0|2)(1(0|2|11)*1|(0|2|11))*\",\"minAcceptLength\":1,\"deterministic\":true,\"maxStates\":8}",
     "data-options": "{}",
-    "name":"December 2013 exam - 5"
+    "name":"December 2013 exam - 5",
+    "id": "8e9fd7daf319444c941976ef80ab4d2a"
   }
 ]

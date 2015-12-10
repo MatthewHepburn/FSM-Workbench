@@ -3040,6 +3040,7 @@ function keyup() {
 var logging = {
     loadTime: Math.floor(Date.now() / 1000),
     userID: undefined,
+    questionID: undefined,
     generateUserID: function() {
         //Use local storage if it is available
         var hasStorage;
@@ -3063,34 +3064,39 @@ var logging = {
             localStorage.setItem("userID", uuid);
         }
     },
+    setQuestionID: function(){
+        logging.questionID = global.body.attr("data-questionid")
+    },
     // answer is an optional parameter, if not specified the current state will be sent.
     sendAnswer: function(isCorrect, answer) {
         if (answer === undefined){
             answer = model.generateJSON2();
-        } else {
-            answer = JSON.stringify(answer);
-        }
-        if (isCorrect){
-            isCorrect = "true";
-        } else {
-            isCorrect = "false";
         }
         var timeElapsed = Math.floor(Date.now() / 1000) - logging.loadTime;
         var url = window.location.href;
-        if (logging.userID == undefined){
-            logging.generateUserID();
-        }
-        var data = "url=" + encodeURIComponent(url) + "&userID=" + encodeURIComponent(logging.userID);
-        data = data + "&isCorrect=" + isCorrect + "&answer=" + answer + "&timeElapsed=" + timeElapsed;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;
         }
+        if (logging.userID == undefined){
+            logging.generateUserID();
+        }
+        if (logging.questionID === undefined){
+            logging.setQuestionID();
+        }
+        var data = {
+            "answer": answer,
+            "isCorrect": isCorrect,
+            "questionID": questionID,
+            "timeElapsed": timeElapsed,
+            "url": url,
+            "userID": logging.userID
+        };
+        var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/answer.cgi", true);
+        request.open("POST", "/cgi/s1020995/stable/jsonAnswer.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-
-        request.send(data);
+        request.send(string);
     },
     sendInfo: function() {
         var url = window.location.href;
@@ -3233,6 +3239,7 @@ var global = {
     "isActive": true,
     "hasRated": false,
     //Selections
+    "body": d3.select("body"),
     "mainSVG": d3.select("#main-svg"),
     "path": d3.select("#main-svg").append("svg:g").attr("id", "paths").selectAll("path"),
     "circle": d3.select("#main-svg").append("svg:g").selectAll("g"),
