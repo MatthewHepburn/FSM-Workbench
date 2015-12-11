@@ -3024,7 +3024,7 @@ function keydown() {
 
     // ctrl
     if (d3.event.keyCode === 17) {
-        global.mainSVG.circle.call(global.force.drag);
+        global.circle.call(global.force.drag);
         global.mainSVG.classed("ctrl", true);
     }
 }
@@ -3129,24 +3129,37 @@ var logging = {
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
-    sendInfo: function() {
+    sendInfo: function(isInitialLoad) {
         var url = window.location.href;
-        if (!global.isActive){
-            // Don't log if the window is not active
-            return;
-        }
-        if (logging.userID == undefined){
-            logging.generateUserID();
-        }
-        var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.userID);
-        var request = new XMLHttpRequest();
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;
         }
-        request.open("POST", "/cgi/s1020995/logging.cgi", true);
+        if (isInitialLoad){
+            var time = 0;
+        } else {
+            // Get time in seconds since the page was loaded.
+            time = Math.floor(Date.now() / 1000) - logging.loadTime;
+        }
+        if (logging.userID == undefined){
+            logging.generateUserID();
+        }
+        if (logging.questionID === undefined){
+            logging.setQuestionID();
+        }
+        var request = new XMLHttpRequest();
+
+        var data = {
+            "questionID": logging.questionID,
+            "time": time,
+            "url": url,
+            "userID": logging.userID
+        };
+
+        var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
+        request.open("POST", "/cgi/s1020995/stable/jsonUsage.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        request.send(data);
+        request.send(string);
     },
     sendRating: function(rating) {
         var url = window.location.href;
@@ -3227,16 +3240,7 @@ function init(){
     d3.selectAll(".rate-button").on("click", eventHandler.rate);
 
     global.pageLoaded = true;
-    // Keep track of whether the tab is active, for logging purposes
-    global.isActive = true;
 
-    window.onfocus = function () {
-        global.isActive = true;
-    };
-
-    window.onblur = function () {
-        global.isActive = false;
-    };
 
     if(config.responsiveResize === true){
         display.setSVGsize();
@@ -3250,9 +3254,11 @@ function init(){
         d3.selectAll(".node").attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
     }
 
-    // Don't put anything after logging.sendInfo as that raises an error when testing. TODO - proper error handling here.
-    logging.sendInfo();
-    setInterval(logging.sendInfo, 120000);
+    logging.sendInfo(true);
+    //Register a listener to send logging info when the user closes the page/navigates away
+    d3.select(window).on("beforeunload", function(){
+        logging.sendInfo(false);
+    });
 }
 
 var global = {
@@ -3276,7 +3282,6 @@ var global = {
     "renameMenuShowing":false,
     "contextMenuShowing":false,
     "traceInProgress": false,
-    "isActive": true,
     "hasRated": false,
     //Selections
     "body": d3.select("body"),
