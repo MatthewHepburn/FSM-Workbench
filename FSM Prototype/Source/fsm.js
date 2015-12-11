@@ -1812,9 +1812,11 @@ var checkAnswer = {
         var passed = true;
         var tableRows = document.querySelector("#does-accept-table tbody").children;
         var isChecked;
+        var answers = [];
         for (var i = 0; i < listLength; i++){
             // Test element i of strList
             isChecked = tableRows[i].firstChild.firstChild.checked;
+            answers.push(isChecked);
             var input = model.parseInput(model.question.strList[i]);
             var accepts = model.accepts(input);
             if (accepts == isChecked){
@@ -1827,7 +1829,7 @@ var checkAnswer = {
         if (passed && config.displayNextOnCorrect){
             display.showNextButton();
         }
-        logging.sendAnswer(passed);
+        logging.sendAnswer(passed, answers);
     },
     giveList: function(){
         //First, remove feedback from previous attempt:
@@ -1885,17 +1887,16 @@ var checkAnswer = {
                 message.innerHTML = "Incorrect - input not accepted by machine. " + trace;
                 message.classList.add("feedback");
                 forms[i].parentNode.appendChild(message);
-                logging.sendAnswer(false, answers);
                 allCorrect = false;
                 continue;
             }
             forms[i].classList.remove("incorrect");
             forms[i].classList.add("correct");
-            logging.sendAnswer(true, answers[i]);
         }
         if (allCorrect && config.displayNextOnCorrect){
             display.showNextButton();
         }
+        logging.sendAnswer(allCorrect, answers);
     },
     satisfyDefinition: function(){
         // Declare a feedback function here that each test can use.
@@ -2208,12 +2209,15 @@ var checkAnswer = {
             var message = document.createElement("p");
             var iconAddress = global.iconAddress;
             message.classList.add("inline-feedback");
+            var selectedIds = model.selected.map(function(x){
+                return x.id;
+            });
             if (isCorrect){
                 message.innerHTML = "<img class ='tick x-check-button' src='" + iconAddress + "check.svg'>";
-                logging.sendAnswer(true, model.selected);
+                logging.sendAnswer(true, selectedIds);
             } else{
                 message.innerHTML = "<img class ='cross x-check-button' src='" + iconAddress + "x.svg'>";
-                logging.sendAnswer(false, model.selected);
+                logging.sendAnswer(false, selectedIds);
             }
             document.querySelector(".button-div").appendChild(message);
         };
@@ -3246,5 +3250,8 @@ var global = {
     "linkLabels": d3.select("#main-svg").selectAll(".linklabel"),
     "drag_line": undefined
 };
+
+//Declare d3 as global readonly for ESLint
+/*global d3*/
 
 init();
