@@ -1787,7 +1787,7 @@ var checkAnswer = {
             //Set hasGoal to false to prevent duplicate feedback:
             model.question.hasGoal = false;
             //Don't send full model for a demo question - pointless.
-            logging.sendAnswer(true, null);
+            logging.sendAnswer(true, model.fullInput);
         };
 
         if(model.question.goalType == "accepting"){
@@ -3068,13 +3068,40 @@ var logging = {
             localStorage.setItem("userID", uuid);
         }
     },
+    getCompactModelString:function(machine){
+        //Returns a compact string representation of a machine
+        var m = {
+            "links":[],
+            "nodes":[]
+        };
+        for(var i = 0; i < machine.links.length; i++){
+            m.links.push({
+                "source": machine.links[i].source.id,
+                "target": machine.links[i].target.id,
+                "input": machine.links[i].input,
+                "output": (machine.links[i].output ? machine.links[i].output : [])
+            });
+        }
+        for(i = 0; i < machine.nodes.length; i++){
+            m.nodes.push({
+                "name": machine.nodes[i].name,
+                "isAccepting": machine.nodes[i].accepting,
+                "isInitial": machine.nodes[i].id == 0, //TODO - update this when multiple starts are allowed
+                "id": machine.nodes[i].id,
+                "x": Math.round(machine.nodes[i].x),
+                "y": Math.round(machine.nodes[i].y)
+            });
+        }
+        return m;
+    },
+
     setQuestionID: function(){
-        logging.questionID = global.body.attr("data-questionid")
+        logging.questionID = global.body.attr("data-questionid");
     },
     // answer is an optional parameter, if not specified the current state will be sent.
     sendAnswer: function(isCorrect, answer) {
         if (answer === undefined){
-            answer = model.generateJSON2();
+            answer = logging.getCompactModelString(model);
         }
         var timeElapsed = Math.floor(Date.now() / 1000) - logging.loadTime;
         var url = window.location.href;
