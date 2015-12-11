@@ -8,6 +8,7 @@ import datetime
 import time
 import re
 import json
+import sys
 
 def getQuestionName(questionID):
     with open('questionlist.json') as data_file:
@@ -16,6 +17,12 @@ def getQuestionName(questionID):
             return data[questionID]
         except KeyError:
             return None
+
+def returnError():
+    print("Content-type: text/html")
+    print("")
+    print ("<html>Error</html>")
+    sys.exit()
 
 
 logdir = os.curdir
@@ -38,15 +45,21 @@ except KeyError:
 data = form.getfirst("data", "none")
 # Try and parse json - break on error
 if data == "none":
-    break
+    returnError()
 try:
     data = json.loads(data)
 except ValueError:
-    break
+    returnError()
 
 # Extract question id:
 try:
     questionID = data["questionID"]
+    # Verify we have a valid questionID
+    qnamedict = getQuestionName(data["questionID"])
+    if qnamedict is None:
+        returnError()
+except KeyError:
+    returnError()
 
 #Add information form the header:
 data["remoteIp"] = remoteIp
@@ -54,14 +67,10 @@ data["agentString"] = agent
 data["timeEpoch"] = timeEpoch
 data["timeHuman"] = timeHuman
 
-# Verify we have a valid questionID
-qnamedict = getQuestionName(data["questionID"])
-if qnamedict is None:
-    break
-
 
 with open("answers.log", "a") as myfile:
     myfile.write(json.dumps(data))
+    myfile.write("\n")
 
 print "Content-type: text/html"
 print

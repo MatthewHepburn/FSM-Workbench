@@ -3087,7 +3087,7 @@ var logging = {
         var data = {
             "answer": answer,
             "isCorrect": isCorrect,
-            "questionID": questionID,
+            "questionID": logging.questionID,
             "timeElapsed": timeElapsed,
             "url": url,
             "userID": logging.userID
