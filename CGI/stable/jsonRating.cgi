@@ -16,6 +16,7 @@ def getQuestionName(questionID):
         except KeyError:
             return None
 
+
 def returnError():
     print("Content-type: text/html")
     print("")
@@ -65,8 +66,7 @@ data["agentString"] = agent
 data["timeEpoch"] = timeEpoch
 data["timeHuman"] = timeHuman
 
-
-with open("answers.log", "a") as myfile:
+with open("ratings.log", "a") as myfile:
     myfile.write(json.dumps(data))
     myfile.write("\n")
 
@@ -74,5 +74,6 @@ print "Content-type: text/html"
 print
 
 print """<html>Done</html>"""
+
 
 
