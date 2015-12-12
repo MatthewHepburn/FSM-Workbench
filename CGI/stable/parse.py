@@ -19,6 +19,7 @@ users = {}
 pageData = {}
 questionData = {}
 cutoffTime = 1439447160 # Ignore entries before this timestamp
+maxTimeOnPage = 7200
 
 logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
@@ -35,7 +36,7 @@ def main():
     analyseUsage()
     writeFullJSON()
     writePublicJSON()
-    archiveLogs()
+    # archiveLogs()
 
 def addToURLs(name):
     global urls
@@ -274,6 +275,27 @@ def readRatings(filename):
     urls[questionName]["yesRatings"] = yes
     urls[questionName]["totalRatings"] = total
 
+def addDate(datestamp):
+    global dates
+    if datestamp in dates:
+        return
+    else:
+        dates[timestamp] = {
+            "dailyUniquesList": [],
+            "uniqueVisitors": 0
+        }
+
+def addUser(userID):
+    global users
+    if userID in users:
+        return
+    else:
+        users[userID] = {
+            "attemptedQuestions": [],
+            "correctQuestions": [],
+            "totalTimeOnPage": {},
+            "browser": None
+        }
 
 
 def readPageUsage(filename):
@@ -288,15 +310,44 @@ def readPageUsage(filename):
                 usage = json.loads(line)
                 # Validate data:
                 assert hasRequiredFields(dict=usage, fields=requiredFields), "Fields missing in " + line
-                # Ensure that the time is not too far in the future or past
-                timeRecorded = int(usage["timeEpoch"])
-                assert cutoffTime < timeRecorded and timeRecorded < currentTime, "Time out of range in " + line
 
                 if usage["userID"] in ignoredIDs:
                     continue
 
+                # Ensure that the time is not too far in the future or past
+                timeRecorded = int(usage["timeEpoch"])
+                assert cutoffTime < timeRecorded and timeRecorded < currentTime, "Time out of range in " + line
 
+                timeOnPage = int(usage["timeOnPage"])
+                assert 0 <= timeOnPage, "Time on page cannot be negative"
+                if timeOnPage > maxTimeOnPage:
+                    timeOnPage = maxTimeOnPage
 
+                datestamp = str(datetime.date.today())
+                userID = str(usage["userID"])
+                # Record data in dates
+                if datestamp not in dates:
+                    addDate(datestamp)
+                if userID not in dates[datestamp]["dailyUniquesList"]:
+                    dates[datestamp]["dailyUniquesList"].append(userID)
+                    dates[datestamp]["uniqueVisitors"] += 1
+                # Record data in users
+                pageID = str(usage.pageID)
+                if userID not in users:
+                    addUser(userID)
+                if pageID not in users[userID]["totalTimeOnPage"]:
+                    users[userID]["totalTimeOnPage"][pageID] = timeOnPage
+                else:
+                    users[userID]["totalTimeOnPage"][pageID] += timeOnPage
+
+                if users[userID]["browser"] is None:
+                    agentString = str(usage["agentString"])
+                    if hasUserAgents:
+                        users[userID]["browser"] = str(parse(agentString))
+                    else:
+                        users[userID]["browser"] = str(agentString)
+            except AssertionError:
+                pass
             except :
                 print("Error:", sys.exc_info()[0])
 
