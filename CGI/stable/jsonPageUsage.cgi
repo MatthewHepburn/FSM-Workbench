@@ -8,11 +8,11 @@ import os
 import sys
 import time
 
-def getQuestionName(questionID):
-    with open('questionlist.json') as data_file:
+def getPageName(pageID):
+    with open('pagelist.json') as data_file:
         data = json.load(data_file)
         try:
-            return data[questionID]
+            return data[pageID]
         except KeyError:
             return None
 
@@ -52,10 +52,10 @@ except ValueError:
 
 # Extract question id:
 try:
-    questionID = data["questionID"]
-    # Verify we have a valid questionID
-    qnamedict = getQuestionName(data["questionID"])
-    if qnamedict is None:
+    pageID = data["pageID"]
+    # Verify we have a valid pageID
+    pagenamedict = getPageName(data["pageID"])
+    if pagenamedict is None:
         returnError()
 except KeyError:
     returnError()
@@ -66,7 +66,7 @@ data["agentString"] = agent
 data["timeEpoch"] = timeEpoch
 data["timeHuman"] = timeHuman
 
-with open("questionUsage.log", "a") as myfile:
+with open("pageUsage.log", "a") as myfile:
     myfile.write(json.dumps(data))
     myfile.write("\n")
 

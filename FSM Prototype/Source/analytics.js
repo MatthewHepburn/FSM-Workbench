@@ -1,5 +1,7 @@
 var logging = {
     userID: undefined,
+    loadTime: Math.floor(Date.now() / 1000),
+    pageID: undefined,
     generateUserID: function() {
         //Use local storage if it is available
         var hasStorage;
@@ -7,7 +9,7 @@ var logging = {
             hasStorage = true;
             if (localStorage.getItem("userID") !== null){
                 logging.userID = localStorage.getItem("userID");
-                return;        
+                return;
             }
         } else {
             hasStorage = false;
@@ -23,35 +25,44 @@ var logging = {
             localStorage.setItem("userID", uuid);
         }
     },
-    sendInfo: function() {
+    setPageID: function(){
+        logging.pageID = document.querySelector("body").getAttribute("data-pageid");
+    },
+    sendInfo: function(isInitialLoad) {
         var url = window.location.href;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;
         }
-        if (!isActive){
-            // Don't log if the window is not active
-            return;
+        if (isInitialLoad){
+            var time = 0;
+        } else {
+            // Get time in seconds since the page was loaded.
+            time = Math.floor(Date.now() / 1000) - logging.loadTime;
         }
         if (logging.userID == undefined){
             logging.generateUserID();
         }
-        var data = "url=" + encodeURIComponent(url) + "&userID=" +encodeURIComponent(logging.userID);
+        if (logging.pageID === undefined){
+            logging.setPageID();
+        }
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/logging.cgi", true);
+
+        var data = {
+            "pageID": logging.pageID,
+            "time": time,
+            "url": url,
+            "userID": logging.userID
+        };
+
+        var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
+        request.open("POST", "/cgi/s1020995/stable/jsonPageUsage.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        request.send(data);
+        request.send(string);
     }
 };
-// Keep track of whether the tab is active
-var isActive = true;
 
-window.onfocus = function () { 
-  isActive = true; 
-}; 
-
-window.onblur = function () { 
-  isActive = false;
-}; 
-logging.sendInfo();
-setInterval(logging.sendInfo, 120000);
+logging.sendInfo(false);
+window.addEventListener("beforeunload", function(){
+    logging.sendInfo(true);
+});

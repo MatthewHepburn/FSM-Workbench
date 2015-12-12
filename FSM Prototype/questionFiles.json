@@ -1,14 +1,18 @@
 [
   {
   	"file":"inf1.json",
-  	"directory": "inf1"
+  	"directory": "inf1",
+    "endPageID": "c68de244c40b4bba96d94c243064c035"
+
   },
   {
   	"file":"inf1-revision.json",
-  	"directory": "inf1-revision"
+  	"directory": "inf1-revision",
+    "endPageID": "ac042781d5f242e9a11d8a328c95af84"
   },
   {
   	"file":"inf1-revision solutions.json",
-  	"directory": "solutions"
+  	"directory": "solutions",
+    "endPageID": "68ebd14e13c84cfca58fd64210e2d14b"
   }
 ]

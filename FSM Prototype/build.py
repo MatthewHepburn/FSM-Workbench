@@ -34,10 +34,10 @@ def setAddresses(toDeploy):
     global addresses
     if toDeploy:
         addresses = {
-            "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/",
-            "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/",
-            "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/img/Icons/",
-            "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/img/"
+            "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable",
+            "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable",
+            "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/img/Icons/",
+            "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/img/"
         }
     else:
         addresses = {
@@ -70,7 +70,7 @@ def buildQuestionList(jsonData, dirName):
     return questions
 
 
-def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
+def buildQuestionSet(jsonFilename, dirName, question_template, end_template, endPageID):
     global deployDir
     global questionList
 
@@ -144,7 +144,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template):
         f.close()
 
     # Output end.html
-    variables = {"lastq": lastQuestion + ".html"}
+    variables = {"lastq": lastQuestion + ".html", "pageID": endPageID}
     outputText = end_template.render(variables)
     f = open("end.html", "w")
     f.write(outputText)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     end_template = templateEnv.get_template("end.jinja")
 
     for questionSet in data:
-        buildQuestionSet(questionSet["file"], questionSet["directory"], question_template, end_template)
+        buildQuestionSet(questionSet["file"], questionSet["directory"], question_template, end_template, questionSet["endPageID"])
 
     #Return to deploy directory
     os.chdir(deployDir)

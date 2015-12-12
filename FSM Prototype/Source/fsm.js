@@ -3043,6 +3043,7 @@ function keyup() {
 
 var logging = {
     loadTime: Math.floor(Date.now() / 1000),
+    isQuestion: true,
     userID: undefined,
     questionID: undefined,
     generateUserID: function() {
@@ -3096,7 +3097,12 @@ var logging = {
     },
 
     setQuestionID: function(){
+        // Pages using this code can have either a questionid or a pageid (as not all are questions)
         logging.questionID = global.body.attr("data-questionid");
+        if (logging.questionID === null){
+            logging.isQuestion = false;
+            logging.pageID = global.body.attr("data-pageid");
+        }
     },
     // answer is an optional parameter, if not specified the current state will be sent.
     sendAnswer: function(isCorrect, answer) {
@@ -3150,14 +3156,23 @@ var logging = {
         var request = new XMLHttpRequest();
 
         var data = {
-            "questionID": logging.questionID,
             "time": time,
             "url": url,
             "userID": logging.userID
         };
 
+        if(this.isQuestion){
+            data.questionID = logging.questionID;
+        } else {
+            data.pageID = logging.pageID;
+        }
+
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
-        request.open("POST", "/cgi/s1020995/stable/jsonUsage.cgi", true);
+        if(this.isQuestion){
+            request.open("POST", "/cgi/s1020995/stable/jsonUsage.cgi", true);
+        } else {
+            request.open("POST", "/cgi/s1020995/stable/jsonPageUsage.cgi", true);
+        }
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
