@@ -3135,18 +3135,15 @@ var logging = {
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
-    sendInfo: function(isInitialLoad) {
+    sendInfo: function() {
         var url = window.location.href;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;
         }
-        if (isInitialLoad){
-            var time = 0;
-        } else {
-            // Get time in seconds since the page was loaded.
-            time = Math.floor(Date.now() / 1000) - logging.loadTime;
-        }
+
+        var time = Math.floor(Date.now() / 1000) - logging.loadTime;
+
         if (logging.userID == undefined){
             logging.generateUserID();
         }
@@ -3269,10 +3266,9 @@ function init(){
         d3.selectAll(".node").attr("style","fill: rgb(44, 160, 44); stroke:rgb(0,0,0);");
     }
 
-    logging.sendInfo(true);
     //Register a listener to send logging info when the user closes the page/navigates away
     d3.select(window).on("beforeunload", function(){
-        logging.sendInfo(false);
+        logging.sendInfo();
     });
 }
 

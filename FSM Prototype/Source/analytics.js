@@ -28,18 +28,15 @@ var logging = {
     setPageID: function(){
         logging.pageID = document.querySelector("body").getAttribute("data-pageid");
     },
-    sendInfo: function(isInitialLoad) {
+    sendInfo: function() {
+        //Function for basic usage monitoring, called when the page is closed.
         var url = window.location.href;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;
         }
-        if (isInitialLoad){
-            var time = 0;
-        } else {
-            // Get time in seconds since the page was loaded.
-            time = Math.floor(Date.now() / 1000) - logging.loadTime;
-        }
+        // Get time in seconds since the page was loaded.
+        var time = Math.floor(Date.now() / 1000) - logging.loadTime;
         if (logging.userID == undefined){
             logging.generateUserID();
         }
@@ -62,7 +59,6 @@ var logging = {
     }
 };
 
-logging.sendInfo(false);
 window.addEventListener("beforeunload", function(){
-    logging.sendInfo(true);
+    logging.sendInfo();
 });

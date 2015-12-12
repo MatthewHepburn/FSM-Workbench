@@ -34,8 +34,8 @@ def setAddresses(toDeploy):
     global addresses
     if toDeploy:
         addresses = {
-            "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable",
-            "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable",
+            "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/",
+            "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/",
             "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/img/Icons/",
             "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/img/"
         }
