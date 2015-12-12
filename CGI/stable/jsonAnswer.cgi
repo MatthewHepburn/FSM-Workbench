@@ -30,7 +30,7 @@ cgitb.enable(display=0, logdir=logdir)
 form = cgi.FieldStorage()
 
 timeHuman = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
-timeEpoch = time = str(int((time.time())))
+timeEpoch = int((time.time()))
 date = str(datetime.date.today())
 try:
     remoteIp = os.environ["REMOTE_ADDR"]

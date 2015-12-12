@@ -3142,7 +3142,7 @@ var logging = {
             return;
         }
 
-        var time = Math.floor(Date.now() / 1000) - logging.loadTime;
+        var timeOnPage = Math.floor(Date.now() / 1000) - logging.loadTime;
 
         if (logging.userID == undefined){
             logging.generateUserID();
@@ -3153,7 +3153,7 @@ var logging = {
         var request = new XMLHttpRequest();
 
         var data = {
-            "time": time,
+            "timeOnPage": timeOnPage,
             "url": url,
             "userID": logging.userID
         };

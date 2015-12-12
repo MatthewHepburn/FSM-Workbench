@@ -36,7 +36,7 @@ var logging = {
             return;
         }
         // Get time in seconds since the page was loaded.
-        var time = Math.floor(Date.now() / 1000) - logging.loadTime;
+        var timeOnPage = Math.floor(Date.now() / 1000) - logging.loadTime;
         if (logging.userID == undefined){
             logging.generateUserID();
         }
@@ -47,7 +47,7 @@ var logging = {
 
         var data = {
             "pageID": logging.pageID,
-            "time": time,
+            "timeOnPage": time,
             "url": url,
             "userID": logging.userID
         };
