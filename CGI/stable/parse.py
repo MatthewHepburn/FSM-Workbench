@@ -16,8 +16,7 @@ dates = {}
 pages = {}
 questions = {}
 users = {}
-pageData = {}
-questionData = {}
+pageDict = {}
 cutoffTime = 1439447160 # Ignore entries before this timestamp
 maxTimeOnPage = 7200
 
@@ -30,7 +29,7 @@ startDir = os.getcwd()
 
 def main():
     readPrevStats()
-    setPageData()
+    setPageDict()
     setQuestionData()
     readFiles()
     analyseUsage()
@@ -38,39 +37,64 @@ def main():
     writePublicJSON()
     # archiveLogs()
 
-def addToURLs(name):
-    global urls
-    urls[name] = {
-        "totalAnswers": 0,
-        "correctAnswers": 0,
-        "usersAttempted": 0,
-        "usersCorrect":0,
-        "yesRatings": 0,
-        "totalRatings": 0,
-        "uniqueVisitors": 0,
-        "totalTime": 0,
-        "totalTimeToCorrect":0,
-        "numOfTimeToCorrectRecorded":0
-        }
+def addIfNotPresent(list, item):
+    # Can't use sets as they cannot be stored as JSON
+    if item not in list:
+        list.append(item)
+
+def addPage(pageID):
+    global pages
+    if isQuestion(pageID):
+        pages[pageID] = {
+            "correctAnswers": 0,
+            "isQuestion": True,
+            "name": pageDict[pageID]["name"],
+            "numOfTimeToCorrectRecorded":0,
+            "totalAnswers": 0,
+            "totalRatings": 0,
+            "totalTime": 0,
+            "totalTimeToCorrect":0,
+            "uniqueVisitors": 0,
+            "usersAttempted": 0,
+            "usersCorrect":0,
+            "yesRatings": 0
+            }
+    else:
+        pages[pageID] = {
+            "isQuestion": False,
+            "name": pageDict[pageID]["name"],
+            "totalTime": 0,
+            "uniqueVisitors": 0
+            }
+
+def isQuestion(pageID):
+    return "set" in pageDict[pageID]
 
 def analyseUsage():
-    for user in users:
-        if "pages" not in users[user]:
-            users[user]["pages"] = []
-        for page in users[user]["pages"]:
-            if page not in urls:
-                urls[page] = {}
-            if "uniqueVisitors" not in urls[page]:
-                urls[page]["uniqueVisitors"] = 1
-                urls[page]["totalTime"] = users[user]["pages"][page]
-            else:
-                urls[page]["uniqueVisitors"] += 1
-                urls[page]["totalTime"] += users[user]["pages"][page]
-    # Combine entries for page "" with "index"
-    if "" in urls:
-        urls["index"]["uniqueVisitors"] = urls["index"]["uniqueVisitors"] + urls[""]["uniqueVisitors"]
-        urls[""]["totalTime"] = urls["index"]["totalTime"] + urls[""]["totalTime"]
-        urls.pop("", None)
+    # First, set to zero all stats that are calculated here:
+    for pageID in pages:
+        pages[pageID]["uniqueVisitors"] = 0
+        pages[pageID]["totalTime"] = 0
+        if pages[pageID]["isQuestion"]:
+            pages[pageID]["yesRatings"] = 0
+            pages[pageID]["totalRatings"] = 0
+            pages[pageID]["usersAttempted"] = 0
+            pages[pageID]["usersCorrect"] = 0
+    for userID in users:
+        u = users[userID]
+        for pageID in u["totalTimeOnPage"]:
+            pages[pageID]["totalTime"] += u["totalTimeOnPage"][pageID]
+            pages[pageID]["uniqueVisitors"] += 1
+        for pageID in u["questionRatings"]:
+            pages[pageID]["totalRatings"] += 1
+            if u["questionRatings"][pageID] == True:
+                pages[pageID]["yesRatings"] += 1
+        for pageID in u["questionsAttempted"]:
+            pages[pageID]["usersAttempted"] += 1
+        for pageID in u["questionsCorrect"]:
+            pages[pageID]["usersCorrect"] += 1
+
+
 
 def archiveLogs():
     files = os.listdir(os.getcwd())
@@ -130,100 +154,14 @@ def archiveRatings(file):
 
 
 def readFiles():
-    readPageUsage("pageUsage.log")
-    for file in usageFiles:
-        readUsage(file)
-    for file in answerFiles:
-        readAnswers(file)
-    for file in ratingFiles:
-        readRatings(file)
+    readUsage("usage.log")
+    readAnswers("answers.log")
+    readRatings("ratings.log")
 
-def readAnswers(filename):
-    global urls
-    f = open(filename, "r")
-    questionName = filename.split(" ")[1][:-4]
-    if questionName not in urls:
-        addToURLs(questionName)
-
-    if "totalAnswers" in urls[questionName]:
-        total = urls[questionName]["totalAnswers"]
-    else:
-        total = 0
-        urls[questionName]["totalAnswers"] = 0
-
-    if "correctAnswers" in urls[questionName]:
-        correct = urls[questionName]["correctAnswers"]
-    else:
-        correct = 0
-        urls[questionName]["correctAnswers"] = 0
-
-    if "usersAttempted" in urls[questionName]:
-        usersAttempted = urls[questionName]["usersAttempted"]
-    else:
-        usersAttempted = 0
-        urls[questionName]["usersAttempted"] = 0
-
-    if "usersCorrect" in urls[questionName]:
-        usersCorrect = urls[questionName]["usersCorrect"]
-    else:
-        usersCorrect = 0
-        urls[questionName]["usersCorrect"] = 0
-
-
-    for l in f:
-        line = l.split("    ")
-        if len(line) < 9:
-            print("Line too short in + ", filename, ": ", l)
-            continue
-        userID = line[0][10:]
-        if userID == "MHepburn": #Ignore testing activity
-            continue
-        unixTime = int(line[3])
-        #Ignore logs before the cutoffTime
-        if unixTime < cutoffTime:
-            continue
-        if userID not in users:
-            users[userID] = {
-                "attemptedQuestions": [],
-                "correctQuestions": []
-            }
-        if questionName not in users[userID]["attemptedQuestions"]:
-            users[userID]["attemptedQuestions"] += [questionName]
-            usersAttempted += 1
-        total += 1
-        isCorrect = line[6]
-        timeToCorrect = line[8]
-        try:
-            timeToCorrect = int(timeToCorrect)
-        except ValueError:
-            timeToCorrect = None
-        if timeToCorrect > 60 * 60: #cap time at 1 hour
-            timeToCorrect = None
-        if isCorrect == "true":
-            if questionName not in users[userID]["correctQuestions"]:
-                users[userID]["correctQuestions"] += [questionName]
-                usersCorrect += 1
-                if timeToCorrect != None:
-                    if "totalTimeToCorrect" not in urls[questionName]:
-                        urls[questionName]["totalTimeToCorrect"] = 0
-                        urls[questionName]["numOfTimeToCorrectRecorded"] = 0
-                    urls[questionName]["totalTimeToCorrect"] += timeToCorrect
-                    urls[questionName]["numOfTimeToCorrectRecorded"] += 1
-            correct += 1
-        elif isCorrect != "false":
-            print("Error expected 'true' or 'false' in: ", l)
-            print("got: ", isCorrect)
-    if not questionName in urls:
-        urls[questionName] = {}
-    urls[questionName]["correctAnswers"] = correct
-    urls[questionName]["totalAnswers"] = total
-    urls[questionName]["usersCorrect"] = usersCorrect
-    urls[questionName]["usersAttempted"] = usersAttempted
 
 def readPrevStats():
     global dates
     global pages
-    global questions
     global users
     try:
         with open('full_stats.json') as data_file:
@@ -233,8 +171,8 @@ def readPrevStats():
             if "dates" in data:
                 dates = data["dates"]
             if "urls" in data:
-                urls = data["urls"]
-    except IOError:
+                pages = data["pages"]
+    except (ValueError, IOError):
         dates = {}
         pages = {}
         questions = {}
@@ -242,47 +180,59 @@ def readPrevStats():
 
 
 def readRatings(filename):
-    global urls
-    f = open(filename, "r")
-    questionName = filename.split(" ")[1][:-4]
-    if questionName not in urls:
-        addToURLs(questionName)
-    if "totalRatings" in urls[questionName]:
-        total = urls[questionName]["totalRatings"]
-    else:
-        total = 0
-    if "yesRatings" in urls[questionName]:
-        yes =  urls[questionName]["yesRatings"]
-    else:
-        yes = 0
-    for l in f:
-        line = l.split("    ")
-        userID = line[0][10:]
-        if userID == "MHepburn": #Ignore testing activity
-            continue
-        unixTime = int(line[4])
-        if unixTime < cutoffTime:
-            continue
-        total += 1
-        rating = line[7]
-        if "yes" in rating:
-            yes += 1
-        elif "no" not in rating:
-            print("Error expected 'yes' or 'no' in: ", l)
-            print("got: ", rating)
-    if not questionName in urls:
-        urls[questionName] = {}
-    urls[questionName]["yesRatings"] = yes
-    urls[questionName]["totalRatings"] = total
+    global users
+    currentTime = int((time.time()))
+    requiredFields = ["userID", "pageID", "rating", "url", "agentString", "timeEpoch"]
+    with open(filename, "r") as datafile:
+        for line in datafile:
+            try:
+                rating = json.loads(line)
+                # Validate data:
+                assert hasRequiredFields(dict=rating, fields=requiredFields), "Fields missing in " + line
+
+                if rating["userID"] in ignoredIDs:
+                    continue
+
+                # Ensure that the time is reasonable
+                timeRecorded = int(rating["timeEpoch"])
+                assert cutoffTime < timeRecorded and timeRecorded < currentTime, "Time out of range in " + line
+
+                # Check rating is an allowed value
+                assert rating["rating"] in ["yes", "no"], "Invalid rating: " + rating
+                isYes = rating["rating"] == "yes"
+
+                #Ensure that pageID is valid
+                pageID = str(rating["pageID"])
+                assert pageID in pageDict, "Invalid pageID of : " + pageID
+
+                #Ensure that the page is a question:
+                assert isQuestion(pageID), "Not a question: " + pageID
+
+                #Record data in users
+                userID = str(rating["userID"])
+                if userID not in users:
+                    addUser(userID)
+                users[userID]["questionRatings"][pageID] = isYes
+
+                #Ensure pageID is in pages
+                if pageID not in pages:
+                    addPage(pageID)
+
+            except AssertionError:
+                pass
+            except ValueError:
+                pass
+
+
 
 def addDate(datestamp):
     global dates
     if datestamp in dates:
         return
     else:
-        dates[timestamp] = {
+        dates[datestamp] = {
             "dailyUniquesList": [],
-            "uniqueVisitors": 0
+            "totalTimeOnAllPages": 0
         }
 
 def addUser(userID):
@@ -291,14 +241,86 @@ def addUser(userID):
         return
     else:
         users[userID] = {
-            "attemptedQuestions": [],
-            "correctQuestions": [],
-            "totalTimeOnPage": {},
-            "browser": None
+            "browser": None,
+            "questionRatings": {},
+            "questionsAttempted": [],
+            "questionsCorrect": [],
+            "totalTimeOnPage": {}
         }
 
 
-def readPageUsage(filename):
+def readAnswers(filename):
+    global pages
+    global users
+    currentTime = int((time.time()))
+    requiredFields = ["userID", "pageID", "timeElapsed", "isCorrect", "url", "agentString", "timeEpoch"]
+    with open(filename, "r") as datafile:
+        for line in datafile:
+            try:
+                answer = json.loads(line)
+                # Validate data:
+                assert hasRequiredFields(dict=answer, fields=requiredFields), "Fields missing in " + line
+
+                if answer["userID"] in ignoredIDs:
+                    continue
+
+                # Ensure that the time is not too far in the future or past
+                timeRecorded = int(answer["timeEpoch"])
+                assert cutoffTime < timeRecorded and timeRecorded < currentTime, "Time out of range in " + line
+
+                # Enfore bound of [0 - maxTimeOnPage] on timeElapsed
+                timeElapsed = int(answer["timeElapsed"])
+                assert 0 <= timeElapsed, "Time on page cannot be negative"
+                if timeElapsed > maxTimeOnPage:
+                    timeElapsed = maxTimeOnPage
+
+                #Ensure that pageID is valid
+                pageID = str(answer["pageID"])
+                assert pageID in pageDict, "Invalid pageID of : " + pageID
+
+                #Ensure that the page is a question:
+                assert isQuestion(pageID), "Not a question: " + pageID
+
+                #Ensure that isCorrect is a boolean:
+                isCorrect = answer["isCorrect"]
+                assert type(isCorrect) is bool
+
+                datestamp = str(datetime.date.today())
+                userID = str(answer["userID"])
+
+                # Record data in users:
+                if userID not in users:
+                    addUser(userID)
+                addIfNotPresent(users[userID]["questionsAttempted"], pageID)
+                if isCorrect:
+                    addIfNotPresent(users[userID]["questionsCorrect"], pageID)
+                if users[userID]["browser"] is None:
+                    agentString = str(answer["agentString"])
+                    if hasUserAgents:
+                        users[userID]["browser"] = str(parse(agentString))
+                    else:
+                        users[userID]["browser"] = str(agentString)
+
+                # Record data in pages:
+                if pageID not in pages:
+                    addPage(pageID)
+                pages[pageID]["totalAnswers"] += 1
+                pages[pageID]["totalTimeToCorrect"] += timeElapsed
+                pages[pageID]["numOfTimeToCorrectRecorded"] += 1
+                if isCorrect:
+                    pages[pageID]["correctAnswers"] += 1
+
+            except AssertionError:
+                pass
+            except ValueError:
+                pass
+
+
+
+
+
+
+def readUsage(filename):
     global dates
     global pages
     global users
@@ -323,16 +345,19 @@ def readPageUsage(filename):
                 if timeOnPage > maxTimeOnPage:
                     timeOnPage = maxTimeOnPage
 
+                #Ensure that pageID is valid
+                pageID = str(usage["pageID"])
+                assert pageID in pageDict, "Invalid pageID of :" + pageID
+
                 datestamp = str(datetime.date.today())
                 userID = str(usage["userID"])
                 # Record data in dates
                 if datestamp not in dates:
                     addDate(datestamp)
                 if userID not in dates[datestamp]["dailyUniquesList"]:
-                    dates[datestamp]["dailyUniquesList"].append(userID)
-                    dates[datestamp]["uniqueVisitors"] += 1
+                    addIfNotPresent(dates[datestamp]["dailyUniquesList"], userID)
+                dates[datestamp]["totalTimeOnAllPages"] += timeOnPage
                 # Record data in users
-                pageID = str(usage.pageID)
                 if userID not in users:
                     addUser(userID)
                 if pageID not in users[userID]["totalTimeOnPage"]:
@@ -346,17 +371,27 @@ def readPageUsage(filename):
                         users[userID]["browser"] = str(parse(agentString))
                     else:
                         users[userID]["browser"] = str(agentString)
+                # Record data in pages:
+                if pageID not in pages:
+                    addPage(pageID)
+                pages[pageID]["totalTime"] += timeOnPage
+
             except AssertionError:
                 pass
-            except :
-                print("Error:", sys.exc_info()[0])
+            except ValueError:
+                pass
 
 
 
-def setPageData():
-    global pageData
-    with open('pagelist.json') as data_file:
-        pageData = json.load(data_file)
+def setPageDict():
+    global pageDict
+    # pageDict is the union of pagelist and questionlist
+    with open('pagelist.json') as pagefile:
+        pageList = json.load(pagefile)
+    with open('questionlist.json') as questionfile:
+        questionList = json.load(questionfile)
+    pageDict = dict(pageList, **questionList)
+
 
 def setQuestionData():
     global questionData
@@ -381,13 +416,13 @@ def writePublicJSON():
         del dates[date]["dailyUniquesList"]
     # Calculate Timestamp:
     now = datetime.datetime.now()
-    timeStamp = str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)
-    out = {"urls":urls, "dates":dates, "meta":{"timeStamp":timeStamp}}
+    timeStamp = now.strftime('%Y-%m-%d %H:%M:%S')
+    out = {"pages":pages, "dates":dates, "meta":{"timeStamp":timeStamp}}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 
 def writeFullJSON():
-    out = {"urls":urls, "dates":dates, "users":users}
+    out = {"pages":pages, "dates":dates, "users":users}
     with open('full_stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 

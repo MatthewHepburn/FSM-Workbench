@@ -47,13 +47,13 @@ var logging = {
 
         var data = {
             "pageID": logging.pageID,
-            "timeOnPage": time,
+            "timeOnPage": timeOnPage,
             "url": url,
             "userID": logging.userID
         };
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
-        request.open("POST", "/cgi/s1020995/stable/jsonPageUsage.cgi", true);
+        request.open("POST", "/cgi/s1020995/stable/usage.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     }

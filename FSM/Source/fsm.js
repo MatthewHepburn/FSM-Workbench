@@ -3125,7 +3125,7 @@ var logging = {
         };
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/stable/jsonAnswer.cgi", true);
+        request.open("POST", "/cgi/s1020995/stable/answer.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
@@ -3156,7 +3156,7 @@ var logging = {
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/stable/jsonUsage.cgi", true);
+        request.open("POST", "/cgi/s1020995/stable/usage.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
@@ -3181,7 +3181,7 @@ var logging = {
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/stable/jsonRating.cgi", true);
+        request.open("POST", "/cgi/s1020995/stable/rating.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     }
@@ -3193,7 +3193,6 @@ function init(){
     // set up SVG for D3
     var width = config.displayWidth;
     var height = config.displayHeight;
-
 
     // init D3 force layout
     global.force = d3.layout.force()
