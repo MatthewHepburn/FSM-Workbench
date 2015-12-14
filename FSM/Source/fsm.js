@@ -3043,9 +3043,8 @@ function keyup() {
 
 var logging = {
     loadTime: Math.floor(Date.now() / 1000),
-    isQuestion: true,
     userID: undefined,
-    questionID: undefined,
+    pageID: undefined,
     generateUserID: function() {
         //Use local storage if it is available
         var hasStorage;
@@ -3096,13 +3095,8 @@ var logging = {
         return m;
     },
 
-    setQuestionID: function(){
-        // Pages using this code can have either a questionid or a pageid (as not all are questions)
-        logging.questionID = global.body.attr("data-questionid");
-        if (logging.questionID === null){
-            logging.isQuestion = false;
-            logging.pageID = global.body.attr("data-pageid");
-        }
+    setPageID: function(){
+        logging.pageID = global.body.attr("data-pageid");
     },
     // answer is an optional parameter, if not specified the current state will be sent.
     sendAnswer: function(isCorrect, answer) {
@@ -3118,13 +3112,13 @@ var logging = {
         if (logging.userID == undefined){
             logging.generateUserID();
         }
-        if (logging.questionID === undefined){
-            logging.setQuestionID();
+        if (logging.pageID === undefined){
+            logging.setPageID();
         }
         var data = {
             "answer": answer,
             "isCorrect": isCorrect,
-            "questionID": logging.questionID,
+            "pageID": logging.pageID,
             "timeElapsed": timeElapsed,
             "url": url,
             "userID": logging.userID
@@ -3147,29 +3141,22 @@ var logging = {
         if (logging.userID == undefined){
             logging.generateUserID();
         }
-        if (logging.questionID === undefined){
-            logging.setQuestionID();
+        if (logging.pageID === undefined){
+            logging.setPageID();
         }
-        var request = new XMLHttpRequest();
+
 
         var data = {
+            "pageID": logging.pageID,
             "timeOnPage": timeOnPage,
             "url": url,
             "userID": logging.userID
         };
 
-        if(this.isQuestion){
-            data.questionID = logging.questionID;
-        } else {
-            data.pageID = logging.pageID;
-        }
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
-        if(this.isQuestion){
-            request.open("POST", "/cgi/s1020995/stable/jsonUsage.cgi", true);
-        } else {
-            request.open("POST", "/cgi/s1020995/stable/jsonPageUsage.cgi", true);
-        }
+        var request = new XMLHttpRequest();
+        request.open("POST", "/cgi/s1020995/stable/jsonUsage.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
@@ -3182,11 +3169,11 @@ var logging = {
         if (logging.userID == undefined){
             logging.generateUserID();
         }
-        if (logging.questionID === undefined){
-            logging.setQuestionID();
+        if (logging.pageID === undefined){
+            logging.setPageID();
         }
         var data = {
-            "questionID": logging.questionID,
+            "pageID": logging.pageID,
             "url": url,
             "userID": logging.userID,
             "rating": rating

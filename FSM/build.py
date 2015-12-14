@@ -102,7 +102,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
             "nodes": question["data-nodes"].replace("'","&apos;" ),
             "options": question["data-options"].replace("'","&apos;" ),
             "question": question["data-question"].replace("'","&apos;" ),
-            "questionID": question["id"],
+            "pageID": question["id"],
             "questionList": thisQuestionList,
             "showSidebar": True,
             "title": "FSM - Question #" + str(question["question-number"]),
