@@ -9,20 +9,13 @@ import sys
 import subprocess
 import shutil
 
-# Pass in the address of the JS and CSS files
-# Eg if fsm.js is at www.example.com/static/fsm.js then jsAddress would be http://www.example.com/static/
-
-# An absolute reference is used to allow questions to be moved to different addresses without issue
-
-# Different addresses are set if the files are being built for deployment
-
 addresses = {}
 sourceDir = ""
 deployDir = ""
 startDir = os.getcwd()
 
 # Keep a dict of questions, with their guid as key
-questionList = {}
+questionDict = {}
 
 def setAddresses(toDeploy):
     # Pass in the address of the JS and CSS files
@@ -55,7 +48,7 @@ def setDirs():
     sourceDir = os.path.join(startDir, "Source")
     deployDir = os.path.join(startDir, "Deploy")
 
-def buildQuestionList(jsonData, dirName):
+def buildQuestionDict(jsonData, dirName):
     questions = {}
     i = 0;
     for q in jsonData:
@@ -72,7 +65,7 @@ def buildQuestionList(jsonData, dirName):
 
 def buildQuestionSet(jsonFilename, dirName, question_template, end_template, endPageID):
     global deployDir
-    global questionList
+    global questionDict
 
     # Load in the question data for this questionSet
     os.chdir(startDir)
@@ -88,8 +81,9 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
         os.makedirs(dirName)
         os.chdir(dirName)
 
-    thisQuestionList = buildQuestionList(data, dirName)
-    questionList.update(thisQuestionList)
+    thisQuestionDict = buildQuestionDict(data, dirName)
+    questionDict.update(thisQuestionDict)
+    thisQuestionList = getQuestionList(thisQuestionDict)
 
     i = 1
     for question in data:
@@ -103,6 +97,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
             "options": question["data-options"].replace("'","&apos;" ),
             "question": question["data-question"].replace("'","&apos;" ),
             "pageID": question["id"],
+            "questionDict": thisQuestionDict,
             "questionList": thisQuestionList,
             "showSidebar": True,
             "title": "FSM - Question #" + str(question["question-number"]),
@@ -151,13 +146,20 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
     f.close()
     print("end.html")
 
-def writeQuestionList():
-    global questionList
+def writeQuestionDict():
+    global questionDict
     global deployDir
 
     os.chdir(deployDir)
     with open('questionlist.json', 'w') as outfile:
-        json.dump(questionList, outfile, indent=4, separators=(',', ': '))
+        json.dump(questionDict, outfile, indent=4, separators=(',', ': '))
+
+def getQuestionList(qDict):
+    #Return a list of questionIDs sorted by questionNumber
+    keys = qDict.keys()
+    newList = sorted(keys, key=lambda pageID: qDict[pageID]["question-number"])
+    return newList
+
 
 if __name__ == "__main__":
 
@@ -255,7 +257,7 @@ if __name__ == "__main__":
     shutil.copytree(os.path.join(sourceDir, "img"), os.path.join(deployDir, "img"))
 
 
-    writeQuestionList()
+    writeQuestionDict()
 
     # Return to original directory.
     os.chdir(startDir)

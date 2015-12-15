@@ -57,10 +57,10 @@
   {% if showSidebar %}
   <div class="sidebar">
     {% for q in questionList %}
-      {% if q.url == url-%}
-        <a class="sidebar-thisq">&#x25B6 {{ q.name }}</a>
+      {% if q == pageID-%}
+        <a class="sidebar-thisq">&#x25B6 {{ questionDict[q]["name"] }}</a>
       {% else %}
-        <a href="{{ q.url }}" class="sidebar-otherq">{{ q.name }}</a>
+        <a href="{{ questionDict[q]['url'] }}" class="sidebar-otherq">{{ questionDict[q]["name"] }}</a>
       {% endif %}
     {% endfor %}
   </div>
