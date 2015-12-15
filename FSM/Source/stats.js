@@ -5,7 +5,7 @@ var data = {
         if (document.querySelector("body").dataset.dataaddress){
             var url = document.querySelector("body").dataset.dataaddress
         } else{
-            var url = "http://homepages.inf.ed.ac.uk/cgi/s1020995/getStats.cgi"
+            var url = "http://homepages.inf.ed.ac.uk/cgi/s1020995/stable/getStats.cgi"
         }
         xhr.open('get', url, true);
         xhr.responseType = 'json';

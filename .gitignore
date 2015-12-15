@@ -13,6 +13,7 @@ Deploy/
 *.exe
 *.o
 *.so
+*.pyc
 
 # Packages #
 ############

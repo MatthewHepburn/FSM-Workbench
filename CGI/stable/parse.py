@@ -34,6 +34,7 @@ def main():
     readFiles()
     analyseUsage()
     writeFullJSON()
+    addPageData()
     writePublicJSON()
     # archiveLogs()
 
@@ -66,6 +67,16 @@ def addPage(pageID):
             "totalTime": 0,
             "uniqueVisitors": 0
             }
+
+def addPageData():
+    global pages
+    for pageID in pages:
+        if pageID not in pageDict:
+            del pages[pageID]
+        t = pages[pageID].copy()
+        pages[pageID] = dict(t, **pageDict[pageID])
+
+
 
 def isQuestion(pageID):
     return "set" in pageDict[pageID]
