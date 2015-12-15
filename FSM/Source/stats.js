@@ -3,38 +3,37 @@ var data = {
     getData:function(){
         var xhr = new XMLHttpRequest();
         if (document.querySelector("body").dataset.dataaddress){
-            var url = document.querySelector("body").dataset.dataaddress
+            var url = document.querySelector("body").dataset.dataaddress;
         } else{
-            var url = "http://homepages.inf.ed.ac.uk/cgi/s1020995/stable/getStats.cgi"
+            url = "http://homepages.inf.ed.ac.uk/cgi/s1020995/stable/getStats.cgi";
         }
-        xhr.open('get', url, true);
-        xhr.responseType = 'json';
+        xhr.open("get", url, true);
+        xhr.responseType = "json";
         xhr.onload = function(){
             data.json = xhr.response;
             data.isLoaded = true;
-        }
-        xhr.send()
+        };
+        xhr.send();
     },
     getDateData:function(){
-        var dates = []
-        for (date in data.json.dates){
-            thisDate = {date: date, uniqueVisitors: data.json.dates[date].uniqueVisitors}
-            dates.push(thisDate)
+        var dates = [];
+        for (var date in data.json.dates){
+            var thisDate = {date: date, uniqueVisitors: data.json.dates[date].uniqueVisitors};
+            dates.push(thisDate);
         }
-        console.log(dates)
         dates.sort(function(a, b){
             var keyA = a.date,
-            keyB = b.date;
+                keyB = b.date;
             // Compare the 2 dates
             if(keyA < keyB) return -1;
             if(keyA > keyB) return 1;
             return 0;
         });
-        return dates
+        return dates;
     },
     getPageVisitData: function(){
         var pageList = data.pageList;
-        var pageData = []
+        var pageData = [];
         for (var i = 0; i < pageList.length; i++){
             var thisData = data.json.urls[pageList[i]];
             if (thisData === undefined){
@@ -42,21 +41,21 @@ var data = {
             }
             var uniqueVisitors;
             if (thisData.hasOwnProperty("uniqueVisitors")){
-                uniqueVisitors = thisData.uniqueVisitors
+                uniqueVisitors = thisData.uniqueVisitors;
             } else {
                 uniqueVisitors = 0;
             }
             var thisPage = {"name":pageList[i],
                             "uniqueVisitors": uniqueVisitors
                             };
-            pageData.push(thisPage)
+            pageData.push(thisPage);
         }
         return pageData;
 
     },
     getPageAnswersData: function(){
         var questionList = data.questionList;
-        var pageData = []
+        var pageData = [];
         for (var i = 0; i < questionList.length; i++){
             var thisData = data.json.urls[questionList[i]];
             if (thisData === undefined){
@@ -67,28 +66,29 @@ var data = {
             var incorrectAnswers;
             var usersAttempted;
             var usersCorrect;
+            var usersNotCorrect;
             if (thisData.hasOwnProperty("totalAnswers")){
-                totalAnswers = thisData.totalAnswers
+                totalAnswers = thisData.totalAnswers;
             } else {
                 totalAnswers = 0;
             }
             if (thisData.hasOwnProperty("correctAnswers")){
-                correctAnswers = thisData.correctAnswers
+                correctAnswers = thisData.correctAnswers;
             } else {
                 correctAnswers = 0;
             }
             if (thisData.hasOwnProperty("usersAttempted")){
-                usersAttempted = thisData.usersAttempted
+                usersAttempted = thisData.usersAttempted;
             } else {
                 usersAttempted = 0;
             }
             if (thisData.hasOwnProperty("usersCorrect")){
-                usersCorrect = thisData.usersCorrect
+                usersCorrect = thisData.usersCorrect;
             } else {
                 usersCorrect = 0;
             }
-            incorrectAnswers = totalAnswers - correctAnswers
-            usersNotCorrect = usersCorrect - usersAttempted
+            incorrectAnswers = totalAnswers - correctAnswers;
+            usersNotCorrect = usersCorrect - usersAttempted;
             var thisPage = {"name":questionList[i],
                             "correctAnswers": correctAnswers,
                             "totalAnswers": totalAnswers,
@@ -97,13 +97,13 @@ var data = {
                             "usersAttempted":usersAttempted,
                             "usersNotCorrect":usersNotCorrect
                             };
-            pageData.push(thisPage)
+            pageData.push(thisPage);
         }
         return pageData;
     },
     getPageRatingData: function(){
-        var questionList = data.questionList
-        var pageData = []
+        var questionList = data.questionList;
+        var pageData = [];
         for (var i = 0; i < questionList.length; i++){
             var thisData = data.json.urls[questionList[i]];
             if (thisData === undefined){
@@ -112,26 +112,26 @@ var data = {
             var totalRatings;
             var yesRatings;
             if (thisData.hasOwnProperty("totalRatings")){
-                totalRatings = thisData.totalRatings
+                totalRatings = thisData.totalRatings;
             } else {
                 totalRatings = 0;
             }
             if (thisData.hasOwnProperty("yesRatings")){
-                yesRatings = thisData.yesRatings
+                yesRatings = thisData.yesRatings;
             } else {
                 yesRatings = 0;
             }
             var thisPage = {"name":questionList[i],
                             "totalRatings": totalRatings,
-                            "yesRatings": yesRatings,
+                            "yesRatings": yesRatings
                             };
-            pageData.push(thisPage)
+            pageData.push(thisPage);
         }
         return pageData;
     },
     getMaxAnswersPerPage:function(){
         var max = 0;
-        for (url in data.json.urls){
+        for (var url in data.json.urls){
             var answers = data.json.urls[url].totalAnswers;
             if (answers > max) {
                 max = answers;
@@ -142,7 +142,7 @@ var data = {
     },
     getMaxUsersAttemptedPerPage:function(){
         var max = 0;
-        for (url in data.json.urls){
+        for (var url in data.json.urls){
             var answers = data.json.urls[url].usersAttempted;
             if (answers > max) {
                 max = answers;
@@ -153,7 +153,7 @@ var data = {
     },
     getMaxRatingsPerPage:function(){
         var max = 0;
-        for (url in data.json.urls){
+        for (var url in data.json.urls){
             var ratings = data.json.urls[url].totalRatings;
             if (ratings > max) {
                 max = ratings;
@@ -164,7 +164,7 @@ var data = {
     },
     getMaxVisitorPerDate:function(){
         var max = 0;
-        for (date in data.json.dates){
+        for (var date in data.json.dates){
             var visits = data.json.dates[date].uniqueVisitors;
             if (visits > max) {
                 max = visits;
@@ -174,7 +174,7 @@ var data = {
     },
     getMaxVisitorPerPage: function(){
         var max = 0;
-        for (url in data.json.urls){
+        for (var url in data.json.urls){
             var visits = data.json.urls[url].uniqueVisitors;
             if (visits > max) {
                 max = visits;
@@ -186,11 +186,11 @@ var data = {
         //Create the page and question lists
         data.pageList = [];
         data.questionList = [];
-        var nonQuestions = ["index", "help", "about", "stats", "end", "create", "atm", "edit"] //Pages which are not questions
+        var nonQuestions = ["index", "help", "about", "stats", "end", "create", "atm", "edit"]; //Pages which are not questions
         //Populate questionList with all the question names from the JSON file.
-        for (property in data.json.urls){
+        for (var property in data.json.urls){
             if(nonQuestions.indexOf(property) == -1){
-                data.questionList.push(property)
+                data.questionList.push(property);
             }
         }
         //Sort questionList by number of unique visitors
@@ -210,7 +210,7 @@ var data = {
         }
         return -1;
     }
-}
+};
 
 data.getData();
 
@@ -221,7 +221,7 @@ var display = {
         d3.select("#canvas-div").append("svg")
             .attr("width", display.width)
             .attr("height", display.height)
-            .attr("id", "canvas")
+            .attr("id", "canvas");
     },
     drawDateBarChart: function(){
         // Draw title
@@ -229,15 +229,15 @@ var display = {
             .html("Daily Unique Visitors")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
-        var max = data.getMaxVisitorPerDate()
+        var max = data.getMaxVisitorPerDate();
         var barMargin = 2;
         var xMargin = 4;
         d3.select("#canvas")
-            .html("")
-        var dateData = data.getDateData()
-        var barHeight = 30
-        axisWidth = 20
-        var height = axisWidth + (barHeight + barMargin) * dateData.length
+            .html("");
+        var dateData = data.getDateData();
+        var barHeight = 30;
+        var axisWidth = 20;
+        var height = axisWidth + (barHeight + barMargin) * dateData.length;
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
@@ -252,8 +252,8 @@ var display = {
                     .classed("bar", true);
 
         bar.append("rect")
-                    .attr("width", function(d) { return scale(d.uniqueVisitors) })
-                    .attr("height", barHeight)
+                    .attr("width", function(d) { return scale(d.uniqueVisitors); })
+                    .attr("height", barHeight);
 
         bar.append("text")
             .attr("x", function(d) { return scale(d.uniqueVisitors) + 6; })
@@ -292,15 +292,15 @@ var display = {
             .html("Total Unique Visitors per Page")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
-        var max = data.getMaxVisitorPerPage()
+        var max = data.getMaxVisitorPerPage();
         var barMargin = 2;
         var xMargin = 4;
         d3.select("#canvas")
-            .html("")
-        pageData = data.getPageVisitData()
-        var barHeight = 30
-        axisWidth = 20
-        var height = axisWidth + (barHeight + barMargin) * pageData.length
+            .html("");
+        var pageData = data.getPageVisitData();
+        var barHeight = 30;
+        var axisWidth = 20;
+        var height = axisWidth + (barHeight + barMargin) * pageData.length;
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
@@ -315,8 +315,8 @@ var display = {
                     .classed("bar", true);
 
         bar.append("rect")
-                    .attr("width", function(d) { return scale(d.uniqueVisitors) })
-                    .attr("height", barHeight)
+                    .attr("width", function(d) { return scale(d.uniqueVisitors); })
+                    .attr("height", barHeight);
 
         bar.append("text")
             .attr("x", function(d) { return scale(d.uniqueVisitors) + 6; })
@@ -356,15 +356,15 @@ var display = {
             .html("Correct vs Total Answers by Question")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
-        var max = data.getMaxAnswersPerPage()
+        var max = data.getMaxAnswersPerPage();
         var barMargin = 2;
         var xMargin = 4;
         d3.select("#canvas")
-            .html("")
-        pageData = data.getPageAnswersData()
-        var barHeight = 30
-        axisWidth = 20
-        var height = axisWidth + (barHeight + barMargin) * pageData.length
+            .html("");
+        var pageData = data.getPageAnswersData();
+        var barHeight = 30;
+        var axisWidth = 20;
+        var height = axisWidth + (barHeight + barMargin) * pageData.length;
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
@@ -379,13 +379,13 @@ var display = {
                     .classed("bar", true);
 
         bar.append("rect")
-            .attr("width", function(d) { return scale(d.totalAnswers) })
+            .attr("width", function(d) { return scale(d.totalAnswers);})
             .attr("height", barHeight)
-            .classed("total", true)
+            .classed("total", true);
 
         bar.append("rect")
-                    .attr("width", function(d) { return scale(d.correctAnswers) })
-                    .attr("height", barHeight)
+                    .attr("width", function(d) { return scale(d.correctAnswers); })
+                    .attr("height", barHeight);
 
 
 
@@ -414,15 +414,15 @@ var display = {
             .html("Positive vs Total Ratings by Question")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
-        var max = data.getMaxRatingsPerPage()
+        var max = data.getMaxRatingsPerPage();
         var barMargin = 2;
         var xMargin = 4;
         d3.select("#canvas")
-            .html("")
-        pageData = data.getPageRatingData()
-        var barHeight = 30
-        axisWidth = 20
-        var height = axisWidth + (barHeight + barMargin) * pageData.length
+            .html("");
+        var pageData = data.getPageRatingData();
+        var barHeight = 30;
+        var axisWidth = 20;
+        var height = axisWidth + (barHeight + barMargin) * pageData.length;
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
@@ -437,15 +437,13 @@ var display = {
                     .classed("bar", true);
 
         bar.append("rect")
-            .attr("width", function(d) { return scale(d.totalRatings) })
+            .attr("width", function(d) { return scale(d.totalRatings);})
             .attr("height", barHeight)
-            .classed("total", true)
+            .classed("total", true);
 
         bar.append("rect")
-                    .attr("width", function(d) { return scale(d.yesRatings) })
-                    .attr("height", barHeight)
-
-
+                    .attr("width", function(d) { return scale(d.yesRatings);})
+                    .attr("height", barHeight);
 
         bar.append("text")
             .attr("x", function(d) { return scale(d.totalRatings) + 6; })
@@ -477,15 +475,15 @@ var display = {
             .html("User Outcomes by Question")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
-        var max = data.getMaxUsersAttemptedPerPage()
+        var max = data.getMaxUsersAttemptedPerPage();
         var barMargin = 2;
         var xMargin = 4;
         d3.select("#canvas")
-            .html("")
-        pageData = data.getPageAnswersData()
-        var barHeight = 30
-        axisWidth = 20
-        var height = axisWidth + (barHeight + barMargin) * pageData.length
+            .html("");
+        var pageData = data.getPageAnswersData();
+        var barHeight = 30;
+        var axisWidth = 20;
+        var height = axisWidth + (barHeight + barMargin) * pageData.length;
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
@@ -500,15 +498,13 @@ var display = {
                     .classed("bar", true);
 
         bar.append("rect")
-            .attr("width", function(d) { return scale(d.usersAttempted) })
+            .attr("width", function(d) { return scale(d.usersAttempted);})
             .attr("height", barHeight)
-            .classed("total", true)
+            .classed("total", true);
 
         bar.append("rect")
-                    .attr("width", function(d) { return scale(d.usersCorrect) })
-                    .attr("height", barHeight)
-
-
+                    .attr("width", function(d) { return scale(d.usersCorrect);})
+                    .attr("height", barHeight);
 
         bar.append("text")
             .attr("x", function(d) { return scale(d.usersAttempted) + 6; })
@@ -528,13 +524,13 @@ var display = {
         d3.select("#x-axis-title")
             .html("Number of <i class='blue'>users who give a correct answer</i> and <i class='red'>users attempting the question but not giving a correct answer</i>")
             .attr("style", "width: " + (display.width - 200) + "px;");
-        d3.selectAll(".y .axis")
+        d3.selectAll(".y .axis");
     },
     writeTimeStamp:function(){
         var div = document.querySelector("#timestamp");
         div.innerHTML = ("Logs parsed at ") + data.json.meta.timeStamp;
     }
-}
+};
 
 var control = {
     initialDraw:function(){
@@ -546,10 +542,13 @@ var control = {
         display.drawDateBarChart();
         display.writeTimeStamp();
     }
-
-}
+};
 
 window.onload = function(){
     display.setupCanvas();
     control.initialDraw();
-}
+};
+
+
+//Declare d3 as global readonly for ESLint
+/*global d3*/
