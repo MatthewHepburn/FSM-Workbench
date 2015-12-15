@@ -5,6 +5,7 @@ import json
 import datetime
 import time
 import sys
+import subprocess #Required to determine directory size
 try:
     from user_agents import parse
     hasUserAgents = True
@@ -23,7 +24,7 @@ maxTimeOnPage = 7200
 logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
 crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console", "Google PP Default"]
-ignoredIDs = [] #UserIDs to ignore - eg to exclude developer actions from stats
+ignoredIDs = ["DEBUG"] #UserIDs to ignore - eg to exclude developer actions from stats
 startDir = os.getcwd()
 
 
@@ -36,7 +37,7 @@ def main():
     writeFullJSON()
     addPageData()
     writePublicJSON()
-    # archiveLogs()
+    archiveLogs()
 
 def addIfNotPresent(list, item):
     # Can't use sets as they cannot be stored as JSON
@@ -92,6 +93,8 @@ def analyseUsage():
             pages[pageID]["usersAttempted"] = 0
             pages[pageID]["usersCorrect"] = 0
     for userID in users:
+        if userID in ignoredIDs:
+            continue
         u = users[userID]
         for pageID in u["totalTimeOnPage"]:
             pages[pageID]["totalTime"] += u["totalTimeOnPage"][pageID]
@@ -108,66 +111,39 @@ def analyseUsage():
 
 
 def archiveLogs():
-    files = os.listdir(os.getcwd())
-    # Ignore files that are not .log
-    files = [f for f in files if f[-4:] == ".log"]
-    usageFiles = [f for f in files if f[:5] == "usage"]
-    answerFiles = [f for f in files if f[:6] == "answer"]
-    ratingFiles = [f for f in files if f[:6] == "rating"]
-    for file in usageFiles:
-        archiveUsage(file)
-    for file in answerFiles:
-        archiveAnswers(file)
-    for file in ratingFiles:
-        archiveRatings(file)
+    archive("usage.log")
+    archive("ratings.log")
+    archive("answers.log")
 
-def archiveUsage(file):
+def archive(file):
     # Add files to the log archive and remove them from the current directory.
-    f = open(file, "r")
-    os.chdir("log_archive")
-    os.chdir("Usage by date")
-    a = open(file, "w")
-    for line in f:
-        a.write(line)
-    os.chdir(startDir)
-    f.close()
-    a.close()
-    os.remove(file)
-
-def archiveAnswers(file):
-    # Add files to the log archive and remove them from the current directory.
-    f = open(file, "r")
-    os.chdir("log_archive")
-    os.chdir("Answers by question")
-    a = open(file, "w")
-    for line in f:
-        a.write(line)
-    os.chdir(startDir)
-    f.close()
-    a.close()
-    os.remove(file)
-
-def archiveRatings(file):
-    # Add files to the log archive and remove them from the current directory.
-    f = open(file, "r")
-    os.chdir("log_archive")
-    os.chdir("Ratings by question")
-    a = open(file, "w")
-    for line in f:
-        a.write(line)
-    os.chdir(startDir)
-    f.close()
-    a.close()
-    os.remove(file)
-
-
-
-
-
+    try:
+        with open(file, "r") as current:
+            try:
+                os.chdir("logArchive")
+            except OSError:
+                os.mkdir("logArchive")
+                os.chdir("logArchive")
+            with open(file, "a") as archive:
+                for line in current:
+                    archive.write(line)
+        os.chdir(startDir)
+        os.remove(file)
+    except IOError:
+        pass
 def readFiles():
-    readUsage("usage.log")
-    readAnswers("answers.log")
-    readRatings("ratings.log")
+    try:
+        readUsage("usage.log")
+    except IOError:
+        pass
+    try:
+        readAnswers("answers.log")
+    except IOError:
+        pass
+    try:
+        readRatings("ratings.log")
+    except IOError:
+        pass
 
 
 def readPrevStats():
@@ -421,14 +397,45 @@ def parseURL(url):
         url = url.split("/")[-1:][0][:-5]
     return url
 
+def getVisitors(userIDList):
+    count = 0
+    for userID in userIDList:
+        if userID not in ignoredIDs:
+            count += 1
+    return count
+
+def getLogSize():
+    # Return a string representing the size of the log directory
+    os.chdir(startDir)
+    # This is a nicer way to do this, but won't work until DICE upgrages to python version >= 2.7
+    if False and hasattr(subprocess, "check_output"):
+        output = subprocess.check_output(["du", "-sb"])
+        bytes = int(output.split("\t")[0])
+    else:
+        # So fall back to this
+        from subprocess import PIPE,Popen
+        p = Popen(['du', '-sb'], stdout=PIPE)
+        output = p.communicate()[0]
+        bytes = int(output.split("\t")[0])
+
+    KiB = bytes/1024.0
+    if KiB < 1024:
+        return str(round(KiB, 1)) + " KiB"
+    else:
+        MiB = KiB/1024.0
+        return str(round(MiB, 1)) + "MiB"
+
+
 def writePublicJSON():
     # Remove nonpublic data:
     for date in dates:
+        dates[date]["uniqueVisitors"] = getVisitors(dates[date]["dailyUniquesList"])
         del dates[date]["dailyUniquesList"]
     # Calculate Timestamp:
     now = datetime.datetime.now()
     timeStamp = now.strftime('%Y-%m-%d %H:%M:%S')
-    out = {"pages":pages, "dates":dates, "meta":{"timeStamp":timeStamp}}
+    logSize = getLogSize()
+    out = {"pages":pages, "dates":dates, "meta":{"timeStamp":timeStamp, "logSize": logSize}}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 

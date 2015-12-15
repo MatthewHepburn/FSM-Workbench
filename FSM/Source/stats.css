@@ -89,9 +89,13 @@ text {
 	fill: black;
 }
 
-#timestamp {
+#timestamp, #logsize {
 	font-size: 75%;
 	font-family: monospace;
-	margin-top: 80px;
+	margin-top: 5px;
 	color: grey;
+}
+
+#footer{
+	margin-top: 100px;
 }

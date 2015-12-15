@@ -35,7 +35,8 @@ var data = {
         var pageList = data.pageList;
         var pageData = [];
         for (var i = 0; i < pageList.length; i++){
-            var thisData = data.json.urls[pageList[i]];
+            var pageID = pageList[i];
+            var thisData = data.json.pages[pageID];
             if (thisData === undefined){
                 continue;
             }
@@ -45,7 +46,7 @@ var data = {
             } else {
                 uniqueVisitors = 0;
             }
-            var thisPage = {"name":pageList[i],
+            var thisPage = {"name":data.getName(pageID),
                             "uniqueVisitors": uniqueVisitors
                             };
             pageData.push(thisPage);
@@ -57,7 +58,8 @@ var data = {
         var questionList = data.questionList;
         var pageData = [];
         for (var i = 0; i < questionList.length; i++){
-            var thisData = data.json.urls[questionList[i]];
+            var pageID = questionList[i];
+            var thisData = data.json.pages[pageID];
             if (thisData === undefined){
                 continue;
             }
@@ -89,7 +91,7 @@ var data = {
             }
             incorrectAnswers = totalAnswers - correctAnswers;
             usersNotCorrect = usersCorrect - usersAttempted;
-            var thisPage = {"name":questionList[i],
+            var thisPage = {"name":data.getName(pageID),
                             "correctAnswers": correctAnswers,
                             "totalAnswers": totalAnswers,
                             "incorrectAnswers": incorrectAnswers,
@@ -105,7 +107,8 @@ var data = {
         var questionList = data.questionList;
         var pageData = [];
         for (var i = 0; i < questionList.length; i++){
-            var thisData = data.json.urls[questionList[i]];
+            var pageID = questionList[i];
+            var thisData = data.json.pages[questionList[i]];
             if (thisData === undefined){
                 continue;
             }
@@ -121,7 +124,7 @@ var data = {
             } else {
                 yesRatings = 0;
             }
-            var thisPage = {"name":questionList[i],
+            var thisPage = {"name":data.getName(pageID),
                             "totalRatings": totalRatings,
                             "yesRatings": yesRatings
                             };
@@ -131,8 +134,8 @@ var data = {
     },
     getMaxAnswersPerPage:function(){
         var max = 0;
-        for (var url in data.json.urls){
-            var answers = data.json.urls[url].totalAnswers;
+        for (var url in data.json.pages){
+            var answers = data.json.pages[url].totalAnswers;
             if (answers > max) {
                 max = answers;
             }
@@ -142,8 +145,8 @@ var data = {
     },
     getMaxUsersAttemptedPerPage:function(){
         var max = 0;
-        for (var url in data.json.urls){
-            var answers = data.json.urls[url].usersAttempted;
+        for (var url in data.json.pages){
+            var answers = data.json.pages[url].usersAttempted;
             if (answers > max) {
                 max = answers;
             }
@@ -153,8 +156,8 @@ var data = {
     },
     getMaxRatingsPerPage:function(){
         var max = 0;
-        for (var url in data.json.urls){
-            var ratings = data.json.urls[url].totalRatings;
+        for (var url in data.json.pages){
+            var ratings = data.json.pages[url].totalRatings;
             if (ratings > max) {
                 max = ratings;
             }
@@ -174,41 +177,58 @@ var data = {
     },
     getMaxVisitorPerPage: function(){
         var max = 0;
-        for (var url in data.json.urls){
-            var visits = data.json.urls[url].uniqueVisitors;
+        for (var url in data.json.pages){
+            var visits = data.json.pages[url].uniqueVisitors;
             if (visits > max) {
                 max = visits;
             }
         }
         return max;
     },
+    getName:function(pageID){
+        var pageData = data.json.pages[pageID];
+        if (pageData.isQuestion){
+            return pageData.set + " - " + pageData.name;
+        } else{
+            return pageData.name;
+        }
+
+    },
     setLists:function(){
         //Create the page and question lists
-        data.pageList = [];
-        data.questionList = [];
-        var nonQuestions = ["index", "help", "about", "stats", "end", "create", "atm", "edit"]; //Pages which are not questions
-        //Populate questionList with all the question names from the JSON file.
-        for (var property in data.json.urls){
-            if(nonQuestions.indexOf(property) == -1){
-                data.questionList.push(property);
+        data.pageList = []; //list of all pageIDs
+        data.questionList = []; //list of all pageIDs corresponding to questions
+        for (var pageID in data.json.pages){
+            if(data.json.pages[pageID].isQuestion){
+                data.questionList.push(pageID);
             }
+            data.pageList.push(pageID);
         }
-        //Sort questionList by number of unique visitors
-        data.questionList.sort(data.sortPages);
-        //Construct pageList by adding the non-questions
-        data.pageList = nonQuestions.concat(data.questionList);
     },
-    sortPages:function(a, b){
-        //Sort function to sort URLS by number of unique visitors in descending order
-        var aUniques = data.json.urls[a].uniqueVisitors;
-        var bUniques = data.json.urls[b].uniqueVisitors;
-        if (aUniques < bUniques){
-            return 1;
-        }
-        if (aUniques == bUniques){
+    sortLists:function(){
+        var sort =  function(a, b){
+            //Sort by set, then by question-number, then by uniques
+            var aSet = data.json.pages[a].set !== undefined? data.json.pages[a].set : "zz";
+            var bSet = data.json.pages[b].set !== undefined? data.json.pages[b].set : "zz";
+            if (aSet < bSet){return -1;}
+            if (aSet > bSet){return 1;}
+
+            //Set is equal, compare question-numbers
+            var aQN = data.json.pages[a]["question-number"] !== undefined? data.json.pages[a]["question-number"] : -1;
+            var bQN = data.json.pages[b]["question-number"] !== undefined? data.json.pages[b]["question-number"] : -1;
+            if (aQN < bQN){return -1;}
+            if (aQN > bQN){return 1;}
+
+            //QuestionNumbers are equal - sort by uniques
+            var aUniques = data.json.pages[a].uniqueVisitors;
+            var bUniques = data.json.pages[b].uniqueVisitors;
+            if (aUniques < bUniques){return 1;}
+            if (aUniques > bUniques){return -1;}
             return 0;
-        }
-        return -1;
+
+        };
+        data.questionList.sort(sort);
+        data.pageList.sort(sort);
     }
 };
 
@@ -526,6 +546,10 @@ var display = {
             .attr("style", "width: " + (display.width - 200) + "px;");
         d3.selectAll(".y .axis");
     },
+    writeLogSize:function(){
+        var div = document.querySelector("#logsize");
+        div.innerHTML = ("Log size: ") + data.json.meta.logSize;
+    },
     writeTimeStamp:function(){
         var div = document.querySelector("#timestamp");
         div.innerHTML = ("Logs parsed at ") + data.json.meta.timeStamp;
@@ -539,8 +563,10 @@ var control = {
             return;
         }
         data.setLists();
+        data.sortLists();
         display.drawDateBarChart();
         display.writeTimeStamp();
+        display.writeLogSize();
     }
 };
 
