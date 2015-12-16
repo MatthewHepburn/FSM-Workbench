@@ -2553,7 +2553,7 @@ var eventHandler = {
         controller.renameSubmit();
 
         // Reinstate drag-to-move if previous mode did not allow it.
-        if(global.toolsWithDragAllowed.indexOf(model.toolMode) != -1){
+        if(global.toolsWithDragAllowed.indexOf(model.toolMode) == -1){
             global.circle.call(global.force.drag);
         }
         // If current mode is the same as the new mode, deselect it:
@@ -2566,7 +2566,7 @@ var eventHandler = {
                 .attr("fill", "url(#Gradient1)");
         }
         //  disable node dragging if needed by new mode:
-        if (newMode == "linetool" || newMode == "texttool" || newMode == "acceptingtool" || newMode == "deletetool" || newMode == "nodetool"){
+        if (global.toolsWithDragAllowed.indexOf(newMode) == -1){
             global.circle
                 .on("mousedown.drag", null)
                 .on("touchstart.drag", null);

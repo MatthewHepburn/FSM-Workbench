@@ -14,23 +14,36 @@
   data-links='[]'
   data-question='{"type":"none", "alphabet":["a", "b", "ε"], "alphabetType":"char"}'
   data-options='{"constrainRename":true}'
-  data-iconaddress = 'http://homepages.inf.ed.ac.uk/s1020995/img/Icons/'>
-      <div class="menu">
-    	<a href='index.html' class='pure-button'>Home</a>
-    	<a href="about.html" class='pure-button'>About</a>
-    	<a href="help.html" class='pure-button'>Help</a>
-	</div>
-  	<div class="createtools">
-	  	<label for="traceform">Input</label>
-		<input type="text" class="qform" ,="" id="traceform" value="aab">
-		<button id="traceform-button" class="pure-button" type="submit">Test</button>
-  	</div>
-    <svg id="main-svg" width="960" height="500" class="active">
-      <defs>
-        <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
-        <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
-      </defs>
-    </svg>
+  data-iconaddress = 'http://homepages.inf.ed.ac.uk/s1020995/stable/img/Icons/'>
+    <div class="maindiv" style="width:85%">
+        <div class="menu">
+      	<a href='index.html' class='pure-button'>Home</a>
+      	<a href="about.html" class='pure-button'>About</a>
+      	<a href="help.html" class='pure-button'>Help</a>
+        </div>
+    	<div class="createtools pure-form-aligned" style="margin-top:10px;">
+        <fieldset style="border-style:none;">
+          <div class="pure-control-group">
+            <label for="setalphabet">Alphabet</label>
+            <input type="text" class ="qform" id="setalphabet" value='["a", "b"]'>
+            <button id="setalphabet-button" class="pure-button" type="submit" style="margin-left:5px;" >Set</button>
+            <p id="alphabeterror" style="display:inline; margin-left:10px"></p>
+          </div>
+
+          <div class="pure-control-group">
+      	  	<label for="traceform">Input</label>
+        		<input type="text" class="qform" id="traceform" value="aab">
+        		<button id="traceform-button" class="pure-button" type="submit" style="margin-left:5px;">Test</button>
+          </div>
+        </fieldset>
+    	</div>
+      <svg id="main-svg" width="960" height="500" class="active">
+        <defs>
+          <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
+          <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
+        </defs>
+      </svg>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
     <script src="fsm.js"></script>
     <script type="text/javascript" src="create.js"></script>
