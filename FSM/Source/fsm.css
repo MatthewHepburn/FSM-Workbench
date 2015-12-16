@@ -193,6 +193,8 @@ text.nodename {
   font-style: normal;
 }
 
+input[type=checkbox]{
+  -moz-appearance: none;
 }
 
 .input.dim {
