@@ -14,10 +14,10 @@ class IntroducingCycles(unittest.TestCase):
         self.base_url = " "
         self.verificationErrors = []
         self.accept_next_alert = True
-    
+
     def test_introducing_cycles(self):
         driver = self.driver
-        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM%20Prototype/Deploy/inf1/give-list-cycles.html")
+        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM/Deploy/inf1/give-list-cycles.html")
         driver.find_element_by_id("check-button").click()
         # ERROR: Caught exception [Error: locator strategy either id or name must be specified explicitly.]
         driver.find_element_by_id("qf1").clear()
@@ -26,17 +26,17 @@ class IntroducingCycles(unittest.TestCase):
         driver.find_element_by_id("qf2").send_keys("aaaaaabb")
         driver.find_element_by_id("check-button").click()
         # ERROR: Caught exception [Error: locator strategy either id or name must be specified explicitly.]
-    
+
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)
         except NoSuchElementException as e: return False
         return True
-    
+
     def is_alert_present(self):
         try: self.driver.switch_to_alert()
         except NoAlertPresentException as e: return False
         return True
-    
+
     def close_alert_and_get_its_text(self):
         try:
             alert = self.driver.switch_to_alert()
@@ -47,7 +47,7 @@ class IntroducingCycles(unittest.TestCase):
                 alert.dismiss()
             return alert_text
         finally: self.accept_next_alert = True
-    
+
     def tearDown(self):
         self.driver.quit()
         self.assertEqual([], self.verificationErrors)

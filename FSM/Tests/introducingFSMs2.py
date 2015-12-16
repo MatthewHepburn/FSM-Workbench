@@ -17,7 +17,7 @@ class IntroducingFSMs2(unittest.TestCase):
 
     def test_introducing_f_s_ms2(self):
         driver = self.driver
-        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM%20Prototype/Deploy/inf1/select-states-1.html")
+        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM/Deploy/inf1/select-states-1.html")
         driver.find_element_by_id("0").click()
         driver.find_element_by_id("23").click()
         driver.find_element_by_id("check-button").click()

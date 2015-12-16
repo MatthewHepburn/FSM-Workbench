@@ -17,7 +17,7 @@ class Demo1(unittest.TestCase):
 
     def test_demo1(self):
         driver = self.driver
-        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM%20Prototype/Deploy/inf1/demo1-intro-to-fsm.html")
+        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM/Deploy/inf1/demo1-intro-to-fsm.html")
         driver.find_element_by_id("demo-B").click()
         driver.find_element_by_id("demo-B").click()
         driver.find_element_by_id("demo-B").click()

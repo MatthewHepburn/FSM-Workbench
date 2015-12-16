@@ -17,7 +17,7 @@ class AcceptingStates1(unittest.TestCase):
 
     def test_accepting_states1(self):
         driver = self.driver
-        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM%20Prototype/Deploy/inf1/select-states-2-accepting-state.html")
+        driver.get(self.base_url + "file:///home/matthew/Documents/Y4/CAL/FSM/Deploy/inf1/select-states-2-accepting-state.html")
         driver.find_element_by_id("check-button").click()
         self.assertTrue(self.is_element_present(By.CSS_SELECTOR, "img.cross.x-check-button"))
         driver.find_element_by_id("1").click()

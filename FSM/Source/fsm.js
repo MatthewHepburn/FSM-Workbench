@@ -862,9 +862,7 @@ var display = {
             buttonHTML += " " + checkButton.classList[i];
         }
         buttonHTML += "'>Next</a>";
-        var siblings = checkButton.parentNode.children;
-        var lastSibling = siblings[siblings.length - 1];
-        lastSibling.insertAdjacentHTML("afterend",buttonHTML);
+        checkButton.insertAdjacentHTML("afterend",buttonHTML);
 
     },
     linkLabelText:function(link){
