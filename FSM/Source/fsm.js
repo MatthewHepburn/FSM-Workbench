@@ -3123,7 +3123,7 @@ var logging = {
         };
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/stable/answer.cgi", true);
+        request.open("POST", "/cgi/s1020995/dev/answer.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
@@ -3154,7 +3154,7 @@ var logging = {
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/stable/usage.cgi", true);
+        request.open("POST", "/cgi/s1020995/dev/usage.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
@@ -3179,7 +3179,7 @@ var logging = {
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/stable/rating.cgi", true);
+        request.open("POST", "/cgi/s1020995/dev/rating.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     }

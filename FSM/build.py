@@ -27,10 +27,10 @@ def setAddresses(toDeploy):
     global addresses
     if toDeploy:
         addresses = {
-            "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/",
-            "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/",
-            "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/img/Icons/",
-            "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/stable/img/"
+            "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
+            "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
+            "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/Icons/",
+            "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/"
         }
     else:
         addresses = {

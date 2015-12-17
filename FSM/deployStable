@@ -1,7 +1,0 @@
-#!/bin/bash
-python3 build.py -d -m
-scp -r Deploy/* s1020995@ssh.inf.ed.ac.uk:/public/homepages/s1020995/web/stable
-scp -r ../CGI/stable/*.py s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/stable
-scp -r ../CGI/stable/*.cgi s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/stable
-scp Deploy/questionlist.json s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/stable
-scp ../CGI/stable/pagelist.json s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/stable
