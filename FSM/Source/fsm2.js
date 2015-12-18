@@ -233,18 +233,89 @@ var Constructor = {
     }
 };
 
+var Model = {
+    machines: []
+};
+
+var Display = {
+    nodeRadius: 5,
+    canvasVars: {
+        "c1": {
+            "force":d3.layout.force().on("tick", function(){Display.forceTick("c1");})
+        }
+    },
+    forceTick: function(canvasID){
+        d3.select("#"+canvasID)
+            .selectAll(".node")
+                .attr("cx", function(d){return d.x;})
+                .attr("cy", function(d){return d.y;});
+    },
+    update: function(machine, canvasID){
+        var colours = Global.colours;
+
+        var svg = d3.select("#"+canvasID);
+
+        var nodeg = svg.select("#nodes"); // Select the g element used for nodes
+
+        var nodeList = Object.keys(machine.nodes).map(function(nodeID){return machine.nodes[nodeID];});
+        var circle = nodeg.selectAll("g")
+            .data(nodeList, function(d){return d.id;});
+
+        var newNodes = circle.enter().append("svg:g")
+            .append("circle")
+                .attr("cx", function(d){return d.x;})
+                .attr("cy", function(d){return d.y;})
+                .attr("id", function(d){return d.id;})
+                .classed("node", true)
+                .classed("accepting", function(d){return d.isAccepting;})
+                .attr("r", Display.nodeRadius)
+                .style("fill", function(d){return colours(d.id);});
+
+        var force = this.canvasVars[canvasID].force;
+        force.nodes(nodeList);
+        force.start()
+        newNodes.call(force.drag)
+
+
+
+
+
+    }
+};
+
 var Controller = {
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
         m = new Constructor.Machine("m1");
-        var tim = m.addNode(10,10, "TIM", false, true);
-        var node2 = m.addNode(20,20, "", true, false);
-        var node3 = m.addNode(0,0,"", false, true);
-        var link1 = m.addLink(tim, node2);
-        var link2 = m.addLink(node2, tim, [], {}, true);
-        var link3 = m.addLink(tim, node3, [], {}, true);
+        Model.machines.push(m);
+        Controller.setupMachine(m, 0);
+        Display.update(Model.machines[0], "c1");
+    },
+    setupMachine: function(machine, i){
+        var body = document.querySelector("body");
+        var spec = JSON.parse(body.dataset.machinelist)[i];
+        machine.build(spec);
+
     }
 };
+
+var Global = {
+    // Not certain if this is a good idea - object to hold global vars
+    // Some globals useful to avoid keeping duplicated code in sync - this seems like
+    // a more readable way of doing that than scattering global vars throughout the codebase
+    "toolsWithDragAllowed": ["none"],
+    "pageLoaded": false,
+    "colours": d3.scale.category10(),
+    "iconAddress": document.querySelector("body").dataset.iconaddress,
+    //Track state
+    "renameMenuShowing":false,
+    "contextMenuShowing":false,
+    "traceInProgress": false,
+    "hasRated": false
+};
+
+//Declare d3 as global readonly for ESLint
+/*global d3*/
 
 var m;
 Controller.init();
