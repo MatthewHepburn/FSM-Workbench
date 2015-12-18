@@ -34,6 +34,23 @@ var Constructor = {
             sourceNode.outgoingLinks[linkID] = this.links[linkID];
             return linkID;
         };
+        this.build = function(spec){
+            //Sets up the machine based on a specification object passed in
+            this.nodes = {};
+            this.links = {};
+            var nodes = spec.nodes;
+            var nodeIDDict = {}; //Used to map IDs in the spec to machine IDs
+            for (var i = 0; i < nodes.length; i++){
+                var n = nodes[i];
+                var specID = n.id;
+                nodeIDDict[specID] = this.addNode(n.x, n.y, n.name, n.isInit, n.isAcc);
+            }
+            var links = spec.links;
+            for (i = 0; i < links.length; i++){
+                var l = links[i];
+                this.addLink(nodeIDDict[l.from], nodeIDDict[l.to], l.input, l.output, l.hasEps);
+            }
+        };
         this.getNextNodeID = function(){
             // Returns a sequential node id that incorporates the machine id
             if (this.lastNodeID === undefined){
@@ -49,6 +66,52 @@ var Constructor = {
             }
             this.lastLinkID += 1;
             return this.id + "-l" + String(this.lastLinkID);
+        };
+        this.getSpec = function(){
+            //Returns an object that describes the current machine in the form accepted by Machine.build
+            var spec = {"nodes": [], "links": []};
+            var nodeKeys = Object.keys(this.nodes);
+            var nodeIDDict = {}; //Used to map from the internal IDs to the externalIDs
+            var nextNodeID = 65; // 65 -> "A"
+            for (var i = 0; i < nodeKeys.length; i++){
+                var nodeIDinternal = nodeKeys[i];
+                var nodeIDexternal = String.fromCharCode(nextNodeID);
+                nextNodeID += 1;
+                nodeIDDict[nodeIDinternal] = nodeIDexternal;
+                var intNode = this.nodes[nodeIDinternal];
+                // There is an argument for generating the mininal description in the Node object,
+                // but decided against it as defaults are imposed by Machine. In any case, tight coupling between
+                // Machine and Node is probably harmless.
+                var extNode = {"id": nodeIDexternal, "x":Math.round(intNode.x), "y":Math.round(intNode.y)};
+                // Only include non-default properties for brevity:
+                if (intNode.isAccepting === true){
+                    extNode.isAcc = true;
+                }
+                if (intNode.isInitial === true){
+                    extNode.isInit = true;
+                }
+                if (intNode.name !== ""){
+                    extNode.name = intNode.name;
+                }
+                spec.nodes.push(extNode);
+            }
+            var linkKeys = Object.keys(this.links);
+            for(i = 0; i < linkKeys.length; i++){
+                var intLink = this.links[linkKeys[i]];
+                var extLink = {"to": nodeIDDict[intLink.target.id], "from": nodeIDDict[intLink.source.id]};
+                // Only include non-default properties for brevity:
+                if(intLink.input.length > 0){ // Because JS comparisons are strange: [] === [] -> false
+                    extLink.input = intLink.input;
+                }
+                if(Object.keys(intLink.output).length > 0){ // intLink.output != {}
+                    extLink.output = intLink.output;
+                }
+                if(intLink.hasEpsilon === true){
+                    extLink.hasEps = true;
+                }
+                spec.links.push(extLink);
+            }
+            return spec;
         };
         this.setToInitialState = function(){
             //Set the list of current states to be all initial states
