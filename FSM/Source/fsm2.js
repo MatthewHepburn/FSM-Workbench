@@ -238,29 +238,130 @@ var Model = {
 };
 
 var Display = {
-    nodeRadius: 5,
+    nodeRadius: 15,
     canvasVars: {
         "c1": {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("c1");})
         }
     },
     forceTick: function(canvasID){
-        d3.select("#"+canvasID)
-            .selectAll(".node")
-                .attr("cx", function(d){return d.x;})
-                .attr("cy", function(d){return d.y;});
+        //Update the display after the force layout acts
+        var svg = d3.select("#"+canvasID)        
+        svg.selectAll(".node")
+            .attr("cx", function(d){return d.x;})
+            .attr("cy", function(d){return d.y;});
+        svg.selectAll(".link")
+            .attr("d", function(link){return Display.getLinkPathD(link);});
+
+    },
+    getLinkPathD: function(link){
+        // Test if the link is from a node to itself:
+        if (link.source.id === link.target.id){
+            // Create two segments, meeting at the top, to allow placement of arrowheads
+            // Note this is not needed for arrowheads to display in Chrome, but based on the specification this may be a bug in Chrome.
+            var x = link.source.x;
+            var y = link.source.y - 14;
+
+            var x1 = x - 10;
+            var y1 = y + 5;
+
+            var P1 = x1 + "," + y1;
+
+            var x2 = x;
+            var y2 = y - 22.9129 - 20;
+            var x3 = x + 10;
+            var y3 = y1;
+
+            var P2 = x2 + "," + y2;
+            var P3 = x3 + "," + y3;
+
+            var rad = 25;
+
+            var str = "M" + P1 + " A" + rad + " " + rad + " 0 0 1 " + P2;
+            str += "  A" + rad + " " + rad + " 0 0 1 " + P3;
+            return str;
+
+        }
+        // Test if there is a link in the opposite direction:
+        var hasOpposite = false;
+        for (var i = 0; !hasOpposite && i < link.target.outgoingLinks.length; i++){
+            if (link.target.outgoingLinks[i].target.id === link.source.id){
+                hasOpposite = true;
+            }
+        }
+        var x1 = link.source.x;
+        var x2 = link.target.x;
+        var y1 = link.source.y;
+        var y2 = link.target.y
+
+        if (hasOpposite){
+            //Use a bezier curve
+            // Calculate vector from P1 to P2
+            var vx = x2 - x1;
+            var vy = y2 - y1;
+
+            // Find suitable control points by rotating v left 90deg, normalising and scaling
+            var vlx = -1 * vy;
+            var vly = 1 * vx;
+
+            var normal_vlx = vlx/Math.sqrt(vlx*vlx + vly*vly);
+            var normal_vly = vly/Math.sqrt(vlx*vlx + vly*vly);
+
+            var scaled_vlx = 18 * normal_vlx;
+            var scaled_vly = 18 * normal_vly;
+
+            //offset the start and end points along vl
+            x1 += 5 * normal_vlx;
+            y1 += 5 * normal_vly;
+            x2 += 5 * normal_vlx;
+            y2 += 5 * normal_vly;
+
+
+            // Can now define the control points by adding vl to P1 and P2
+            var c1x = x1 + scaled_vlx;
+            var c1y = y1 + scaled_vly;
+
+            var c2x = x2 + scaled_vlx;
+            var c2y = y2 + scaled_vly;
+
+            // We need an explicit midpoint to allow a direction arrow to be placed
+            var m1x = c1x + 0.5 * vx;
+            var m1y = c1y + 0.5 * vy;
+
+            // Define strings to use to define the path
+            var P1 = x1 + "," + y1;
+            var M1 = m1x + "," + m1y;
+            var P2 = x2 + "," + y2;
+            var C1 = c1x + "," + c1y;
+            var C2 = c2x + "," + c2y;
+
+            return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
+        } else {
+            // define vector v from P1 to halfway to P2
+            var vx = 0.5 * (x2 - x1);
+            var vy = 0.5 * (y2 - y1);
+
+            // midpoint is then:
+            var midx = x1 + vx;
+            var midy = y1 + vy;
+
+            var P1 = x1 + "," + y1;
+            var M = midx + "," + midy;
+            var P2 = x2 + "," + y2;
+
+            return ("M" + P1 + " L" + M + " L" + P2);
+        }
     },
     update: function(machine, canvasID){
         var colours = Global.colours;
 
         var svg = d3.select("#"+canvasID);
 
+        // Draw new nodes
         var nodeg = svg.select("#nodes"); // Select the g element used for nodes
-
         var nodeList = Object.keys(machine.nodes).map(function(nodeID){return machine.nodes[nodeID];});
         var circle = nodeg.selectAll("g")
             .data(nodeList, function(d){return d.id;});
-
         var newNodes = circle.enter().append("svg:g")
             .append("circle")
                 .attr("cx", function(d){return d.x;})
@@ -271,8 +372,26 @@ var Display = {
                 .attr("r", Display.nodeRadius)
                 .style("fill", function(d){return colours(d.id);});
 
+
+       // Draw new links
+       var linkg = svg.select("#links");
+       var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];})
+       var linkGs = linkg.selectAll("g")
+            .data(linkList, function(d){return d.id;});
+       var newLinks = linkGs.enter().append("svg:g")
+           .append("path")
+               .attr("d", function(d){return Display.getLinkPathD(d);})
+               .classed("link", true);
+
         var force = this.canvasVars[canvasID].force;
-        force.nodes(nodeList);
+        force.nodes(nodeList)
+            .size([300,300])
+            .linkStrength((1))
+            .linkDistance(100)
+            .chargeDistance(110)
+            .charge(-80)
+            .alpha(0.02)
+            .gravity(0.00)//gravity is attraction to the centre, not downwards.
         force.start()
         newNodes.call(force.drag)
 

@@ -4,14 +4,14 @@
 	<title>fsm2</title>
     <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-    <link rel="stylesheet" href="fsm.css">
+    <link rel="stylesheet" href="fsm2.css">
 </head>
 <body
-data-machinelist= '[{"nodes":[{"id":"A","x":10,"y":10,"isAcc":true,"name":"TIM"},{"id":"B","x":20,"y":20,"isInit":true},{"id":"C","x":0,"y":0,"isAcc":true}],"links":[{"to":"B","from":"A"},{"to":"A","from":"B","hasEps":true},{"to":"C","from":"A","hasEps":true}]}]'>
+data-machinelist= '[{"nodes":[{"id":"A","x":10,"y":50,"isAcc":true,"name":"TIM"},{"id":"B","x":20,"y":50,"isInit":true},{"id":"C","x":0,"y":50,"isAcc":true}],"links":[{"to":"B","from":"A"},{"to":"A","from":"B","hasEps":true},{"to":"C","from":"A","hasEps":true},{"to":"A","from":"A","hasEps":true}]}]'>
 	<div class="maindiv">
-		<svg id="c1" width="960" height="500" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-		<g id="nodes"></g>
+		<svg id="c1" width="960" height="500" viewBox="0 -150 300 300" preserveAspectRatio="xMidYMid meet">
 		<g id="links"></g>
+		<g id="nodes"></g>		
         <defs>
           <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
           <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
