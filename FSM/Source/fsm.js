@@ -2747,7 +2747,7 @@ function tick() {
             deltaY = d.target.y - d.source.y,
             dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
 
-            //Define unit vectors
+            //Define unit vector
             unitX = deltaX / dist,
             unitY = deltaY / dist,
 

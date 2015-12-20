@@ -74,7 +74,7 @@ path.link.hidden {
 }
 
 .link-padding {
-  stroke-width: 35px;
+  stroke-width: 15;
   fill: none;
   stroke: black;
   stroke-opacity: 0;

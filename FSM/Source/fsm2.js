@@ -34,6 +34,23 @@ var Constructor = {
             sourceNode.outgoingLinks[linkID] = this.links[linkID];
             return linkID;
         };
+        this.deleteNode = function(node){
+            // Removes a node from the machine, deleting all links to or from it.
+            // Accepts either a Node object or a nodeID
+            if (node instanceof Constructor.Node === false){
+                node = this.nodes[node];
+            }
+            delete this.nodes[node.id];
+            var context = this;
+            Object.keys(node.outgoingLinks).map(function(linkID){
+                delete context.links[linkID];
+            })
+            Object.keys(this.links).map(function(linkID){
+                if (context.links[linkID].target.id === node.id){
+                    delete context.links[linkID]
+                }
+            })
+        }
         this.build = function(spec){
             //Sets up the machine based on a specification object passed in
             this.nodes = {};
@@ -57,7 +74,7 @@ var Constructor = {
                 this.lastNodeID = -1;
             }
             this.lastNodeID += 1;
-            return this.id + "-n" + String(this.lastNodeID);
+            return this.id + "-N" + String(this.lastNodeID);
         };
         this.getNextLinkID = function(){
             // Returns a sequential node id that incorporates the machine id
@@ -65,7 +82,7 @@ var Constructor = {
                 this.lastLinkID = -1;
             }
             this.lastLinkID += 1;
-            return this.id + "-l" + String(this.lastLinkID);
+            return this.id + "-L" + String(this.lastLinkID);
         };
         this.getSpec = function(){
             //Returns an object that describes the current machine in the form accepted by Machine.build
@@ -238,10 +255,11 @@ var Model = {
 };
 
 var Display = {
-    nodeRadius: 15,
+    nodeRadius: 12,
     canvasVars: {
         "c1": {
-            "force":d3.layout.force().on("tick", function(){Display.forceTick("c1");})
+            "force":d3.layout.force().on("tick", function(){Display.forceTick("c1");}),
+            "machine":Model.machines[0]
         }
     },
     forceTick: function(canvasID){
@@ -251,7 +269,15 @@ var Display = {
             .attr("cx", function(d){return d.x;})
             .attr("cy", function(d){return d.y;});
         svg.selectAll(".link")
-            .attr("d", function(link){return Display.getLinkPathD(link);});
+            .each(function(link){
+                var linkID = link.id;
+                var paddingID = "linkpad"+linkID;
+                var pathD = Display.getLinkPathD(link);
+                // Calculate d once, then apply to both the link and the link padding.
+                d3.select("#" + linkID).attr("d", pathD);
+                d3.select("#" + paddingID).attr("d", pathD);
+            })
+
 
     },
     getLinkPathD: function(link){
@@ -284,15 +310,27 @@ var Display = {
         }
         // Test if there is a link in the opposite direction:
         var hasOpposite = false;
-        for (var i = 0; !hasOpposite && i < link.target.outgoingLinks.length; i++){
-            if (link.target.outgoingLinks[i].target.id === link.source.id){
+        for (var i = 0; !hasOpposite && i < Object.keys(link.target.outgoingLinks).length; i++){
+            var linkID = Object.keys(link.target.outgoingLinks)[i]
+            var outgoingLink = link.target.outgoingLinks[linkID];
+            if (outgoingLink.target.id === link.source.id){
                 hasOpposite = true;
             }
         }
-        var x1 = link.source.x;
-        var x2 = link.target.x;
-        var y1 = link.source.y;
-        var y2 = link.target.y
+
+        var deltaX = link.target.x - link.source.x,
+            deltaY = link.target.y - link.source.y,
+            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        // Define unit vector from source to target:
+        var unitX = deltaX / dist,
+            unitY = deltaY / dist;
+
+
+        var x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
+        var x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
+        var y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
+        var y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
 
         if (hasOpposite){
             //Use a bezier curve
@@ -307,14 +345,14 @@ var Display = {
             var normal_vlx = vlx/Math.sqrt(vlx*vlx + vly*vly);
             var normal_vly = vly/Math.sqrt(vlx*vlx + vly*vly);
 
-            var scaled_vlx = 18 * normal_vlx;
-            var scaled_vly = 18 * normal_vly;
+            var scaled_vlx = 10 * normal_vlx;
+            var scaled_vly = 10 * normal_vly;
 
             //offset the start and end points along vl
-            x1 += 5 * normal_vlx;
-            y1 += 5 * normal_vly;
-            x2 += 5 * normal_vlx;
-            y2 += 5 * normal_vly;
+            x1 += 3 * normal_vlx;
+            y1 += 3 * normal_vly;
+            x2 += 3 * normal_vlx;
+            y2 += 3 * normal_vly;
 
 
             // Can now define the control points by adding vl to P1 and P2
@@ -373,15 +411,22 @@ var Display = {
                 .style("fill", function(d){return colours(d.id);});
 
 
-       // Draw new links
-       var linkg = svg.select("#links");
-       var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];})
-       var linkGs = linkg.selectAll("g")
+        // Draw new links
+        var linkg = svg.select("#links");
+        var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];})
+        var linkGs = linkg.selectAll("g")
             .data(linkList, function(d){return d.id;});
-       var newLinks = linkGs.enter().append("svg:g")
-           .append("path")
+        var newLinks = linkGs.enter().append("svg:g")
+
+        newLinks.append("path")
                .attr("d", function(d){return Display.getLinkPathD(d);})
-               .classed("link", true);
+               .classed("link", true)
+               .style("marker-mid", "url(#end-arrow)")
+               .attr("id", function(d){return d.id;});
+        newLinks.append("svg:path")
+               .attr("class", "link-padding")
+               .attr("id", function(d){return "linkpad" + d.id;})
+               .data("id", function(d){return d;})
 
         var force = this.canvasVars[canvasID].force;
         force.nodes(nodeList)
