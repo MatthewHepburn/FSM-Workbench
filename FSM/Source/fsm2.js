@@ -13,7 +13,7 @@ var Constructor = {
             isAccepting = isAccepting === undefined? false : isAccepting;
             name = name === undefined? "" : name;
             var nodeID = this.getNextNodeID();
-            this.nodes[nodeID] = new Constructor.Node(nodeID, x, y, name, isInitial, isAccepting);
+            this.nodes[nodeID] = new Constructor.Node(this, nodeID, x, y, name, isInitial, isAccepting);
             return nodeID;
 
         };
@@ -30,7 +30,7 @@ var Constructor = {
             output = output === undefined? {} : output;
             hasEpsilon = hasEpsilon === undefined? false : hasEpsilon;
             var linkID = this.getNextLinkID();
-            this.links[linkID] = new Constructor.Link(linkID, sourceNode, targetNode, input, output, hasEpsilon);
+            this.links[linkID] = new Constructor.Link(this, linkID, sourceNode, targetNode, input, output, hasEpsilon);
             sourceNode.outgoingLinks[linkID] = this.links[linkID];
             return linkID;
         };
@@ -189,9 +189,10 @@ var Constructor = {
             this.followEpsilonTransitions();
         };
     },
-    Node: function(id, x, y, name, isInitial, isAccepting){
+    Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
         this.name = name;
-        this.id = id;
+        this.machine = machine;
+        this.id = nodeID;
         this.isAccepting = isAccepting;
         this.isInitial = isInitial;
         this.outgoingLinks = {};
@@ -229,8 +230,9 @@ var Constructor = {
             return {"nodeIDS": nodeIDs, "linkIDs": linkIDs};
         };
     },
-    Link: function(id, sourceNode, targetNode, input, output, hasEpsilon){
-        this.id = id;
+    Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
+        this.machine = machine; 
+        this.id = linkID;
         this.input = input;
         this.output = output;
         this.source = sourceNode;
@@ -257,10 +259,47 @@ var Model = {
 var Display = {
     nodeRadius: 12,
     canvasVars: {
-        "c1": {
-            "force":d3.layout.force().on("tick", function(){Display.forceTick("c1");}),
+        "m1": {
+            "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
             "machine":Model.machines[0]
         }
+    },
+    drawNodeContextMenu: function(svg, node, mousePosition){
+        var html = "<p class = 'button toggleinitial'>Toggle Start</p>";
+        html += "<p class = 'button toggleaccepting'>Toggle Accepting</p>";
+        html += "<p class = 'button renamestate'>Rename State</p>";
+        html += "<p class = 'button deletestate'>Delete State</p>";
+
+        var menuWidth = 100,
+            menuHeight = 55;
+
+        var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
+
+        var menu = svg.append("foreignObject")
+            .attr("x", menuCoords[0])
+            .attr("y", menuCoords[1])
+            .attr("width", menuWidth)
+            .attr("height", menuHeight)
+            .classed("context-menu-holder", true)
+            .append("xhtml:div")
+            .attr("class", "contextmenu")
+            .html(html);
+
+        d3.select(".toggleinitial").on("click", function(){node.toggleInitial(); Display.dismissContextMenu()});
+        d3.select(".toggleaccepting").on("click", function(){node.toggleAccepting(); Display.dismissContextMenu()});
+        d3.select(".renamestate").on("click", function(){display.renameStateForm(node); Display.dismissContextMenu()});
+
+
+        // Disable system menu on right-clicking the context menu
+        menu.on("contextmenu", function() {
+            d3.event.preventDefault();
+        });
+
+    },
+    dismissContextMenu: function() {
+        d3.select(".contextmenu").remove();
+        d3.select(".context-menu-holder").remove();
+        Global.contextMenuShowing = false;
     },
     forceTick: function(canvasID){
         //Update the display after the force layout acts
@@ -277,8 +316,35 @@ var Display = {
                 d3.select("#" + linkID).attr("d", pathD);
                 d3.select("#" + paddingID).attr("d", pathD);
             })
+    },
+    getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
+        // Get coordinates for the context menu so that it is not drawn off screen in form [x, y]
+        var id = svg.attr("id");
+        var svg = document.querySelector("#" + id); //Switch from a d3 selection to native JS 
+        var viewboxWidth = svg.viewBox.baseVal.width;
+        var viewboxHeight = svg.viewBox.baseVal.height;
+        if(svg.clientWidth > svg.clientHeight){
+            var userCoordtoScreenCoord = svg.clientHeight/viewboxHeight;
+            var maxX = viewboxWidth + ((svg.clientWidth/(2 * userCoordtoScreenCoord)) - ( viewboxWidth/2));
+            var maxY = viewboxHeight;
+        } else {
+            userCoordtoScreenCoord = svg.clientWidth/viewboxWidth;
+            maxX = viewboxWidth;
+            maxY = viewboxHeight + ((svg.clientHeight/(2 * userCoordtoScreenCoord)) - (viewboxHeight/2));
+        }
 
+        if (mouseX + menuWidth < maxX){
+            var menuX = mouseX;
+        } else{
+            menuX = maxX - menuWidth;
+        }
 
+        if (mouseY + menuHeight < maxY -6){
+            var menuY = mouseY;
+        } else {
+            menuY = maxY - menuHeight - 6;
+        }
+        return [menuX, menuY];
     },
     getLinkPathD: function(link){
         // Test if the link is from a node to itself:
@@ -408,7 +474,8 @@ var Display = {
                 .classed("node", true)
                 .classed("accepting", function(d){return d.isAccepting;})
                 .attr("r", Display.nodeRadius)
-                .style("fill", function(d){return colours(d.id);});
+                .style("fill", function(d){return colours(d.id);})
+                .on("contextmenu", function(node){EventHandler.nodeContextClick(node)});
 
 
         // Draw new links
@@ -447,13 +514,26 @@ var Display = {
     }
 };
 
+var EventHandler = {
+    nodeContextClick: function(node){
+        d3.event.preventDefault();
+        if(Global.contextMenuShowing){
+            Display.dismissContextMenu();
+        }
+        var svg = d3.select("#" + node.machine.id);
+        Global.contextMenuShowing = true;
+        var mousePosition = d3.mouse(svg.node());
+        Display.drawNodeContextMenu(svg, node, mousePosition);
+    }
+}
+
 var Controller = {
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
         m = new Constructor.Machine("m1");
         Model.machines.push(m);
         Controller.setupMachine(m, 0);
-        Display.update(Model.machines[0], "c1");
+        Display.update(Model.machines[0], "m1");
     },
     setupMachine: function(machine, i){
         var body = document.querySelector("body");
