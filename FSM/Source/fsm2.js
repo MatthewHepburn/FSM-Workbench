@@ -271,7 +271,7 @@ var Display = {
         html += "<p class = 'button deletestate'>Delete State</p>";
 
         var menuWidth = 100,
-            menuHeight = 55;
+            menuHeight = 80;
 
         var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
 
@@ -323,12 +323,12 @@ var Display = {
         var svg = document.querySelector("#" + id); //Switch from a d3 selection to native JS 
         var viewboxWidth = svg.viewBox.baseVal.width;
         var viewboxHeight = svg.viewBox.baseVal.height;
-        if(svg.clientWidth > svg.clientHeight){
-            var userCoordtoScreenCoord = svg.clientHeight/viewboxHeight;
+        if(svg.getBoundingClientRect().width > svg.getBoundingClientRect().height){
+            var userCoordtoScreenCoord = svg.getBoundingClientRect().height/viewboxHeight;
             var maxX = viewboxWidth + ((svg.clientWidth/(2 * userCoordtoScreenCoord)) - ( viewboxWidth/2));
             var maxY = viewboxHeight;
         } else {
-            userCoordtoScreenCoord = svg.clientWidth/viewboxWidth;
+            userCoordtoScreenCoord = svg.getBoundingClientRect().width/viewboxWidth;
             maxX = viewboxWidth;
             maxY = viewboxHeight + ((svg.clientHeight/(2 * userCoordtoScreenCoord)) - (viewboxHeight/2));
         }
