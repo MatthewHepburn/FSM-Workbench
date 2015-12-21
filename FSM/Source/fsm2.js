@@ -34,6 +34,14 @@ var Constructor = {
             sourceNode.outgoingLinks[linkID] = this.links[linkID];
             return linkID;
         };
+        this.deleteLink = function(link){
+            // Accepts either a Link object or a linkID
+            if (link instanceof Constructor.Link === false){
+                link = this.links[link];
+            }
+            delete this.links[link.id];
+            delete link.source.outgoingLinks[link.id];
+        }
         this.deleteNode = function(node){
             // Removes a node from the machine, deleting all links to or from it.
             // Accepts either a Node object or a nodeID
@@ -43,11 +51,11 @@ var Constructor = {
             delete this.nodes[node.id];
             var context = this;
             Object.keys(node.outgoingLinks).map(function(linkID){
-                delete context.links[linkID];
+                context.deleteLink(linkID)
             })
             Object.keys(this.links).map(function(linkID){
                 if (context.links[linkID].target.id === node.id){
-                    delete context.links[linkID]
+                    context.deleteLink(linkID);
                 }
             })
         }
@@ -257,12 +265,44 @@ var Model = {
 };
 
 var Display = {
+    acceptingRadius: 8,
     nodeRadius: 12,
     canvasVars: {
         "m1": {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
-            "machine":Model.machines[0]
+            "machine": undefined
         }
+    },
+    drawLinkContextMenu: function(svg, link, mousePosition){
+        var html = "<p class = 'button changeconditions'>Change Conditions</p>";
+        html += "<p class = 'button deletelink'>Delete Link</p>";
+        html += "<p class = 'button reverselink'>Reverse Link</p>";
+
+        var menuWidth = 100,
+            menuHeight = 60;
+
+        var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
+
+        var menu = svg.append("foreignObject")
+            .attr("x", menuCoords[0])
+            .attr("y", menuCoords[1])
+            .attr("width", menuWidth)
+            .attr("height", menuHeight)
+            .classed("context-menu-holder", true)
+            .append("xhtml:div")
+            .attr("class", "contextmenu")
+            .html(html);
+
+        d3.select(".changeconditions").on("click", function(){Controller.renameLinkRequest(link); Display.dismissContextMenu()});
+        d3.select(".deletelink").on("click", function(){Controller.deleteLink(link); Display.dismissContextMenu()});
+        d3.select(".reverselink").on("click", function(){Controller.reverseLink(link); Display.dismissContextMenu()});
+
+
+        // Disable system menu on right-clicking the context menu
+        menu.on("contextmenu", function() {
+            d3.event.preventDefault();
+        });
+
     },
     drawNodeContextMenu: function(svg, node, mousePosition){
         var html = "<p class = 'button toggleinitial'>Toggle Start</p>";
@@ -285,9 +325,9 @@ var Display = {
             .attr("class", "contextmenu")
             .html(html);
 
-        d3.select(".toggleinitial").on("click", function(){node.toggleInitial(); Display.dismissContextMenu()});
-        d3.select(".toggleaccepting").on("click", function(){node.toggleAccepting(); Display.dismissContextMenu()});
-        d3.select(".renamestate").on("click", function(){display.renameStateForm(node); Display.dismissContextMenu()});
+        d3.select(".toggleinitial").on("click", function(){Controller.toggleInitial(node); Display.dismissContextMenu()});
+        d3.select(".toggleaccepting").on("click", function(){Controller.toggleAccepting(node); Display.dismissContextMenu()});
+        d3.select(".renamestate").on("click", function(){Controller.renameNodeRequest(node); Display.dismissContextMenu()});
 
 
         // Disable system menu on right-clicking the context menu
@@ -305,6 +345,9 @@ var Display = {
         //Update the display after the force layout acts
         var svg = d3.select("#"+canvasID)        
         svg.selectAll(".node")
+            .attr("cx", function(d){return d.x;})
+            .attr("cy", function(d){return d.y;});
+        svg.selectAll(".accepting-ring")
             .attr("cx", function(d){return d.x;})
             .attr("cy", function(d){return d.y;});
         svg.selectAll(".link")
@@ -461,26 +504,56 @@ var Display = {
             return ("M" + P1 + " L" + M + " L" + P2);
         }
     },
-    update: function(machine, canvasID){
+    update: function(canvasID){
         var colours = Global.colours;
+        var machine = this.canvasVars[canvasID].machine;
 
         var svg = d3.select("#"+canvasID);
 
         // Draw new nodes
         var nodeg = svg.select("#nodes"); // Select the g element used for nodes
         var nodeList = Object.keys(machine.nodes).map(function(nodeID){return machine.nodes[nodeID];});
-        var circle = nodeg.selectAll("g")
+        var nodeGs = nodeg.selectAll("g")
             .data(nodeList, function(d){return d.id;});
-        var newNodes = circle.enter().append("svg:g")
+        var newNodes = nodeGs.enter().append("svg:g").classed("nodeg", true)
             .append("circle")
                 .attr("cx", function(d){return d.x;})
                 .attr("cy", function(d){return d.y;})
                 .attr("id", function(d){return d.id;})
                 .classed("node", true)
-                .classed("accepting", function(d){return d.isAccepting;})
                 .attr("r", Display.nodeRadius)
                 .style("fill", function(d){return colours(d.id);})
                 .on("contextmenu", function(node){EventHandler.nodeContextClick(node)});
+
+        nodeGs.exit().remove(); //Remove nodes whose data has been deleted
+
+        // Update nodes
+        // Set classes
+        var circles = nodeGs.selectAll("circle")
+            .classed("accepting", function(node){return node.isAccepting;})
+            .classed("iniial", function(node){return node.isInitial;})
+        // Add concentric circle to accepting nodes
+        circles.each(function(node){
+            var shouldHaveRing = node.isAccepting;
+            var hasRing = document.querySelector("#ar"+node.id);
+            if(shouldHaveRing && !hasRing){
+                d3.select(this.parentNode).append("svg:circle")
+                .attr("cx", node.x)
+                .attr("cy", node.y)
+                .attr("r", Display.acceptingRadius)
+                .attr("class", "accepting-ring")
+                .attr("id", "ar" + node.id)
+                .style("stroke", "black")
+                .style("stroke-width", 2)
+                .style("fill-opacity", 0)
+                // Make pointer events pass through the inner circle, to the node below.
+                .style("pointer-events", "none");
+                return;
+                }
+            if(!shouldHaveRing && hasRing){
+                hasRing.remove();
+            }
+            })
 
 
         // Draw new links
@@ -494,11 +567,17 @@ var Display = {
                .attr("d", function(d){return Display.getLinkPathD(d);})
                .classed("link", true)
                .style("marker-mid", "url(#end-arrow)")
-               .attr("id", function(d){return d.id;});
+               .attr("id", function(d){return d.id;})
+               .on("contextmenu", function(link){EventHandler.linkContextClick(link);});
+        //Add link padding to make links easier to click. Link padding handles click events as if it were a link.
         newLinks.append("svg:path")
+               .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
                .attr("class", "link-padding")
                .attr("id", function(d){return "linkpad" + d.id;})
                .data("id", function(d){return d;})
+
+        linkGs.exit().remove(); //Remove links whose data has been deleted
+               
 
         var force = this.canvasVars[canvasID].force;
         force.nodes(nodeList)
@@ -512,14 +591,21 @@ var Display = {
         force.start()
         newNodes.call(force.drag)
 
-
-
-
-
     }
 };
 
 var EventHandler = {
+    linkContextClick: function(link){
+        d3.event.preventDefault();
+        if(Global.contextMenuShowing){
+            Display.dismissContextMenu();
+        }
+        var svg = d3.select("#" + link.machine.id);
+        Global.contextMenuShowing = true;
+        var mousePosition = d3.mouse(svg.node());
+        Display.drawLinkContextMenu(svg, link, mousePosition);
+
+    },
     nodeContextClick: function(node){
         d3.event.preventDefault();
         if(Global.contextMenuShowing){
@@ -533,18 +619,31 @@ var EventHandler = {
 }
 
 var Controller = {
+    deleteLink: function(link){
+        link.machine.deleteLink(link);
+        Display.update(link.machine.id)
+    },
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
         m = new Constructor.Machine("m1");
         Model.machines.push(m);
         Controller.setupMachine(m, 0);
-        Display.update(Model.machines[0], "m1");
+        Display.canvasVars["m1"].machine = m;
+        Display.update("m1");
     },
     setupMachine: function(machine, i){
         var body = document.querySelector("body");
         var spec = JSON.parse(body.dataset.machinelist)[i];
         machine.build(spec);
 
+    },
+    toggleAccepting: function(node){
+        node.toggleAccepting();
+        Display.update(node.machine.id)
+    },
+    toggleInitial: function(node){
+        node.toggleInitial();
+        Display.update(node.machine.id)
     }
 };
 
