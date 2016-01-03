@@ -276,7 +276,7 @@ def readAnswers(filename):
                 isCorrect = answer["isCorrect"]
                 assert type(isCorrect) is bool
 
-                datestamp = str(datetime.date.today())
+                datestamp = str(datetime.datetime.fromtimestamp(timeRecorded))[:10]
                 userID = str(answer["userID"])
 
                 # Record data in users:
@@ -340,7 +340,7 @@ def readUsage(filename):
                 pageID = str(usage["pageID"])
                 assert pageID in pageDict, "Invalid pageID of :" + pageID
 
-                datestamp = str(datetime.date.today())
+                datestamp = str(datetime.datetime.fromtimestamp(timeRecorded))[:10]
                 userID = str(usage["userID"])
                 # Record data in dates
                 if datestamp not in dates:
