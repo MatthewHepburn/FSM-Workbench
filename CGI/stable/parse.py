@@ -46,6 +46,7 @@ def addIfNotPresent(list, item):
 
 def addPage(pageID):
     global pages
+    assert isValidPageID(pageID)
     if isQuestion(pageID):
         pages[pageID] = {
             "correctAnswers": 0,
@@ -77,6 +78,9 @@ def addPageData():
         t = pages[pageID].copy()
         pages[pageID] = dict(t, **pageDict[pageID])
 
+
+def isValidPageID(pageID):
+    return pageID in pageDict;
 
 
 def isQuestion(pageID):
@@ -157,7 +161,7 @@ def readPrevStats():
                 users = data["users"]
             if "dates" in data:
                 dates = data["dates"]
-            if "urls" in data:
+            if "pages" in data:
                 pages = data["pages"]
     except (ValueError, IOError):
         dates = {}
