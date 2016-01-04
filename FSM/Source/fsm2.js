@@ -239,7 +239,7 @@ var Constructor = {
         };
     },
     Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
-        this.machine = machine; 
+        this.machine = machine;
         this.id = linkID;
         this.input = input;
         this.output = output;
@@ -270,8 +270,32 @@ var Display = {
     canvasVars: {
         "m1": {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
-            "machine": undefined
+            "machine": undefined,
+            "colours": d3.scale.category10()
         }
+    },
+    newCanvas: function(id, machine){
+        Display.canvasVars[id] = {
+            "force": d3.layout.force().on("tick", function(){Display.forceTick(id);}),
+            "machine": machine,
+            "colours": d3.scale.category10()
+        };
+        // Add a new svg element
+        var svg = d3.select(".maindiv").append("svg")
+                    .attr("id", id)
+                    .attr("viewBox", "0 0 500 500")
+                    .attr("preserveAspectRatio","xMidYMid meet");
+        // resize all canvases
+        Display.setSvgSizes();
+
+        // Add <g> elements for nodes and links
+        svg.append("g").classed("links", true);
+        svg.append("g").classed("nodes", true);
+    },
+    setSvgSizes: function(){
+        var height = "50%";
+        var width = (90 / Object.keys(Display.canvasVars).length) + "%";
+        d3.selectAll("svg").style("height", height).style("width", width);
     },
     drawLinkContextMenu: function(svg, link, mousePosition){
         var html = "<p class = 'button changeconditions'>Change Conditions</p>";
@@ -343,7 +367,7 @@ var Display = {
     },
     forceTick: function(canvasID){
         //Update the display after the force layout acts
-        var svg = d3.select("#"+canvasID)        
+        var svg = d3.select("#"+canvasID)
         svg.selectAll(".node")
             .attr("cx", function(d){return d.x;})
             .attr("cy", function(d){return d.y;});
@@ -363,7 +387,7 @@ var Display = {
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
         // Get coordinates for the context menu so that it is not drawn off screen in form [x, y]
         var id = svg.attr("id");
-        var svg = document.querySelector("#" + id); //Switch from a d3 selection to native JS 
+        var svg = document.querySelector("#" + id); //Switch from a d3 selection to native JS
         var viewboxWidth = svg.viewBox.baseVal.width;
         var viewboxHeight = svg.viewBox.baseVal.height;
         if(svg.getBoundingClientRect().width > svg.getBoundingClientRect().height){
@@ -415,7 +439,7 @@ var Display = {
             var P2 = x2 + "," + y2;
             var P3 = x3 + "," + y3;
 
-            
+
 
             var str = "M" + P1 + " A" + rad + " " + rad + " 0 0 1 " + P2;
             str += "  A" + rad + " " + rad + " 0 0 1 " + P3;
@@ -505,13 +529,13 @@ var Display = {
         }
     },
     update: function(canvasID){
-        var colours = Global.colours;
+        var colours = Display.canvasVars[canvasID].colours;
         var machine = this.canvasVars[canvasID].machine;
 
         var svg = d3.select("#"+canvasID);
 
         // Draw new nodes
-        var nodeg = svg.select("#nodes"); // Select the g element used for nodes
+        var nodeg = svg.select(".nodes"); // Select the g element used for nodes
         var nodeList = Object.keys(machine.nodes).map(function(nodeID){return machine.nodes[nodeID];});
         var nodeGs = nodeg.selectAll("g")
             .data(nodeList, function(d){return d.id;});
@@ -557,7 +581,7 @@ var Display = {
 
 
         // Draw new links
-        var linkg = svg.select("#links");
+        var linkg = svg.select(".links");
         var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];})
         var linkGs = linkg.selectAll("g")
             .data(linkList, function(d){return d.id;});
@@ -577,14 +601,14 @@ var Display = {
                .data("id", function(d){return d;})
 
         linkGs.exit().remove(); //Remove links whose data has been deleted
-               
+
 
         var force = this.canvasVars[canvasID].force;
         force.nodes(nodeList)
-            .size([300,300])
-            .linkStrength((1))
-            .linkDistance(100)
-            .chargeDistance(110)
+            .size([500,500])
+            .linkStrength(100)
+            .linkDistance(10)
+            .chargeDistance(50)
             .charge(-80)
             .alpha(0.02)
             .gravity(0.00)//gravity is attraction to the centre, not downwards.
@@ -616,12 +640,20 @@ var EventHandler = {
         var mousePosition = d3.mouse(svg.node());
         Display.drawNodeContextMenu(svg, node, mousePosition);
     }
-}
+};
 
 var Controller = {
+    addMachine: function(specObj){
+        // Adds a machine to the model, but doesn't create an SVG element
+        var newID = "m" + (Model.machines.length + 1);
+        var newMachine = new Constructor.Machine(newID);
+        newMachine.build(specObj);
+        Display.newCanvas(newID, newMachine);
+        Display.update(newID);
+    },
     deleteLink: function(link){
         link.machine.deleteLink(link);
-        Display.update(link.machine.id)
+        Display.update(link.machine.id);
     },
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
@@ -653,7 +685,6 @@ var Global = {
     // a more readable way of doing that than scattering global vars throughout the codebase
     "toolsWithDragAllowed": ["none"],
     "pageLoaded": false,
-    "colours": d3.scale.category10(),
     "iconAddress": document.querySelector("body").dataset.iconaddress,
     //Track state
     "renameMenuShowing":false,

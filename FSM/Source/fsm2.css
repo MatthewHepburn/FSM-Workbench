@@ -1,5 +1,6 @@
 svg {
   margin-top: 20px;
+  margin-right: 10px;
   background-color: #FFF;
   cursor: default;
   border: solid black 1px;
@@ -8,6 +9,8 @@ svg {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+  width: 80%;
+  height:50%;
 }
 
 body {
