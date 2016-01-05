@@ -713,8 +713,7 @@ var Display = {
         newLinks.append("svg:path")
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
                .attr("class", "link-padding")
-               .attr("id", function(d){return "linkpad" + d.id;})
-               .data("id", function(d){return d;})
+               .attr("id", function(d){return "linkpad" + d.id;});
 
         // Add link labels
         newLinks.append("svg:text")
@@ -722,8 +721,7 @@ var Display = {
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
             .attr("id", function(link){return link.id + "-label"})
-            .text((function(link) {return Display.linkLabelText(link);}))
-
+            .text(function(link){return Display.linkLabelText(link);});
 
         linkGs.exit().remove(); //Remove links whose data has been deleted
 
