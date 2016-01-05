@@ -49,6 +49,11 @@ path.link {
   transition: stroke-width 0.5s;
 }
 
+.start {
+  fill:none;
+  stroke: #000;
+}
+
 .qdiagram {
   display: block;
 }

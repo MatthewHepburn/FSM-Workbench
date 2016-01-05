@@ -399,7 +399,24 @@ var Display = {
             .attr("stop-color", "black")
             .attr("stop-opacity", 0.1);
     },
-     getLinkLabelPosition: function(node1, node2) {
+    getInitialArrowPath: function(node){
+        // Returns the description of a path resembling a '>'
+        var arrowHeight = 7;
+        var midpointX = node.x - Display.nodeRadius - 0.5;
+        var midpointY = node.y;
+        var midStr = midpointX + "," + midpointY;
+
+        var startX = midpointX - arrowHeight;
+        var startY = midpointY - arrowHeight;
+        var startStr = startX + "," + startY;
+
+        var endX = startX;
+        var endY = midpointY + arrowHeight;
+        var endStr = endX + "," + endY;
+
+        return "M" + startStr + "L" + midStr + "L" + endStr;
+    },
+    getLinkLabelPosition: function(node1, node2) {
         // Function takes two nodes andr eturns a suitable position 
         // for the label of the link between them.
 
@@ -534,6 +551,8 @@ var Display = {
         svg.selectAll(".accepting-ring")
             .attr("cx", function(d){return d.x;})
             .attr("cy", function(d){return d.y;});
+        svg.selectAll(".start")
+            .attr("d", function(node){return Display.getInitialArrowPath(node);})
         svg.selectAll(".link")
             .each(function(link){
                 var linkID = link.id;
@@ -769,7 +788,7 @@ var Display = {
         // Set classes
         var circles = nodeGs.selectAll("circle")
             .classed("accepting", function(node){return node.isAccepting;})
-            .classed("iniial", function(node){return node.isInitial;})
+            .classed("initial", function(node){return node.isInitial;})
         // Add concentric circle to accepting nodes
         circles.each(function(node){
             var shouldHaveRing = node.isAccepting;
@@ -782,11 +801,26 @@ var Display = {
                 .attr("class", "accepting-ring")
                 .attr("id", "ar" + node.id)
                 return;
-                }
+            }
             if(!shouldHaveRing && hasRing){
                 hasRing.remove();
             }
             })
+        // Add arrows to initial nodes
+        circles.each(function(node){
+            var shouldHaveArrow = node.isInitial;
+            var hasArrow = document.querySelector("#"+node.id + "-in")
+            if(shouldHaveArrow && !hasArrow){            
+                d3.select(this.parentNode).append("svg:path")
+                    .classed("start", true)
+                    .attr("d", function(node){return Display.getInitialArrowPath(node);})
+                    .attr("id", node.id + "-in");
+                return;
+            }
+            if(!shouldHaveArrow && hasArrow){
+                hasArrow.remove();
+            }
+        })
 
 
         // Draw new links
