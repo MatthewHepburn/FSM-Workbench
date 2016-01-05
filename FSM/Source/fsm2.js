@@ -279,7 +279,7 @@ var Model = {
 };
 
 var Display = {
-    acceptingRadius: 8,
+    acceptingRadius: 8.5,
     nodeRadius: 12,
     canvasVars: {
         "m1": {
@@ -442,7 +442,8 @@ var Display = {
         Global.contextMenuShowing = false;
     },
     forceTick: function(canvasID){
-        //Update the display after the force layout acts
+        // Update the display after the force layout acts. Should be called at least once to initialise positions, even if
+        // force is not used.
         var svg = d3.select("#"+canvasID)
         svg.selectAll(".node")
             .attr("cx", function(d){return d.x;})
@@ -463,6 +464,10 @@ var Display = {
             .each(function(link){
                 var positionObj = Display.getLinkLabelPosition(link.source, link.target);
                 d3.select(this).attr("x", positionObj.x).attr("y", positionObj.y);
+            })
+        svg.selectAll(".nodename")
+            .each(function(node){
+                d3.select(this).attr("x", node.x).attr("y", node.y)
             })
     },
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
@@ -648,7 +653,7 @@ var Display = {
         var nodeGs = nodeg.selectAll("g")
             .data(nodeList, function(d){return d.id;});
         var newNodes = nodeGs.enter().append("svg:g").classed("nodeg", true)
-            .append("circle")
+        newNodes.append("circle")
                 .attr("cx", function(d){return d.x;})
                 .attr("cy", function(d){return d.y;})
                 .attr("id", function(d){return d.id;})
@@ -656,6 +661,13 @@ var Display = {
                 .attr("r", Display.nodeRadius)
                 .style("fill", function(d){return colours(d.id);})
                 .on("contextmenu", function(node){EventHandler.nodeContextClick(node)});
+
+        // Add a name label:
+        newNodes.append("svg:text")
+            .classed("nodename", true)
+            .attr("id", function(node){return node.id + "-label"})
+            .text(function(node){return node.name;});
+
 
         nodeGs.exit().remove(); //Remove nodes whose data has been deleted
 
@@ -675,11 +687,6 @@ var Display = {
                 .attr("r", Display.acceptingRadius)
                 .attr("class", "accepting-ring")
                 .attr("id", "ar" + node.id)
-                .style("stroke", "black")
-                .style("stroke-width", 2)
-                .style("fill-opacity", 0)
-                // Make pointer events pass through the inner circle, to the node below.
-                .style("pointer-events", "none");
                 return;
                 }
             if(!shouldHaveRing && hasRing){

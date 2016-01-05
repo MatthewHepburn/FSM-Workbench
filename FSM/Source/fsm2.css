@@ -84,18 +84,26 @@ path.link.hidden {
 }
 
 circle.node {
-  stroke-width: 1.5px;
+  stroke-width: 1px;
   cursor: pointer;
 }
 
 circle.node.accepting {
   stroke: #000 !important;
-  stroke-width: 2.5px;
+  stroke-width: 1.2px;
+}
+
+.accepting-ring{
+  stroke: black !important;
+  stroke-width: 1.2px;
+  fill-opacity: 0;
+  pointer-events: none;
 }
 
 .linklabel {
   font-family: 'Ek Mukta', sans-serif;
   dominant-baseline: central;
+  text-anchor: middle;
   font-size: smaller;
 }
 
@@ -105,7 +113,8 @@ circle.node.accepting {
 
 text.nodename {
   text-anchor: middle;
-  font-family: "Ek Mukta";
+  font-size: xx-small;
+  font-family: "Ek Mukta", sans-serif;
   dominant-baseline: central;
   alignment-baseline: central;
   pointer-events: none;
