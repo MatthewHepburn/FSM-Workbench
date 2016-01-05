@@ -237,6 +237,15 @@ var Constructor = {
             }
             return {"nodeIDS": nodeIDs, "linkIDs": linkIDs};
         };
+        this.hasLinkTo = function(node){
+            // Function that returns true iff this node has a direct link to the input node
+            for (linkID in this.outgoingLinks){
+                if (this.outgoingLinks[linkID].target.id == node.id){
+                    return true
+                }
+            }
+            return false;
+        }
     },
     Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
         this.machine = machine;
@@ -306,6 +315,63 @@ var Display = {
         var height = "50%";
         var width = (90 / Object.keys(Display.canvasVars).length) + "%";
         d3.selectAll("svg").style("height", height).style("width", width);
+    },
+     getLinkLabelPosition: function(node1, node2) {
+        // Function takes two nodes andr eturns a suitable position 
+        // for the label of the link between them.
+
+        // Test if the link is from one node to itself
+        if (node1.id === node2.id){
+            return {
+                x: node1.x,
+                y: node2.y - 75,
+                rotation: 0
+            };
+        }
+
+        // Find the point between the two nodes
+        var cx = 0.5 * (node1.x + node2.x);
+        var cy = 0.5 * (node1.y + node2.y);
+
+        //Find vector V from P1 to P2
+        var vx = node2.x - node1.x;
+        var vy = node2.y - node1.y;
+
+        // Find suitable offset by getting a vector perpendicular to V
+        var vpx = -1 * vy;
+        var vpy = vx;
+
+        //Normalise this vector:
+        var magnitude = Math.sqrt(vpx * vpx + vpy * vpy);
+        vpx = vpx / magnitude;
+        vpy = vpy /magnitude;
+
+        //find angle of the line relative to x axis. From -180 to 180.
+        var angle = (Math.atan2(node2.y - node1.y, node2.x - node1.x) * 180 / Math.PI);
+        if (Math.abs(angle) > 90) {
+            angle = angle - 180; //don't want text upside down
+        }
+
+        // Determine if the links are drawn as bezier curves ie there is a link between the nodes in both directions
+        // Test if there is link from node2 to node1
+        var isBezier = node2.hasLinkTo(node1);
+
+        var scale;
+        if (!isBezier) {
+            scale = 10;
+            return {
+                x: cx + scale * vpx,
+                y: cy + scale * vpy,
+                rotation: angle
+            };
+        } else {
+            scale = 22;
+            return {
+                x: cx + scale * vpx,
+                y: cy + scale * vpy,
+                rotation: angle
+            };
+        }
     },
     drawLinkContextMenu: function(svg, link, mousePosition){
         var html = "<p class = 'button changeconditions'>Change Conditions</p>";
@@ -392,6 +458,11 @@ var Display = {
                 // Calculate d once, then apply to both the link and the link padding.
                 d3.select("#" + linkID).attr("d", pathD);
                 d3.select("#" + paddingID).attr("d", pathD);
+            })
+        svg.selectAll(".linklabel")
+            .each(function(link){
+                var positionObj = Display.getLinkLabelPosition(link.source, link.target);
+                d3.select(this).attr("x", positionObj.x).attr("y", positionObj.y);
             })
     },
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
@@ -538,6 +609,33 @@ var Display = {
             return ("M" + P1 + " L" + M + " L" + P2);
         }
     },
+    linkLabelText:function(link){
+        //Create the label string for a link
+        var labelString
+        if (link.input.length == 0) {
+            return link.hasEpsilon? "ε" : "";
+        } else {
+            var labelString = "";
+            for (var i = 0; i < link.input.length; i++) {
+                var inchar = link.input[i];
+                if (model.question.isTransducer){
+                    var outchar = "";
+                    for (var j = 0; j < link.output.length; j++){
+                        if (link.output[j][0] == inchar){
+                            outchar = ":" + link.output[j][1];
+                            break;
+                        }
+                    }
+                    labelString += inchar + outchar + ", ";
+                } else {
+                    labelString += inchar + ", ";
+                }
+            }
+            labelString =  labelString.slice(0,-2);
+            // Append an epsilon symbol if needed.
+            return link.hasEpsilon? labelString + ", ε" : labelString;
+        }
+    },
     update: function(canvasID){
         var colours = Display.canvasVars[canvasID].colours;
         var machine = this.canvasVars[canvasID].machine;
@@ -603,12 +701,22 @@ var Display = {
                .style("marker-mid", "url(#end-arrow)")
                .attr("id", function(d){return d.id;})
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);});
+        
         //Add link padding to make links easier to click. Link padding handles click events as if it were a link.
         newLinks.append("svg:path")
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
                .attr("class", "link-padding")
                .attr("id", function(d){return "linkpad" + d.id;})
                .data("id", function(d){return d;})
+
+        // Add link labels
+        newLinks.append("svg:text")
+            .on("contextmenu", function(link){EventHandler.linkContextClick(link);})            
+            .attr("class", "linklabel")
+            .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
+            .attr("id", function(link){return link.id + "-label"})
+            .text((function(link) {return Display.linkLabelText(link);}))
+
 
         linkGs.exit().remove(); //Remove links whose data has been deleted
 

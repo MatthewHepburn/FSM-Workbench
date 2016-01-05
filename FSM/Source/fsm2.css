@@ -96,6 +96,7 @@ circle.node.accepting {
 .linklabel {
   font-family: 'Ek Mukta', sans-serif;
   dominant-baseline: central;
+  font-size: smaller;
 }
 
 .linklabel:hover{
