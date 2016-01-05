@@ -278,6 +278,22 @@ var Model = {
     }
 };
 
+var Question = {
+    setUpQuestion: function(){
+        var body = document.querySelector("body");
+        if (body.dataset.question != undefined){
+            questionObj = JSON.parse(body.dataset.question);
+        } else{
+            Question.type = "none";
+            return;
+        }
+        for(property in questionObj){
+            Question[property] = questionObj[property];
+        }
+
+    }
+}
+
 var Display = {
     acceptingRadius: 8.5,
     nodeRadius: 12,
@@ -285,14 +301,16 @@ var Display = {
         "m1": {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
             "machine": undefined,
-            "colours": d3.scale.category10()
+            "colours": d3.scale.category10(),
+            "toolMode": "none"
         }
     },
     newCanvas: function(id, machine){
         Display.canvasVars[id] = {
             "force": d3.layout.force().on("tick", function(){Display.forceTick(id);}),
             "machine": machine,
-            "colours": d3.scale.category10()
+            "colours": d3.scale.category10(),
+            "toolMode": "none"
         };
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
@@ -315,6 +333,71 @@ var Display = {
         var height = "50%";
         var width = (90 / Object.keys(Display.canvasVars).length) + "%";
         d3.selectAll("svg").style("height", height).style("width", width);
+    },
+    drawControlPalette: function(canvasID){
+        var iconAddress = Global.iconAddress;
+        var bwidth = 22; //button width
+        var strokeWidth = 1;
+        var margin = 4;
+        var g = d3.select("#" + canvasID).append("g")
+                    .classed("controls", true);
+        var tools = ["nodetool", "linetool","texttool", "acceptingtool", "deletetool"];
+        var tooltips = {
+            nodetool:"Create new states",
+            linetool:"Link states together",
+            texttool:"Change link inputs and rename states",
+            acceptingtool:"Toggle whether states are accepting",
+            deletetool: "Delete links and states"
+        };
+        // create a button for each tool in tools
+       tools.forEach(function(toolName, i){
+            var thisG = g.append("g");   
+            thisG.append("rect") // White rectangle at the bottom - to prevent the button being transparent
+                .attr("width", bwidth)
+                .attr("height", bwidth)
+                .attr("x", 0)
+                .attr("y", i * bwidth)
+                .attr("fill", "#FFFFFF")
+                .attr("fill-opacity", 1)
+            thisG.append("rect") // control rect in the middle - ensures that all of the button is clickable
+                .attr("width", bwidth)
+                .attr("height", bwidth)
+                .attr("x", 0)
+                .attr("y", i * bwidth)
+                .attr("fill", "#010101")
+                .attr("fill-opacity", 0)
+                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
+                .classed("control-rect", true)
+                .attr("id", canvasID + "-" + toolName)
+                .on("click", function(){EventHandler.toolSelect(canvasID, toolName)})
+                .append("svg:title").text(tooltips[tools[i]]);
+            thisG.append("image") // Button on top
+                .attr("x", 0.5 * margin)
+                .attr("y", 0.5 * margin + (i * bwidth))
+                .attr("width", bwidth - margin)
+                .attr("height", bwidth - margin)
+                .attr("xlink:href", iconAddress + toolName +".svg")
+                .attr("class", "control-img")
+                .on("click", function(){EventHandler.toolSelect(canvasID, toolName)});
+            
+        });
+        // Define a gradient to be applied when a button is selected:
+        var grad = d3.select("defs").append("svg:linearGradient")
+            .attr("id", "Gradient1")
+            .attr("x1", "0")
+            .attr("x2", "1")
+            .attr("y1", "0")
+            .attr("y2", "1");
+
+        grad.append("svg:stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "black")
+            .attr("stop-opacity", 0.7);
+
+        grad.append("svg:stop")
+            .attr("offset", "65%")
+            .attr("stop-color", "black")
+            .attr("stop-opacity", 0.1);
     },
      getLinkLabelPosition: function(node1, node2) {
         // Function takes two nodes andr eturns a suitable position 
@@ -641,6 +724,17 @@ var Display = {
             return link.hasEpsilon? labelString + ", ε" : labelString;
         }
     },
+    toolSelect: function(canvasID, newMode){
+        var svg = d3.select("#" + canvasID);
+        // Deselect all rectangles
+        svg.selectAll(".control-rect").classed("selected", false);
+        if(newMode !== "None"){
+            svg.select("#" + canvasID + "-" + newMode)
+                .classed("selected", true)
+                .attr("fill", "url(#Gradient1)");
+        }
+        Display.canvasVars[canvasID].toolMode = newMode;   
+    },
     update: function(canvasID){
         var colours = Display.canvasVars[canvasID].colours;
         var machine = this.canvasVars[canvasID].machine;
@@ -762,6 +856,14 @@ var EventHandler = {
         Global.contextMenuShowing = true;
         var mousePosition = d3.mouse(svg.node());
         Display.drawNodeContextMenu(svg, node, mousePosition);
+    },
+    toolSelect: function(canvasID, newMode){
+        var oldMode = Display.canvasVars[canvasID].toolMode;
+
+        if (oldMode == newMode){
+            newMode = "none";
+        } 
+        Display.toolSelect(canvasID, newMode)
     }
 };
 
@@ -789,6 +891,13 @@ var Controller = {
         Controller.setupMachine(m, 0);
         Display.canvasVars["m1"].machine = m;
         Display.update("m1");
+        Question.setUpQuestion()
+        if(["give-list", "select-states", "does-accept", "demo"].indexOf(Question.type) == -1){
+            Question.editable = true;
+            Display.drawControlPalette("m1");
+        } else {
+            Question.editable = false;
+        }
     },
     setupMachine: function(machine, i){
         var body = document.querySelector("body");
