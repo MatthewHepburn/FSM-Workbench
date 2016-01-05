@@ -9,7 +9,7 @@ svg {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
-  width: 80%;
+  width: 90%;
   height:50%;
 }
 
@@ -334,6 +334,7 @@ input[type=checkbox]{
 .maindiv {
    float: left;
    width: 85%;
+   height: 80%;
 }
 
 .sidebar {

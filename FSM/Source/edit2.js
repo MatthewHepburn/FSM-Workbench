@@ -73,7 +73,7 @@ var edit = {
         d3.select("#outAlphabet").on("change", edit.setOutAlphabet)
 
         var qType = document.querySelector(".questiontypedropdown").value
-        if (qType = "give-equivalent"){
+        if (qType == "give-equivalent"){
             edit.showTwoMachines();
         } else {
             edit.showOneMachine();
@@ -240,6 +240,13 @@ var edit = {
         var specObj = Model.machines[0].getSpec();
         // Tell the controller to create a new machine - this will create an SVG element as well as a Machine object
         Controller.addMachine(specObj);
+    },
+    showOneMachine: function(){
+    	// First check if a second machine already exists
+        if (d3.select("#m2").size == 0){
+            return;
+        }
+        Controller.deleteMachine("m2")
 
     }
 

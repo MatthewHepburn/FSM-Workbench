@@ -261,7 +261,12 @@ var Constructor = {
 };
 
 var Model = {
-    machines: []
+    machines: [],
+    deleteMachine: function(machineID){
+        // Pretty ES6 way of doing things - switch over when more widely supported
+        // Model.machines.filter(m => m.id !== machineID);
+        Model.machines.filter(function(m){return m.id !== machineID;});
+    }
 };
 
 var Display = {
@@ -283,7 +288,7 @@ var Display = {
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
                     .attr("id", id)
-                    .attr("viewBox", "0 0 500 500")
+                    .attr("viewBox", "0 0 500 300")
                     .attr("preserveAspectRatio","xMidYMid meet");
         // resize all canvases
         Display.setSvgSizes();
@@ -291,6 +296,11 @@ var Display = {
         // Add <g> elements for nodes and links
         svg.append("g").classed("links", true);
         svg.append("g").classed("nodes", true);
+    },
+    deleteCanvas: function(machineID){
+        d3.select("#" + machineID).remove()
+        delete Display.canvasVars[machineID];
+        Display.setSvgSizes();
     },
     setSvgSizes: function(){
         var height = "50%";
@@ -605,7 +615,7 @@ var Display = {
 
         var force = this.canvasVars[canvasID].force;
         force.nodes(nodeList)
-            .size([500,500])
+            .size([500,300])
             .linkStrength(100)
             .linkDistance(10)
             .chargeDistance(50)
@@ -644,12 +654,16 @@ var EventHandler = {
 
 var Controller = {
     addMachine: function(specObj){
-        // Adds a machine to the model, but doesn't create an SVG element
+        // Adds a machine to the model
         var newID = "m" + (Model.machines.length + 1);
         var newMachine = new Constructor.Machine(newID);
         newMachine.build(specObj);
         Display.newCanvas(newID, newMachine);
         Display.update(newID);
+    },
+    deleteMachine: function(machineID){
+        Model.deleteMachine(machineID);
+        Display.deleteCanvas(machineID);
     },
     deleteLink: function(link){
         link.machine.deleteLink(link);
