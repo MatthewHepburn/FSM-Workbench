@@ -49,6 +49,14 @@ path.link {
   transition: stroke-width 0.5s;
 }
 
+path.halflink{
+  fill: none;
+  stroke: #000;
+  cursor: default;
+  pointer-events: none
+
+}
+
 .start {
   fill:none;
   stroke: #000;
@@ -62,9 +70,6 @@ svg:not(.active):not(.ctrl) path.link {
   cursor: pointer;
 }
 
-path.link.dragline {
-  pointer-events: none;
-}
 
 path.link:hover{
   stroke-width: 6px !important;

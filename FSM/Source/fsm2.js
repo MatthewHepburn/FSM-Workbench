@@ -317,18 +317,19 @@ var Question = {
     setUpQuestion: function(){
         var body = document.querySelector("body");
         if (body.dataset.question != undefined){
-            questionObj = JSON.parse(body.dataset.question);
+            var questionObj = JSON.parse(body.dataset.question);
         } else{
             Question.type = "none";
             return;
         }
-        for(property in questionObj){
+        for(var property in questionObj){
             Question[property] = questionObj[property];
         }
 
     }
-}
+};
 
+// 'UI' or 'Interface' might be a more accurate name?
 var Display = {
     acceptingRadius: 14,
     nodeRadius: 20,
@@ -337,7 +338,8 @@ var Display = {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
             "machine": undefined,
             "colours": d3.scale.category10(),
-            "toolMode": "none"
+            "toolMode": "none",
+            "linkInProgress": false
         }
     },
     newCanvas: function(id, machine){
@@ -345,7 +347,8 @@ var Display = {
             "force": d3.layout.force().on("tick", function(){Display.forceTick(id);}),
             "machine": machine,
             "colours": d3.scale.category10(),
-            "toolMode": "none"
+            "toolMode": "none",
+            "linkInProgress": false
         };
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
@@ -360,7 +363,7 @@ var Display = {
         svg.append("g").classed("nodes", true);
     },
     deleteCanvas: function(machineID){
-        d3.select("#" + machineID).remove()
+        d3.select("#" + machineID).remove();
         delete Display.canvasVars[machineID];
         Display.setSvgSizes();
     },
@@ -433,6 +436,22 @@ var Display = {
             .attr("offset", "65%")
             .attr("stop-color", "black")
             .attr("stop-opacity", 0.1);
+    },
+    beginLink: function(node){
+        var canvasID = node.machine.id;
+        var svg = d3.select("#" + canvasID);
+        var halfLink = svg.append("svg:path")
+                          .classed("halflink", true)
+                          .attr("id", canvasID+"halflink");
+
+        svg.on("mousemove", function(){
+            // Update the link whenenver the mouse is moved over the svg
+            var mousePos = d3.mouse(svg.node());
+            var d = "M" + node.x + "," + node.y;
+            d += "L" + mousePos[0] + "," + mousePos[1];
+            halfLink.attr("d",d);
+        });
+
     },
     getInitialArrowPath: function(node){
         // Returns the description of a path resembling a '>'
@@ -867,7 +886,8 @@ var Display = {
                 .classed("node", true)
                 .attr("r", Display.nodeRadius)
                 .style("fill", function(d){return colours(d.id);})
-                .on("contextmenu", function(node){EventHandler.nodeContextClick(node);});
+                .on("contextmenu", function(node){EventHandler.nodeContextClick(node);})
+                .on("click", function(node){EventHandler.nodeClick(node)});
 
         // Add a name label:
         newNodes.append("svg:text")
@@ -1005,6 +1025,19 @@ var EventHandler = {
         var mousePosition = d3.mouse(svg.node());
         Display.drawLinkContextMenu(svg, link, mousePosition);
 
+    },
+    nodeClick: function(node){
+        var canvasID = node.machine.id;
+        var toolMode = Display.canvasVars[canvasID].toolMode;
+        if(toolMode === "none" || toolMode === "nodetool"){
+            return;
+        }
+        if(toolMode === "linetool"){
+            var linkInProgress = Display.canvasVars[canvasID].linkInProgress; // true if there is link awaiting and endpoint
+            if(!linkInProgress){
+                Display.beginLink(node);
+            }
+        }
     },
     nodeContextClick: function(node){
         d3.event.preventDefault();
