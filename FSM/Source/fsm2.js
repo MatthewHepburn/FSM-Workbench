@@ -263,6 +263,18 @@ var Constructor = {
         };
 
         this.setInput = function(inputList, hasEpsilon){
+            // First, strip out duplicates in inputlist
+            if (inputList.length > 1){
+                inputList = inputList.sort(); // Sort list, then record all items that are not the same as the previous item.
+                var newList = [inputList[0]];
+                for (var i = 1; i < inputList.length; i++){
+                    if (inputList[i] !== inputList[i-1]){
+                        newList.push(inputList[i]);
+                    }
+                }
+                inputList = newList;
+            }
+
             this.input = inputList;
             this.hasEpsilon = hasEpsilon;
         };
@@ -493,9 +505,9 @@ var Display = {
             .attr("class", "contextmenu")
             .html(html);
 
-        d3.select(".changeconditions").on("click", function(){Controller.renameLinkRequest(link); Display.dismissContextMenu()});
-        d3.select(".deletelink").on("click", function(){Controller.deleteLink(link); Display.dismissContextMenu()});
-        d3.select(".reverselink").on("click", function(){Controller.reverseLink(link); Display.dismissContextMenu()});
+        d3.select(".changeconditions").on("click", function(){Controller.requestLinkRename(link); Display.dismissContextMenu();});
+        d3.select(".deletelink").on("click", function(){Controller.deleteLink(link); Display.dismissContextMenu();});
+        d3.select(".reverselink").on("click", function(){Controller.reverseLink(link); Display.dismissContextMenu();});
 
 
         // Disable system menu on right-clicking the context menu
@@ -527,7 +539,7 @@ var Display = {
 
         svg.select(".toggleinitial").on("click", function(){Controller.toggleInitial(node); Display.dismissContextMenu();});
         svg.select(".toggleaccepting").on("click", function(){Controller.toggleAccepting(node); Display.dismissContextMenu();});
-        svg.select(".renamestate").on("click", function(){Controller.renameNodeRequest(node); Display.dismissContextMenu();});
+        svg.select(".renamestate").on("click", function(){Controller.requestNodeRename(node); Display.dismissContextMenu();});
         svg.select(".deletestate").on("click", function(){Controller.deleteNode(node); Display.dismissContextMenu();});
 
 
@@ -549,6 +561,7 @@ var Display = {
             .attr("class", "rename")
             .append("xhtml:body")
                 .append("form")
+                .on("keypress", function(){EventHandler.nodeRenameFormKeypress(node, this);})
                     .append("input")
                     .classed("renameinput", true)
                     .attr("id", node.id + "-rename")
@@ -557,13 +570,48 @@ var Display = {
                     .attr("maxlength", "5")
                     .attr("name", "state name")
                     .attr("value", currentName)
+                        .node().select();
+    },
+    drawUnconstrainedLinkRenameForm: function(canvasID, link){
+        // This gives rename form as a textbox where anything can be entered
+        var svg = d3.select("#" + canvasID);
 
-        document.getElementById(node.id + "-rename").select();
+        // Derive the position of the form from the location of the link label
+        var labelPos = Display.getLinkLabelPosition(link.source, link.target);
+        var formX = labelPos.x - 40;
+        var formY = labelPos.y + 15;
+
+        // Get the string representing the current link conditions
+        var current = Display.linkLabelText(link);
+
+        svg.append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", formX)
+            .attr("y", formY)
+            .attr("class", "rename")
+            .append("xhtml:body")
+                .append("form")
+                .on("keypress", function(){EventHandler.linkRenameFormKeypress(link, this, "unconstrained");})
+                    .append("input")
+                    .classed("rename", true)
+                    .classed("unconstrained", true)
+                    .attr("id", link.id + "-rename")
+                    .attr("type", "text")
+                    .attr("size", "10")
+                    .attr("name", "link conditions")
+                    .attr("value", current)
+                    .node().select();
+            // .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='ltxt" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
+
     },
     dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
         d3.select(".context-menu-holder").remove();
         Global.contextMenuShowing = false;
+    },
+    dismissRenameMenu: function(canvasID){
+        d3.select("#" + canvasID).selectAll(".rename").remove();
     },
     forceTick: function(canvasID){
         // Update the display after the force layout acts. Should be called at least once to initialise positions, even if
@@ -749,7 +797,7 @@ var Display = {
             var labelString = "";
             for (var i = 0; i < link.input.length; i++) {
                 var inchar = link.input[i];
-                if (model.question.isTransducer){
+                if (link.machine.isTransducer){
                     var outchar = "";
                     for (var j = 0; j < link.output.length; j++){
                         if (link.output[j][0] == inchar){
@@ -872,7 +920,7 @@ var Display = {
             .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
-            .attr("id", function(link){return link.id + "-label"})
+            .attr("id", function(link){return link.id + "-label";})
             .text(function(link){return Display.linkLabelText(link);});
 
         linkGs.exit().remove(); //Remove links whose data has been deleted
@@ -889,6 +937,15 @@ var Display = {
         force.start();
         newNodes.call(force.drag);
 
+    },
+    updateLinkLabel: function(link){
+        var svg = d3.select("#" + link.machine.id);
+        svg.select("#" + link.id + "-label").text(Display.linkLabelText(link));
+
+    },
+    updateNodeName: function(node){
+        var svg = d3.select("#" + node.machine.id);
+        svg.select("#" + node.id + "-label").text(node.name);
     }
 };
 
@@ -913,6 +970,44 @@ var EventHandler = {
         Global.contextMenuShowing = true;
         var mousePosition = d3.mouse(svg.node());
         Display.drawNodeContextMenu(svg, node, mousePosition);
+    },
+    linkRenameFormKeypress:function(link, context, formType){
+        // Event handler to prevent submission of page on return key
+        // and to notify Controller instead
+        if (event.keyCode != 13){
+            return true;
+        }
+        event.preventDefault();
+        // Need to process input differently based on the form type
+        if(formType === "unconstrained"){
+            var string = d3.select(context).select("input").node().value;
+            // strip out whitespace:
+            string = string.replace(/ /g, "");
+            // Split on commas:
+            var strings = string.split(",").filter(function(s){return s.length > 0;});
+            // For each entry, add it to the link's input list
+            // If it is epsilon or a synonym, set hasEpsilon to true
+            var hasEpsilon  = false;
+            var input = [];
+            strings.forEach(function(s){
+                if(["epsilon", "epssilon", "espilon", "epsillon", "eps", "ε", "ϵ", "Ε"].indexOf(s.toLowerCase()) !== -1){
+                    hasEpsilon = true;
+                } else {
+                    input.push(s);
+                }
+            });
+            Controller.submitLinkRename(link, input, hasEpsilon);
+        }
+
+
+    },
+    nodeRenameFormKeypress: function(node, context){
+        // Event handler to prevent submission of page on return key
+        // and to notify Controller instead
+        if(event.keyCode == 13){
+            event.preventDefault();
+            Controller.submitNodeRename(node, d3.select(context).select("input").node().value);
+        }
     },
     toolSelect: function(canvasID, newMode){
         var oldMode = Display.canvasVars[canvasID].toolMode;
@@ -945,7 +1040,15 @@ var Controller = {
         node.machine.deleteNode(node);
         Display.update(node.machine.id);
     },
-    renameNodeRequest: function(node){
+    requestLinkRename: function(link){
+        var canvasID = link.machine.id;
+        if (link.machine.alphabet.length === 0){
+            Display.drawUnconstrainedLinkRenameForm(canvasID, link);
+        } else {
+            Display.drawConstrainedLinkRenameForm(canvasID, link);
+        }
+    },
+    requestNodeRename: function(node){
         var canvasID = node.machine.id;
         Display.drawNodeRenameForm(canvasID, node);
     },
@@ -970,13 +1073,23 @@ var Controller = {
         machine.build(spec);
 
     },
+    submitLinkRename: function(link, input, hasEpsilon){
+        link.setInput(input, hasEpsilon);
+        Display.updateLinkLabel(link);
+        Display.dismissRenameMenu(link.machine.id);
+    },
+    submitNodeRename: function(node, newName){
+        node.name = newName;
+        Display.updateNodeName(node);
+        Display.dismissRenameMenu(node.machine.id);
+    },
     toggleAccepting: function(node){
         node.toggleAccepting();
-        Display.update(node.machine.id)
+        Display.update(node.machine.id);
     },
     toggleInitial: function(node){
         node.toggleInitial();
-        Display.update(node.machine.id)
+        Display.update(node.machine.id);
     }
 };
 
