@@ -432,7 +432,7 @@ var Display = {
     },
     getInitialArrowPath: function(node){
         // Returns the description of a path resembling a '>'
-        var arrowHeight = 7;
+        var arrowHeight = 12;
         var midpointX = node.x - Display.nodeRadius - 0.5;
         var midpointY = node.y;
         var midStr = midpointX + "," + midpointY;
@@ -838,7 +838,7 @@ var Display = {
         var svg = d3.select("#" + canvasID);
         // Deselect all rectangles
         svg.selectAll(".control-rect").classed("selected", false);
-        if(newMode !== "None"){
+        if(newMode !== "none"){
             svg.select("#" + canvasID + "-" + newMode)
                 .classed("selected", true)
                 .attr("fill", "url(#Gradient1)");
@@ -975,6 +975,23 @@ var Display = {
 };
 
 var EventHandler = {
+    backgroundClick: function(machine){
+        // Check that the target is the background - this handler will recieve all clicks on the svg
+        var canvasID = machine.id;
+        if(d3.event.target.id === canvasID){
+            Display.dismissContextMenu();
+            var toolMode = Display.canvasVars[canvasID].toolMode;
+            if (toolMode === "none" || toolMode === "linetool" || toolMode === "texttool" || toolMode === "deletetool"){
+                return;
+            }
+            if (toolMode === "nodetool" || toolMode === "acceptingtool"|| toolMode === "initialtool"){
+                //Get coordinates where node should be created:
+                var point = d3.mouse(d3.select("#" + canvasID)[0][0]);
+                Controller.createNode(machine, point[0], point[1], toolMode === "initialtool", toolMode === "acceptingtool");
+            }
+        }
+
+    },
     linkContextClick: function(link){
         d3.event.preventDefault();
         if(Global.contextMenuShowing){
@@ -1040,7 +1057,7 @@ var EventHandler = {
         if (oldMode == newMode){
             newMode = "none";
         }
-        Display.toolSelect(canvasID, newMode)
+        Display.toolSelect(canvasID, newMode);
     }
 };
 
@@ -1060,6 +1077,10 @@ var Controller = {
     deleteLink: function(link){
         link.machine.deleteLink(link);
         Display.update(link.machine.id);
+    },
+    createNode: function(machine, x, y, isInitial, isAccepting){
+        machine.addNode(x, y, "", isInitial, isAccepting);
+        Display.update(machine.id);
     },
     deleteNode: function(node){
         node.machine.deleteNode(node);
@@ -1089,6 +1110,7 @@ var Controller = {
         Controller.setupMachine(m, 0);
         Display.canvasVars["m1"].machine = m;
         Display.update("m1");
+        d3.select("#m1").on("click", function(){EventHandler.backgroundClick(m);});
         Question.setUpQuestion();
         if(["give-list", "select-states", "does-accept", "demo"].indexOf(Question.type) == -1){
             Question.editable = true;
