@@ -239,13 +239,22 @@ var Constructor = {
         };
         this.hasLinkTo = function(node){
             // Function that returns true iff this node has a direct link to the input node
-            for (linkID in this.outgoingLinks){
+            for (var linkID in this.outgoingLinks){
                 if (this.outgoingLinks[linkID].target.id == node.id){
-                    return true
+                    return true;
                 }
             }
             return false;
-        }
+        };
+        this.getLinkTo = function(node){
+            // Function that returns a link from this node to the input node if one exists, or null otherwise
+            for (var linkID in this.outgoingLinks){
+                if (this.outgoingLinks[linkID].target.id == node.id){
+                    return this.outgoingLinks[linkID];
+                }
+            }
+            return null;
+        };
     },
     Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
         this.machine = machine;
@@ -257,9 +266,19 @@ var Constructor = {
         this.hasEpsilon = hasEpsilon;
 
         this.reverse = function(){
-            var t = this.source;
-            this.source = this.target;
-            this.target = t;
+            // Test if a link exists in the opposite direction:
+            var reverseLink = this.target.getLinkTo(this.source);
+            if (reverseLink !== null){
+                // If the reverse link already exists then combine this link into that
+                var newInput = this.input.concat(reverseLink.input);
+                var newHasEpsilon = this.hasEpsilon || reverseLink.hasEpsilon;
+                reverseLink.setInput(newInput, newHasEpsilon);
+                this.machine.deleteLink(this);
+            } else {
+                //If the reverse link does not exist, delete this link and create a new one with source and target reversed
+                this.machine.addLink(this.target, this.source, this.input, this.output, this.hasEpsilon);
+                this.machine.deleteLink(this);
+            }
         };
 
         this.setInput = function(inputList, hasEpsilon){
@@ -938,6 +957,12 @@ var Display = {
         newNodes.call(force.drag);
 
     },
+    updateAllLinkLabels: function(canvasID){
+        var linkList = Object.keys(Display.canvasVars[canvasID].machine.links);
+        linkList.forEach(function(id){
+            Display.updateLinkLabel(Display.canvasVars[canvasID].machine.links[id]);
+        });
+    },
     updateLinkLabel: function(link){
         var svg = d3.select("#" + link.machine.id);
         svg.select("#" + link.id + "-label").text(Display.linkLabelText(link));
@@ -1039,6 +1064,11 @@ var Controller = {
     deleteNode: function(node){
         node.machine.deleteNode(node);
         Display.update(node.machine.id);
+    },
+    reverseLink: function(link){
+        link.reverse();
+        Display.update(link.machine.id);
+        Display.updateAllLinkLabels(link.machine.id);
     },
     requestLinkRename: function(link){
         var canvasID = link.machine.id;
