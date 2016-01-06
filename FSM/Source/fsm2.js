@@ -41,7 +41,7 @@ var Constructor = {
             }
             delete this.links[link.id];
             delete link.source.outgoingLinks[link.id];
-        }
+        };
         this.deleteNode = function(node){
             // Removes a node from the machine, deleting all links to or from it.
             // Accepts either a Node object or a nodeID
@@ -51,14 +51,14 @@ var Constructor = {
             delete this.nodes[node.id];
             var context = this;
             Object.keys(node.outgoingLinks).map(function(linkID){
-                context.deleteLink(linkID)
-            })
+                context.deleteLink(linkID);
+            });
             Object.keys(this.links).map(function(linkID){
                 if (context.links[linkID].target.id === node.id){
                     context.deleteLink(linkID);
                 }
-            })
-        }
+            });
+        };
         this.build = function(spec){
             //Sets up the machine based on a specification object passed in
             this.nodes = {};
@@ -266,6 +266,10 @@ var Constructor = {
         this.hasEpsilon = hasEpsilon;
 
         this.reverse = function(){
+            // Test if the link is from a node to itself
+            if(this.source.id === this.target.id){
+                return;
+            }
             // Test if a link exists in the opposite direction:
             var reverseLink = this.target.getLinkTo(this.source);
             if (reverseLink !== null){
@@ -635,7 +639,7 @@ var Display = {
     forceTick: function(canvasID){
         // Update the display after the force layout acts. Should be called at least once to initialise positions, even if
         // force is not used.
-        var svg = d3.select("#"+canvasID)
+        var svg = d3.select("#"+canvasID);
         svg.selectAll(".node")
             .attr("cx", function(d){return d.x;})
             .attr("cy", function(d){return d.y;});
@@ -643,7 +647,7 @@ var Display = {
             .attr("cx", function(d){return d.x;})
             .attr("cy", function(d){return d.y;});
         svg.selectAll(".start")
-            .attr("d", function(node){return Display.getInitialArrowPath(node);})
+            .attr("d", function(node){return Display.getInitialArrowPath(node);});
         svg.selectAll(".link")
             .each(function(link){
                 var linkID = link.id;
@@ -652,21 +656,20 @@ var Display = {
                 // Calculate d once, then apply to both the link and the link padding.
                 d3.select("#" + linkID).attr("d", pathD);
                 d3.select("#" + paddingID).attr("d", pathD);
-            })
+            });
         svg.selectAll(".linklabel")
             .each(function(link){
                 var positionObj = Display.getLinkLabelPosition(link.source, link.target);
                 d3.select(this).attr("x", positionObj.x).attr("y", positionObj.y);
-            })
+            });
         svg.selectAll(".nodename")
             .each(function(node){
-                d3.select(this).attr("x", node.x).attr("y", node.y)
-            })
+                d3.select(this).attr("x", node.x).attr("y", node.y);
+            });
     },
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
         // Get coordinates for the context menu so that it is not drawn off screen in form [x, y]
-        var id = svg.attr("id");
-        var svg = document.querySelector("#" + id); //Switch from a d3 selection to native JS
+        svg = svg.node(); //Switch from a d3 selection to native JS
         var viewboxWidth = svg.viewBox.baseVal.width;
         var viewboxHeight = svg.viewBox.baseVal.height;
         if(svg.getBoundingClientRect().width > svg.getBoundingClientRect().height){
@@ -728,7 +731,7 @@ var Display = {
         // Test if there is a link in the opposite direction:
         var hasOpposite = false;
         for (var i = 0; !hasOpposite && i < Object.keys(link.target.outgoingLinks).length; i++){
-            var linkID = Object.keys(link.target.outgoingLinks)[i]
+            var linkID = Object.keys(link.target.outgoingLinks)[i];
             var outgoingLink = link.target.outgoingLinks[linkID];
             if (outgoingLink.target.id === link.source.id){
                 hasOpposite = true;
@@ -744,10 +747,10 @@ var Display = {
             unitY = deltaY / dist;
 
 
-        var x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
-        var x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
-        var y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
-        var y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
+        x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
+        x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
+        y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
+        y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
 
         if (hasOpposite){
             //Use a bezier curve
@@ -784,36 +787,36 @@ var Display = {
             var m1y = c1y + 0.5 * vy;
 
             // Define strings to use to define the path
-            var P1 = x1 + "," + y1;
+            P1 = x1 + "," + y1;
             var M1 = m1x + "," + m1y;
-            var P2 = x2 + "," + y2;
+            P2 = x2 + "," + y2;
             var C1 = c1x + "," + c1y;
             var C2 = c2x + "," + c2y;
 
             return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
         } else {
             // define vector v from P1 to halfway to P2
-            var vx = 0.5 * (x2 - x1);
-            var vy = 0.5 * (y2 - y1);
+            vx = 0.5 * (x2 - x1);
+            vy = 0.5 * (y2 - y1);
 
             // midpoint is then:
             var midx = x1 + vx;
             var midy = y1 + vy;
 
-            var P1 = x1 + "," + y1;
+            P1 = x1 + "," + y1;
             var M = midx + "," + midy;
-            var P2 = x2 + "," + y2;
+            P2 = x2 + "," + y2;
 
             return ("M" + P1 + " L" + M + " L" + P2);
         }
     },
     linkLabelText:function(link){
         //Create the label string for a link
-        var labelString
+        var labelString;
         if (link.input.length == 0) {
             return link.hasEpsilon? "ε" : "";
         } else {
-            var labelString = "";
+            labelString = "";
             for (var i = 0; i < link.input.length; i++) {
                 var inchar = link.input[i];
                 if (link.machine.isTransducer){
@@ -856,7 +859,7 @@ var Display = {
         var nodeList = Object.keys(machine.nodes).map(function(nodeID){return machine.nodes[nodeID];});
         var nodeGs = nodeg.selectAll("g")
             .data(nodeList, function(d){return d.id;});
-        var newNodes = nodeGs.enter().append("svg:g").classed("nodeg", true)
+        var newNodes = nodeGs.enter().append("svg:g").classed("nodeg", true);
         newNodes.append("circle")
                 .attr("cx", function(d){return d.x;})
                 .attr("cy", function(d){return d.y;})
@@ -864,12 +867,12 @@ var Display = {
                 .classed("node", true)
                 .attr("r", Display.nodeRadius)
                 .style("fill", function(d){return colours(d.id);})
-                .on("contextmenu", function(node){EventHandler.nodeContextClick(node)});
+                .on("contextmenu", function(node){EventHandler.nodeContextClick(node);});
 
         // Add a name label:
         newNodes.append("svg:text")
             .classed("nodename", true)
-            .attr("id", function(node){return node.id + "-label"})
+            .attr("id", function(node){return node.id + "-label";})
             .text(function(node){return node.name;});
 
 
@@ -879,7 +882,7 @@ var Display = {
         // Set classes
         var circles = nodeGs.selectAll("circle")
             .classed("accepting", function(node){return node.isAccepting;})
-            .classed("initial", function(node){return node.isInitial;})
+            .classed("initial", function(node){return node.isInitial;});
         // Add concentric circle to accepting nodes
         circles.each(function(node){
             var shouldHaveRing = node.isAccepting;
@@ -890,17 +893,17 @@ var Display = {
                 .attr("cy", node.y)
                 .attr("r", Display.acceptingRadius)
                 .attr("class", "accepting-ring")
-                .attr("id", "ar" + node.id)
+                .attr("id", "ar" + node.id);
                 return;
             }
             if(!shouldHaveRing && hasRing){
                 hasRing.remove();
             }
-            })
+        });
         // Add arrows to initial nodes
         circles.each(function(node){
             var shouldHaveArrow = node.isInitial;
-            var hasArrow = document.querySelector("#"+node.id + "-in")
+            var hasArrow = document.querySelector("#"+node.id + "-in");
             if(shouldHaveArrow && !hasArrow){
                 d3.select(this.parentNode).append("svg:path")
                     .classed("start", true)
@@ -911,15 +914,15 @@ var Display = {
             if(!shouldHaveArrow && hasArrow){
                 hasArrow.remove();
             }
-        })
+        });
 
 
         // Draw new links
         var linkg = svg.select(".links");
-        var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];})
+        var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];});
         var linkGs = linkg.selectAll("g")
             .data(linkList, function(d){return d.id;});
-        var newLinks = linkGs.enter().append("svg:g")
+        var newLinks = linkGs.enter().append("svg:g");
 
         newLinks.append("path")
                .attr("d", function(d){return Display.getLinkPathD(d);})
