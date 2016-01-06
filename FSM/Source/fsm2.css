@@ -109,7 +109,6 @@ circle.node.accepting {
   font-family: 'Ek Mukta', sans-serif;
   dominant-baseline: central;
   text-anchor: middle;
-  font-size: smaller;
 }
 
 .linklabel:hover{
@@ -118,7 +117,6 @@ circle.node.accepting {
 
 text.nodename {
   text-anchor: middle;
-  font-size: xx-small;
   font-family: "Ek Mukta", sans-serif;
   dominant-baseline: central;
   alignment-baseline: central;
@@ -131,7 +129,6 @@ text.nodename {
     border: 1px #ccc solid;
     box-shadow: #333 2px 2px 4px;
     padding: 2px 2px 2px 2px;
-    font-size: x-small;
     font-family: arial, helvetica, sans-serif;
 }
 

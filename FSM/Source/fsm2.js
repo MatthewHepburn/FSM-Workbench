@@ -295,8 +295,8 @@ var Question = {
 }
 
 var Display = {
-    acceptingRadius: 8.5,
-    nodeRadius: 12,
+    acceptingRadius: 14,
+    nodeRadius: 20,
     canvasVars: {
         "m1": {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
@@ -336,9 +336,9 @@ var Display = {
     },
     drawControlPalette: function(canvasID){
         var iconAddress = Global.iconAddress;
-        var bwidth = 22; //button width
-        var strokeWidth = 1;
-        var margin = 4;
+        var bwidth = 40; //button width
+        var strokeWidth = 2;
+        var margin = 10;
         var g = d3.select("#" + canvasID).append("g")
                     .classed("controls", true);
         var tools = ["nodetool", "linetool","texttool", "acceptingtool", "deletetool"];
@@ -351,7 +351,7 @@ var Display = {
         };
         // create a button for each tool in tools
        tools.forEach(function(toolName, i){
-            var thisG = g.append("g");   
+            var thisG = g.append("g");
             thisG.append("rect") // White rectangle at the bottom - to prevent the button being transparent
                 .attr("width", bwidth)
                 .attr("height", bwidth)
@@ -379,7 +379,7 @@ var Display = {
                 .attr("xlink:href", iconAddress + toolName +".svg")
                 .attr("class", "control-img")
                 .on("click", function(){EventHandler.toolSelect(canvasID, toolName)});
-            
+
         });
         // Define a gradient to be applied when a button is selected:
         var grad = d3.select("defs").append("svg:linearGradient")
@@ -417,14 +417,14 @@ var Display = {
         return "M" + startStr + "L" + midStr + "L" + endStr;
     },
     getLinkLabelPosition: function(node1, node2) {
-        // Function takes two nodes andr eturns a suitable position 
+        // Function takes two nodes andr eturns a suitable position
         // for the label of the link between them.
 
         // Test if the link is from one node to itself
         if (node1.id === node2.id){
             return {
                 x: node1.x,
-                y: node2.y - 75,
+                y: node2.y - 60,
                 rotation: 0
             };
         }
@@ -525,9 +525,10 @@ var Display = {
             .attr("class", "contextmenu")
             .html(html);
 
-        d3.select(".toggleinitial").on("click", function(){Controller.toggleInitial(node); Display.dismissContextMenu()});
-        d3.select(".toggleaccepting").on("click", function(){Controller.toggleAccepting(node); Display.dismissContextMenu()});
-        d3.select(".renamestate").on("click", function(){Controller.renameNodeRequest(node); Display.dismissContextMenu()});
+        svg.select(".toggleinitial").on("click", function(){Controller.toggleInitial(node); Display.dismissContextMenu();});
+        svg.select(".toggleaccepting").on("click", function(){Controller.toggleAccepting(node); Display.dismissContextMenu();});
+        svg.select(".renamestate").on("click", function(){Controller.renameNodeRequest(node); Display.dismissContextMenu();});
+        svg.select(".deletestate").on("click", function(){Controller.deleteNode(node); Display.dismissContextMenu();});
 
 
         // Disable system menu on right-clicking the context menu
@@ -535,6 +536,29 @@ var Display = {
             d3.event.preventDefault();
         });
 
+    },
+    drawNodeRenameForm: function(canvasID, node){
+        var currentName = node.name;
+
+        // create a form over the targeted node
+        d3.select("#" + canvasID).append("foreignObject")
+            .attr("width", 80)
+            .attr("height", 50)
+            .attr("x", node.x + 20)
+            .attr("y", node.y - 6)
+            .attr("class", "rename")
+            .append("xhtml:body")
+                .append("form")
+                    .append("input")
+                    .classed("renameinput", true)
+                    .attr("id", node.id + "-rename")
+                    .attr("type", "text")
+                    .attr("size", "1")
+                    .attr("maxlength", "5")
+                    .attr("name", "state name")
+                    .attr("value", currentName)
+
+        document.getElementById(node.id + "-rename").select();
     },
     dismissContextMenu: function() {
         d3.select(".contextmenu").remove();
@@ -609,7 +633,7 @@ var Display = {
             var x = link.source.x;
             var y = link.source.y;
 
-            var rad = 15;
+            var rad = 22;
             var xoffset = 5;
             var yoffset = 7;
 
@@ -752,7 +776,7 @@ var Display = {
                 .classed("selected", true)
                 .attr("fill", "url(#Gradient1)");
         }
-        Display.canvasVars[canvasID].toolMode = newMode;   
+        Display.canvasVars[canvasID].toolMode = newMode;
     },
     update: function(canvasID){
         var colours = Display.canvasVars[canvasID].colours;
@@ -810,7 +834,7 @@ var Display = {
         circles.each(function(node){
             var shouldHaveArrow = node.isInitial;
             var hasArrow = document.querySelector("#"+node.id + "-in")
-            if(shouldHaveArrow && !hasArrow){            
+            if(shouldHaveArrow && !hasArrow){
                 d3.select(this.parentNode).append("svg:path")
                     .classed("start", true)
                     .attr("d", function(node){return Display.getInitialArrowPath(node);})
@@ -836,7 +860,7 @@ var Display = {
                .style("marker-mid", "url(#end-arrow)")
                .attr("id", function(d){return d.id;})
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);});
-        
+
         //Add link padding to make links easier to click. Link padding handles click events as if it were a link.
         newLinks.append("svg:path")
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
@@ -845,7 +869,7 @@ var Display = {
 
         // Add link labels
         newLinks.append("svg:text")
-            .on("contextmenu", function(link){EventHandler.linkContextClick(link);})            
+            .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
             .attr("id", function(link){return link.id + "-label"})
@@ -856,15 +880,14 @@ var Display = {
 
         var force = this.canvasVars[canvasID].force;
         force.nodes(nodeList)
-            .size([500,300])
-            .linkStrength(100)
-            .linkDistance(10)
-            .chargeDistance(50)
-            .charge(-80)
-            .alpha(0.02)
-            .gravity(0.00)//gravity is attraction to the centre, not downwards.
-        force.start()
-        newNodes.call(force.drag)
+            .links(linkList)
+            .size([1000,600])
+            .linkDistance(150)
+            .chargeDistance(160)
+            .charge(-30)
+            .gravity(0.00); //gravity is attraction to the centre, not downwards.
+        force.start();
+        newNodes.call(force.drag);
 
     }
 };
@@ -896,7 +919,7 @@ var EventHandler = {
 
         if (oldMode == newMode){
             newMode = "none";
-        } 
+        }
         Display.toolSelect(canvasID, newMode)
     }
 };
@@ -918,6 +941,14 @@ var Controller = {
         link.machine.deleteLink(link);
         Display.update(link.machine.id);
     },
+    deleteNode: function(node){
+        node.machine.deleteNode(node);
+        Display.update(node.machine.id);
+    },
+    renameNodeRequest: function(node){
+        var canvasID = node.machine.id;
+        Display.drawNodeRenameForm(canvasID, node);
+    },
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
         m = new Constructor.Machine("m1");
@@ -925,7 +956,7 @@ var Controller = {
         Controller.setupMachine(m, 0);
         Display.canvasVars["m1"].machine = m;
         Display.update("m1");
-        Question.setUpQuestion()
+        Question.setUpQuestion();
         if(["give-list", "select-states", "does-accept", "demo"].indexOf(Question.type) == -1){
             Question.editable = true;
             Display.drawControlPalette("m1");
