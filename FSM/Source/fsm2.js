@@ -13,8 +13,9 @@ var Constructor = {
             isAccepting = isAccepting === undefined? false : isAccepting;
             name = name === undefined? "" : name;
             var nodeID = this.getNextNodeID();
-            this.nodes[nodeID] = new Constructor.Node(this, nodeID, x, y, name, isInitial, isAccepting);
-            return nodeID;
+            var newNode = new Constructor.Node(this, nodeID, x, y, name, isInitial, isAccepting);
+            this.nodes[nodeID] = newNode;
+            return newNode;
 
         };
         this.addLink = function(sourceNode, targetNode, input, output, hasEpsilon){
@@ -30,9 +31,10 @@ var Constructor = {
             output = output === undefined? {} : output;
             hasEpsilon = hasEpsilon === undefined? false : hasEpsilon;
             var linkID = this.getNextLinkID();
-            this.links[linkID] = new Constructor.Link(this, linkID, sourceNode, targetNode, input, output, hasEpsilon);
-            sourceNode.outgoingLinks[linkID] = this.links[linkID];
-            return linkID;
+            var newLink = new Constructor.Link(this, linkID, sourceNode, targetNode, input, output, hasEpsilon);
+            this.links[linkID] = newLink;
+            sourceNode.outgoingLinks[linkID] = newLink;
+            return newLink;
         };
         this.deleteLink = function(link){
             // Accepts either a Link object or a linkID
@@ -68,7 +70,7 @@ var Constructor = {
             for (var i = 0; i < nodes.length; i++){
                 var n = nodes[i];
                 var specID = n.id;
-                nodeIDDict[specID] = this.addNode(n.x, n.y, n.name, n.isInit, n.isAcc);
+                nodeIDDict[specID] = this.addNode(n.x, n.y, n.name, n.isInit, n.isAcc).id;
             }
             var links = spec.links;
             for (i = 0; i < links.length; i++){
@@ -358,7 +360,7 @@ var Display = {
                     .attr("viewBox", "0 0 500 300")
                     .attr("preserveAspectRatio","xMidYMid meet")
                     .on("contextmenu", function(){EventHandler.backgroundContextClick(machine);})
-                    .on("click", function(){EventHandler.backgroundClick(machine);});
+                    .on("click", function(){EventHandler.backgroundClick(machine, true);});
         // resize all canvases
         Display.setSvgSizes();
 
@@ -696,10 +698,14 @@ var Display = {
                 d3.select("#" + linkID).attr("d", pathD);
                 d3.select("#" + paddingID).attr("d", pathD);
             });
+        // Update the rotation and position of each linklabel
         svg.selectAll(".linklabel")
             .each(function(link){
                 var positionObj = Display.getLinkLabelPosition(link.source, link.target);
-                d3.select(this).attr("x", positionObj.x).attr("y", positionObj.y);
+                d3.select(this)
+                    .attr("x", positionObj.x)
+                    .attr("y", positionObj.y)
+                    .attr("transform", "rotate(" + positionObj.rotation + ", " + positionObj.x +", " + positionObj.y +")");
             });
         svg.selectAll(".nodename")
             .each(function(node){
@@ -976,17 +982,20 @@ var Display = {
                .classed("link", true)
                .style("marker-mid", "url(#end-arrow)")
                .attr("id", function(d){return d.id;})
-               .on("contextmenu", function(link){EventHandler.linkContextClick(link);});
+               .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+               .on("click", function(link){EventHandler.linkClick(link);});
 
         //Add link padding to make links easier to click. Link padding handles click events as if it were a link.
         newLinks.append("svg:path")
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+               .on("click", function(link){EventHandler.linkClick(link);})
                .attr("class", "link-padding")
                .attr("id", function(d){return "linkpad" + d.id;});
 
         // Add link labels
         newLinks.append("svg:text")
             .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+            .on("click", function(link){EventHandler.linkClick(link);})
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
             .attr("id", function(link){return link.id + "-label";})
@@ -1025,10 +1034,11 @@ var Display = {
 };
 
 var EventHandler = {
-    backgroundClick: function(machine){
+    backgroundClick: function(machine, checkTarget){
         // Check that the target is the background - this handler will recieve all clicks on the svg
+        // Or proceed anyway if checkTarget is false;
         var canvasID = machine.id;
-        if(d3.event.target.id === canvasID){
+        if(!checkTarget || d3.event.target.id === canvasID){
             Display.dismissContextMenu();
             Controller.endLink(machine.id);
             var toolMode = Display.canvasVars[canvasID].toolMode;
@@ -1055,6 +1065,27 @@ var EventHandler = {
 
         }
     },
+    linkClick: function(link){
+        var canvasID = link.machine.id;
+        var toolMode = Display.canvasVars[canvasID].toolMode;
+        if(toolMode === "none"){
+            return;
+        }
+        if(toolMode === "nodetool" || toolMode === "acceptingtool" || toolMode === "initialtool"){
+            // For node creation tools, pass the click on to the background click handler to handle.
+            EventHandler.backgroundClick(link.machine, false);
+            return;
+        }
+        if(toolMode === "texttool"){
+            Controller.requestLinkRename(link);
+            return;
+        }
+        if(toolMode === "deletetool"){
+            Controller.deleteLink(link);
+            return;
+        }
+
+    },
     linkContextClick: function(link){
         d3.event.preventDefault();
         if(Global.contextMenuShowing){
@@ -1080,6 +1111,18 @@ var EventHandler = {
                 var startNode = Display.getStartNode(canvasID);
                 Controller.createLink(startNode, node);
             }
+        }
+        if(toolMode === "deletetool"){
+            Controller.deleteNode(node);
+        }
+        if(toolMode === "texttool"){
+            Controller.requestNodeRename(node);
+        }
+        if(toolMode === "acceptingtool"){
+            Controller.toggleAccepting(node);
+        }
+        if(toolMode === "initialtool"){
+            Controller.toggleInitial(node);
         }
     },
     nodeContextClick: function(node){
@@ -1169,9 +1212,10 @@ var Controller = {
             Controller.endLink(sourceNode.machine.id);
             return;
         }
-        sourceNode.machine.addLink(sourceNode, targetNode);
+        var newLink = sourceNode.machine.addLink(sourceNode, targetNode);
         Controller.endLink(sourceNode.machine.id);
         Display.update(sourceNode.machine.id);
+        Controller.requestLinkRename(newLink);
 
     },
     deleteMachine: function(machineID){
@@ -1215,7 +1259,7 @@ var Controller = {
         Display.canvasVars["m1"].machine = m;
         Display.update("m1");
         d3.select("#m1")
-            .on("click", function(){EventHandler.backgroundClick(m);})
+            .on("click", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         Question.setUpQuestion();
         if(["give-list", "select-states", "does-accept", "demo"].indexOf(Question.type) == -1){
