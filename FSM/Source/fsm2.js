@@ -339,7 +339,8 @@ var Display = {
             "machine": undefined,
             "colours": d3.scale.category10(),
             "toolMode": "none",
-            "linkInProgress": false
+            "linkInProgress": false,
+            "linkInProgressNode": null
         }
     },
     newCanvas: function(id, machine){
@@ -348,13 +349,16 @@ var Display = {
             "machine": machine,
             "colours": d3.scale.category10(),
             "toolMode": "none",
-            "linkInProgress": false
+            "linkInProgress": false,
+            "linkInProgressNode": null
         };
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
                     .attr("id", id)
                     .attr("viewBox", "0 0 500 300")
-                    .attr("preserveAspectRatio","xMidYMid meet");
+                    .attr("preserveAspectRatio","xMidYMid meet")
+                    .on("contextmenu", function(){EventHandler.backgroundContextClick(machine);})
+                    .on("click", function(){EventHandler.backgroundClick(machine);});
         // resize all canvases
         Display.setSvgSizes();
 
@@ -439,10 +443,16 @@ var Display = {
     },
     beginLink: function(node){
         var canvasID = node.machine.id;
+        var canvasVars = Display.canvasVars[canvasID];
+        if (canvasVars.linkInProgress === true){
+            return;
+        }
+        canvasVars.linkInProgress = true;
+        canvasVars.linkInProgressNode = node;
         var svg = d3.select("#" + canvasID);
-        var halfLink = svg.append("svg:path")
+        var halfLink = svg.insert("svg:path",":first-child")
                           .classed("halflink", true)
-                          .attr("id", canvasID+"halflink");
+                          .attr("id", canvasID+"-halflink");
 
         svg.on("mousemove", function(){
             // Update the link whenenver the mouse is moved over the svg
@@ -452,6 +462,16 @@ var Display = {
             halfLink.attr("d",d);
         });
 
+    },
+    endLink: function(canvasID){
+        var canvasVars = Display.canvasVars[canvasID];
+        if (canvasVars.linkInProgress === false){
+            return;
+        }
+        d3.select("#" + canvasID + "-halflink").remove() // Remove element
+        d3.select("#" + canvasID).on("mousemove", null) // Remove event listener
+        canvasVars.linkInProgress = false;
+        canvasVars.linkInProgressNode = null;
     },
     getInitialArrowPath: function(node){
         // Returns the description of a path resembling a '>'
@@ -532,7 +552,7 @@ var Display = {
         html += "<p class = 'button deletelink'>Delete Link</p>";
         html += "<p class = 'button reverselink'>Reverse Link</p>";
 
-        var menuWidth = 100,
+        var menuWidth = 150,
             menuHeight = 60;
 
         var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
@@ -564,7 +584,7 @@ var Display = {
         html += "<p class = 'button renamestate'>Rename State</p>";
         html += "<p class = 'button deletestate'>Delete State</p>";
 
-        var menuWidth = 100,
+        var menuWidth = 150,
             menuHeight = 80;
 
         var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
@@ -829,6 +849,13 @@ var Display = {
             return ("M" + P1 + " L" + M + " L" + P2);
         }
     },
+    getStartNode: function(canvasID){
+        if (Display.canvasVars[canvasID].linkInProgress === false){
+            return null;
+        } else {
+            return Display.canvasVars[canvasID].linkInProgressNode;
+        }
+    },
     linkLabelText:function(link){
         //Create the label string for a link
         var labelString;
@@ -1003,6 +1030,7 @@ var EventHandler = {
         var canvasID = machine.id;
         if(d3.event.target.id === canvasID){
             Display.dismissContextMenu();
+            Controller.endLink(machine.id);
             var toolMode = Display.canvasVars[canvasID].toolMode;
             if (toolMode === "none" || toolMode === "linetool" || toolMode === "texttool" || toolMode === "deletetool"){
                 return;
@@ -1014,6 +1042,18 @@ var EventHandler = {
             }
         }
 
+    },
+    backgroundContextClick: function(machine){
+        // Check that the target is the background - this handler will recieve all clicks on the svg
+        var canvasID = machine.id;
+        if(d3.event.target.id === canvasID){
+            Display.dismissContextMenu();
+            if (Display.canvasVars[machine.id].linkInProgress){
+                d3.event.preventDefault();
+                Controller.endLink(machine.id);
+            }
+
+        }
     },
     linkContextClick: function(link){
         d3.event.preventDefault();
@@ -1035,7 +1075,10 @@ var EventHandler = {
         if(toolMode === "linetool"){
             var linkInProgress = Display.canvasVars[canvasID].linkInProgress; // true if there is link awaiting and endpoint
             if(!linkInProgress){
-                Display.beginLink(node);
+                Controller.beginLink(node);
+            } else {
+                var startNode = Display.getStartNode(canvasID);
+                Controller.createLink(startNode, node);
             }
         }
     },
@@ -1093,7 +1136,9 @@ var EventHandler = {
         if (oldMode == newMode){
             newMode = "none";
         }
+        Controller.toolSelect(canvasID, oldMode, newMode);
         Display.toolSelect(canvasID, newMode);
+
     }
 };
 
@@ -1105,6 +1150,29 @@ var Controller = {
         newMachine.build(specObj);
         Display.newCanvas(newID, newMachine);
         Display.update(newID);
+    },
+    beginLink: function(souceNode){
+        // Called when the user is using the link tool add a link starting from sourceNode
+        Display.beginLink(souceNode);
+    },
+    endLink: function(canvasID){
+        // Called to end a link creation action.
+        Display.endLink(canvasID);
+    },
+    createLink: function(sourceNode, targetNode){
+        // Check nodes are both in the same machine
+        if (sourceNode.machine.id !== targetNode.machine.id){
+            return;
+        }
+        // Check that the link does not already exist.
+        if(sourceNode.hasLinkTo(targetNode)){
+            Controller.endLink(sourceNode.machine.id);
+            return;
+        }
+        sourceNode.machine.addLink(sourceNode, targetNode);
+        Controller.endLink(sourceNode.machine.id);
+        Display.update(sourceNode.machine.id);
+
     },
     deleteMachine: function(machineID){
         Model.deleteMachine(machineID);
@@ -1146,7 +1214,9 @@ var Controller = {
         Controller.setupMachine(m, 0);
         Display.canvasVars["m1"].machine = m;
         Display.update("m1");
-        d3.select("#m1").on("click", function(){EventHandler.backgroundClick(m);});
+        d3.select("#m1")
+            .on("click", function(){EventHandler.backgroundClick(m);})
+            .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         Question.setUpQuestion();
         if(["give-list", "select-states", "does-accept", "demo"].indexOf(Question.type) == -1){
             Question.editable = true;
@@ -1178,6 +1248,11 @@ var Controller = {
     toggleInitial: function(node){
         node.toggleInitial();
         Display.update(node.machine.id);
+    },
+    toolSelect: function(canvasID, oldMode, newMode){
+        if(oldMode === "linetool"){
+            Controller.endLink(canvasID);
+        }
     }
 };
 
