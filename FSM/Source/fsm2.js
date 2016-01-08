@@ -312,6 +312,14 @@ var Model = {
         // Pretty ES6 way of doing things - switch over when more widely supported
         // Model.machines.filter(m => m.id !== machineID);
         Model.machines.filter(function(m){return m.id !== machineID;});
+    },
+    getMachineList: function(){
+        //Returns a list of specifications for the current machine(s)
+        var list = [];
+        for(var i = 0; i < Model.machines.length; i++){
+            list.push(Model.machines[i].getSpec());
+        }
+        return list;
     }
 };
 

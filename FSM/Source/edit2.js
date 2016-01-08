@@ -55,89 +55,88 @@ var edit = {
         }
         html += "</select>";
         d3.select(".questiontype").html(html);
-        d3.select(".questiontypedropdown").on("change", function(){edit.questionOptions()});
+        d3.select(".questiontypedropdown").on("change", function(){edit.questionOptions();});
     },
     questionOptions:function(){
-        d3.select(".questiondata").html("")
-        edit.askQuestionText(edit.questionSchema.common.text.description)
-        edit.askQuestionCharType(edit.questionSchema.common.alphabetType.description)
+        d3.select(".questiondata").html("");
+        edit.askQuestionText(edit.questionSchema.common.text.description);
+        edit.askQuestionCharType(edit.questionSchema.common.alphabetType.description);
 
-        var alphabetQ = edit.questionSchema.common.alphabet
-        edit.askQuestionOption("alphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional)
-        d3.select("#alphabet").on("change", edit.setAlphabet)
+        var alphabetQ = edit.questionSchema.common.alphabet;
+        edit.askQuestionOption("alphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional);
+        d3.select("#alphabet").on("change", edit.setAlphabet);
 
-        edit.askQuestionTransducer(edit.questionSchema.common.isTransducer.description)
+        edit.askQuestionTransducer(edit.questionSchema.common.isTransducer.description);
 
-        var alphabetQ = edit.questionSchema.common.outAlphabet
-        edit.askQuestionOption("outAlphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional)
-        d3.select("#outAlphabet").on("change", edit.setOutAlphabet)
+        alphabetQ = edit.questionSchema.common.outAlphabet;
+        edit.askQuestionOption("outAlphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional);
+        d3.select("#outAlphabet").on("change", edit.setOutAlphabet);
 
-        var qType = document.querySelector(".questiontypedropdown").value
+        var qType = document.querySelector(".questiontypedropdown").value;
         if (qType == "give-equivalent"){
             edit.showTwoMachines();
         } else {
             edit.showOneMachine();
         }
-        var q = edit.questionSchema[qType]
-        var fields = Object.keys(q)
+        var q = edit.questionSchema[qType];
+        var fields = Object.keys(q);
         for (var i = 0; i< fields.length; i++){
-            var name = fields[i]
-            var description = q[name].description
-            var isOptional = q[name].optional
-            var defaultValue = q[name]["default"]
+            var name = fields[i];
+            var description = q[name].description;
+            var isOptional = q[name].optional;
+            var defaultValue = q[name]["default"];
             var isBoolean = false;
             if (q[name].isBoolean != undefined){
-                isBoolean = q[name].isBoolean
+                isBoolean = q[name].isBoolean;
             }
-            edit.askQuestionOption(name, description, defaultValue, isOptional, isBoolean)
+            edit.askQuestionOption(name, description, defaultValue, isOptional, isBoolean);
         }
-        var button = "<a class='pure-button' id='getjson'>Get JSON</a>"
+        var button = "<a class='pure-button' id='getjson'>Get JSON</a>";
         document.querySelector(".buttondiv").innerHTML = button;
         document.querySelector("#getjson").addEventListener("click", edit.getJSON);
     },
     askQuestionOption:function(name, description,defaultValue, isOptional, isBoolean){
-        var html = "<p>" + name
+        var html = "<p>" + name;
         if (isBoolean){
             if (defaultValue == true){
-                html += "<select id='" + name +"'><option selected='selected' value=true>True</option><option value=false>False</option></select>"
+                html += "<select id='" + name +"'><option selected='selected' value=true>True</option><option value=false>False</option></select>";
             } else{
-                html += "<select id='" + name +"'><option value=true>True</option><option selected='selected' value=false>False</option></select>"
+                html += "<select id='" + name +"'><option value=true>True</option><option selected='selected' value=false>False</option></select>";
             }
         }
         else{
             if (!isOptional){
-            html += "* "
+                html += "* ";
             }
-            html += ": <input type='text' id='" + name +"' value='" + defaultValue + "''>"
+            html += ": <input type='text' id='" + name +"' value='" + defaultValue + "''>";
         }
-        html += "<a id='desc" + name + "'>  ?</a></p>"
+        html += "<a id='desc" + name + "'>  ?</a></p>";
 
         // Use method below as inserting normally resets the event listeners
-        var siblings = document.querySelector(".questiondata").children
-        var lastSibling = siblings[siblings.length - 1]
-        lastSibling.insertAdjacentHTML("afterend",html)
+        var siblings = document.querySelector(".questiondata").children;
+        var lastSibling = siblings[siblings.length - 1];
+        lastSibling.insertAdjacentHTML("afterend",html);
 
-        var id = "#desc" + name
-        f = function(){alert(description);};
+        var id = "#desc" + name;
+        var f = function(){alert(description);};
         d3.select(id)
-            .classed("showdesc", true)
+            .classed("showdesc", true);
         document.querySelector(id).addEventListener("click", f);
 
     },
 
     askQuestionText:function(defaultValue){
-        var html = d3.select(".questiondata").html()
-        html += "<p>text* : <textarea cols='120' id='text' >"+ defaultValue +"</textarea></p>"
-        html += "<a class='pure-button' id='previewtext'>Preview</a>"
-        d3.select(".questiondata").html(html)
-        console.log(document.getElementById("previewtext"))
-        var button = document.getElementById("previewtext")
-        button.addEventListener("click", edit.previewQuestion)
+        var html = d3.select(".questiondata").html();
+        html += "<p>text* : <textarea cols='120' id='text' >"+ defaultValue +"</textarea></p>";
+        html += "<a class='pure-button' id='previewtext'>Preview</a>";
+        d3.select(".questiondata").html(html);
+        var button = document.getElementById("previewtext");
+        button.addEventListener("click", edit.previewQuestion);
     },
 
     previewQuestion: function() {
-        var text = document.querySelector("#text").value.replace(/\n/g, "<br>")
-        document.querySelector(".question").innerHTML = text
+        var text = document.querySelector("#text").value.replace(/\n/g, "<br>");
+        document.querySelector(".question").innerHTML = text;
 
     },
 
@@ -149,27 +148,27 @@ var edit = {
     },
 
     askQuestionCharType:function(description){
-        var html = "<p>Alphabet Type* : <select id='alphabettype'><option value='char'>char</option><option value='symbol'>symbol</option></select><a id='descchartype'>   ?</a></p>"
+        var html = "<p>Alphabet Type* : <select id='alphabettype'><option value='char'>char</option><option value='symbol'>symbol</option></select><a id='descchartype'>   ?</a></p>";
         // Use method below as inserting normally resets the event listener created on the textpreview button
-        var siblings = document.querySelector(".questiondata").children
-        var lastSibling = siblings[siblings.length - 1]
-        lastSibling.insertAdjacentHTML("afterend",html)
+        var siblings = document.querySelector(".questiondata").children;
+        var lastSibling = siblings[siblings.length - 1];
+        lastSibling.insertAdjacentHTML("afterend",html);
 
-        d3.select("#descchartype").on("click", function(){alert(description)}).classed("showdesc", true)
+        d3.select("#descchartype").on("click", function(){alert(description);}).classed("showdesc", true);
     },
     askQuestionTransducer:function(description){
-        var html = "<p>isTransducer* : <select id='istransducer'><option value=false>false</option><option value=true>true</option></select><a id='descistransducer'>   ?</a></p>"
+        var html = "<p>isTransducer* : <select id='istransducer'><option value=false>false</option><option value=true>true</option></select><a id='descistransducer'>   ?</a></p>";
         // Use method below as inserting normally resets the event listener created on the textpreview button
-        var siblings = document.querySelector(".questiondata").children
-        var lastSibling = siblings[siblings.length - 1]
-        lastSibling.insertAdjacentHTML("afterend",html)
+        var siblings = document.querySelector(".questiondata").children;
+        var lastSibling = siblings[siblings.length - 1];
+        lastSibling.insertAdjacentHTML("afterend",html);
 
-        d3.select("#descistransducer").on("click", function(){alert(description)}).classed("showdesc", true)
+        d3.select("#descistransducer").on("click", function(){alert(description)}).classed("showdesc", true);
         d3.select("#istransducer").on("change", function(){
             var transducerMode = JSON.parse(this.value);
             model.question.isTransducer = transducerMode;
             if (transducerMode){
-                edit.setAlphabet()
+                edit.setAlphabet();
                 config.displayConstrainedLinkRename = true;
             } else {
                 edit.resetOutput();
@@ -177,44 +176,39 @@ var edit = {
         });
     },
     getJSON:function(){
-        var modelJSON = model.generateJSON3()
-        var q = {}
+        var qType = document.querySelector(".questiontypedropdown").value;
+        var outObj = {"data-question": undefined,
+                       "data-machinelist": undefined,
+                       "data-options": {},
+                       "filename": ""};
+        outObj["data-machinelist"] = Model.getMachineList();
+        var questionObj = {"type": qType};
         // Store common variables
-        q.text = document.querySelector("#text").value;
-        q.alphabetType = document.querySelector("#alphabettype").value;
-        q.alphabet = JSON.parse(document.querySelector("#alphabet").value);
-        q.isTransducer = JSON.parse(document.querySelector("#istransducer").value);
-        if(q.isTransducer){
-            q.outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
-        }
+        questionObj.text = document.querySelector("#text").value;
 
-        var qType = document.querySelector(".questiontypedropdown").value
-        q.type = qType
-        var schema = edit.questionSchema[qType]
-        var fields = Object.keys(schema)
-        var error = false
-        for (i = 0; i< fields.length; i++){
-            var val = document.querySelector("#" + fields[i]).value
+        var schema = edit.questionSchema[qType];
+        var fields = Object.keys(schema);
+        var error = false;
+        for (var i = 0; i< fields.length; i++){
+            var val = document.querySelector("#" + fields[i]).value;
             if (val == {} || val == ""){
                 if (!schema[fields[i]].optional){
-                    var error = "ERROR - " + fields[i] + " cannot be blank."
-                    document.querySelector(".jsonout").innerHTML = error
-                    error = true
+                    error = "ERROR - " + fields[i] + " cannot be blank.";
+                    document.querySelector(".jsonout").innerHTML = error;
+                    error = true;
                 } else {
-                    continue
+                    continue;
                 }
             }
             if (!schema[fields[i]].expectStr){
-                val = JSON.parse(val)
+                val = JSON.parse(val);
             }
-            q[fields[i]] = val
+            questionObj[fields[i]] = val;
         }
 
         if (!error){
-            modelJSON["filename"] = ""
-            modelJSON["data-question"] = JSON.stringify(q)
-            modelJSON["data-options"] = "{}"
-            var div = document.querySelector(".jsonout").innerHTML = edit.escapeHTML(JSON.stringify(modelJSON));
+            outObj["data-question"] = questionObj;
+            document.querySelector(".jsonout").innerHTML = edit.escapeHTML(JSON.stringify(outObj));
         }
 
     },
@@ -224,7 +218,9 @@ var edit = {
     },
     setOutAlphabet:function(){
         var outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
-        model.question.outAlphabet = outAlphabet
+        for (var i = 0; i < Model.machines.length; i++){
+            Model.machines[i].setOutAlphabet(outAlphabet);
+        }
     },
     resetOutput: function(){
         for (var i = 0; i< model.links.length; i++){
