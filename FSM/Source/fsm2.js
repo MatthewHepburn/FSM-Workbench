@@ -341,8 +341,9 @@ var Display = {
             "machine": undefined,
             "colours": d3.scale.category10(),
             "toolMode": "none",
-            "linkInProgress": false,
-            "linkInProgressNode": null
+            "linkInProgress": false, // True when the user has begun creating a link, but has not selected the second node
+            "linkInProgressNode": null, // When linkInProgess is true, holds the source node of the link being created
+            "submitRenameFunction": null // When there is rename menu, this holds the function to call to submit it
         }
     },
     newCanvas: function(id, machine){
@@ -352,7 +353,8 @@ var Display = {
             "colours": d3.scale.category10(),
             "toolMode": "none",
             "linkInProgress": false,
-            "linkInProgressNode": null
+            "linkInProgressNode": null,
+            "submitRenameFunction": null,
         };
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
@@ -616,6 +618,10 @@ var Display = {
     drawNodeRenameForm: function(canvasID, node){
         var currentName = node.name;
 
+        var submitRenameFunction = function(d3InputElement){
+            Controller.submitNodeRename(node, d3InputElement.node().value);};
+        Display.getCanvasVars(canvasID).submitRenameFunction = submitRenameFunction;
+
         // create a form over the targeted node
         d3.select("#" + canvasID).append("foreignObject")
             .attr("width", 80)
@@ -648,6 +654,9 @@ var Display = {
         // Get the string representing the current link conditions
         var current = Display.linkLabelText(link);
 
+        var submitFunction = function(d3InputElement){Controller.submitLinkRename(link, d3InputElement.node(), "unconstrained");};
+        Display.canvasVars[canvasID].submitRenameFunction = submitFunction;
+
         svg.append("foreignObject")
             .attr("width", 80)
             .attr("height", 50)
@@ -659,6 +668,7 @@ var Display = {
                 .on("keypress", function(){EventHandler.linkRenameFormKeypress(link, this, "unconstrained");})
                     .append("input")
                     .classed("rename", true)
+                    .classed("linkrename", true)
                     .classed("unconstrained", true)
                     .attr("id", link.id + "-rename")
                     .attr("type", "text")
@@ -666,7 +676,6 @@ var Display = {
                     .attr("name", "link conditions")
                     .attr("value", current)
                     .node().select();
-            // .html("<form onkeypress='javascript:return event.keyCode != 13;'><input onsubmit='javascript:return false;' class='renameinput' id='ltxt" + id + "' text-anchor='middle' type='text' size='2', name='link conditions' value='" + current + "'></form>");
 
     },
     dismissContextMenu: function() {
@@ -675,6 +684,7 @@ var Display = {
         Global.contextMenuShowing = false;
     },
     dismissRenameMenu: function(canvasID){
+        Display.getCanvasVars(canvasID).submitRenameFunction = null;
         d3.select("#" + canvasID).selectAll(".rename").remove();
     },
     forceTick: function(canvasID){
@@ -711,6 +721,9 @@ var Display = {
             .each(function(node){
                 d3.select(this).attr("x", node.x).attr("y", node.y);
             });
+    },
+    getCanvasVars: function(canvasID){
+        return Display.canvasVars[canvasID];
     },
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
         // Get coordinates for the context menu so that it is not drawn off screen in form [x, y]
@@ -899,6 +912,17 @@ var Display = {
                 .attr("fill", "url(#Gradient1)");
         }
         Display.canvasVars[canvasID].toolMode = newMode;
+    },
+    submitAllRename: function(canvasID){
+        // Submits all currently open rename forms in the given canvas
+        // (only actually submits the most recent form, but there shouldn't be more than one form open at a time)
+        var svg = d3.select("#" + canvasID);
+        var canvasVars = Display.getCanvasVars(canvasID);
+        var renameForm = svg.select(".rename input");
+        if (renameForm.size() !== 0){
+            // Get the submit function from canvasVars, and call it on the d3 selection of the open form.
+            canvasVars.submitRenameFunction(renameForm);
+        }
     },
     update: function(canvasID){
         var colours = Display.canvasVars[canvasID].colours;
@@ -1142,27 +1166,7 @@ var EventHandler = {
             return true;
         }
         event.preventDefault();
-        // Need to process input differently based on the form type
-        if(formType === "unconstrained"){
-            var string = d3.select(context).select("input").node().value;
-            // strip out whitespace:
-            string = string.replace(/ /g, "");
-            // Split on commas:
-            var strings = string.split(",").filter(function(s){return s.length > 0;});
-            // For each entry, add it to the link's input list
-            // If it is epsilon or a synonym, set hasEpsilon to true
-            var hasEpsilon  = false;
-            var input = [];
-            strings.forEach(function(s){
-                if(["epsilon", "epssilon", "espilon", "epsillon", "eps", "ε", "ϵ", "Ε"].indexOf(s.toLowerCase()) !== -1){
-                    hasEpsilon = true;
-                } else {
-                    input.push(s);
-                }
-            });
-            Controller.submitLinkRename(link, input, hasEpsilon);
-        }
-
+        Controller.submitLinkRename(link, context, formType);
 
     },
     nodeRenameFormKeypress: function(node, context){
@@ -1241,6 +1245,8 @@ var Controller = {
     },
     requestLinkRename: function(link){
         var canvasID = link.machine.id;
+        // Submit any currently open rename form on the same canvas.
+        Display.submitAllRename(canvasID);
         if (link.machine.alphabet.length === 0){
             Display.drawUnconstrainedLinkRenameForm(canvasID, link);
         } else {
@@ -1249,6 +1255,7 @@ var Controller = {
     },
     requestNodeRename: function(node){
         var canvasID = node.machine.id;
+        Display.submitAllRename(canvasID);
         Display.drawNodeRenameForm(canvasID, node);
     },
     init: function(){
@@ -1275,7 +1282,26 @@ var Controller = {
         machine.build(spec);
 
     },
-    submitLinkRename: function(link, input, hasEpsilon){
+    submitLinkRename: function(link, context, formType){
+        // Need to process input differently based on the form type
+        if(formType === "unconstrained"){
+            var string = d3.select(context).select("input").node().value;
+            // strip out whitespace:
+            string = string.replace(/ /g, "");
+            // Split on commas:
+            var strings = string.split(",").filter(function(s){return s.length > 0;});
+            // For each entry, add it to the link's input list
+            // If it is epsilon or a synonym, set hasEpsilon to true
+            var hasEpsilon  = false;
+            var input = [];
+            strings.forEach(function(s){
+                if(["epsilon", "epssilon", "espilon", "epsillon", "eps", "ε", "ϵ", "Ε"].indexOf(s.toLowerCase()) !== -1){
+                    hasEpsilon = true;
+                } else {
+                    input.push(s);
+                }
+            });
+        }
         link.setInput(input, hasEpsilon);
         Display.updateLinkLabel(link);
         Display.dismissRenameMenu(link.machine.id);
