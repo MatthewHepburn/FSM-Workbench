@@ -387,7 +387,7 @@ var Display = {
         var margin = 10;
         var g = d3.select("#" + canvasID).append("g")
                     .classed("controls", true);
-        var tools = ["nodetool", "linetool","texttool", "acceptingtool", "deletetool"];
+        var tools = ["nodetool", "linetool","texttool","initialtool", "acceptingtool", "deletetool"];
         var tooltips = {
             nodetool:"Create new states",
             linetool:"Link states together",
