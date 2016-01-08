@@ -175,12 +175,30 @@ var edit = {
             }
         });
     },
+    loadQuestionSet: function(inputNode, outObj){
+        var reader = new window.FileReader();
+        reader.onload = function(e) {
+            var setObj = JSON.parse(e.target.result);
+            edit.saveQuestionSet(inputNode, setObj, outObj);
+        };
+        reader.readAsText(inputNode.files[0]);
+    },
+    saveQuestionSet: function(inputNode, setObj, outObj){
+        var newSetObj = setObj.push(outObj);
+        var saveDiv = d3.select(".savediv");
+        saveDiv.append("a")
+               .attr("download", "test.txt")
+               .text("SAVE");
+
+
+    },
     getJSON:function(){
         var qType = document.querySelector(".questiontypedropdown").value;
         var outObj = {"data-question": undefined,
                        "data-machinelist": undefined,
                        "data-options": {},
-                       "filename": ""};
+                       "filename": "",
+                       "name": ""};
         outObj["data-machinelist"] = Model.getMachineList();
         var questionObj = {"type": qType};
         // Store common variables
@@ -208,7 +226,13 @@ var edit = {
 
         if (!error){
             outObj["data-question"] = questionObj;
-            document.querySelector(".jsonout").innerHTML = edit.escapeHTML(JSON.stringify(outObj));
+            var jsonOutDiv = d3.select(".jsonout").text(edit.escapeHTML(JSON.stringify(outObj)));
+            var saveDiv = jsonOutDiv.append("div").classed("savediv", true);
+            saveDiv.text("Save to existing question set:");
+            saveDiv.append("input")
+                .attr("type", "file")
+                .classed("pure-button", true)
+                .on("change", function(){edit.loadQuestionSet(this, outObj);});
         }
 
     },

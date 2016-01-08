@@ -92,8 +92,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
         i = i + 1
         variables = {
             "addresses": addresses,
-            "links": question["data-links"].replace("'","&apos;" ),
-            "nodes": question["data-nodes"].replace("'","&apos;" ),
+            "machinelist": question["data-machinelist"].replace("'","&apos;" ),
             "options": question["data-options"].replace("'","&apos;" ),
             "question": question["data-question"].replace("'","&apos;" ),
             "pageID": question["id"],
