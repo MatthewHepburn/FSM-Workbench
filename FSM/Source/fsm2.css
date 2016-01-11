@@ -23,6 +23,11 @@ input.qform{
   margin-bottom: 4px;
 }
 
+.rename span{
+  display: block;
+  font-family: 'Ek Mukta', sans-serif;
+}
+
 div.question-text{
   display: inline-block;
   margin-bottom: 6px;

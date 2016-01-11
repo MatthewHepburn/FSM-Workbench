@@ -6,6 +6,7 @@ var Constructor = {
         this.nodes = {};
         this.links = {};
         this.alphabet = [];
+        this.allowEpsilon = true;
         this.currentState = [];
         this.linksUsed = [];
 
@@ -67,6 +68,8 @@ var Constructor = {
             //Sets up the machine based on a specification object passed in
             this.nodes = {};
             this.links = {};
+            this.alphabet = spec.attributes.alphabet;
+            this.allowEpsilon = spec.attributes.allowEpsilon;
             var nodes = spec.nodes;
             var nodeIDDict = {}; //Used to map IDs in the spec to machine IDs
             for (var i = 0; i < nodes.length; i++){
@@ -98,7 +101,9 @@ var Constructor = {
         };
         this.getSpec = function(){
             //Returns an object that describes the current machine in the form accepted by Machine.build
-            var spec = {"nodes": [], "links": []};
+            var spec = {"nodes": [], "links": [], "attributes":{
+                "alphabet": this.alphabet
+            }};
             var nodeKeys = Object.keys(this.nodes);
             var nodeIDDict = {}; //Used to map from the internal IDs to the externalIDs
             var nextNodeID = 65; // 65 -> "A"
@@ -259,6 +264,10 @@ var Constructor = {
             }
             return null;
         };
+        this.setAlphabet = function(alphabetList){
+            // Sets this.alphabet and this.hasEpsilon
+            TODO
+        }
     },
     Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
         this.machine = machine;
@@ -652,8 +661,49 @@ var Display = {
                     .attr("value", currentName)
                         .node().select();
     },
+    drawConstrainedLinkRenameForm: function(canvasID, link){
+        var svg = d3.select("#" + canvasID);
+
+
+        var alphabet = jsonCopy(link.machine.alphabet);
+        if (link.machine.allowEpsilon){
+            alphabet.push("ε");
+        }
+        // Derive the position of the form from the location of the link label
+        var labelPos = Display.getLinkLabelPosition(link.source, link.target);
+        var formX = labelPos.x - 40;
+        var formY = labelPos.y + 15;
+
+        var form = svg.append("foreignObject")
+                      .attr("width", 300)
+                      .attr("height", 35 + 22 * alphabet.length)
+                      .attr("x", formX - 40)
+                      .attr("y", formY)
+                      .attr("class", "rename")
+                          .append("xhtml:body")
+                              .append("form")
+                              .classed("renameinput", true)
+                              .classed("checkboxrename", true);
+        alphabet.forEach(function(symbol){
+            var span = form.append("span");
+            var elem = span.insert("input", ":first-child")
+                           .attr("type", "checkbox")
+                           .attr("name", "input")
+                           .attr("value", symbol)
+                           .classed("rename-checkbox", true);
+            span.html(span.html() + " " + symbol); // Inelegent. Beware of resetting listeners
+            if(link.input.indexOf(symbol) !== -1){
+                elem.attr("checked", "checked");
+            }
+        });
+
+        form.append("a")
+            .classed("pure-button", true)
+            .text("OK");
+
+    },
     drawUnconstrainedLinkRenameForm: function(canvasID, link){
-        // This gives rename form as a textbox where anything can be entered
+        // This creates a rename form as a textbox where anything can be entered
         var svg = d3.select("#" + canvasID);
 
         // Derive the position of the form from the location of the link label
@@ -1294,8 +1344,9 @@ var Controller = {
     },
     submitLinkRename: function(link, context, formType){
         // Need to process input differently based on the form type
+        var svg = d3.select("#" + link.machine.id);
         if(formType === "unconstrained"){
-            var string = d3.select(context).select("input").node().value;
+            var string = svg.select(context).select("input").node().value;
             // strip out whitespace:
             string = string.replace(/ /g, "");
             // Split on commas:
@@ -1348,6 +1399,11 @@ var Global = {
     "contextMenuShowing":false,
     "traceInProgress": false,
     "hasRated": false
+};
+
+var jsonCopy = function(x){
+    // Return a copy of x
+    return JSON.parse(JSON.stringify(x));
 };
 
 //Declare d3 as global readonly for ESLint
