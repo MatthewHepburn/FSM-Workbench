@@ -1,3 +1,5 @@
+"use strict";
+
 var Constructor = {
     Machine: function(id) {
         this.id = id;

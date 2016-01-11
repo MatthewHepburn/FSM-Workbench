@@ -1,3 +1,4 @@
+"use strict";
 //Declare global readonlys for ESLint
 /*global d3*/
 /*global Controller*/
@@ -175,23 +176,7 @@ var edit = {
             }
         });
     },
-    loadQuestionSet: function(inputNode, outObj){
-        var reader = new window.FileReader();
-        reader.onload = function(e) {
-            var setObj = JSON.parse(e.target.result);
-            edit.saveQuestionSet(inputNode, setObj, outObj);
-        };
-        reader.readAsText(inputNode.files[0]);
-    },
-    saveQuestionSet: function(inputNode, setObj, outObj){
-        var newSetObj = setObj.push(outObj);
-        var saveDiv = d3.select(".savediv");
-        saveDiv.append("a")
-               .attr("download", "test.txt")
-               .text("SAVE");
 
-
-    },
     getJSON:function(){
         var qType = document.querySelector(".questiontypedropdown").value;
         var outObj = {"data-question": undefined,
@@ -228,14 +213,25 @@ var edit = {
             outObj["data-question"] = questionObj;
             var jsonOutDiv = d3.select(".jsonout").text(edit.escapeHTML(JSON.stringify(outObj)));
             var saveDiv = jsonOutDiv.append("div").classed("savediv", true);
-            saveDiv.text("Save to existing question set:");
-            saveDiv.append("input")
-                .attr("type", "file")
+            if (localStorage.getItem("password") !==  null){
+                saveDiv.text("Save to server");
+                saveDiv.append("a")
                 .classed("pure-button", true)
-                .on("change", function(){edit.loadQuestionSet(this, outObj);});
+                .on("click", function(){edit.saveToServer(outObj);});
+            }
+
         }
 
     },
+
+    saveToServer: function(outObj){
+        var string =  "&question=" + encodeURIComponent(JSON.stringify(outObj)) + "&password=" + localStorage.getItem("password");
+        var request = new XMLHttpRequest();
+        request.open("POST", "/cgi/s1020995/dev/savequestion.cgi", true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.send(string);
+    },
+
     setAlphabet:function(){
         var alphabet = JSON.parse(document.querySelector("#alphabet").value)
         model.question.alphabet = alphabet
@@ -262,7 +258,7 @@ var edit = {
         Controller.addMachine(specObj);
     },
     showOneMachine: function(){
-    	// First check if a second machine already exists
+        // First check if a second machine already exists
         if (d3.select("#m2").size == 0){
             return;
         }
