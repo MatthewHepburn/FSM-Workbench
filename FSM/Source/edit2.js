@@ -10,10 +10,11 @@ var edit = {
     questionSchema: {
         "common":{
             "text": {"description": "Text of the question. HTML tags allowed.", "optional": false, "expectStr":true},
+            "filename":{"description": "The filename this question should have", "optional": true, "expectStr": true, "default": "filename"},
+            "questionTitle":{"description": "The title of this question", "optional": true, "expectStr": true, "default": "Question Title"},
             "alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true},
-            "alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false},
-            "isTransducer":{"description": "Is the machine a transducer?", "optional":false, "expectStr":false, "default":false},
-            "outAlphabet": {"description": "The output alphabet of the machine. Only recquired if the machine is a transducer.", "optional":true, "default":"", "expectStr":false}
+            "alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false}
+
         },
         "does-accept":{
             "strList": {"description": 'A list of strings for the user to determine if the machine accepts. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false}
@@ -67,11 +68,11 @@ var edit = {
         edit.askQuestionOption("alphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional);
         d3.select("#alphabet").on("change", edit.setAlphabet);
 
-        edit.askQuestionTransducer(edit.questionSchema.common.isTransducer.description);
+        var filenameQ = edit.questionSchema.common.filename;
+        edit.askQuestionOption("filename", filenameQ.description, filenameQ["default"], filenameQ.optional);
 
-        alphabetQ = edit.questionSchema.common.outAlphabet;
-        edit.askQuestionOption("outAlphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional);
-        d3.select("#outAlphabet").on("change", edit.setOutAlphabet);
+        var titleQ = edit.questionSchema.common.questionTitle;
+        edit.askQuestionOption("questionTitle", titleQ.description, titleQ["default"], titleQ.optional);
 
         var qType = document.querySelector(".questiontypedropdown").value;
         if (qType == "give-equivalent"){
@@ -157,33 +158,15 @@ var edit = {
 
         d3.select("#descchartype").on("click", function(){alert(description);}).classed("showdesc", true);
     },
-    askQuestionTransducer:function(description){
-        var html = "<p>isTransducer* : <select id='istransducer'><option value=false>false</option><option value=true>true</option></select><a id='descistransducer'>   ?</a></p>";
-        // Use method below as inserting normally resets the event listener created on the textpreview button
-        var siblings = document.querySelector(".questiondata").children;
-        var lastSibling = siblings[siblings.length - 1];
-        lastSibling.insertAdjacentHTML("afterend",html);
-
-        d3.select("#descistransducer").on("click", function(){alert(description)}).classed("showdesc", true);
-        d3.select("#istransducer").on("change", function(){
-            var transducerMode = JSON.parse(this.value);
-            model.question.isTransducer = transducerMode;
-            if (transducerMode){
-                edit.setAlphabet();
-                config.displayConstrainedLinkRename = true;
-            } else {
-                edit.resetOutput();
-            }
-        });
-    },
 
     getJSON:function(){
         var qType = document.querySelector(".questiontypedropdown").value;
         var outObj = {"data-question": undefined,
                        "data-machinelist": undefined,
                        "data-options": {},
-                       "filename": "",
-                       "name": ""};
+                       "filename": document.querySelector("#filename").value,
+                       "name":document.querySelector("#questionTitle").value,
+                       "id": edit.getGUID()};
         outObj["data-machinelist"] = Model.getMachineList();
         var questionObj = {"type": qType};
         // Store common variables
@@ -224,6 +207,14 @@ var edit = {
 
     },
 
+    getGUID: function(){
+        return "xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+            var r = crypto.getRandomValues(new Uint8Array(1))[0]%16|0, v = c == "x" ? r : (r&0x3|0x8);
+            return v.toString(16);
+        });
+
+    },
+
     saveToServer: function(outObj){
         var string =  "&question=" + encodeURIComponent(JSON.stringify(outObj)) + "&password=" + localStorage.getItem("password");
         var request = new XMLHttpRequest();
@@ -233,18 +224,9 @@ var edit = {
     },
 
     setAlphabet:function(){
-        var alphabet = JSON.parse(document.querySelector("#alphabet").value)
-        model.question.alphabet = alphabet
-    },
-    setOutAlphabet:function(){
-        var outAlphabet = JSON.parse(document.querySelector("#outAlphabet").value);
-        for (var i = 0; i < Model.machines.length; i++){
-            Model.machines[i].setOutAlphabet(outAlphabet);
-        }
-    },
-    resetOutput: function(){
-        for (var i = 0; i< model.links.length; i++){
-            model.links[i].output = [];
+        var alphabet = JSON.parse(document.querySelector("#alphabet").value);
+        for(var i = 0; i < Model.machines.length; i++){
+            Model.machines[i].alphabet = alphabet;
         }
     },
     showTwoMachines: function(){
@@ -262,12 +244,12 @@ var edit = {
         if (d3.select("#m2").size == 0){
             return;
         }
-        Controller.deleteMachine("m2")
+        Controller.deleteMachine("m2");
 
     }
 
-}
+};
 
 window.onload = function(){
-    edit.createQuestionPrompt()
-}
+    edit.createQuestionPrompt();
+};

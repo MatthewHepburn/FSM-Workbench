@@ -1,191 +1,66 @@
 [
   {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.19109994567384,\"y\":252.0153893518297,\"index\":1,\"weight\":4,\"px\":350.1911049739956,\"py\":252.015384540263,\"fixed\":0,\"name\":\"1\"},{\"id\":2,\"accepting\":false,\"x\":500.3389454437565,\"y\":253.79812058126547,\"index\":2,\"weight\":3,\"px\":500.33894639409704,\"py\":253.79811901118413,\"fixed\":0,\"name\":\"2\"},{\"id\":3,\"accepting\":true,\"x\":650.6925043157144,\"y\":255.32282544453238,\"index\":3,\"weight\":3,\"px\":650.6915915798334,\"py\":255.32281618865224,\"fixed\":0,\"name\":\"3\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"A\",\"B\"],\"id\":6},{\"source\":1,\"target\":0,\"input\":[\"B\"],\"id\":7},{\"source\":1,\"target\":2,\"input\":[\"A\"],\"id\":8},{\"source\":2,\"target\":1,\"input\":[\"A\"],\"id\":9},{\"source\":2,\"target\":3,\"input\":[\"B\"],\"id\":10},{\"source\":3,\"target\":3,\"input\":[\"A\",\"B\"],\"id\":13}]",
-    "filename": "demo1-intro-to-fsm",
-    "data-question": "{\"goalType\":\"accepting\",\"text\":\"When a Finite State Machine is given an input, it uses that input to chose which state to move to.<br>Use the buttons below to give the machine an input that moves it to state 3.\",\"alphabetType\":\"char\",\"alphabet\":[\"A\",\"B\"],\"isTransducer\":false,\"type\":\"demo\",\"hasGoal\":true}",
-    "data-options": "{}",
-    "name": "Introducing FSMs I",
-    "id":"dfc93ecab02045d78f9b9ad54c3d46b0"
-  },
-  {
-    "filename": "select-states-1",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":21,\"accepting\":false,\"x\":349.9779944595717,\"y\":254.22959432942687,\"index\":2,\"weight\":3,\"px\":349.9779944595717,\"py\":254.22959432942687,\"fixed\":0,\"name\":\"S2\"},{\"id\":22,\"accepting\":false,\"x\":499.8943096430126,\"y\":247.41436413584552,\"index\":3,\"weight\":4,\"px\":499.8943096430126,\"py\":247.41436413584552,\"fixed\":0,\"name\":\"S3\"},{\"id\":23,\"accepting\":true,\"x\":430.82014215407577,\"y\":380.95156057225887,\"index\":4,\"weight\":2,\"px\":430.82014215407577,\"py\":380.95156057225887,\"fixed\":0,\"name\":\"S4\"}]",
-    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\",\"b\"],\"id\":8},{\"source\":21,\"target\":22,\"input\":[\"b\"],\"id\":9},{\"source\":22,\"target\":23,\"input\":[\"a\"],\"id\":10},{\"source\":21,\"target\":23,\"input\":[\"a\"],\"id\":11},{\"source\":22,\"target\":22,\"input\":[\"b\"],\"id\":12}]",
-    "data-question": "{\"type\":\"select-states\",\"text\":\"If the FSM was in state S2 and was given the input ‘a’, which state would it move to?<br> Select that state and click ‘check’.\",\"alphabetType\":\"char\",\"initialState\":[21],\"input\":[\"a\"],\"nSteps\":1}",
-    "data-options": "{}",
-    "name": "Introducing FSMs II",
-    "id":"c82f69bbb5024f5e83fe57de57014674"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.0753186396738,\"y\":248.5157282092216,\"index\":1,\"weight\":2,\"px\":350.07542624465594,\"py\":248.5158040903998,\"fixed\":0,\"name\":\"S1\"},{\"id\":2,\"accepting\":true,\"x\":500.15128247534426,\"y\":248.3727732935956,\"index\":2,\"weight\":1,\"px\":500.15128247534426,\"py\":248.3727732935956,\"fixed\":0,\"name\":\"S3\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":2,\"input\":[\"a\",\"b\"],\"id\":3}]",
-    "filename": "select-states-2-accepting-state",
-    "data-question": "{\"text\":\"If, starting from the initial state, an input sequence ends with the machine in an <b>accepting state</b>, the machine is said to <b>accept</b> that sequence.<br>Accepting states are shown using a double outline: <img src=\\\"../img/accepting.png\\\" height=\\\"50\\\" width=\\\"50\\\" alt=\\\"An example image showing an accepting state composed of two= concentric circles.\\\" class=\\\"inline-q-img\\\">The machine below accepts the string \\\"ab\\\". Which state does it end in?\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":2,\"input\":[\"a\",\"b\"]}",
-    "data-options": "{}",
-    "name": "Accepting states I",
-    "id":"23efecb6fdb041b494d0a6e99f241a78"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":349.8967331093217,\"y\":248.0963784124824,\"index\":1,\"weight\":3,\"px\":349.89736151716204,\"py\":248.0965128019434,\"fixed\":0,\"name\":\"2\"},{\"id\":2,\"accepting\":true,\"x\":477.1465228770295,\"y\":168.2238074723658,\"index\":2,\"weight\":1,\"px\":477.1465228770295,\"py\":168.2238074723658,\"fixed\":0,\"name\":\"3\"},{\"id\":3,\"accepting\":true,\"x\":476.9100475616327,\"y\":328.35121034302347,\"index\":3,\"weight\":1,\"px\":476.90933802480123,\"py\":328.3507620204764,\"fixed\":0,\"name\":\"4\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":2,\"input\":[\"a\"],\"id\":2},{\"source\":1,\"target\":3,\"input\":[\"b\"],\"id\":4}]",
+    "data-question": {
+      "type": "give-list",
+      "text": "A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states. \nThe machine accepts 2 sequences. One is \"aa\", give the other.",
+      "lengths": [
+        2,
+        2
+      ],
+      "prefill": {
+        "0": "aa"
+      }
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 153,
+            "y": 57,
+            "isAcc": true,
+            "name": "TIM"
+          },
+          {
+            "id": "B",
+            "x": 3,
+            "y": 48,
+            "isInit": true
+          },
+          {
+            "id": "C",
+            "x": 303,
+            "y": 49,
+            "isAcc": true,
+            "name": "Q"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A"
+          },
+          {
+            "to": "A",
+            "from": "B",
+            "hasEps": true
+          },
+          {
+            "to": "C",
+            "from": "A",
+            "hasEps": true
+          },
+          {
+            "to": "A",
+            "from": "A",
+            "hasEps": true
+          }
+        ]
+      }
+    ],
+    "data-options": {},
     "filename": "give-list-1",
-    "data-question": "{\"text\":\"A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states. <br>The machine accepts 2 sequences. One is \\\"aa\\\", give the other.\",\"alphabetType\":\"char\",\"type\":\"give-list\",\"lengths\":[2,2],\"prefill\":{\"0\":\"aa\"}}",
-    "data-options": "{}",
-    "name": "Accepting states II",
-    "id":"4066dfef71214af5bf0d9195ef04792f"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":257.2086177740776,\"y\":111.32064224896024,\"index\":1,\"weight\":2,\"px\":257.2098908020626,\"py\":111.32164934087207,\"name\":\"2\"},{\"id\":2,\"accepting\":false,\"x\":349.0088140537526,\"y\":230.36294014538473,\"index\":2,\"weight\":2,\"px\":349.00746983681194,\"py\":230.3631279810466,\"name\":\"1\"},{\"id\":3,\"accepting\":false,\"x\":275.9656281076838,\"y\":379.5827047002902,\"index\":3,\"weight\":2,\"px\":275.970823131842,\"py\":379.579077305579},{\"id\":4,\"accepting\":true,\"x\":425.87153304251456,\"y\":370.69025808291764,\"index\":4,\"weight\":1,\"px\":425.876325626183,\"py\":370.6884507544535}]",
-    "data-links": "[{\"source\":0,\"target\":2,\"input\":[\"a\"],\"id\":1},{\"source\":2,\"target\":1,\"input\":[\"a\"],\"id\":2},{\"source\":1,\"target\":0,\"input\":[\"a\"],\"id\":3},{\"source\":0,\"target\":3,\"input\":[\"b\"],\"id\":4},{\"source\":3,\"target\":4,\"input\":[\"b\"],\"id\":5}]",
-    "filename": "give-list-cycles",
-    "name": "Introducing cycles",
-    "data-question": "{\"text\":\"FSMs can be in a particular state more than once. The machine shown accepts<br>inputs consisting of N times '<i>a</i>' followed by '<i>bb</i>' where N modulo 3 = 0.<br><b>For each of the lengths given, give an input the machine will accept</b> \",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":false,\"type\":\"give-list\",\"lengths\":[2,5,8],\"prefill\":{\"0\":\"bb\"}}",
-    "data-options": "{}",
-    "id":"1285346125d241b7abecf49c761103ff"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":366,\"y\":250,\"index\":1,\"weight\":0,\"px\":366,\"py\":250,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":542,\"y\":250,\"index\":2,\"weight\":0,\"px\":542,\"py\":250,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":712,\"y\":250,\"index\":3,\"weight\":0,\"px\":712,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "satisfy-list-1",
-    "data-question": "{\"alphabet\":[\"a\",\"b\",\"c\"],\"text\":\"Modify the machine below so that it accepts sequences consisting of an <b>odd number of 'a's followed by 'bc'.</b><br><b>Hint</b>: to create links between states, select the link tool and drag from the source state to the target state.\",\"alphabetType\":\"char\",\"type\":\"satisfy-list\",\"acceptList\":[\"abc\",\"aaabc\",\"aaaaabc\",\"aaaaaaabc\"],\"rejectList\":[\"a\",\"ab\",\"aabc\",\"bc\"]}",
-    "data-options": "{}",
-    "name": "Machine construction I",
-    "id":"303bd2de71dd451a9ce428f1ab1bbb34"
-  },
-  {
-    "filename": "satisfy-list-2",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":21,\"accepting\":false,\"x\":350.36243015048876,\"y\":250.02945122848976,\"index\":2,\"weight\":1,\"px\":350.36243015048876,\"py\":250.02945122848976,\"fixed\":0,\"name\":\"2\"}]",
-    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"a\"],\"id\":8},{\"source\":21,\"target\":21,\"input\":[\"b\"],\"id\":9}]",
-    "data-question": "{\"alphabet\":[\"a\",\"b\"],\"type\":\"satisfy-list\",\"text\":\"Modify the FSM below to accept the strings on the left but reject the strings on the right.\",\"acceptList\":[\"aa\",\"aba\",\"abba\",\"aaa\",\"abaa\"],\"rejectList\":[\"\",\"a\",\"aaba\"],\"alphabetType\":\"char\"}",
-    "data-options": "{}",
-    "name": "Machine construction II",
-    "id":"c7a2e160f59c4724b183ffe6a1f7d619"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":284.09717870781617,\"y\":374.6033675678907,\"index\":1,\"weight\":2,\"px\":284.0958189695604,\"py\":374.60264531254876,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":350.083249357317,\"y\":239.4944744161913,\"index\":2,\"weight\":3,\"px\":350.08292756506995,\"py\":239.496689077494,\"fixed\":0},{\"id\":3,\"accepting\":false,\"x\":498.2376591901423,\"y\":214.2950780068078,\"index\":3,\"weight\":4,\"px\":498.23851384912166,\"py\":214.30232855370062,\"fixed\":0},{\"id\":4,\"accepting\":false,\"x\":647.561354041068,\"y\":230.10439978693606,\"index\":4,\"weight\":2,\"px\":647.5619133263172,\"py\":230.1044587274843,\"fixed\":0},{\"id\":5,\"accepting\":true,\"x\":499.05946590922514,\"y\":364.6734242410858,\"index\":5,\"weight\":1,\"px\":499.05949391130594,\"py\":364.6786162814916,\"fixed\":0}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"start\"],\"id\":1},{\"source\":0,\"target\":2,\"input\":[\"scan_item\"],\"id\":2},{\"source\":1,\"target\":2,\"input\":[\"scan_item\"],\"id\":3},{\"source\":2,\"target\":3,\"input\":[\"bag_item\"],\"id\":4},{\"source\":3,\"target\":4,\"input\":[\"scan_item\"],\"id\":5},{\"source\":4,\"target\":3,\"input\":[\"bag_item\"],\"id\":6},{\"source\":3,\"target\":5,\"input\":[\"pay\"],\"id\":7}]",
-    "filename": "select-states-3-self-service",
-    "data-question": "{\"text\":\"Instead of operating on single characters, FSMs will sometimes treat longer strings as a single token. This is often used when modelling control systems. <br>The machine below is a simplified representation of a self-service checkout.<br><b>Select the state</b> that the machine would be in after the input: start, scan_item, bag_item, scan_item, bag_item.\",\"alphabetType\":\"symbol\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":5,\"input\":[\"start\",\"scan_item\",\"bag_item\",\"scan_item\",\"bag_item\"]}",
-    "data-options": "{}",
-    "name": "Using longer tokens",
-    "id":"d5723ddea50643dd985b93f81257d300"
-  },
-  {
-    "filename": "satisfy-list-3-vending-machine",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0p\",\"x\":186,\"y\":346,\"fixed\":1,\"index\":0,\"weight\":2,\"px\":186,\"py\":346},{\"id\":21,\"accepting\":false,\"x\":336.57251690253736,\"y\":344.3356739411276,\"index\":1,\"weight\":4,\"px\":336.57113712737856,\"py\":344.3337945675871,\"fixed\":0,\"name\":\"20p\"},{\"id\":22,\"accepting\":false,\"x\":259.9058429355369,\"y\":214.98589706054923,\"index\":2,\"weight\":3,\"px\":259.9048953440994,\"py\":214.98691215802572,\"fixed\":0,\"name\":\"10p\"}]",
-    "data-links": "[{\"source\":0,\"target\":21,\"input\":[\"20p\"],\"id\":8},{\"source\":0,\"target\":22,\"input\":[\"10p\"],\"id\":9},{\"source\":22,\"target\":21,\"input\":[\"10p\"],\"id\":10}]",
-    "data-question": "{\"alphabet\":[\"10p\",\"20p\",\"Water\", \"Irn-Bru\"],\"type\":\"satisfy-list\",\"text\":\"Design a FSM to represent the logic of a vending machine. It sells water for 40p and Irn-Bru for 50p. It accepts 10p and 20p coins.<br> The user is not required to enter exact money - eg if they enter 60p they should still be able to purchase water.\",\"acceptList\":[\"10p, 10p, 10p, 10p, 10p, Irn-Bru\",\"20p, 20p, Water\",\"10p 20p 20p, Irn-Bru\",\"20p, 20p, 20p, Water\",\"10p, 10p, 20p, 10p, Water\"],\"rejectList\":[\"\",\"10p, 10p, Water\",\"10p, 10p, 20p, Water, Water\"],\"alphabetType\":\"symbol\"}",
-    "data-options": "{}",
-    "name": "Vending machine acceptor",
-    "id":"92439d57cae045cbb276e2f813c9d250"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"a\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":4,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":349.8029182993605,\"y\":254.1957090917024,\"index\":1,\"weight\":5,\"px\":349.8029182993605,\"py\":254.1957090917024,\"fixed\":0,\"name\":\"b\"},{\"id\":2,\"accepting\":true,\"x\":499.678335491752,\"y\":244.02986373329645,\"index\":2,\"weight\":1,\"px\":499.6774754649591,\"py\":244.02999407767922,\"fixed\":0,\"name\":\"e\"},{\"id\":3,\"accepting\":false,\"x\":409.20329468529906,\"y\":116.32724565888701,\"index\":3,\"weight\":1,\"px\":409.2107502373447,\"py\":116.33044462179444,\"fixed\":0,\"name\":\"c\"},{\"id\":4,\"accepting\":false,\"x\":428.2903942287966,\"y\":382.01075146730966,\"index\":4,\"weight\":1,\"px\":428.29017114379855,\"py\":382.01038815549344,\"fixed\":0,\"name\":\"d\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"y\"],\"id\":8},{\"source\":0,\"target\":0,\"input\":[\"y\"],\"id\":9},{\"source\":1,\"target\":3,\"input\":[\"z\"],\"id\":10},{\"source\":1,\"target\":0,\"input\":[\"y\"],\"id\":11},{\"source\":1,\"target\":4,\"input\":[\"x\",\"y\"],\"id\":12},{\"source\":1,\"target\":2,\"input\":[\"x\"],\"id\":13}]",
-    "filename": "select-states-4-nfa-intro",
-    "data-question": "{\"text\":\"If a finite state machine has more than one possible transition out of a state for a particular input symbol, it is said to be <b>non-deterministic</b> or a <b>non-deterministic finite automaton (NFA)</b>.<br>The machine below could be in 3 possible states for the input \\\"y, y\\\". Select them.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":2,\"input\":[\"y\",\"y\"]}",
-    "data-options": "{}",
-    "name": "Nondeterministic transitions I",
-    "id":"e1fdb3a3f8994126a32b5d2424b2ddf5"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"0\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":331.1357017502346,\"y\":322.83720573494685,\"index\":1,\"weight\":3,\"px\":331.1351695169498,\"py\":322.83847698462023,\"fixed\":0,\"name\":\"1\"},{\"id\":2,\"accepting\":true,\"x\":431.1521000454572,\"y\":210.44926401210682,\"index\":2,\"weight\":6,\"px\":431.15215903776414,\"py\":210.45380256941098,\"fixed\":0,\"name\":\"3\"},{\"id\":3,\"accepting\":false,\"x\":477.86574305486045,\"y\":353.6046726183034,\"index\":3,\"weight\":2,\"px\":477.8637247255229,\"py\":353.6061022275224,\"fixed\":0,\"name\":\"2\"},{\"id\":4,\"accepting\":false,\"x\":578.9386541943667,\"y\":237.41605277208046,\"index\":4,\"weight\":4,\"px\":578.9358345607377,\"py\":237.4239774299939,\"fixed\":0}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":0,\"target\":0,\"input\":[\"a\",\"b\"],\"id\":2},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":3},{\"source\":1,\"target\":3,\"input\":[\"b\"],\"id\":4},{\"source\":2,\"target\":4,\"input\":[\"b\"],\"id\":5},{\"source\":4,\"target\":2,\"input\":[\"a\"],\"id\":6},{\"source\":4,\"target\":4,\"input\":[\"a\"],\"id\":7},{\"source\":3,\"target\":2,\"input\":[\"c\"],\"id\":11}]",
-    "filename": "does-accept-1-nfa",
-    "data-question": "{\"text\":\"A non-deterministic finite automaton accepts a sequence if there is <b>at least one path</b> for that sequence that <b>ends in an accepting state</b>.<br>For the sequences below, tick those that the machine would accept. \",\"alphabetType\":\"char\",\"type\":\"does-accept\",\"strList\":[\"aaab\",\"ac\",\"baabc\",\"abb\",\"abba\",\"aaaabcb\"]}",
-    "data-options": "{}",
-    "name": "Nondeterministic transitions II",
-    "id":"21b66b17ac09441c93ee5b5aadc9864f"
-  },
-  {
-    "filename": "give-list-3",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"name\":\"2\",\"x\":350.15032120079667,\"y\":250.475260487718,\"index\":1,\"weight\":2,\"px\":350.1503209617719,\"py\":250.47526958470755,\"fixed\":0},{\"id\":2,\"accepting\":false,\"name\":\"3\",\"x\":500.3293871545822,\"y\":251.17886507380038,\"index\":2,\"weight\":2,\"px\":500.3293821052963,\"py\":251.17882771815624,\"fixed\":0},{\"id\":3,\"accepting\":true,\"x\":650.6004584943366,\"y\":250.95221832253597,\"index\":3,\"weight\":1,\"px\":650.5994361672165,\"py\":250.95221986159427,\"fixed\":0,\"name\":\"4\"},{\"id\":4,\"accepting\":false,\"x\":196.31303007981728,\"y\":99.89358118674825,\"index\":4,\"weight\":2,\"px\":196.31305489187685,\"py\":99.89459124923395,\"fixed\":0,\"name\":\"0\"}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":0},{\"source\":1,\"target\":2,\"input\":[\"b\"],\"id\":1},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":3},{\"source\":0,\"target\":4,\"input\":[\"a\"],\"id\":4},{\"source\":4,\"target\":0,\"input\":[\"b\"],\"id\":5}]",
-    "data-question": "{\"type\":\"give-list\",\"lengths\":[3,7],\"text\":\"For each of the lengths given, give a sequence that the Finite State Machine will accept.\",\"alphabetType\":\"char\"}",
-    "data-options": "{}",
-    "name": "Nondeterministic transitions III",
-    "id":"27995f2f4a6449909619c17fe142170b"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":1,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":350.2380685072659,\"y\":249.14221680436393,\"index\":1,\"weight\":2,\"px\":350.2379770996383,\"py\":249.14218966587043,\"fixed\":0},{\"id\":2,\"accepting\":true,\"x\":500.4759482223204,\"y\":247.57324669526525,\"index\":2,\"weight\":1,\"px\":500.4759482223204,\"py\":247.57324669526525,\"fixed\":0}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"a\"],\"id\":1},{\"source\":1,\"target\":2,\"input\":[\"ε\"],\"id\":4}]",
-    "filename": "select-states-6-epsilon-intro",
-    "data-question": "{\"text\":\"As well as allowing multiple paths out of a state for a single input, non-deterministic finite automata also allow <b>epsilon transitions</b>. These are special transitions (shown as ε) that can be taken <b>without consuming any input</b>. <br>The machine below can end in two different states for the input \\\"a\\\". Select them.\",\"alphabetType\":\"char\",\"type\":\"select-states\",\"initialState\":[0],\"nSteps\":1,\"input\":[\"a\"]}",
-    "data-options": "{}",
-    "name": "Introducing ε transitions",
-    "id":"9cabbe004d484955bd3ba97f58c97111"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"S\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250},{\"id\":1,\"accepting\":false,\"x\":335.90300849042006,\"y\":64.70166697440929,\"index\":1,\"weight\":1,\"px\":335.9039184094848,\"py\":64.7016627846864,\"fixed\":0,\"name\":\"T\"},{\"id\":2,\"accepting\":false,\"x\":486.1733227424616,\"y\":64.01010076449474,\"index\":2,\"weight\":2,\"px\":486.17332579913926,\"py\":64.01007179287943,\"fixed\":0},{\"id\":3,\"accepting\":false,\"x\":636.3467923254912,\"y\":62.51328116761752,\"index\":3,\"weight\":2,\"px\":636.3467923254912,\"py\":62.51328116761752,\"fixed\":0},{\"id\":4,\"accepting\":false,\"x\":344.3456806148473,\"y\":383.9840541146069,\"index\":4,\"weight\":1,\"px\":344.34659029085446,\"py\":383.98403573438367,\"fixed\":0,\"name\":\"Q\"},{\"id\":5,\"accepting\":false,\"x\":494.5869161765905,\"y\":380.9480447742521,\"index\":5,\"weight\":2,\"px\":494.58691987651554,\"py\":380.94807325449955,\"fixed\":0},{\"id\":6,\"accepting\":true,\"x\":795.0179484097905,\"y\":377.5362479386573,\"index\":6,\"weight\":1,\"px\":795.0170358774708,\"py\":377.5362550542402,\"fixed\":0},{\"id\":7,\"accepting\":true,\"x\":786.613611459936,\"y\":61.343333354295034,\"index\":7,\"weight\":1,\"px\":786.613611459936,\"py\":61.343333354295034,\"fixed\":0},{\"id\":8,\"accepting\":false,\"x\":644.7511355910009,\"y\":378.7075373605659,\"index\":8,\"weight\":2,\"px\":644.7511341972071,\"py\":378.7075758460348,\"fixed\":0}]",
-    "data-links": "[{\"source\":1,\"target\":2,\"input\":[\"a\"],\"id\":1},{\"source\":2,\"target\":3,\"input\":[\"b\"],\"id\":2},{\"source\":4,\"target\":5,\"input\":[\"a\"],\"id\":3},{\"source\":3,\"target\":7,\"input\":[\"c\"],\"id\":4},{\"source\":5,\"target\":8,\"input\":[\"a\"],\"id\":5},{\"source\":8,\"target\":6,\"input\":[\"c\"],\"id\":8}]",
-    "filename": "satisfy-list-epsilon-combine",
-    "data-question": "{\"text\":\"Epsilon transitions are useful for combining machines. Below are two machine fragments that accept \\\"abc\\\" and \\\"aac\\\", combine them using epsilon transitions to form a single machine that accepts both \\\"abc\\\" and \\\"aac\\\"\",\"alphabetType\":\"char\",\"type\":\"satisfy-list\",\"acceptList\":[\"abc\",\"aac\"],\"rejectList\":[\"a\",\"b\",\"abcaac\",\"bc\",\"ac\"],\"alphabet\":[\"a\",\"b\",\"c\",\"ε\"]}",
-    "data-options": "{}",
-    "name": "Combining machines with ε transitions",
-    "id":"5af858617ee949aea5f780f9d5364c03"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "satisfy-definition-1",
-    "data-question": "{\"text\":\"A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the initial state of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><em>Q</em> = {1, 2, 3, 4}<br>Σ = {a, b, c}<br><em>s</em><sub>0</sub> = {1}<br><em>F</em> = {3, 4}<br>δ: {(1, a, 2), (2, b, 3), (2, c, 4), (3, b, 2)}<br><br>\",\"alphabetType\":\"char\",\"type\":\"satisfy-definition\",\"alphabet\":[\"a\",\"b\",\"c\"],\"nodes\":[\"1\",\"3\",\"2\",\"4\"],\"accepting\":[\"3\",\"4\"],\"initial\":\"1\",\"links\":[{\"source\":\"1\",\"target\":\"2\",\"input\":\"a\"},{\"source\":\"2\",\"target\":\"3\",\"input\":\"b\"},{\"source\":\"3\",\"target\":\"2\",\"input\":\"b\"},{\"source\":\"2\",\"target\":\"4\",\"input\":\"c\"}]}",
-    "data-options": "{}",
-    "name": "Formal machine definition I",
-    "id":"cc3f0e7409514b7f8b5f655d83064073"
-  },
-  {
-    "filename": "satisfy-definition-2-2013-14-resit",
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"1\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250},{\"id\":3,\"accepting\":false,\"x\":278.872796531476,\"y\":389.8058114157804,\"index\":1,\"weight\":0,\"px\":278.8727965312796,\"py\":389.80581141543223,\"name\":\"2\",\"fixed\":0},{\"id\":4,\"accepting\":false,\"x\":416.3334072918634,\"y\":187.39953915600802,\"index\":2,\"weight\":0,\"px\":416.33340729186364,\"py\":187.39953915600813,\"name\":\"5\",\"fixed\":0},{\"id\":5,\"accepting\":false,\"x\":282.2880267249287,\"y\":100.03837252851466,\"index\":3,\"weight\":0,\"px\":282.28802672492895,\"py\":100.03837252851471,\"name\":\"3\"},{\"id\":6,\"accepting\":false,\"x\":555.4905167286834,\"y\":93.53840060613372,\"index\":4,\"weight\":0,\"px\":555.4905167286834,\"py\":93.53840060613372,\"name\":\"6\",\"fixed\":0},{\"id\":7,\"accepting\":false,\"x\":438.3812867431534,\"y\":352.4524380686589,\"index\":5,\"weight\":0,\"px\":438.3812867431544,\"py\":352.4524380686581,\"name\":\"4\",\"fixed\":0},{\"id\":8,\"accepting\":false,\"x\":565.92573715246,\"y\":253.3626628995069,\"index\":6,\"weight\":0,\"px\":565.92573715246,\"py\":253.3626628995069,\"name\":\"7\",\"fixed\":0},{\"id\":9,\"accepting\":false,\"x\":698.7707770242341,\"y\":342.8195983872329,\"index\":7,\"weight\":0,\"px\":698.7707770242337,\"py\":342.81959838723253,\"name\":\"8\",\"fixed\":0}]",
-    "data-links": "[]",
-    "data-question": "{\"type\":\"satisfy-definition\",\"alphabet\":[\"1\",\"2\",\"ε\"],\"accepting\":[\"8\"],\"initial\":\"1\",\"nodes\":[\"1\",\"2\",\"3\",\"5\",\"4\",\"6\",\"7\",\"8\"],\"links\":[{\"source\":\"1\",\"target\":\"2\",\"input\":\"1\"},{\"source\":\"1\",\"target\":\"4\",\"input\":\"1\"},{\"source\":\"2\",\"target\":\"2\",\"input\":\"2\"},{\"source\":\"2\",\"target\":\"3\",\"input\":\"2\"},{\"source\":\"3\",\"target\":\"3\",\"input\":\"1\"},{\"source\":\"3\",\"target\":\"8\",\"input\":\"ε\"},{\"source\":\"4\",\"target\":\"5\",\"input\":\"1\"},{\"source\":\"5\",\"target\":\"5\",\"input\":\"1\"},{\"source\":\"5\",\"target\":\"5\",\"input\":\"2\"},{\"source\":\"4\",\"target\":\"6\",\"input\":\"2\"},{\"source\":\"6\",\"target\":\"4\",\"input\":\"1\"},{\"source\":\"6\",\"target\":\"6\",\"input\":\"1\"},{\"source\":\"6\",\"target\":\"7\",\"input\":\"2\"},{\"source\":\"7\",\"target\":\"8\",\"input\":\"ε\"}],\"text\":\"<p>Draw the non-deterministic FSM described below.</p><p><em>M </em>: <em>M </em>= (<em>Q</em>,<em> </em>Σ,<em> s<sub>0</sub></em>,<em> F</em>,<em> </em>δ<em>)</em>, where</p><p><em>Q </em>= {1, 2, 3, 4, 5, 6, 7, 8}</p><p>Σ = {1, 2}</p><p><em>s</em><sub>0</sub> = {1}</p><p>F = {8} </p><p>δ = {(1, 1, 2), (1, 1, 4), (2, 2, 2), (2, 2, 3), (3, 1, 3), (3, ε, 8), (4, 1, 5), (5, 1, 5), (5, 2, 5), (4, 2, 6), (6, 1, 4), (6, 1, 6), (6, 2, 7), (7, ε, 8)}.</p><p>(Based on the 2013/14 resit exam paper.)</p>\",\"alphabetType\":\"char\"}",
-    "data-options": "{}",
-    "name": "Formal machine definition II",
-    "id":"21bb270e31cf46389c75fbd41613f6c5"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "satisfy-regex-2-kleene-star",
-    "data-question": "{\"text\":\"Regular expressions can be used to define languages accepted by finite state machines. <br>One operator used in regular expressions is *, the Kleene star. It means that the symbol before it must appear 0 or more times.<br>For example, <b>a*b* </b>means 'a' zero or more times followed by 'b' zero or more time. This language includes the empty string, \\\"a\\\", \\\"b\\\", \\\"ab\\\", \\\"aa\\\", \\\"bb\\\", etc.<br>Construct a finite state machine which is accepts the language definined by the regular expression <b>a*b*</b> \",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"a*b*\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":0}",
-    "data-options": "{}",
-    "name": "Regular expressions - Kleene star I",
-    "id":"9bbc56cedd994df9822caa08661c45c6"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "satisfy-regex-3-boolean-or",
-    "data-question": "{\"text\":\"Another regular expression operator is or, written as a vertical bar: |. <br>For example <b>aa|bb</b> matches \\\"aa\\\" and \\\"bb\\\" but not \\\"ab\\\"<br>Construct a finite state machine that accepts the language described by <b>aa|bb</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"aa|bb\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":2}",
-    "data-options": "{}",
-    "name": "Regular expressions - Boolean or",
-    "id":"81145e4563994b01aabdc8660f59cd00"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "satisfy-regex-4-kleene-bracket",
-    "data-question": "{\"text\":\"When the Kleene Star (*) is applied to bracketed expression, it is not necessary for each of the zero or more matches of the expression to be identical, so long as they each match the expression.<br>For example <b>(ab|c)*</b> matches \\\"cab\\\", with the bracketed expression first accepting \\\"c\\\" and then \\\"ab\\\".<br>Construct a finite state machine that accepts the language defined by the regular expression <b>(ab|c)*</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"(ab|c)*\",\"alphabet\":[\"a\",\"b\",\"c\"],\"minAcceptLength\":0}",
-    "data-options": "{}",
-    "name": "Regular expressions - Kleene star II",
-    "id":"f8b5a8cc436e462ab57af290f95a5794"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":200,\"y\":250,\"fixed\":1,\"index\":0,\"weight\":0,\"px\":200,\"py\":250}]",
-    "data-links": "[]",
-    "filename": "satisfy-regex-5",
-    "data-question": "{\"text\":\"Construct a finite state machine which accepts the language defined by the expression <b>abb(abb)*</b>\",\"alphabetType\":\"char\",\"type\":\"satisfy-regex\",\"regex\":\"abb(abb)*\",\"alphabet\":[\"a\",\"b\"],\"minAcceptLength\":3}",
-    "data-options": "{}",
-    "name": "Regular expressions - abb(abb)*",
-    "id":"0e2632536af64a4e99c84b3d65d10970"
-  },
-  {
-    "data-nodes": "[{\"id\":0,\"accepting\":false,\"name\":\"\",\"x\":198,\"y\":298,\"fixed\":1,\"index\":0,\"weight\":3,\"px\":198,\"py\":298},{\"id\":1,\"accepting\":false,\"x\":348.12524006888555,\"y\":289.8839844805494,\"index\":1,\"weight\":3,\"px\":348.12654785926065,\"py\":289.88965660819525,\"fixed\":0},{\"id\":2,\"accepting\":false,\"x\":461.6736054244399,\"y\":191.3210619400754,\"index\":2,\"weight\":4,\"px\":461.670535067634,\"py\":191.32643531722374,\"fixed\":0},{\"id\":3,\"accepting\":false,\"x\":466.2376152561475,\"y\":382.92814332214675,\"index\":3,\"weight\":2,\"px\":466.23445811657444,\"py\":382.93366406621726,\"fixed\":0},{\"id\":4,\"accepting\":true,\"x\":579.798090596253,\"y\":284.3665547879796,\"index\":4,\"weight\":4,\"px\":579.7883543319833,\"py\":284.37227995079706,\"fixed\":0}]",
-    "data-links": "[{\"source\":0,\"target\":1,\"input\":[\"b\"],\"id\":2,\"output\":[[\"b\",\"F\"]]},{\"source\":0,\"target\":0,\"input\":[\"a\"],\"id\":4,\"output\":[[\"a\",\"M\"]]},{\"source\":1,\"target\":2,\"input\":[\"a\"],\"id\":5,\"output\":[[\"a\",\"S\"]]},{\"source\":2,\"target\":4,\"input\":[\"b\"],\"id\":6,\"output\":[[\"b\",\"M\"]]},{\"source\":2,\"target\":2,\"input\":[\"a\"],\"id\":7,\"output\":[]},{\"source\":1,\"target\":3,\"input\":[\"b\"],\"id\":8,\"output\":[]},{\"source\":3,\"target\":4,\"input\":[\"a\",\"b\"],\"id\":9,\"output\":[[\"a\",\"M\"]]},{\"source\":4,\"target\":4,\"input\":[\"a\",\"b\"],\"id\":12,\"output\":[]}]",
-    "filename": "demo-intro-to-transducers",
-    "data-question": "{\"text\":\"<b>Transducers</b> are Finite State Machines which have <b>output</b>. <br>The machine below has an input alphabet of {a, b} and an output alphabet of {F, M, S}. <br>Give it an input such that its output is the string \\\"FSM\\\".\",\"alphabetType\":\"char\",\"alphabet\":[\"a\",\"b\"],\"isTransducer\":true,\"outAlphabet\":[\"F\",\"S\",\"M\"],\"type\":\"demo\",\"hasGoal\":true,\"goalType\":\"output\",\"outputTarget\":\"FSM\"}",
-    "data-options": "{}",
-    "name": "Introducing transducers",
-    "id": "c6c323dce9504ec9baaabf563ee2ce77"
+    "name": "Accepting States II",
+    "id": "e299eb3234a543359b6f20637bd29f18"
   }
 ]
