@@ -168,6 +168,14 @@ if __name__ == "__main__":
         if arg in ["-d", "-D", "--Deploy", "--deploy"]:
             toDeploy = True
             break
+
+    # Check for Babel flag
+    # Babel is used in this project to allow ES6 features to be used by backporting them to ES5
+    toBabel = False
+    for arg in sys.argv:
+        if arg in ["-b", "-b", "--babel", "--Babel"]:
+            toBabel = True
+            break
     # Set the address global
     setAddresses(toDeploy)
 
@@ -257,6 +265,11 @@ if __name__ == "__main__":
 
 
     writeQuestionDict()
+
+    if toBabel:
+        os.chdir(startDir)
+        # "babel" script is defined in package.json
+        subprocess.call(["npm", "run-script", "babel"], shell=True)
 
     # Return to original directory.
     os.chdir(startDir)

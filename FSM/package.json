@@ -1,0 +1,42 @@
+{
+  "name": "CAL-FSM",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "python build.py",
+    "babel": "babel Deploy -d Deploy"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.0.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "eslintConfig": {
+    "rules": {
+      "indent": [
+        2,
+        4
+      ],
+      "quotes": [
+        2,
+        "double",
+        "avoid-escape"
+      ],
+      "linebreak-style": [
+        2,
+        "unix"
+      ],
+      "semi": [
+        2,
+        "always"
+      ]
+    },
+    "env": {
+      "browser": true,
+      "es6": true
+    },
+    "extends": "eslint:recommended"
+  }
+}
