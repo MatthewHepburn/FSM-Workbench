@@ -2,13 +2,13 @@
   "name": "CAL-FSM",
   "version": "1.0.0",
   "scripts": {
+    "preinstall": "npm install uglify-js -g; npm install uglifycss -g",
     "build": "python build.py",
-    "babel": "babel Deploy -d Deploy"
+    "babel": "babel Deploy -d Deploy",
+    "uglifyjs": "uglifyjs  --screw-ie8 --compress"
   },
   "devDependencies": {
     "babel-cli": "^6.0.0",
-    "uglify-js": "*",
-    "uglifycss": "*",
     "babel-preset-es2015": "*"
   },
   "babel": {
