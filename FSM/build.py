@@ -8,6 +8,7 @@ from operator import itemgetter
 import sys
 import subprocess
 import shutil
+import platform
 
 addresses = {}
 sourceDir = ""
@@ -269,7 +270,11 @@ if __name__ == "__main__":
     if toBabel:
         os.chdir(startDir)
         # "babel" script is defined in package.json
-        subprocess.call(["npm", "run-script", "babel"], shell=True)
+        # Detect windows and handle slightly differently - Not sure why this is necessary but not an issue of great importance
+        useShell = False
+        if platform.system() == "Windows":
+            useShell = True
+        subprocess.call(["npm", "run-script", "babel"], shell=useShell)
 
     # Return to original directory.
     os.chdir(startDir)
