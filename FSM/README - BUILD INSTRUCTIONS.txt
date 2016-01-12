@@ -6,8 +6,8 @@ Install under python3 (details will depend on your system)
 
 ==Node==
 From the FSM directory running
-	$npm install
-should fulfill all dependencies
+	$npm sudo install --unsafe-perm
+should fulfill all dependencies. Note the unsafe-perm is required as the current setup requires UglifyJS and UglifyCSS to be installed globally.
 They are:
 UglifyJS2
 UglifyCSS
