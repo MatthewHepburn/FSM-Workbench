@@ -4,7 +4,7 @@
       "type": "give-list",
       "text": "A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states. \nThe machine accepts 2 sequences. One is \"aa\", give the other.",
       "lengths": [
-        2,
+        1,
         2
       ],
       "prefill": {
@@ -16,51 +16,61 @@
         "nodes": [
           {
             "id": "A",
-            "x": 153,
-            "y": 57,
-            "isAcc": true,
-            "name": "TIM"
+            "x": 283,
+            "y": 210
           },
           {
             "id": "B",
-            "x": 3,
-            "y": 48,
-            "isInit": true
+            "x": 432,
+            "y": 218
           },
           {
             "id": "C",
-            "x": 303,
-            "y": 49,
-            "isAcc": true,
-            "name": "Q"
+            "x": 572,
+            "y": 274,
+            "isAcc": true
+          },
+          {
+            "id": "D",
+            "x": 549,
+            "y": 123,
+            "isAcc": true
           }
         ],
         "links": [
           {
             "to": "B",
-            "from": "A"
+            "from": "A",
+            "input": [
+              "a"
+            ]
           },
           {
-            "to": "A",
+            "to": "D",
             "from": "B",
-            "hasEps": true
+            "input": [
+              "a"
+            ]
           },
           {
             "to": "C",
-            "from": "A",
-            "hasEps": true
-          },
-          {
-            "to": "A",
-            "from": "A",
-            "hasEps": true
+            "from": "B",
+            "input": [
+              "b"
+            ]
           }
-        ]
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ]
+        }
       }
     ],
     "data-options": {},
     "filename": "give-list-1",
     "name": "Accepting States II",
-    "id": "e299eb3234a543359b6f20637bd29f18"
+    "id": "f6161c3cac004a418b340bb2eebd79f8"
   }
 ]

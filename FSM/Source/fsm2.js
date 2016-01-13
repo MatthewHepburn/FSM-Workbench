@@ -982,6 +982,12 @@ var Display = {
             canvasVars.submitRenameFunction(renameForm);
         }
     },
+    setUpQuestion: function(){
+        var qType = Question.type;
+        if(qType === "give-list"){
+            //First prefill
+        }
+    },
     update: function(canvasID){
         var colours = Display.canvasVars[canvasID].colours;
         var machine = this.canvasVars[canvasID].machine;
@@ -1327,6 +1333,7 @@ var Controller = {
             .on("click", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         Question.setUpQuestion();
+        Display.setUpQuestion();
         if(["give-list", "select-states", "does-accept", "demo"].indexOf(Question.type) == -1){
             Question.editable = true;
             Display.drawControlPalette("m1");
@@ -1344,7 +1351,7 @@ var Controller = {
         // Need to process input differently based on the form type
         var svg = d3.select("#" + link.machine.id);
         if(formType === "unconstrained"){
-            var string = svg.select(context).select("input").node().value;
+            var string = d3.select(context).select("input").node().value;
             // strip out whitespace:
             string = string.replace(/ /g, "");
             // Split on commas:

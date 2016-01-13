@@ -49,6 +49,18 @@ def setDirs():
     sourceDir = os.path.join(startDir, "Source")
     deployDir = os.path.join(startDir, "Deploy")
 
+def changePrefillFormat(lengths, prefill):
+    # Returns a list of strings of the same length as lengths
+    # eg. {"0": "abb", "2": "bb"} => ["abb", "", "bb"]
+    # This makes it easier to populate the fields using Jinja
+    newPrefill = []
+    for i in range(0, len(lengths)):
+        if str(i) in prefill:
+            newPrefill.append(prefill[str(i)])
+        else:
+            newPrefill.append("")
+    return newPrefill
+
 def buildQuestionDict(jsonData, dirName):
     questions = {}
     i = 0;
@@ -122,6 +134,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
         variables["questionType"] = questionJSON["type"]
         if variables["questionType"] == "give-list":
             variables["lengths"] = questionJSON["lengths"]
+            variables["prefill"] = changePrefillFormat(variables["lengths"], questionJSON["prefill"])
 
         # Omit check button for some question types.
         if variables["questionType"] != "demo" and variables["questionType"] != "none":

@@ -33,7 +33,7 @@
       {%- if lengths -%}
         <form class="pure-form-aligned pure-form qformblock" name="qform">
           {%- for len in lengths -%}
-            <div class="pure-control-group"><label for="qf{{ loop.index0 }}">{{ len }} symbols</label><input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value=""></div>
+            <div class="pure-control-group"><label for="qf{{ loop.index0 }}">{{ len }} symbols</label><input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value="{{ prefill[loop.index0] }}"></div>
           {% endfor %}
           <input type=image src='{{ addresses.iconAddress }}spacer.gif'>
           </form>
