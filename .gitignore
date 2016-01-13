@@ -4,6 +4,10 @@ full_stats.json
 stats.json
 Deploy/
 
+# Node Files #
+##############
+FSM/node_modules/
+
 
 # Compiled source #
 ###################
