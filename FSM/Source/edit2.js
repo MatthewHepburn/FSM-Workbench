@@ -20,8 +20,9 @@ var edit = {
             "strList": {"description": 'A list of strings for the user to determine if the machine accepts. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false}
         },
         "give-list":{
+            "splitSymbol": {"description": "The symbol used to split input into discrete tokens. Leave blank to split on the empty string (ie treat each character as a separate token) or enter ',' for comma separated tokens or ' ' for space separated tokens.", "optional": true, "default": "", "expectStr": true},
             "lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[1,2]","expectStr":false},
-            "prefill": {"description": "An option to automatically fill in some of the fields. Eg {'0': 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":"", "expectStr":false}
+            "prefill": {"description": "An option to automatically fill in some of the fields. Eg {'0': 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":"{ }", "expectStr":false}
         },
         "select-states":{
             "initialState" : {"description": "A list of the IDs of states that the machine is in at the start of the question. The start state has ID 0.", "optional": false, "default":"[0]", "expectStr":false},
@@ -182,8 +183,6 @@ var edit = {
                     error = "ERROR - " + fields[i] + " cannot be blank.";
                     document.querySelector(".jsonout").innerHTML = error;
                     error = true;
-                } else {
-                    continue;
                 }
             }
             if (!schema[fields[i]].expectStr){

@@ -4,12 +4,13 @@
       "type": "give-list",
       "text": "A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states. \nThe machine accepts 2 sequences. One is \"aa\", give the other.",
       "lengths": [
-        1,
+        2,
         2
       ],
       "prefill": {
         "0": "aa"
-      }
+      },
+      "splitSymbol": ""
     },
     "data-machinelist": [
       {
@@ -17,7 +18,8 @@
           {
             "id": "A",
             "x": 283,
-            "y": 210
+            "y": 210,
+            "isInit": true
           },
           {
             "id": "B",

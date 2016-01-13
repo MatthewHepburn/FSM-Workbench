@@ -186,24 +186,48 @@ var Constructor = {
         };
         this.step = function(symbol){
             // The machine changes its state based on an input symbol
-            var nodes = this.currentState.map(function(nodeID){
-                return this.nodes[nodeID];
-            });
+            // Get an array of nodes from the list of nodeIDs
+            var nodes = this.currentState.map(nodeID => this.nodes[nodeID]);
             var newNodes = [];
             var linksUsed = [];
             for (var i = 0; i < nodes.length; i++){
                 var thisNode = nodes[i];
                 var reachableNodeObj = thisNode.getReachableNodes(symbol);
                 // Get nodeIDs of nodes reachable from current node for input = symbol, where the nodeID is not in newNodes
-                var newReachableNodeIDs = reachableNodeObj.nodeIDs.filter(function(nodeID){
-                    return newNodes.indexOf(nodeID) == -1;
-                });
+                var newReachableNodeIDs = reachableNodeObj.nodeIDs.filter( nodeID => newNodes.indexOf(nodeID) === -1);
                 newNodes = newNodes.concat(newReachableNodeIDs);
                 linksUsed = linksUsed.concat(reachableNodeObj.linkIDs);
             }
             this.currentState = newNodes;
             this.linksUsed = linksUsed;
             this.followEpsilonTransitions();
+        };
+
+        this.isInAcceptingState = function(){
+            // True if any of the current states is an accepting state.
+            if (this.currentState.length === 0){
+                return false;
+            }
+            for (var i = 0; i < this.currentState.length; i++){
+                if(this.nodes[this.currentState[i]].isAccepting){
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        this.accepts = function(sequence){
+            // Takes an input sequence and tests if the machine accepts it.
+            // This alters the current machine state
+            sequence = Array.from(sequence); // Avoid changing the passed in arguement by creating a copy
+            this.setToInitialState();
+            while(sequence.length > 0){
+                if(this.currentState.length === 0){
+                    return false;
+                }
+                this.step(sequence.shift());
+            }
+            return this.isInAcceptingState();
         };
     },
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
@@ -236,7 +260,7 @@ var Constructor = {
             var keys = Object.keys(this.outgoingLinks);
             var nodeIDs = [];
             var linkIDs = [];
-            for(var i = 0; i < keys; i++){
+            for(var i = 0; i < keys.length; i++){
                 var linkID = keys[i];
                 var link = this.outgoingLinks[linkID];
                 if(link.input.indexOf(symbol) != -1){
@@ -244,7 +268,7 @@ var Constructor = {
                     linkIDs.push(linkID);
                 }
             }
-            return {"nodeIDS": nodeIDs, "linkIDs": linkIDs};
+            return {"nodeIDs": nodeIDs, "linkIDs": linkIDs};
         };
         this.hasLinkTo = function(node){
             // Function that returns true iff this node has a direct link to the input node
@@ -334,6 +358,9 @@ var Model = {
 
 var Question = {
     setUpQuestion: function(){
+        // Assign properties from the question object to this object
+        // Small risk of name collisions here but worthwhile tradeoff to avoid readability issues of
+        // accessing Question.QuestionObject.property or similar
         var body = document.querySelector("body");
         if (body.dataset.question != undefined){
             var questionObj = JSON.parse(body.dataset.question);
@@ -344,6 +371,49 @@ var Question = {
         for(var property in questionObj){
             Question[property] = questionObj[property];
         }
+    },
+    checkAnswer: function(){
+        if (Question.type === "give-list"){
+            return Question.checkGiveList();
+        }
+    },
+    checkGiveList: function(){
+        var machine = Model.machines[0];
+        // Obtain the users input as a list unproccessed strings
+        var input = [];
+        Question.lengths.forEach(function(v, index){
+            input[index] = d3.select("#qf" + index).node().value;
+        });
+        // Now we must we split each of the strings as specifed by the question and remove whitespace
+        // Eg a splitSymbol of "" would process the strings character-by-character, " " would process them like words
+        input = input.map(x => x.split(Question.splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0));
+        // Filter here to ensure that the new array doesn't contain the empty string
+
+        var allCorrectFlag = true;
+        var messages = new Array(Question.lengths.length).fill(""); // feedback messages to show the user for each question
+        var isCorrectList = new Array(Question.lengths.length).fill(true); // Tracks whether each answer is correct
+
+        input.forEach(function(sequence, index){
+            var thisLength = sequence.length;
+            var expectedLength = Question.lengths[index];
+            if (thisLength !== expectedLength){
+                allCorrectFlag = false;
+                isCorrectList[index] = false;
+                messages[index] = `Incorrect length - expected ${expectedLength} but got ${thisLength}.`;
+                return;
+            }
+            // Correct length - check if machine accepts
+            if (!machine.accepts(sequence)){
+                allCorrectFlag = false;
+                isCorrectList[index] = false;
+                messages[index] = "Incorrect - not accepted by machine";
+            }
+        });
+
+        return {input, messages, allCorrectFlag, isCorrectList};
+
+
+
 
     }
 };
@@ -984,8 +1054,9 @@ var Display = {
     },
     setUpQuestion: function(){
         var qType = Question.type;
-        if(qType === "give-list"){
-            //First prefill
+        var checkButtonTypes = ["give-list"]; //Question types with a check button
+        if(checkButtonTypes.indexOf(qType) !== -1){
+            d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }
     },
     update: function(canvasID){
@@ -1153,6 +1224,9 @@ var EventHandler = {
 
         }
     },
+    checkButtonClick: function(){
+        Controller.checkAnswer();
+    },
     linkClick: function(link){
         var canvasID = link.machine.id;
         var toolMode = Display.canvasVars[canvasID].toolMode;
@@ -1265,6 +1339,11 @@ var Controller = {
     beginLink: function(souceNode){
         // Called when the user is using the link tool add a link starting from sourceNode
         Display.beginLink(souceNode);
+    },
+    checkAnswer: function(){
+        var feedbackObj = Question.checkAnswer();
+        Display.giveFeedback(feedbackObj);
+        // Logging.logAnswer(feedbackObj);
     },
     endLink: function(canvasID){
         // Called to end a link creation action.
