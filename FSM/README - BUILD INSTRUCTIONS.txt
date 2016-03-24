@@ -6,7 +6,7 @@ Install under python3 (details will depend on your system)
 
 ==Node==
 From the FSM directory running
-	$npm sudo install --unsafe-perm
+	$sudo npm install --unsafe-perm
 should fulfill all dependencies. Note the unsafe-perm is required as the current setup requires UglifyJS and UglifyCSS to be installed globally.
 They are:
 UglifyJS2
@@ -22,3 +22,5 @@ build.py arguements:
 -d point resources to the absolute addresses specified in build.py rather than using relative addresses
 
 eg: $python3 build.py -b -m -d
+
+NOTE: it is not currently possible to use both -m and -b at the same time
