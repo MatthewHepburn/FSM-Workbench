@@ -54,6 +54,44 @@ var data = {
         return pageData;
 
     },
+    getMeanTimeData:function(){
+        var pageList = data.pageList;
+        var timeData = [];
+        for (var i = 0; i < pageList.length; i++){
+            var pageID = pageList[i];
+            var thisData = data.json.pages[pageID];
+            if (thisData === undefined){
+                continue;
+            }
+            var uniqueVisitors;
+            var totalTime;
+            if (thisData.hasOwnProperty("uniqueVisitors")){
+                uniqueVisitors = thisData.uniqueVisitors;
+            } else {
+                uniqueVisitors = 0;
+            }
+
+            if (thisData.hasOwnProperty("totalTime")){
+                totalTime = thisData.totalTime;
+            } else {
+                totalTime = 0;
+            }
+
+            var thisPage;
+            if(uniqueVisitors !== 0){
+                thisPage = {"name":data.getName(pageID),
+                            "meanTime": totalTime/(uniqueVisitors * 60)
+                            };
+            } else {
+                thisPage = {"name":data.getName(pageID),
+                            "meanTime": 0
+                            };
+            }
+            timeData.push(thisPage);
+        }
+        return timeData;
+
+    },
     getPageAnswersData: function(){
         var questionList = data.questionList;
         var pageData = [];
@@ -138,6 +176,18 @@ var data = {
             var answers = data.json.pages[url].totalAnswers;
             if (answers > max) {
                 max = answers;
+            }
+        }
+        return max;
+
+    },
+    getMaxMeanTimePerPage:function(){
+        //Returns max mean time per page in minutes
+        var max = 0.0;
+        for (var url in data.json.pages){
+            var meanTime = data.json.pages[url].totalTime/(data.json.pages[url].uniqueVisitors * 60);
+            if (meanTime > max) {
+                max = meanTime;
             }
         }
         return max;
@@ -312,7 +362,7 @@ var display = {
             .html("Total Unique Visitors per Page")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
-        var max = data.getMaxVisitorPerPage();
+        var max = Math.ceil(data.getMaxVisitorPerPage());
         var barMargin = 2;
         var xMargin = 4;
         d3.select("#canvas")
@@ -367,6 +417,70 @@ var display = {
 
         d3.select("#x-axis-title")
             .html("Number of Unique Visitors")
+            .attr("style", "width: " + (display.width - 200) + "px;");
+
+    },
+    drawMeanTimeBarChart:function(){
+        // Draw title
+        d3.select("#title")
+            .html("Mean Time Spent by Question")
+            .attr("style", "width: " + (display.width - 200) + "px;");
+
+        var max = data.getMaxMeanTimePerPage();
+        var barMargin = 2;
+        var xMargin = 4;
+        d3.select("#canvas")
+            .html("");
+        var pageData = data.getMeanTimeData();
+        var barHeight = 30;
+        var axisWidth = 20;
+        var height = axisWidth + (barHeight + barMargin) * pageData.length;
+        var chart = d3.select("#canvas");
+        chart
+            .attr("height", height);
+        var scale = d3.scale.linear()
+                    .domain([0, max])
+                    .range([0, display.width - 200]);
+
+        var bar = d3.select("#canvas").selectAll("g")
+                    .data(pageData)
+                .enter().append("g")
+                    .attr("transform", function(d, i) { return "translate(" + xMargin + "," + i * (barHeight + 2) + ")"; })
+                    .classed("bar", true);
+
+        bar.append("rect")
+                    .attr("width", function(d) { return scale(d.meanTime); })
+                    .attr("height", barHeight);
+
+        bar.append("text")
+            .attr("x", function(d) { return scale(d.meanTime) + 6; })
+            .attr("y", barHeight / 2)
+            .attr("dy", ".35em")
+            .classed("right-label", true)
+            .text(function(d) { return d.name; });
+
+        bar.append("text")
+            .attr("x", function(d) { return scale(d.meanTime) - 3; })
+            .attr("y", barHeight/2)
+            .attr("dy", ".35em")
+            .text(function(d){
+                if (d.meanTime > 0.025 * max){
+                    return d.meanTime.toFixed(1);
+                } else {
+                    return "";
+                }
+            });
+
+        var xAxis = d3.svg.axis()
+                        .scale(scale)
+                        .orient("bottom");
+        chart.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate("+ xMargin + "," + (height - axisWidth) + ")")
+            .call(xAxis);
+
+        d3.select("#x-axis-title")
+            .html("Mean time (minutes)")
             .attr("style", "width: " + (display.width - 200) + "px;");
 
     },
