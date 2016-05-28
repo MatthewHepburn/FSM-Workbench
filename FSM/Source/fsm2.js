@@ -420,8 +420,8 @@ var Question = {
 
 // 'UI' or 'Interface' might be a more accurate name?
 var Display = {
-    acceptingRadius: 14,
-    nodeRadius: 20,
+    nodeRadius: 14,
+    acceptingRadius: 0.7 * 14,
     canvasVars: {
         "m1": {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
@@ -566,7 +566,7 @@ var Display = {
     },
     getInitialArrowPath: function(node){
         // Returns the description of a path resembling a '>'
-        var arrowHeight = 12;
+        var arrowHeight = 0.6 * Display.nodeRadius;
         var midpointX = node.x - Display.nodeRadius - 0.5;
         var midpointY = node.y;
         var midStr = midpointX + "," + midpointY;
@@ -1079,12 +1079,14 @@ var Display = {
                 .attr("r", Display.nodeRadius)
                 .style("fill", function(d){return colours(d.id);})
                 .on("contextmenu", function(node){EventHandler.nodeContextClick(node);})
-                .on("click", function(node){EventHandler.nodeClick(node)});
+                .on("click", function(node){EventHandler.nodeClick(node);});
 
         // Add a name label:
+        // TODO - allow labels too large to be placed within the node to be placed below.
         newNodes.append("svg:text")
             .classed("nodename", true)
             .attr("id", function(node){return node.id + "-label";})
+            .attr("font-size", 1.2 * Display.acceptingRadius) 	// Sets the font height relative to the radius of the inner ring on accepting nodes
             .text(function(node){return node.name;});
 
 
@@ -1157,6 +1159,7 @@ var Display = {
             .on("click", function(link){EventHandler.linkClick(link);})
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
+            .attr("font-size", 1.2 * Display.acceptingRadius) // Set the font height, using the radius of the inner ring of accepting nodes as a somewhat arbitrary reference point.
             .attr("id", function(link){return link.id + "-label";})
             .text(function(link){return Display.linkLabelText(link);});
 
