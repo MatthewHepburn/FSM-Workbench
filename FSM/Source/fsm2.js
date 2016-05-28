@@ -483,7 +483,7 @@ var Display = {
             deletetool: "Delete links and states"
         };
         // create a button for each tool in tools
-       tools.forEach(function(toolName, i){
+        tools.forEach(function(toolName, i){
             var thisG = g.append("g");
             thisG.append("rect") // White rectangle at the bottom - to prevent the button being transparent
                 .attr("width", bwidth)
@@ -491,7 +491,7 @@ var Display = {
                 .attr("x", 0)
                 .attr("y", i * bwidth)
                 .attr("fill", "#FFFFFF")
-                .attr("fill-opacity", 1)
+                .attr("fill-opacity", 1);
             thisG.append("rect") // control rect in the middle - ensures that all of the button is clickable
                 .attr("width", bwidth)
                 .attr("height", bwidth)
@@ -502,7 +502,7 @@ var Display = {
                 .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
                 .classed("control-rect", true)
                 .attr("id", canvasID + "-" + toolName)
-                .on("click", function(){EventHandler.toolSelect(canvasID, toolName)})
+                .on("click", function(){EventHandler.toolSelect(canvasID, toolName);})
                 .append("svg:title").text(tooltips[tools[i]]);
             thisG.append("image") // Button on top
                 .attr("x", 0.5 * margin)
@@ -511,7 +511,7 @@ var Display = {
                 .attr("height", bwidth - margin)
                 .attr("xlink:href", iconAddress + toolName +".svg")
                 .attr("class", "control-img")
-                .on("click", function(){EventHandler.toolSelect(canvasID, toolName)});
+                .on("click", function(){EventHandler.toolSelect(canvasID, toolName);});
 
         });
         // Define a gradient to be applied when a button is selected:
@@ -559,8 +559,8 @@ var Display = {
         if (canvasVars.linkInProgress === false){
             return;
         }
-        d3.select("#" + canvasID + "-halflink").remove() // Remove element
-        d3.select("#" + canvasID).on("mousemove", null) // Remove event listener
+        d3.select("#" + canvasID + "-halflink").remove(); // Remove element
+        d3.select("#" + canvasID).on("mousemove", null); // Remove event listener
         canvasVars.linkInProgress = false;
         canvasVars.linkInProgressNode = null;
     },

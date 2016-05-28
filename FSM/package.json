@@ -8,8 +8,12 @@
     "uglifyjs": "uglifyjs  --screw-ie8 --compress"
   },
   "devDependencies": {
-    "babel-cli": "^6.0.0",
-    "babel-preset-es2015": "*"
+    "babel-cli": "~6.9.0",
+    "babel-preset-es2015": "~6.9.0",
+    "chai": "~3.5.0",
+    "mocha": "~2.5.3",
+    "babel-core": "~6.9.0",
+    "jsdom": "~9.2.0"
   },
   "babel": {
     "presets": [
