@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 var Constructor = {
     Machine: function(id) {
@@ -291,7 +291,7 @@ var Constructor = {
         this.setAlphabet = function(alphabetList){
             // Sets this.alphabet and this.hasEpsilon
             TODO
-        }
+        };
     },
     Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
         this.machine = machine;
@@ -469,9 +469,9 @@ var Display = {
     },
     drawControlPalette: function(canvasID){
         var iconAddress = Global.iconAddress;
-        var bwidth = 40; //button width
-        var strokeWidth = 2;
-        var margin = 10;
+        var bwidth = 25; //button width
+        var strokeWidth = 1;
+        var margin = 6;
         var g = d3.select("#" + canvasID).append("g")
                     .classed("controls", true);
         var tools = ["nodetool", "linetool","texttool","initialtool", "acceptingtool", "deletetool"];
