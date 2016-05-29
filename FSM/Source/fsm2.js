@@ -978,12 +978,11 @@ var EventHandler = {
 
 var Controller = {
     addMachine: function(specObj){
-        // Adds a machine to the model
-        var newID = "m" + (Model.machines.length + 1);
-        var newMachine = new Model.Machine(newID);
-        newMachine.build(specObj);
-        Display.newCanvas(newID, newMachine);
-        Display.update(newID);
+        //Adds a machine to the model and displays it on a new canvas
+        var newMachine = Model.addMachine(specObj)
+        var machineID = newMachine.id
+        Display.newCanvas(machineID, newMachine);
+        Display.update(machineID);
     },
     beginLink: function(souceNode){
         // Called when the user is using the link tool add a link starting from sourceNode

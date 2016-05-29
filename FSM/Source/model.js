@@ -1,7 +1,17 @@
 "use strict";
 
+// This holds the domain model and the functions needed to interact with it. It should not interact with the DOM and
+// it should not recquire d3.
 var Model = {
     machines: [],
+    addMachine: function(specificationObj){
+        //Creates a new machine as specified by specificationObj, adds it to the machinelist and returns the new machine.
+        var newID = "m" + (this.machines.length + 1);
+        var newMachine = new Model.Machine(newID);
+        newMachine.build(specificationObj);
+        this.machines.push(newMachine);
+        return newMachine;
+    },
     deleteMachine: function(machineID){
         Model.machines.filter(m => m.id !== machineID);
     },
@@ -13,13 +23,15 @@ var Model = {
         }
         return list;
     },
-    // Constructor (/ prototype? TODO - clarify) for a machine object
+    // Constructor for a machine object
+    // TODO consider adding functions via the prototype instead of adding them in the constructor for memory efficiency.
     Machine: function(id) {
         this.id = id;
         this.nodes = {};
         this.links = {};
         this.alphabet = [];
         this.allowEpsilon = true;
+        this.isTransducer = false;
         this.currentState = [];
         this.linksUsed = [];
 
@@ -83,6 +95,7 @@ var Model = {
             this.links = {};
             this.alphabet = spec.attributes.alphabet;
             this.allowEpsilon = spec.attributes.allowEpsilon;
+            this.isTransducer = spec.attributes.isTransducer;
             var nodes = spec.nodes;
             var nodeIDDict = {}; //Used to map IDs in the spec to machine IDs
             for (var i = 0; i < nodes.length; i++){
@@ -115,7 +128,8 @@ var Model = {
         this.getSpec = function(){
             //Returns an object that describes the current machine in the form accepted by Machine.build
             var spec = {"nodes": [], "links": [], "attributes":{
-                "alphabet": this.alphabet
+                "alphabet": this.alphabet,
+                "allowEpsilon": this.allowEpsilon
             }};
             var nodeKeys = Object.keys(this.nodes);
             var nodeIDDict = {}; //Used to map from the internal IDs to the externalIDs
@@ -243,7 +257,7 @@ var Model = {
             return this.isInAcceptingState();
         };
     },
-    // Constructor (/ prototype? TODO - clarify) for a node object
+    // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
         this.name = name;
         this.machine = machine;
@@ -307,7 +321,7 @@ var Model = {
             TODO
         };
     },
-    // Constructor (/ prototype? TODO - clarify) for a link object
+    // Constructor for a link object
     Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
         this.machine = machine;
         this.id = linkID;
@@ -355,3 +369,9 @@ var Model = {
         };
     }
 };
+
+
+// For use by node during testing - set Model as the export if module is defined.
+if (typeof module !== "undefined"){
+    module.exports = Model;
+}
