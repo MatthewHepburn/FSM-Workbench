@@ -485,7 +485,18 @@ var Display = {
         // Update the rotation and position of each linklabel
         svg.selectAll(".linklabel")
             .each(function(link){
-                var positionObj = Display.getLinkLabelPosition(link.source, link.target);
+            	var positionObj = Display.getLinkLabelPosition(link.source, link.target);
+
+                //Do not update position for minor changes – avoids unwanted text jitter in Firefox
+            	if(this.x.baseVal.length > 0 && this.y.baseVal.length > 0){
+            		var prevX = this.x.baseVal[0].value;
+            		var prevY = this.y.baseVal[0].value;
+            		var minChange = 0.4; //arbitrary constant – tweak by eye. Set to zero to make all changes.
+            		if (Math.abs(positionObj.x - prevX) < minChange && Math.abs(positionObj.y - prevY) < minChange){
+            			return;
+            		}
+            	}
+
                 d3.select(this)
                     .attr("x", positionObj.x)
                     .attr("y", positionObj.y)
