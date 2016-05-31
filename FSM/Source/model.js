@@ -13,7 +13,7 @@ var Model = {
         return newMachine;
     },
     deleteMachine: function(machineID){
-        Model.machines.filter(m => m.id !== machineID);
+        this.machines = this.machines.filter(m => m.id !== machineID);
     },
     getMachineList: function(){
         //Returns a list of specifications for the current machine(s)
