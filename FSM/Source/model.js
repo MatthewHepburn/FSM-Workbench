@@ -3,7 +3,7 @@
 // This holds the domain model and the functions needed to interact with it. It should not interact with the DOM and
 // it should not recquire d3.
 var Model = {
-    machines: [],
+    machines: [], // This may be better as an object, with machine IDs as keys.
     addMachine: function(specificationObj){
         //Creates a new machine as specified by specificationObj, adds it to the machinelist and returns the new machine.
         var newID = "m" + (this.machines.length + 1);
@@ -129,7 +129,8 @@ var Model = {
             //Returns an object that describes the current machine in the form accepted by Machine.build
             var spec = {"nodes": [], "links": [], "attributes":{
                 "alphabet": this.alphabet,
-                "allowEpsilon": this.allowEpsilon
+                "allowEpsilon": this.allowEpsilon,
+                "isTransducer": this.isTransducer
             }};
             var nodeKeys = Object.keys(this.nodes);
             var nodeIDDict = {}; //Used to map from the internal IDs to the externalIDs
@@ -142,7 +143,7 @@ var Model = {
                 var intNode = this.nodes[nodeIDinternal];
                 // There is an argument for generating the mininal description in the Node object,
                 // but decided against it as defaults are imposed by Machine. In any case, tight coupling between
-                // Machine and Node is probably harmless.
+                // Machine and Node is probably harmless (and unavoidable).
                 var extNode = {"id": nodeIDexternal, "x":Math.round(intNode.x), "y":Math.round(intNode.y)};
                 // Only include non-default properties for brevity:
                 if (intNode.isAccepting === true){
