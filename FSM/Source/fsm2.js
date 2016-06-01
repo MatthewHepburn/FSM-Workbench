@@ -936,9 +936,24 @@ var Controller = {
         Display.beginLink(souceNode);
     },
     checkAnswer: function(){
-        var feedbackObj = Model.question.checkAnswer();
+        //Check if input must be collected
+        if(["give-list"].indexOf(Model.question.type) !== 0){
+            var input = Controller.getQuestionInput(Model.question.type)
+        }
+        var feedbackObj = Model.question.checkAnswer(input);
         Display.giveFeedback(feedbackObj);
         // Logging.logAnswer(feedbackObj);
+    },
+    getQuestionInput:function(type){
+        var input
+        if(type === "give-list"){
+            // Obtain the users input as a list of unproccessed strings
+            input = [];
+            model.question.lengths.forEach(function(v, index){
+                input[index] = d3.select("#qf" + index).node().value;
+            });
+        }
+        return input;
     },
     endLink: function(canvasID){
         // Called to end a link creation action.

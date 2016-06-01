@@ -341,5 +341,63 @@ describe('Model', function() {
         });
     });
 
+    describe("test the give-list question type", function(){
+
+        var questionObj, spec, input,feedbackObj;
+
+        before(function(){
+            model.machines = [];
+            questionObj = {"type": "give-list",
+                           "lengths": [2,4,6,8,10],
+                           "splitSymbol": ""
+                        };
+            spec = {nodes: [{id:"A", x:0, y:50, isInit:true},{id:"B", x:50, y:50},{id:"C", x:50, y:100},{id:"D", x:200, y:50, isAcc:true}],
+                    links: [{from:"A", to:"B", input:["c"]},{from:"B", to:"C", input:["d"]}, {from:"C", to:"B", input:["e"]},{from:"B", to:"D", input:["f"]}],
+                    attributes:{alphabet:["c","d","e","f"], isTransducer: false, allowEpsilon:false}
+                   };
+            model.addMachine(spec);
+            model.question.setUpQuestion(questionObj)
+        });
+
+        it("question should be setup correctly", function(){
+            expect(model.question.type).to.equal("give-list");
+            expect(model.question.lengths).to.be.ok;
+            expect(model.question.splitSymbol).to.equal("");
+        });
+
+        it("should accept valid input", function(){
+            input = ["cf","cdef","cdedef","cdededef","cdedededef"];
+            feedbackObj = model.question.checkAnswer(input);
+            expect(feedbackObj).to.be.ok;
+            expect(feedbackObj.allCorrectFlag).to.be.true;
+            expect(feedbackObj.messages.reduce((x,y) => x + y, "")).to.equal(""); //all message entries should be empty;
+            expect(feedbackObj.isCorrectList.reduce((x,y) => x && y, true)).to.be.true //all isCorrect entries should be true;
+        });
+
+        it("should reject well formed incorrect input", function(){
+            input = ["cf","cdeff","cdedef","cdededef","cdedededef"];
+            feedbackObj = model.question.checkAnswer(input);
+            expect(feedbackObj).to.be.ok;
+            expect(feedbackObj.allCorrectFlag).to.be.false;
+            expect(feedbackObj.messages.reduce((x,y) => x + y, "")).to.not.equal(""); //all message entries should not be empty;
+            expect(feedbackObj.isCorrectList[1]).to.be.false;
+
+            input = ["cf","cedf","cdedef","cdededef","cdedededef"];
+            feedbackObj = model.question.checkAnswer(input);
+            expect(feedbackObj).to.be.ok;
+            expect(feedbackObj.allCorrectFlag).to.be.false;
+            expect(feedbackObj.messages.reduce((x,y) => x + y, "")).to.not.equal(""); //all message entries should not be empty;
+            expect(feedbackObj.isCorrectList[1]).to.be.false;
+
+            input = ["","","","",""];
+            feedbackObj = model.question.checkAnswer(input);
+            expect(feedbackObj).to.be.ok;
+            expect(feedbackObj.allCorrectFlag).to.be.false;
+            expect(feedbackObj.isCorrectList.reduce((x,y) => x || y, false)).to.be.false //all isCorrect entries should be false;
+        });
+
+
+    });
+
 });
 

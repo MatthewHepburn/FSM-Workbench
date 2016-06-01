@@ -391,30 +391,27 @@ var Model = {
             }
 
         },
-        checkAnswer: function(){
+        checkAnswer: function(input){
+            //Input other than the machine only recquired for some question types
             if (Model.question.type === "give-list"){
-                return Model.question.checkGiveList();
+                return Model.question.checkGiveList(input);
             }
         },
-        checkGiveList: function(){
+        checkGiveList: function(input){
             var machine = Model.machines[0];
-            // Obtain the users input as a list unproccessed strings
-            var input = [];
-            Question.lengths.forEach(function(v, index){
-                input[index] = d3.select("#qf" + index).node().value;
-            });
-            // Now we must we split each of the strings as specifed by the question and remove whitespace
+
+            // Input received as list of strings. Split each of the strings as specifed by the question and remove whitespace
             // Eg a splitSymbol of "" would process the strings character-by-character, " " would process them like words
-            input = input.map(x => x.split(Question.splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0));
+            input = input.map(x => x.split(this.splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0));
             // Filter here to ensure that the new array doesn't contain the empty string
 
             var allCorrectFlag = true;
-            var messages = new Array(Question.lengths.length).fill(""); // feedback messages to show the user for each question
-            var isCorrectList = new Array(Question.lengths.length).fill(true); // Tracks whether each answer is correct
+            var messages = new Array(Model.question.lengths.length).fill(""); // feedback messages to show the user for each question
+            var isCorrectList = new Array(Model.question.lengths.length).fill(true); // Tracks whether each answer is correct
 
             input.forEach(function(sequence, index){
                 var thisLength = sequence.length;
-                var expectedLength = Question.lengths[index];
+                var expectedLength = Model.question.lengths[index];
                 if (thisLength !== expectedLength){
                     allCorrectFlag = false;
                     isCorrectList[index] = false;
