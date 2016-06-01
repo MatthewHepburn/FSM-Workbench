@@ -134,32 +134,41 @@ describe('Model', function() {
     });
 
     describe("Machine using epsilon transitiions", function(){
-        // Machine which accepts the empty string via multiple epsilon steps.
-        var spec = {"nodes": [{"id":"A", "x": 100, "y": 50, "isInit": true, "name":"foo"}, {"id": "B", "x": 200, "y": 60}, {"id": "C", "x": 300, "y": 60,"name":"bar"},  {"id": "D", "x": 400, "y": 60, "isAcc": true}],
-                     "links": [{"to": "B", "from": "A", "hasEps": true}, {"to": "C", "from": "B", "hasEps": true}, {"to": "D", "from": "C", "input": ["b"], "hasEps":true}],
-                      "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isTransducer": false}
-                    };
 
-        var initialMachinesLength = model.machines.length;
-        var machine = model.addMachine(spec);
-        expect(model.machines.length - initialMachinesLength).to.equal(1);
+        var spec, initialMachinesLength, machine, specCopy, machineCopy;
+
+        before(function(){
+            // Machine which accepts the empty string via multiple epsilon steps.
+            spec = {"nodes": [{"id":"A", "x": 100, "y": 50, "isInit": true, "name":"foo"}, {"id": "B", "x": 200, "y": 60}, {"id": "C", "x": 300, "y": 60,"name":"bar"},  {"id": "D", "x": 400, "y": 60, "isAcc": true}],
+                         "links": [{"to": "B", "from": "A", "hasEps": true}, {"to": "C", "from": "B", "hasEps": true}, {"to": "D", "from": "C", "input": ["b"], "hasEps":true}],
+                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isTransducer": false}
+                    };
+            initialMachinesLength = model.machines.length;
+            machine = model.addMachine(spec);
+        });
 
         it("machine should be ok", function(){expect(machine).to.be.ok;});
+        it("there should be one machine", function(){expect(model.machines.length - initialMachinesLength).to.equal(1);});
         it("machine should allow Epsilon transitiions", function() {expect(machine.allowEpsilon).to.be.true;});
         it("machine should have 4 nodes", function(){expect(Object.keys(machine.nodes).length).to.equal(4);});
         it("machine should have 3 links", function(){expect(Object.keys(machine.links).length).to.equal(3);});
 
-        machine.setToInitialState();
-        it("machine's initial state should be accepting", function(){expect(machine.isInAcceptingState()).to.be.true});
+        it("machine's initial state should be accepting", function(){
+            machine.setToInitialState();
+            expect(machine.isInAcceptingState()).to.be.true
+        });
+
         it("machine should accept []", function() {expect( machine.accepts([]) ).to.be.true;});
         it("machine should accept 'b'", function() {expect( machine.accepts(["b"]) ).to.be.true;});
         it("machine should not accept 'bb'", function() {expect( machine.accepts(["b","b"]) ).to.be.false;});
 
-        var specCopy = machine.getSpec();
-        it("Spec derived from machine should be equal to original spec", function(){expect(specCopy).to.deep.equal(spec);});
+        it("Spec derived from machine should be equal to original spec", function(){
+            specCopy = machine.getSpec();
+            expect(specCopy).to.deep.equal(spec);
+        });
 
-        var machineCopy = model.addMachine(specCopy);
         it("Machine created from machine's spec should be equal to the original (ignoring IDs)", function(){
+            machineCopy = model.addMachine(specCopy);
             var machineNodesLength = Object.keys(machine.nodes).length;
             var CopyNodesLength = Object.keys(machineCopy.nodes).length;
             expect(machineNodesLength).to.equal(CopyNodesLength);
@@ -172,20 +181,21 @@ describe('Model', function() {
             expect(machine.alphabet).to.equal(machine.alphabet);
             expect(machine.allowEpsilon).to.equal(machine.allowEpsilon);
         });
-
-
     });
 
     describe("Construct a machine from scratch", function(){
-        var spec = {"nodes": [],
-                     "links": [],
-                      "attributes": {"alphabet": [], "allowEpsilon": true, "isTransducer": false}
-                    };
 
-        var machine = model.addMachine(spec);
-        machine.setAlphabet(["a","b","c"]);
+        var spec, machine, node1, node2, node3, node4, node5, node6;
 
-        var node1, node2, node3, node4, node5, node6;
+        before(function(){
+            spec = {"nodes": [],
+                                 "links": [],
+                                  "attributes": {"alphabet": [], "allowEpsilon": true, "isTransducer": false}
+                                };
+            machine = model.addMachine(spec);
+            machine.setAlphabet(["a","b","c"]);
+
+        });
 
         it("machine should be ok", function(){expect(machine).is.ok;});
 
@@ -269,6 +279,7 @@ describe('Model', function() {
             //test reverse functionality by using it in the construction.
             var link = node5.getLinkTo(node6);
             expect(node6.hasLinkTo(node5)).to.be.false;
+            expect(node6.hasLinkTo(node5.id)).to.be.false;
             link.reverse();
             expect(node6.hasLinkTo(node5)).to.be.true;
 
@@ -282,6 +293,52 @@ describe('Model', function() {
         it("machine should accept 'ab'", function(){expect(machine.accepts(["a","b"])).to.be.true;});
         it("machine should not accept 'ba'", function(){expect(machine.accepts(["b","a"])).to.be.false;});
         it("machine should not accept []", function(){expect(machine.accepts([])).to.be.false;});
+        it("link.setInput should work", function(){
+            var link = node6.getLinkTo(node5.id);
+            link.setInput(["a"], true);
+            expect(machine.accepts(["a"])).to.be.true;
+            expect(machine.accepts([])).to.be.true;
+            expect(machine.accepts(["c"])).to.be.false;
+
+        });
+    });
+
+    describe("Test Model.getMachineList()", function(){
+
+        it("should correctly handle the case were there are no machines", function(){
+            model.machines = [];
+            expect(model.getMachineList().length).to.equal(0);
+        });
+
+        it("should correctly handle the case where there is one machine", function(){
+            var spec1 = {"nodes": [{"id":"A", "x": 100, "y": 50, "isInit": true}, {"id": "B", "x": 200, "y": 60}, {"id": "C", "x": 300, "y": 60, "isAcc": true}],
+                         "links": [{"to": "B", "from": "A", "input": ["a", "b"]}, {"to": "A", "from": "A", "input": ["a"]}, {"to": "C", "from": "B", "input": ["c"]}],
+                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isTransducer": false}
+                        };
+            model.addMachine(spec1);
+            var list = model.getMachineList();
+            expect(list).to.be.ok;
+            expect(list.length).to.equal(1);
+            expect(list[0].attributes.allowEpsilon).to.be.true;
+            expect(list[0].attributes.isTransducer).to.be.false;
+        });
+
+
+        it("should correctly handle the case where there are two machines", function(){
+            var spec2 = {"nodes": [{"id":"A", "x": 100, "y": 50, "isAcc": true, "isInit": true}],
+                         "links": [],
+                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": false, "isTransducer": false}
+                        };
+
+            model.addMachine(spec2);
+            var list = model.getMachineList();
+            expect(list).to.be.ok;
+            expect(list.length).to.equal(2);
+            expect(list[0].attributes.allowEpsilon).to.be.true;
+            expect(list[0].attributes.isTransducer).to.be.false;
+            expect(list[1].attributes.allowEpsilon).to.be.false;
+            expect(list[1].attributes.isTransducer).to.be.false;
+        });
     });
 
 });

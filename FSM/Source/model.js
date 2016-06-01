@@ -36,7 +36,7 @@ var Model = {
         this.linksUsed = [];
 
         this.addNode = function(x, y, name, isInitial, isAccepting){
-            //Adds a node to the machine. Returns the id assigned to the node.
+            //Adds a node to the machine. Returns the node.
             isInitial = isInitial === undefined? false : isInitial;
             isAccepting = isAccepting === undefined? false : isAccepting;
             name = name === undefined? "" : name;
@@ -304,6 +304,9 @@ var Model = {
             return {"nodeIDs": nodeIDs, "linkIDs": linkIDs};
         };
         this.hasLinkTo = function(node){
+            if (node instanceof Model.Node === false){
+                node = this.machine.nodes[node];
+            }
             // Function that returns true iff this node has a direct link to the input node
             for (var linkID in this.outgoingLinks){
                 if (this.outgoingLinks[linkID].target.id == node.id){
@@ -313,6 +316,9 @@ var Model = {
             return false;
         };
         this.getLinkTo = function(node){
+            if (node instanceof Model.Node === false){
+                node = this.machine.nodes[node];
+            }
             // Function that returns a link from this node to the input node if one exists, or null otherwise
             for (var linkID in this.outgoingLinks){
                 if (this.outgoingLinks[linkID].target.id == node.id){
