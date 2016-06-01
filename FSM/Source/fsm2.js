@@ -1,70 +1,6 @@
 ﻿"use strict";
 
-
-
-var Question = {
-    setUpQuestion: function(){
-        // Assign properties from the question object to this object
-        // Small risk of name collisions here but worthwhile tradeoff to avoid readability issues of
-        // accessing Question.QuestionObject.property or similar
-        var body = document.querySelector("body");
-        if (body.dataset.question != undefined){
-            var questionObj = JSON.parse(body.dataset.question);
-        } else{
-            Question.type = "none";
-            return;
-        }
-        for(var property in questionObj){
-            Question[property] = questionObj[property];
-        }
-    },
-    checkAnswer: function(){
-        if (Question.type === "give-list"){
-            return Question.checkGiveList();
-        }
-    },
-    checkGiveList: function(){
-        var machine = Model.machines[0];
-        // Obtain the users input as a list unproccessed strings
-        var input = [];
-        Question.lengths.forEach(function(v, index){
-            input[index] = d3.select("#qf" + index).node().value;
-        });
-        // Now we must we split each of the strings as specifed by the question and remove whitespace
-        // Eg a splitSymbol of "" would process the strings character-by-character, " " would process them like words
-        input = input.map(x => x.split(Question.splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0));
-        // Filter here to ensure that the new array doesn't contain the empty string
-
-        var allCorrectFlag = true;
-        var messages = new Array(Question.lengths.length).fill(""); // feedback messages to show the user for each question
-        var isCorrectList = new Array(Question.lengths.length).fill(true); // Tracks whether each answer is correct
-
-        input.forEach(function(sequence, index){
-            var thisLength = sequence.length;
-            var expectedLength = Question.lengths[index];
-            if (thisLength !== expectedLength){
-                allCorrectFlag = false;
-                isCorrectList[index] = false;
-                messages[index] = `Incorrect length - expected ${expectedLength} but got ${thisLength}.`;
-                return;
-            }
-            // Correct length - check if machine accepts
-            if (!machine.accepts(sequence)){
-                allCorrectFlag = false;
-                isCorrectList[index] = false;
-                messages[index] = "Incorrect - not accepted by machine";
-            }
-        });
-
-        return {input, messages, allCorrectFlag, isCorrectList};
-
-
-
-
-    }
-};
-
-// 'UI' or 'Interface' might be a more accurate name?
+// 'UI' or 'Interface' might be a more accurate name? ('View' as in MVC?)
 var Display = {
     nodeRadius: 14,
     acceptingRadius: 0.7 * 14,
@@ -710,7 +646,7 @@ var Display = {
         }
     },
     setUpQuestion: function(){
-        var qType = Question.type;
+        var qType = Model.question.type;
         var checkButtonTypes = ["give-list"]; //Question types with a check button
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
@@ -1000,7 +936,7 @@ var Controller = {
         Display.beginLink(souceNode);
     },
     checkAnswer: function(){
-        var feedbackObj = Question.checkAnswer();
+        var feedbackObj = Model.question.checkAnswer();
         Display.giveFeedback(feedbackObj);
         // Logging.logAnswer(feedbackObj);
     },
@@ -1070,19 +1006,25 @@ var Controller = {
         d3.select("#m1")
             .on("click", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
-        Question.setUpQuestion();
+        Controller.setUpQuestion();
         Display.setUpQuestion();
-        if(["give-list", "select-states", "does-accept", "demo"].indexOf(Question.type) == -1){
-            Question.editable = true;
+        if(Model.question.allowEditing){
             Display.drawControlPalette("m1");
-        } else {
-            Question.editable = false;
         }
     },
     setupMachine: function(machine, i){
         var body = document.querySelector("body");
         var spec = JSON.parse(body.dataset.machinelist)[i];
         machine.build(spec);
+
+    },
+    setUpQuestion: function(){
+        // get the question object and from the DOM and pass it to Model
+        var body = document.querySelector("body");
+        if (body.dataset.question != undefined){
+            var questionObj = JSON.parse(body.dataset.question);
+            Model.question.setUpQuestion(questionObj);
+        }
 
     },
     submitLinkRename: function(link, context, formType){

@@ -374,6 +374,63 @@ var Model = {
             this.input = inputList;
             this.hasEpsilon = hasEpsilon;
         };
+    },
+    //Holds the question logic and the variables that govern the current question.
+    question: {
+        type: "none",
+        allowEditing: true,
+        setUpQuestion: function(questionObj){
+            // Assign properties from the question object to this object
+            for(var property in questionObj){
+                this[property] = questionObj[property];
+            }
+            if(["give-list", "select-states", "does-accept", "demo"].indexOf(Model.question.type) == -1){
+                this.allowEditing = true;
+            } else {
+                this.allowEditing = false;
+            }
+
+        },
+        checkAnswer: function(){
+            if (Model.question.type === "give-list"){
+                return Model.question.checkGiveList();
+            }
+        },
+        checkGiveList: function(){
+            var machine = Model.machines[0];
+            // Obtain the users input as a list unproccessed strings
+            var input = [];
+            Question.lengths.forEach(function(v, index){
+                input[index] = d3.select("#qf" + index).node().value;
+            });
+            // Now we must we split each of the strings as specifed by the question and remove whitespace
+            // Eg a splitSymbol of "" would process the strings character-by-character, " " would process them like words
+            input = input.map(x => x.split(Question.splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0));
+            // Filter here to ensure that the new array doesn't contain the empty string
+
+            var allCorrectFlag = true;
+            var messages = new Array(Question.lengths.length).fill(""); // feedback messages to show the user for each question
+            var isCorrectList = new Array(Question.lengths.length).fill(true); // Tracks whether each answer is correct
+
+            input.forEach(function(sequence, index){
+                var thisLength = sequence.length;
+                var expectedLength = Question.lengths[index];
+                if (thisLength !== expectedLength){
+                    allCorrectFlag = false;
+                    isCorrectList[index] = false;
+                    messages[index] = `Incorrect length - expected ${expectedLength} but got ${thisLength}.`;
+                    return;
+                }
+                // Correct length - check if machine accepts
+                if (!machine.accepts(sequence)){
+                    allCorrectFlag = false;
+                    isCorrectList[index] = false;
+                    messages[index] = "Incorrect - not accepted by machine";
+                }
+            });
+
+            return {input, messages, allCorrectFlag, isCorrectList};
+        }
     }
 };
 
