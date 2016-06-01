@@ -257,6 +257,10 @@ var Model = {
             }
             return this.isInAcceptingState();
         };
+
+        this.setAlphabet = function(alphabetArray){
+            this.alphabet = alphabetArray;
+        };
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
@@ -316,10 +320,6 @@ var Model = {
                 }
             }
             return null;
-        };
-        this.setAlphabet = function(alphabetList){
-            // Sets this.alphabet and this.hasEpsilon
-            TODO
         };
     },
     // Constructor for a link object

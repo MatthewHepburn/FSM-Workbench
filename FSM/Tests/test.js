@@ -111,6 +111,8 @@ describe('Model', function() {
         it("machine should not accept []", function() {expect( machine.accepts([]) ).to.be.false;});
         it("machine should accept 'aaaaaaaabc'", function() {expect( machine.accepts(["a","a","a","a","a","a","a","a","b","c"]) ).to.be.true;});
         it("machine should not accept 'aaaaaaaabca'", function() {expect( machine.accepts(["a","a","a","a","a","a","a","a","b","c", "a"]) ).to.be.false;});
+        it("machine should not accept 'aabb'", function() {expect( machine.accepts(["a","a", "b","b"]) ).to.be.false;});
+
 
         var specCopy = machine.getSpec();
         it("Spec derived from machine should be equal to original spec", function(){expect(specCopy).to.deep.equal(spec);});
@@ -172,6 +174,114 @@ describe('Model', function() {
         });
 
 
+    });
+
+    describe("Construct a machine from scratch", function(){
+        var spec = {"nodes": [],
+                     "links": [],
+                      "attributes": {"alphabet": [], "allowEpsilon": true, "isTransducer": false}
+                    };
+
+        var machine = model.addMachine(spec);
+        machine.setAlphabet(["a","b","c"]);
+
+        var node1, node2, node3, node4, node5, node6;
+
+        it("machine should be ok", function(){expect(machine).is.ok;});
+
+        it("machine should now have 2 nodes", function(){
+            node1 = machine.addNode(0,0,"foo",true,false);
+            node2 = machine.addNode(10,10,"deleteme",true,false);
+            machine.addLink(node1, node2.id, ["a"], undefined, true)
+            machine.addLink(node2.id, node1, ["a,b,c"], {}, false)
+            expect(Object.keys(machine.nodes).length).to.equal(2);
+        });
+
+        it("machine should now have 2 links", function(){
+            expect(Object.keys(machine.links).length).to.equal(2)
+        });
+
+
+        it("machine should now have 1 node", function(){
+            machine.deleteNode(node2);
+            expect(Object.keys(machine.nodes).length).to.equal(1)
+        });
+
+        it("machine should now have 0 links", function(){expect(Object.keys(machine.links).length).to.equal(0)});
+
+
+        it("machine should now have 0 nodes", function(){
+            machine.deleteNode(node1.id);
+            expect(Object.keys(machine.nodes).length).to.equal(0)
+        });
+        it("machine should now have 0 links", function(){expect(Object.keys(machine.links).length).to.equal(0)});
+
+
+        it("machine should now have 6 nodes", function(){
+            node1 = machine.addNode(0,0,"A",true,false);
+            node2 = machine.addNode(0,0,"B",false,false);
+            node3 = machine.addNode(0,0,"C",false,false);
+            node4 = machine.addNode(0,0,"D",false,false);
+            node5 = machine.addNode(0,0,"E",false,false);
+            node6 = machine.addNode(0,0,"F",false,false);
+            expect(Object.keys(machine.nodes).length).to.equal(6);
+        });
+
+        it("toggleInitial should work", function(){
+            expect(node6.isInitial).to.be.false;
+            expect(node1.isInitial).to.be.true;
+
+            node6.toggleInitial();
+            expect(node6.isInitial).to.be.true;
+
+            node6.toggleInitial();
+            expect(node6.isInitial).to.be.false;
+
+            node6.toggleInitial();
+            expect(node6.isInitial).to.be.true;
+        });
+
+        it("toggleAccepting should work", function(){
+            expect(node5.isAccepting).to.be.false;
+
+            node5.toggleAccepting();
+            expect(node5.isAccepting).to.be.true;
+
+            node5.toggleAccepting();
+            expect(node5.isAccepting).to.be.false;
+
+            node5.toggleAccepting();
+            expect(node5.isAccepting).to.be.true;
+
+        });
+
+        it("machine should now have 7 links", function(){
+            machine.addLink(node1.id, node2.id, ["a"], {}, false);
+            machine.addLink(node1, node3, [], undefined, true);
+            machine.addLink(node1.id, node4, ["b"], undefined, false);
+            machine.addLink(node3, node5, ["b"], undefined, false);
+            machine.addLink(node2, node5, ["b"], undefined, false);
+            machine.addLink(node4, node5, ["b"], undefined, false);
+            machine.addLink(node5, node6, ["c"], undefined, false); //backwards to test reverse functionality
+
+            expect(Object.keys(machine.links).length).to.equal(7);
+
+            //test reverse functionality by using it in the construction.
+            var link = node5.getLinkTo(node6);
+            expect(node6.hasLinkTo(node5)).to.be.false;
+            link.reverse();
+            expect(node6.hasLinkTo(node5)).to.be.true;
+
+            expect(Object.keys(machine.links).length).to.equal(7);
+        });
+
+        it("machine should not accept 'bbb'", function(){expect(machine.accepts(["b,","b","b"])).to.be.false;});
+        it("machine should accept 'b'", function(){expect(machine.accepts(["b"])).to.be.true;});
+        it("machine should accept 'c'", function(){expect(machine.accepts(["c"])).to.be.true;});
+        it("machine should accept 'bb'", function(){expect(machine.accepts(["b","b"])).to.be.true;});
+        it("machine should accept 'ab'", function(){expect(machine.accepts(["a","b"])).to.be.true;});
+        it("machine should not accept 'ba'", function(){expect(machine.accepts(["b","a"])).to.be.false;});
+        it("machine should not accept []", function(){expect(machine.accepts([])).to.be.false;});
     });
 
 });
