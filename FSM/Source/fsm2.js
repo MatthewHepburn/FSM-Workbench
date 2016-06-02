@@ -332,6 +332,31 @@ var Display = {
                     .attr("value", currentName)
                         .node().select();
     },
+    getLinkRenameResult: function(canvasID, formType){
+        //Get the result from each rename type differently
+        if(formType === "constrainedSVG"){
+            return Display.getLinkRenameResultConstrainedSVG(canvasID, formType)
+        }
+
+        throw new Error("No method for formType " + formType + " in Display.getLinkRenameResult");
+    },
+    getLinkRenameResultConstrainedSVG: function(canvasID){
+        // Return user input from the Constrained SVG link rename form.
+        // Returns an input object of form {input: ["a", "b", "longsymbol"], hasEpsilon:false}
+        var input = {input:[], hasEpsilon:false};
+        var svg = d3.select(`#${canvasID}`);
+        var checkedSymbols = svg.select(".rename-menu-holder").selectAll(".checked").data();
+        for(var i = 0; i< checkedSymbols.length; i++){
+            if(checkedSymbols[i] === 'ε'){
+                input.hasEpsilon = true;
+            }
+            else{
+                input.input.push(checkedSymbols[i])
+            }
+        }
+        return input;
+
+    },
     drawSVGConstrainedLinkRenameForm: function(svg, link, mousePosition){
         var alphabet = jsonCopy(link.machine.alphabet); //Do not want to modify alphabet
         var fontSize = 12;
@@ -352,13 +377,13 @@ var Display = {
         // Then find its length:
         var longestSymbolLength = Display.getTextLength(svg, longestSymbol, fontSize, textClass);
 
-        var menuWidth = longestSymbolLength + 20 + checkBoxSize;
-        var menuHeight = (alphabet.length + 1) * yStep ;
+        var menuWidth = longestSymbolLength + 27 + checkBoxSize;
+        var menuHeight = (alphabet.length + 1.5) * yStep ;
 
         // Position based on the mouse postion (could also be done based on the position of the link label)
         var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
         var menu = svg.append("g")
-                    .classed("context-menu-holder", true)
+                    .classed("rename-menu-holder", true)
 
         // Use to prevent context menu clicks
         var preventDefault = () => d3.event.preventDefault();
@@ -421,12 +446,39 @@ var Display = {
                 .classed("checkmark", true)
                 .classed("checked", checked)
                 .attr("d", `M ${checkboxX} ${checkboxY} l ${checkBoxSize} ${checkBoxSize} m ${-checkBoxSize} 0 l ${checkBoxSize} ${-checkBoxSize}`)
-                .attr("id", id);
-
-
+                .attr("id", id)
+                .data(symbol)
+                .enter()
 
             textY += yStep
         }
+
+        var buttonWidth = 1.7 * Display.getTextLength(svg, fontSize, "OK", "button-text");
+        var buttonHeight = 1.5 * fontSize;
+        var buttonY = textY - 0.5 * yStep;
+        var buttonX = textX;
+
+
+        // Set the submit function
+        var submitFunction = function(d3InputElement){Controller.submitLinkRename(link.machine.id, link, "constrainedSVG");};
+        Display.canvasVars[link.machine.id].submitRenameFunction = submitFunction;
+
+        // Finally, add the "OK" button
+        menu.append("rect")
+            .attr("y", buttonY)
+            .attr("x", textX)
+            .attr("width", buttonWidth)
+            .attr("height", buttonHeight)
+            .classed("svg-button", true)
+
+        menu.append("text")
+            .text("OK")
+            .classed("button-text", true)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "central")
+            .attr("x", buttonX + 0.5 * buttonWidth)
+            .attr("y", buttonY + 0.5 * buttonHeight)
+            .on("click", Display.canvasVars[link.machine.id].submitRenameFunction)
 
     },
     drawConstrainedLinkRenameForm: function(canvasID, link){
@@ -482,7 +534,7 @@ var Display = {
         // Get the string representing the current link conditions
         var current = Display.linkLabelText(link);
 
-        var submitFunction = function(d3InputElement){Controller.submitLinkRename(link, d3InputElement.node(), "unconstrained");};
+        var submitFunction = function(d3InputElement){Controller.submitLinkRename(link.machine.id, link, "unconstrained");};
         Display.canvasVars[canvasID].submitRenameFunction = submitFunction;
 
         svg.append("foreignObject")
@@ -1165,27 +1217,8 @@ var Controller = {
         }
 
     },
-    submitLinkRename: function(link, context, formType){
-        // Need to process input differently based on the form type
-        var svg = d3.select("#" + link.machine.id);
-        if(formType === "unconstrained"){
-            var string = d3.select(context).select("input").node().value;
-            // strip out whitespace:
-            string = string.replace(/ /g, "");
-            // Split on commas:
-            var strings = string.split(",").filter(function(s){return s.length > 0;});
-            // For each entry, add it to the link's input list
-            // If it is epsilon or a synonym, set hasEpsilon to true
-            var hasEpsilon  = false;
-            var input = [];
-            strings.forEach(function(s){
-                if(["epsilon", "epssilon", "espilon", "epsillon", "eps", "ε", "ϵ", "Ε"].indexOf(s.toLowerCase()) !== -1){
-                    hasEpsilon = true;
-                } else {
-                    input.push(s);
-                }
-            });
-        }
+    submitLinkRename: function(canvasID, link, formType){
+        Display.getLinkRenameResult(canvasID, formType)
         link.setInput(input, hasEpsilon);
         Display.updateLinkLabel(link);
         Display.dismissRenameMenu(link.machine.id);

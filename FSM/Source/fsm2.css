@@ -180,6 +180,11 @@ text.nodename {
   stroke: black;
 }
 
+.svg-button {
+  stroke: black;
+  fill: #d9d9d9;
+}
+
 .button {
   font-family: arial, helvetica, sans-serif;
   margin: 2px;
