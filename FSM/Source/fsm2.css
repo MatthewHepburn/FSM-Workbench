@@ -159,6 +159,27 @@ text.nodename {
   stroke: #bfbfbf;
 }
 
+.rename-checkbox {
+  fill: white;
+  fill-opacity: 0.2;
+  stroke: black;
+}
+
+.rename-background-rect{
+  fill: white;
+  fill-opacity: 0.7;
+  stroke: #d9d9d9
+}
+
+.checkmark {
+  stroke: none;
+  pointer-events: none;
+}
+
+.checkmark.checked {
+  stroke: black;
+}
+
 .button {
   font-family: arial, helvetica, sans-serif;
   margin: 2px;

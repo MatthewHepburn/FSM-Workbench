@@ -239,7 +239,7 @@ var Display = {
         var yStep = fontSize * 1.3;
         var textClass = "context-menu-text";
 
-        // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser]
+        // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser
         // First, find the longest string:
         var returnLonger = (x,y) => x.length > y.length ? x : y;
         var longestLabel = actions.map(x => x[0]).reduce(returnLonger, "")
@@ -331,6 +331,103 @@ var Display = {
                     .attr("name", "state name")
                     .attr("value", currentName)
                         .node().select();
+    },
+    drawSVGConstrainedLinkRenameForm: function(svg, link, mousePosition){
+        var alphabet = jsonCopy(link.machine.alphabet); //Do not want to modify alphabet
+        var fontSize = 12;
+        var checkBoxSize = 0.9 * fontSize;
+        var textClass = "context-menu-text";
+        var yStep = 1.5 * fontSize;
+
+        // Add epsilon if needed
+        if (link.machine.allowEpsilon){
+            alphabet.push("ε");
+        }
+
+        // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser.
+        // First, find the longest string:
+        var returnLonger = (x,y) => x.length > y.length ? x : y;
+        var longestSymbol = alphabet.reduce(returnLonger, "")
+
+        // Then find its length:
+        var longestSymbolLength = Display.getTextLength(svg, longestSymbol, fontSize, textClass);
+
+        var menuWidth = longestSymbolLength + 20 + checkBoxSize;
+        var menuHeight = (alphabet.length + 1) * yStep ;
+
+        // Position based on the mouse postion (could also be done based on the position of the link label)
+        var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
+        var menu = svg.append("g")
+                    .classed("context-menu-holder", true)
+
+        // Use to prevent context menu clicks
+        var preventDefault = () => d3.event.preventDefault();
+
+        //Add background rectangle
+        menu.append("rect")
+            .attr("x", menuCoords[0])
+            .attr("y", menuCoords[1] - yStep)
+            .attr("height", menuHeight)
+            .attr("width", menuWidth)
+            .classed("rename-background-rect", true)
+            .on("contextmenu", preventDefault)
+
+        var textX = menuCoords[0] + 5;
+        var textY = menuCoords[1] - 5;
+
+        // Do it this way to avoid all toggle functions toggling the final id
+        var getToggleFunction = function(id){
+            return function(){
+                var checkmark = d3.select("#" + id);
+                checkmark.classed("checked", !checkmark.classed("checked"))
+            };
+        }
+
+        //Add an entry for each symbol in the machine alphabet.
+        for(var i = 0; i < alphabet.length; i++){
+            var symbol = alphabet[i];
+            var id = link.machine.id + "-rename-option" + i
+            var checked = false
+
+            if((symbol === "ε" && link.hasEpsilon) || link.input.indexOf(symbol) !== -1){
+                checked = true
+            }
+
+            var toggleFunction = getToggleFunction(id);
+
+            //Add text for current symbol
+            menu.append("text")
+                .text(symbol)
+                .attr("x", textX)
+                .attr("y", textY)
+                .attr("font-size", 12)
+                .classed(textClass, true)
+                .on("contextmenu", preventDefault);
+
+            var checkboxX = textX + longestSymbolLength + 10;
+            var checkboxY = textY - (checkBoxSize/fontSize) * fontSize + 0.1 * fontSize;
+
+            //Add checkbox for current symbol
+            menu.append("rect")
+                .attr("x", checkboxX)
+                .attr("y", checkboxY)
+                .attr("height", checkBoxSize)
+                .attr("width",  checkBoxSize)
+                .classed("rename-checkbox", true)
+                .on("click", toggleFunction)
+
+            //Add a tick to current checkbox (this will be visible only when the checkbox is selected)
+            menu.append("path")
+                .classed("checkmark", true)
+                .classed("checked", checked)
+                .attr("d", `M ${checkboxX} ${checkboxY} l ${checkBoxSize} ${checkBoxSize} m ${-checkBoxSize} 0 l ${checkBoxSize} ${-checkBoxSize}`)
+                .attr("id", id);
+
+
+
+            textY += yStep
+        }
+
     },
     drawConstrainedLinkRenameForm: function(canvasID, link){
         var svg = d3.select("#" + canvasID);
@@ -1019,14 +1116,19 @@ var Controller = {
     },
     requestLinkRename: function(link){
         var canvasID = link.machine.id;
+        var svg = d3.select("#"+canvasID);
+        var mousePosition = d3.mouse(svg.node());
         // Submit any currently open rename form on the same canvas.
         Display.submitAllRename(canvasID);
         if (link.machine.alphabet.length === 0){
             Display.drawUnconstrainedLinkRenameForm(canvasID, link);
         } else {
-            Display.drawConstrainedLinkRenameForm(canvasID, link);
+            Display.drawSVGConstrainedLinkRenameForm(svg, link, mousePosition);
         }
     },
+
+
+
     requestNodeRename: function(node){
         var canvasID = node.machine.id;
         Display.submitAllRename(canvasID);
