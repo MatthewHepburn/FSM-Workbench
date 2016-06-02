@@ -231,17 +231,13 @@ var Display = {
         var result = boundingBox.width;
         text.remove();
         return result;
-
-
     },
-    drawSVGLinkContextMenu:function(svg,link,mousePosition){
+    drawContextMenu:function(svg,mousePosition,actions){
+        //Generic function to draw a context menu, with the labels and associated functions specified in actions in the
+        //from [["label", function(){doThing;}], ["label2", function(){doOtherThing();}]]
         var fontSize = 12;
         var yStep = fontSize * 1.3;
-        var textClass = "";
-
-        var actions = [["Change Conditions",function(){Controller.requestLinkRename(link); Display.dismissContextMenu();}],
-                       ["Delete Link", function(){Controller.deleteLink(link); Display.dismissContextMenu();}],
-                       ["Reverse Link", function(){Controller.reverseLink(link); Display.dismissContextMenu();}]];
+        var textClass = "context-menu-text";
 
         // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser]
         // First, find the longest string:
@@ -261,6 +257,9 @@ var Display = {
         var textX = menuCoords[0] + 5;
         var textY = menuCoords[1] + 15;
 
+        // Disable system menu on right-clicking the context menu
+        var preventDefault = () => d3.event.preventDefault();
+
         for(var i = 0; i < actions.length; i++){
             var label = actions[i][0]; // String to display
             var funct = actions[i][1]; // function to call when text(or text background) is clicked.
@@ -273,6 +272,7 @@ var Display = {
                 .attr("width", menuWidth)
                 .attr("height", yStep)
                 .on("click", funct)
+                .on("contextmenu", preventDefault);
 
             //Add text for each label
             menu.append("text")
@@ -280,78 +280,31 @@ var Display = {
                 .attr("x", textX)
                 .attr("y", textY)
                 .attr("font-size", 12)
+                .classed(textClass, true)
                 .on("click", funct)
-
-
+                .on("contextmenu", preventDefault);
 
             textY = textY + yStep;
         }
-
     },
-    drawLinkContextMenu: function(svg, link, mousePosition){
-        var html = "<p class = 'button changeconditions'>Change Conditions</p>";
-        html += "<p class = 'button deletelink'>Delete Link</p>";
-        html += "<p class = 'button reverselink'>Reverse Link</p>";
 
-        var menuWidth = 150,
-            menuHeight = 60;
+    drawLinkContextMenu:function(svg,link,mousePosition){
+        var actions = [["Change Conditions",function(){Controller.requestLinkRename(link); Display.dismissContextMenu();}],
+                       ["Delete Link", function(){Controller.deleteLink(link); Display.dismissContextMenu();}],
+                       ["Reverse Link", function(){Controller.reverseLink(link); Display.dismissContextMenu();}]];
 
-        var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
-
-        var menu = svg.append("foreignObject")
-            .attr("x", menuCoords[0])
-            .attr("y", menuCoords[1])
-            .attr("width", menuWidth)
-            .attr("height", menuHeight)
-            .classed("context-menu-holder", true)
-            .append("xhtml:div")
-            .attr("class", "contextmenu")
-            .html(html);
-
-        d3.select(".changeconditions").on("click", function(){Controller.requestLinkRename(link); Display.dismissContextMenu();});
-        d3.select(".deletelink").on("click", function(){Controller.deleteLink(link); Display.dismissContextMenu();});
-        d3.select(".reverselink").on("click", function(){Controller.reverseLink(link); Display.dismissContextMenu();});
-
-
-        // Disable system menu on right-clicking the context menu
-        menu.on("contextmenu", function() {
-            d3.event.preventDefault();
-        });
+        Display.drawContextMenu(svg,mousePosition,actions);
 
     },
     drawNodeContextMenu: function(svg, node, mousePosition){
-        var html = "<p class = 'button toggleinitial'>Toggle Start</p>";
-        html += "<p class = 'button toggleaccepting'>Toggle Accepting</p>";
-        html += "<p class = 'button renamestate'>Rename State</p>";
-        html += "<p class = 'button deletestate'>Delete State</p>";
+        var actions = [["Toggle Initial", function(){Controller.toggleInitial(node); Display.dismissContextMenu();}],
+                       ["Toggle Accepting", function(){Controller.toggleAccepting(node); Display.dismissContextMenu();}],
+                       ["Rename State", function(){Controller.requestNodeRename(node); Display.dismissContextMenu();}],
+                       ["Delete State", function(){Controller.deleteNode(node); Display.dismissContextMenu();}]];
 
-        var menuWidth = 150,
-            menuHeight = 80;
-
-        var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
-
-        var menu = svg.append("foreignObject")
-            .attr("x", menuCoords[0])
-            .attr("y", menuCoords[1])
-            .attr("width", menuWidth)
-            .attr("height", menuHeight)
-            .classed("context-menu-holder", true)
-            .append("xhtml:div")
-            .attr("class", "contextmenu")
-            .html(html);
-
-        svg.select(".toggleinitial").on("click", function(){Controller.toggleInitial(node); Display.dismissContextMenu();});
-        svg.select(".toggleaccepting").on("click", function(){Controller.toggleAccepting(node); Display.dismissContextMenu();});
-        svg.select(".renamestate").on("click", function(){Controller.requestNodeRename(node); Display.dismissContextMenu();});
-        svg.select(".deletestate").on("click", function(){Controller.deleteNode(node); Display.dismissContextMenu();});
-
-
-        // Disable system menu on right-clicking the context menu
-        menu.on("contextmenu", function() {
-            d3.event.preventDefault();
-        });
-
+        Display.drawContextMenu(svg,mousePosition,actions);
     },
+
     drawNodeRenameForm: function(canvasID, node){
         var currentName = node.name;
 
@@ -920,7 +873,7 @@ var EventHandler = {
         var svg = d3.select("#" + link.machine.id);
         Global.contextMenuShowing = true;
         var mousePosition = d3.mouse(svg.node());
-        Display.drawSVGLinkContextMenu(svg, link, mousePosition);
+        Display.drawLinkContextMenu(svg, link, mousePosition);
 
     },
     nodeClick: function(node){

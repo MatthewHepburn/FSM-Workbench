@@ -144,6 +144,10 @@ text.nodename {
     font-family: arial, helvetica, sans-serif;
 }
 
+.context-menu-text{
+  pointer-events: none;
+}
+
 .context-background-rect {
   fill: #f2f2f2;
   fill-opacity: 0.7;
