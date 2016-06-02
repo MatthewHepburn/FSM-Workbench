@@ -220,6 +220,74 @@ var Display = {
             };
         }
     },
+    getTextLength:function(svg,text, fontSize, className){
+        //Returns the length of some text in the units of the specified SVG when rendered as an SVG using the specifed fontSize and class.
+        var text = svg.append("text")
+                      .text(text)
+                      .classed(className, true)
+                      .attr("font-size", fontSize);
+
+        var boundingBox = text.node().getBBox();
+        var result = boundingBox.width;
+        text.remove();
+        return result;
+
+
+    },
+    drawSVGLinkContextMenu:function(svg,link,mousePosition){
+        var fontSize = 12;
+        var yStep = fontSize * 1.3;
+        var textClass = "";
+
+        var actions = [["Change Conditions",function(){Controller.requestLinkRename(link); Display.dismissContextMenu();}],
+                       ["Delete Link", function(){Controller.deleteLink(link); Display.dismissContextMenu();}],
+                       ["Reverse Link", function(){Controller.reverseLink(link); Display.dismissContextMenu();}]];
+
+        // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser]
+        // First, find the longest string:
+        var returnLonger = (x,y) => x.length > y.length ? x : y;
+        var longestLabel = actions.map(x => x[0]).reduce(returnLonger, "")
+        // Then find its length:
+        var longestLabelLength = Display.getTextLength(svg, longestLabel, fontSize, textClass);
+
+        var menuWidth = longestLabelLength + 10;
+        var menuHeight = actions.length * yStep;
+
+        var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
+        var menu = svg.append("g")
+                    .classed("context-menu-holder", true)
+
+        // initial text coordinates, slightly inwards form the menu boundary.
+        var textX = menuCoords[0] + 5;
+        var textY = menuCoords[1] + 15;
+
+        for(var i = 0; i < actions.length; i++){
+            var label = actions[i][0]; // String to display
+            var funct = actions[i][1]; // function to call when text(or text background) is clicked.
+
+            //Add a background rect for each link as well to provide a larger clicking target
+            menu.append("rect")
+                .classed("context-background-rect", true)
+                .attr("x", textX - 5)
+                .attr("y", textY - fontSize)
+                .attr("width", menuWidth)
+                .attr("height", yStep)
+                .on("click", funct)
+
+            //Add text for each label
+            menu.append("text")
+                .text(label)
+                .attr("x", textX)
+                .attr("y", textY)
+                .attr("font-size", 12)
+                .on("click", funct)
+
+
+
+            textY = textY + yStep;
+        }
+
+    },
     drawLinkContextMenu: function(svg, link, mousePosition){
         var html = "<p class = 'button changeconditions'>Change Conditions</p>";
         html += "<p class = 'button deletelink'>Delete Link</p>";
@@ -325,7 +393,7 @@ var Display = {
         var formY = labelPos.y + 15;
 
         var form = svg.append("foreignObject")
-                      .attr("width", 300)
+                      .attr("width", 100)
                       .attr("height", 35 + 22 * alphabet.length)
                       .attr("x", formX - 40)
                       .attr("y", formY)
@@ -852,7 +920,7 @@ var EventHandler = {
         var svg = d3.select("#" + link.machine.id);
         Global.contextMenuShowing = true;
         var mousePosition = d3.mouse(svg.node());
-        Display.drawLinkContextMenu(svg, link, mousePosition);
+        Display.drawSVGLinkContextMenu(svg, link, mousePosition);
 
     },
     nodeClick: function(node){

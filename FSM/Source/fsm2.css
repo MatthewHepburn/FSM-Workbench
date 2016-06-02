@@ -134,12 +134,25 @@ text.nodename {
 }
 
 .contextmenu {
+    fill: white;
+    fill-opacity: 0.3;
     display: inline-block;
     background-color: #fff;
     border: 1px #ccc solid;
     box-shadow: #333 2px 2px 4px;
     padding: 2px 2px 2px 2px;
     font-family: arial, helvetica, sans-serif;
+}
+
+.context-background-rect {
+  fill: #f2f2f2;
+  fill-opacity: 0.7;
+  stroke: #d9d9d9
+}
+
+.context-background-rect:hover {
+  fill: #d9d9d9;
+  stroke: #bfbfbf;
 }
 
 .button {
