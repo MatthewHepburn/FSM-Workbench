@@ -2,8 +2,8 @@
 
 // 'UI' or 'Interface' might be a more accurate name? ('View' as in MVC?)
 var Display = {
-    nodeRadius: 14,
-    acceptingRadius: 0.7 * 14,
+    nodeRadius: 12,
+    acceptingRadius: 0.7 * 12,
     canvasVars: {
         "m1": {
             "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
@@ -450,7 +450,7 @@ var Display = {
                 .classed("checked", checked)
                 .attr("d", `M ${checkboxX} ${checkboxY} l ${checkBoxSize} ${checkBoxSize} m ${-checkBoxSize} 0 l ${checkBoxSize} ${-checkBoxSize}`)
                 .attr("id", id)
-                .data(symbol)
+                .data([symbol]) //pass in a list here, otherwise d3 will treat the string as a list of chars and assign only the first character.
                 .enter()
 
             textY += yStep
@@ -653,7 +653,7 @@ var Display = {
             var x = link.source.x;
             var y = link.source.y;
 
-            var rad = 22;
+            var rad = 14;
             var xoffset = 5;
             var yoffset = 7;
 
@@ -934,8 +934,8 @@ var Display = {
         force.nodes(nodeList)
             .links(linkList)
             .size([1000,600])
-            .linkDistance(150)
-            .chargeDistance(160)
+            .linkDistance(100)
+            .chargeDistance(60)
             .charge(-30)
             .gravity(0.00); //gravity is attraction to the centre, not downwards.
         force.start();
