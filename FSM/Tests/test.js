@@ -2,7 +2,7 @@ var expect = require('chai').expect;
 var model = require("../Source/model.js") //NB - importing from Source not deploy, may need to be altered later.
 
 describe('Model', function() {
-    describe('Testing test', function () {
+    describe('Test that test has loaded correctly', function () {
         it('should pass if the model.js file has been imported correctly', function () {
             expect(model).to.be.ok;
             expect(model.machines).to.be.ok;
@@ -341,7 +341,7 @@ describe('Model', function() {
         });
     });
 
-    describe("test the give-list question type", function(){
+    describe("Test the give-list question type", function(){
 
         var questionObj, spec, input,feedbackObj;
 
@@ -397,6 +397,47 @@ describe('Model', function() {
         });
 
 
+    });
+
+    describe("Test the satisfy-list question type", function(){
+        var questionObj, spec, input,feedbackObj;
+
+        before(function(){
+            model.machines = [];
+            questionObj = {"type": "satisfy-list",
+                           "shouldAccept": ["10p 10p 10p 10p 10p", "20p 20p 10p", "10p, 20p, 20p 20p", "10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 20p"],
+                           "shouldReject": ["10p 20p", "20p 20p", "10p 10p 10p 10p", "", "10p"],
+                           "splitSymbol": " "
+                        };
+            model.question.setUpQuestion(questionObj)
+        });
+
+        it("should approve a correct machine", function(){
+            spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
+                    "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"B","from":"C","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
+                    "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
+                };
+            model.addMachine(spec);
+            feedbackObj = model.question.checkAnswer(input);
+            expect(feedbackObj).to.be.ok;
+            expect(feedbackObj.allCorrectFlag).to.be.true;
+            expect(feedbackObj.acceptList.reduce((x,y) => x && y, true)).to.be.true;
+            expect(feedbackObj.rejectList.reduce((x,y) => x && y, true)).to.be.true;
+        })
+
+        it("should reject an incorrect machine", function(){
+            spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"isAcc": true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
+                    "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"B","from":"C","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
+                    "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
+                };
+            model.addMachine(spec);
+            feedbackObj = model.question.checkAnswer(input);
+            expect(feedbackObj).to.be.ok;
+            expect(feedbackObj.allCorrectFlag).to.be.false;
+            expect(feedbackObj.acceptList.reduce((x,y) => x && y, true)).to.be.true;
+            expect(feedbackObj.rejectList.reduce((x,y) => x && y, true)).to.be.false;
+            expect(feedbackObj.rejectList[3]).to.be.false;
+        })
     });
 
 });
