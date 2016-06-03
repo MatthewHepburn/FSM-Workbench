@@ -389,17 +389,19 @@ var Display = {
         // Use to prevent context menu clicks
         var preventDefault = () => d3.event.preventDefault();
 
+        var textX = menuCoords[0] + 5;
+        var textY = menuCoords[1] + fontSize;
+
         //Add background rectangle
         menu.append("rect")
-            .attr("x", menuCoords[0])
-            .attr("y", menuCoords[1] - yStep)
+            .attr("x", textX - 5)
+            .attr("y", textY - fontSize)
             .attr("height", menuHeight)
             .attr("width", menuWidth)
             .classed("rename-background-rect", true)
             .on("contextmenu", preventDefault)
 
-        var textX = menuCoords[0] + 5;
-        var textY = menuCoords[1] - 5;
+
 
         // Do it this way to avoid all toggle functions toggling the final id
         var getToggleFunction = function(id){
@@ -484,8 +486,6 @@ var Display = {
     },
     drawConstrainedLinkRenameForm: function(canvasID, link){
         var svg = d3.select("#" + canvasID);
-
-
         var alphabet = jsonCopy(link.machine.alphabet);
         if (link.machine.allowEpsilon){
             alphabet.push("ε");
