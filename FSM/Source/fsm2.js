@@ -309,7 +309,7 @@ var Display = {
         var currentName = node.name;
 
         var submitRenameFunction = function(d3InputElement){
-            Controller.submitNodeRename(node, d3InputElement.node().value);};
+            Controller.submitNodeRename(node, d3InputElement.select("input").node().value);};
         Display.getCanvasVars(canvasID).submitRenameFunction = submitRenameFunction;
 
         // create a form over the targeted node
@@ -384,6 +384,7 @@ var Display = {
         var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
         var menu = svg.append("g")
                     .classed("rename-menu-holder", true)
+                    .classed("rename", true);
 
         // Use to prevent context menu clicks
         var preventDefault = () => d3.event.preventDefault();
@@ -809,7 +810,7 @@ var Display = {
         // (only actually submits the most recent form, but there shouldn't be more than one form open at a time)
         var svg = d3.select("#" + canvasID);
         var canvasVars = Display.getCanvasVars(canvasID);
-        var renameForm = svg.select(".rename input");
+        var renameForm = svg.select(".rename");
         if (renameForm.size() !== 0){
             // Get the submit function from canvasVars, and call it on the d3 selection of the open form.
             canvasVars.submitRenameFunction(renameForm);
@@ -1218,7 +1219,9 @@ var Controller = {
 
     },
     submitLinkRename: function(canvasID, link, formType){
-        Display.getLinkRenameResult(canvasID, formType)
+        var inputObj = Display.getLinkRenameResult(canvasID, formType);
+        var input = inputObj.input;
+        var hasEpsilon = input.hasEpsilon;
         link.setInput(input, hasEpsilon);
         Display.updateLinkLabel(link);
         Display.dismissRenameMenu(link.machine.id);
