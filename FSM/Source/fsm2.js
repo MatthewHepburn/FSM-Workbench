@@ -608,8 +608,26 @@ var Display = {
         // force is not used.
         var svg = d3.select("#"+canvasID);
         svg.selectAll(".node")
-            .attr("cx", function(d){return d.x;})
-            .attr("cy", function(d){return d.y;});
+            .attr("cx", function(d){ //prevent nodes leavinf the canvas on the x axis
+                var x = d.x;
+                if(x < 0){
+                    return 1;
+                }
+                if(x > svg.attr("width")){
+                    return svg.attr("width") -1;
+                }
+                return x;
+            })
+            .attr("cy", function(d){ //prevent nodes leavinf the canvas on the y axis
+                var y = d.y;
+                if(y < 0){
+                    return 1;
+                }
+                if(y > svg.attr("height")){
+                    return svg.attr("height") -1;
+                }
+                return y;
+            });
         svg.selectAll(".accepting-ring")
             .attr("cx", function(d){return d.x;})
             .attr("cy", function(d){return d.y;});
