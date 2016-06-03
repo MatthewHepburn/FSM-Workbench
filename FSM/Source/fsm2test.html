@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="utf-8"/>
 	<title>fsm2</title>
     <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
     <link rel="stylesheet" href="fsm2.css">
 </head>
 <body
-data-machinelist= '[{"nodes":[{"id":"A","x":148,"y":50,"isAcc":true,"name":"TIM"},{"id":"B","x":120,"y":50,"isInit":true},{"id":"C","x":480,"y":150,"isAcc":true}],"links":[{"to":"B","from":"A"},{"to":"A","from":"B","hasEps":true},{"to":"C","from":"A","hasEps":true},{"to":"A","from":"A","hasEps":true}],"attributes":{"alphabet":["a","b","c"], "allowEpsilon":true, "isTransducer":false}}]'
+data-machinelist= '[{"nodes":[{"id":"A","x":0,"y":50,"isInit":true},{"id":"B","x":50,"y":50},{"id":"C","x":50,"y":100},{"id":"D","x":200,"y":50,"isAccepting":true}],"links":[{"from":"A","to":"B","input":["c"]},{"from":"B","to":"C","input":["d"]},{"from":"C","to":"B","input":["e"]},{"from":"B","to":"D","input":["f"]}],"attributes":{"alphabet":["c","d","e","f"],"isTransducer":false,"allowEpsilon":false}}
+]'
 data-iconaddress="img/icons/">
 	<div class="maindiv">
-		<svg id="m1" width="960" height="500" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
+		<svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
 		<g class="links"></g>
 		<g class="nodes"></g>
         <defs>

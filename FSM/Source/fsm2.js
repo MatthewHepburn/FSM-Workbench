@@ -253,9 +253,9 @@ var Display = {
         var menu = svg.append("g")
                     .classed("context-menu-holder", true)
 
-        // initial text coordinates, slightly inwards form the menu boundary.
+        // initial text coordinates
         var textX = menuCoords[0] + 5;
-        var textY = menuCoords[1] + 15;
+        var textY = menuCoords[1] + fontSize;
 
         // Disable system menu on right-clicking the context menu
         var preventDefault = () => d3.event.preventDefault();
@@ -567,6 +567,15 @@ var Display = {
         Display.getCanvasVars(canvasID).submitRenameFunction = null;
         d3.select("#" + canvasID).selectAll(".rename").remove();
     },
+    drawTestPoint: function(canvasID, x, y){
+        //Function to draw a point, for testing coordinate conversion
+        var svg = d3.select("#" + canvasID);
+        svg.append("circle")
+            .attr("cx", x)
+            .attr("cy", y)
+            .attr("r", 1)
+            .attr("fill", "#000000");
+    },
     forceTick: function(canvasID){
         // Update the display after the force layout acts. Should be called at least once to initialise positions, even if
         // force is not used.
@@ -618,30 +627,21 @@ var Display = {
     },
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
         // Get coordinates for the context menu so that it is not drawn off screen in form [x, y]
-        svg = svg.node(); //Switch from a d3 selection to native JS
-        var viewboxWidth = svg.viewBox.baseVal.width;
-        var viewboxHeight = svg.viewBox.baseVal.height;
-        if(svg.getBoundingClientRect().width > svg.getBoundingClientRect().height){
-            var userCoordtoScreenCoord = svg.getBoundingClientRect().height/viewboxHeight;
-            var maxX = viewboxWidth + ((svg.clientWidth/(2 * userCoordtoScreenCoord)) - ( viewboxWidth/2));
-            var maxY = viewboxHeight;
-        } else {
-            userCoordtoScreenCoord = svg.getBoundingClientRect().width/viewboxWidth;
-            maxX = viewboxWidth;
-            maxY = viewboxHeight + ((svg.clientHeight/(2 * userCoordtoScreenCoord)) - (viewboxHeight/2));
-        }
+        // Mouse coordinates are already in the SVG coordinate space thanks to the d3.mouse() function.
+        var maxX = svg.attr("width");
+        var maxY = svg.attr("height");
 
-        if (mouseX + menuWidth < maxX){
-            var menuX = mouseX;
-        } else{
+        var menuX = mouseX; //default values in case no change necessary
+        var menuY = mouseY;
+
+        if(mouseX + menuWidth > maxX){
             menuX = maxX - menuWidth;
         }
 
-        if (mouseY + menuHeight < maxY -6){
-            var menuY = mouseY;
-        } else {
-            menuY = maxY - menuHeight - 6;
+        if(mouseY + menuHeight > maxY){
+            menuY = maxY - menuHeight;
         }
+
         return [menuX, menuY];
     },
     getLinkPathD: function(link){
