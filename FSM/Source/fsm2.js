@@ -246,6 +246,18 @@ var Display = {
         text.remove();
         return result;
     },
+    drawGearIcon: function(svg){
+        //Draw a gear icon in the top right corner, and register a function to draw the settings menu on click.
+
+        svg.append("image")
+                .attr("x",svg.attr("width") - 20)
+                .attr("y", 5 )
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("xlink:href", Global.iconAddress + "gear.svg")
+                .attr("class", "gear-icon")
+                // .on("click", function(){EventHandler.toolSelect(canvasID, toolName);});
+    },
     drawContextMenu:function(svg,mousePosition,actions){
         //Generic function to draw a context menu, with the labels and associated functions specified in actions in the
         //from [["label", function(){doThing;}], ["label2", function(){doOtherThing();}]]
@@ -1208,11 +1220,12 @@ var Controller = {
         Controller.setupMachine(m, 0);
         Display.canvasVars["m1"].machine = m;
         Display.update("m1");
-        d3.select("#m1")
+        var svg = d3.select("#m1")
             .on("click", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         Controller.setUpQuestion();
         Display.setUpQuestion();
+        Display.drawGearIcon(svg);
         if(Model.question.allowEditing){
             Display.drawControlPalette("m1");
         }

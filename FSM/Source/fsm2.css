@@ -226,6 +226,14 @@ text.nodename {
   stroke: rgb(120,30,30) !important;
 }
 
+.gear-icon {
+  opacity: 0.5;
+}
+
+.gear-icon:hover {
+  opacity: 1;
+}
+
 .control-rect.selected{
   fill-opacity: 1;
   transform: translate(0px);
