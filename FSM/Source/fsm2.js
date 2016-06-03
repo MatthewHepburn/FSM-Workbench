@@ -61,9 +61,21 @@ var Display = {
             nodetool:"Create new states",
             linetool:"Link states together",
             texttool:"Change link inputs and rename states",
-            acceptingtool:"Toggle whether states are accepting",
+            initialtool: "Toggle start states",
+            acceptingtool:"Toggle accepting states",
             deletetool: "Delete links and states"
         };
+
+        var mouseoverFunction = function(){
+            var controlRect = d3.select(this)
+            controlRect.attr("x", -1);
+        };
+
+        var mouseoutFunction = function(){
+            var controlRect = d3.select(this)
+            controlRect.attr("x", 0);
+        };
+
         // create a button for each tool in tools
         tools.forEach(function(toolName, i){
             var thisG = g.append("g");
@@ -85,6 +97,8 @@ var Display = {
                 .classed("control-rect", true)
                 .attr("id", canvasID + "-" + toolName)
                 .on("click", function(){EventHandler.toolSelect(canvasID, toolName);})
+                .on("mouseover", mouseoverFunction)
+                .on("mouseout", mouseoutFunction)
                 .append("svg:title").text(tooltips[tools[i]]);
             thisG.append("image") // Button on top
                 .attr("x", 0.5 * margin)

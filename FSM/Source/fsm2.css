@@ -216,11 +216,13 @@ text.nodename {
 .control-rect {
   pointer-events: all;
   z-index: 3;
-  transform: translate(0px);
+}
+
+.control-img{
+  pointer-events: none;
 }
 
 .control-rect:hover {
-  transform: translate(-1px);
   stroke: rgb(120,30,30) !important;
 }
 
