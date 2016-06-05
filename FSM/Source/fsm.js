@@ -633,10 +633,10 @@ var Display = {
         var textX = x + xBorder;
         var textY = y + (4 * fontSize);
         var longestDescription = Display.getTextLength(svg,"Colour scheme", fontSize, "settings-menu")
-        var longestOption = Display.getTextLength(svg,"monochrome", fontSize, "settings-menu")
+        var longestOption = 4 +  Display.getTextLength(svg,"monochrome", fontSize, "settings-menu")
 
 
-        var getOnClickFunction = function(settingsKey,x, y){
+        var getOnClickFunction = function(currentTextSelection,settingsKey,x, y){
             return function(){
                 //this function should be called to create the dropdown part of the dropdown menu
 
@@ -661,7 +661,24 @@ var Display = {
                         .attr("stroke", "#444444")
 
                 for(var i = 0; i < options.length; i++){
+                    //Add a background to allow highlighting on mouseover
+                    drop.append("rect")
+                        .attr("x", x)
+                        .classed("dropdown-option-background", true)
+                        .attr("y", y + i * (1.5 * optionBorder + fontSize) + 1)
+                        .attr("width", longestOption + 2 * optionBorder)
+                        .attr("height", fontSize + optionBorder * 1.5)
+                        .attr("fill", "#FFFFFF")
+                        .attr("fill-opacity", 0)
+                        .attr("stroke-opacity", 0)
+                        .data([options[i]])
+                        .on("click", function(){
+                            currentTextSelection.text(d3.select(this).data()[0])
+                            d3.select(`#dropdown-${settingsKey}`).remove();
+                        })
+                    //Add the text for each option
                     drop.append("text")
+                        .classed("dropdown-option", true)
                         .attr("y", y + ((i +1)) * (optionBorder + fontSize))
                         .attr("x", x + optionBorder)
                         .attr("font-size", fontSize)
@@ -682,6 +699,8 @@ var Display = {
             // Add the text for the currently set option
             var optionText = g.append("text")
                               .text(settings[s].value)
+                              .attr("id", `settings-${s}-option`)
+                              .classed("option", true)
                               .attr("x", x + menuWidth - longestOption - xBorder)
                               .attr("y", textY)
                               .attr("font-size", fontSize);
@@ -697,7 +716,7 @@ var Display = {
              .attr("fill", "#FFFFFF")
              .attr("fill-opacity", 0)
              .attr("stroke", "#444444")
-             .on("click", getOnClickFunction(s, boxX, boxY + fontSize + 2 * optionBorder))
+             .on("click", getOnClickFunction(optionText, s, boxX, boxY + fontSize + 2 * optionBorder))
 
 
 

@@ -185,6 +185,15 @@ text.nodename {
   fill: #d9d9d9;
 }
 
+.dropdown-option-background:hover {
+  fill:lightblue;
+  fill-opacity: 1;
+}
+
+.dropdown-option{
+  pointer-events: none;
+}
+
 .button {
   font-family: arial, helvetica, sans-serif;
   margin: 2px;
