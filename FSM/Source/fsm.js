@@ -1030,15 +1030,20 @@ var Display = {
         var nodeGs = nodeg.selectAll("g")
             .data(nodeList, function(d){return d.id;});
         var newNodes = nodeGs.enter().append("svg:g").classed("nodeg", true);
-        newNodes.append("circle")
-                .attr("cx", function(d){return d.x;})
-                .attr("cy", function(d){return d.y;})
-                .attr("id", function(d){return d.id;})
-                .classed("node", true)
-                .attr("r", Display.nodeRadius)
-                .style("fill", function(d){return colours(d.id);})
-                .on("contextmenu", function(node){EventHandler.nodeContextClick(node);})
-                .on("click", function(node){EventHandler.nodeClick(node);});
+        var newCircles = newNodes.append("circle")
+                                .attr("cx", function(d){return d.x;})
+                                .attr("cy", function(d){return d.y;})
+                                .attr("id", function(d){return d.id;})
+                                .classed("node", true)
+                                .attr("r", Display.nodeRadius)
+                                .on("contextmenu", function(node){EventHandler.nodeContextClick(node);})
+                                .on("click", function(node){EventHandler.nodeClick(node);});
+
+        if(Controller.getColourScheme() === "monochrome"){
+            Display.styleMonochrome(canvasID, newCircles)
+        } else {
+            Display.styleColour(canvasID, newCircles)
+        }
 
         // Add a name label:
         // TODO - allow labels too large to be placed within the node to be placed below.
@@ -1151,6 +1156,28 @@ var Display = {
     updateNodeName: function(node){
         var svg = d3.select("#" + node.machine.id);
         svg.select("#" + node.id + "-label").text(node.name);
+    },
+    updateNodeStyle: function(){
+        var circles;
+        var styleFunction = Controller.getColourScheme() === "monochrome"? Display.styleMonochrome : Display.styleColour;
+
+        for(var id in Display.canvasVars){
+            circles = d3.select(`#${id}`).selectAll(".nodeg").selectAll(".node");
+            styleFunction(id, circles);
+        }
+
+    },
+    styleColour:function(canvasID, circleSelection){
+        //Takes a selection of node circles and applies multicoloured styling to them
+        var colours = Display.canvasVars[canvasID].colours;
+        circleSelection.style("fill", d => colours(d.id))
+                       .style("stroke-width", 0);
+    },
+    styleMonochrome:function(canvasID, circleSelection){
+        //Takes a selection of node circles and applies monochrome styling to them
+        circleSelection.style("fill","#FFFFFF")
+                       .style("stroke-width", 1)
+                       .style("stroke", "#000000");
     }
 };
 
@@ -1293,6 +1320,7 @@ var Controller = {
     settings:{
         colourScheme: {description: "Colour scheme", value:"colour", options:["colour", "monochrome"]},
         forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
+        labelRotation: {description:"Rotate transition labels", value:"always", options:["always","short only", "never"]}
     },
     addMachine: function(specObj){
         //Adds a machine to the model and displays it on a new canvas
@@ -1342,10 +1370,15 @@ var Controller = {
 
     },
     getSettings:function(){
-        return this.settings;
+        return jsonCopy(this.settings);
     },
     setSettings: function(settingsObj){
+        //Save the settings values and make any changes necessary to switch settings.
+        var oldSettings = jsonCopy(this.settings)
         this.settings = settingsObj;
+        if(oldSettings.colourScheme.value !== this.settings.colourScheme.value){
+            Display.updateNodeStyle();
+        }
         //Create a simplified object to save to local storage.
         var saveObj = {}
         for(var key in settingsObj){
@@ -1418,6 +1451,10 @@ var Controller = {
     setAlphabet: function(machine, alphabetArray){
         machine.setAlphabet(alphabetArray);
         Display.updateAllLinkLabels(machine.id);
+    },
+
+    getColourScheme: function(){
+        return this.settings.colourScheme.value;
     },
 
     init: function(){
