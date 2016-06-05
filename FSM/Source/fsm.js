@@ -685,7 +685,6 @@ var Display = {
                         .text(options[i])
                 }
             }
-
         }
 
         for(var s in settings){
@@ -718,12 +717,40 @@ var Display = {
              .attr("stroke", "#444444")
              .on("click", getOnClickFunction(optionText, s, boxX, boxY + fontSize + 2 * optionBorder))
 
-
-
-
             textY = textY  + 2 * fontSize;
-
         }
+
+        //Add the submit button
+        var textWidth = Display.getTextLength(svg, "Save", fontSize, "settings-button-text")
+        var buttonWidth = 2 * textWidth
+        var buttonHeight = 1.5 * fontSize
+        var submitX = x + menuWidth - buttonWidth - xBorder;
+        var submitY = y + menuHeight - fontSize - 15;
+        //Background
+        g.append("rect")
+            .attr("x", submitX)
+            .attr("y", submitY)
+            .attr("height", buttonHeight)
+            .attr("width", buttonWidth)
+            .attr("fill", "#BBBBBB")
+            .classed("settings-button-background", true)
+            .attr("stroke", "#444444")
+
+        //text
+        g.append("text")
+            .text("Save")
+            .attr("x", submitX + 0.5 * buttonWidth - 0.5 * textWidth)
+            .attr("y", submitY + buttonHeight - (0.5 * fontSize))
+            .attr("font-size", fontSize)
+            .classed("settings-button-text", true)
+            .on("click", function(){
+                for(s in settings){
+                    settings[s].value = d3.select(`#settings-${s}-option`).html()
+                }
+                Controller.setSettings(settings)
+                g.remove()
+            })
+
 
 
     },
@@ -1298,18 +1325,34 @@ var Controller = {
         }
         return input;
     },
+    loadSettings:function(){
+        //Load settings from localStorage if it exists and has a settings entry
+        if(!localStorage){
+            return;
+        }
+        if(!localStorage.getItem("settings")){
+            return;
+        }
+        var settingsObj = JSON.parse(localStorage.getItem("settings"))
+        for(var s in settingsObj){
+            if (this.settings[s]){
+                this.settings[s].value = settingsObj[s]
+            }
+        }
+
+    },
     getSettings:function(){
         return this.settings;
     },
     setSettings: function(settingsObj){
-        this.settings = settings;
+        this.settings = settingsObj;
         //Create a simplified object to save to local storage.
         var saveObj = {}
         for(var key in settingsObj){
             saveObj[key] = settingsObj[key].value;
         }
         if(localStorage){
-            localStorage.setItem('settings', saveObj);
+            localStorage.setItem('settings', JSON.stringify(saveObj));
         }
     },
     endLink: function(canvasID){
@@ -1379,6 +1422,7 @@ var Controller = {
 
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
+        Controller.loadSettings();
         m = new Model.Machine("m1");
         Model.machines.push(m);
         Controller.setupMachine(m, 0);
