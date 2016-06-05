@@ -256,7 +256,7 @@ var Display = {
                 .attr("height", 15)
                 .attr("xlink:href", Global.iconAddress + "gear.svg")
                 .attr("class", "gear-icon")
-                // .on("click", function(){EventHandler.toolSelect(canvasID, toolName);});
+                .on("click", function(){Display.drawSettingsMenu(svg)});
     },
     drawContextMenu:function(svg,mousePosition,actions){
         //Generic function to draw a context menu, with the labels and associated functions specified in actions in the
@@ -602,6 +602,111 @@ var Display = {
             .attr("cy", y)
             .attr("r", 1)
             .attr("fill", "#000000");
+    },
+    drawSettingsMenu: function(svg){
+        //Check if settings menu already exists, dismiss and return if it is.
+        var existingMenu = svg.select(".settings-menu")
+        if(!existingMenu.empty()){
+            existingMenu.remove();
+            return;
+        }
+
+        var settings = Controller.getSettings();
+        var menuWidth = 0.5 * svg.attr("width");
+        var menuHeight = 0.5 * svg.attr("height");
+        var fontSize = 10;
+        var optionBorder =  2;
+        var xBorder = 15
+
+        var x = 0.25 * svg.attr("width");
+        var y = 0.1 * svg.attr("height");
+        var g = svg.append("g").classed("settings-menu", true);
+
+        g.append("rect")
+         .attr("x", x)
+         .attr("y", y)
+         .attr("width", menuWidth)
+         .attr("height", menuHeight)
+         .attr("fill", "#FFFFFF")
+         .attr("stroke", "#555555")
+
+        var textX = x + xBorder;
+        var textY = y + (4 * fontSize);
+        var longestDescription = Display.getTextLength(svg,"Colour scheme", fontSize, "settings-menu")
+        var longestOption = Display.getTextLength(svg,"monochrome", fontSize, "settings-menu")
+
+
+        var getOnClickFunction = function(settingsKey,x, y){
+            return function(){
+                //this function should be called to create the dropdown part of the dropdown menu
+
+                //if menu already open, dismiss and return
+                var existingMenu = d3.select(`#dropdown-${settingsKey}`);
+                if (!existingMenu.empty()){
+                    existingMenu.remove()
+                    return
+                }
+
+                var drop = g.append("g").attr("id",`dropdown-${settingsKey}`)
+
+                var options = settings[settingsKey].options
+
+                //Add a white background under menu
+                    drop.append("rect")
+                        .attr("y", y)
+                        .attr("x", x)
+                        .attr("width", longestOption + 2 * optionBorder)
+                        .attr("height", (fontSize + optionBorder)  * options.length + (2*optionBorder))
+                        .attr("fill", "#FFFFFF")
+                        .attr("stroke", "#444444")
+
+                for(var i = 0; i < options.length; i++){
+                    drop.append("text")
+                        .attr("y", y + ((i +1)) * (optionBorder + fontSize))
+                        .attr("x", x + optionBorder)
+                        .attr("font-size", fontSize)
+                        .text(options[i])
+                }
+            }
+
+        }
+
+        for(var s in settings){
+            // Add the setting description.
+            g.append("text")
+             .text(settings[s].description)
+             .attr("x", textX)
+             .attr("y", textY)
+             .attr("font-size", fontSize);
+
+            // Add the text for the currently set option
+            var optionText = g.append("text")
+                              .text(settings[s].value)
+                              .attr("x", x + menuWidth - longestOption - xBorder)
+                              .attr("y", textY)
+                              .attr("font-size", fontSize);
+
+            // Add a box around the text to show that it is a dropdown menu
+            var boxX = x + menuWidth - longestOption - xBorder - optionBorder;
+            var boxY = textY - fontSize
+            g.append("rect")
+             .attr("x", boxX)
+             .attr("y", textY - fontSize)
+             .attr("width", longestOption + 2 * optionBorder)
+             .attr("height", fontSize + 2 * optionBorder)
+             .attr("fill", "#FFFFFF")
+             .attr("fill-opacity", 0)
+             .attr("stroke", "#444444")
+             .on("click", getOnClickFunction(s, boxX, boxY + fontSize + 2 * optionBorder))
+
+
+
+
+            textY = textY  + 2 * fontSize;
+
+        }
+
+
     },
     forceTick: function(canvasID){
         // Update the display after the force layout acts. Should be called at least once to initialise positions, even if
@@ -1139,6 +1244,10 @@ var EventHandler = {
 };
 
 var Controller = {
+    settings:{
+        colourScheme: {description: "Colour scheme", value:"colour", options:["colour", "monochrome"]},
+        forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
+    },
     addMachine: function(specObj){
         //Adds a machine to the model and displays it on a new canvas
         var newMachine = Model.addMachine(specObj)
@@ -1169,6 +1278,20 @@ var Controller = {
             });
         }
         return input;
+    },
+    getSettings:function(){
+        return this.settings;
+    },
+    setSettings: function(settingsObj){
+        this.settings = settings;
+        //Create a simplified object to save to local storage.
+        var saveObj = {}
+        for(var key in settingsObj){
+            saveObj[key] = settingsObj[key].value;
+        }
+        if(localStorage){
+            localStorage.setItem('settings', saveObj);
+        }
     },
     endLink: function(canvasID){
         // Called to end a link creation action.
