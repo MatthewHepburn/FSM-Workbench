@@ -1,5 +1,6 @@
 svg {
   margin-top: 20px;
+  margin-right: 10px;
   background-color: #FFF;
   cursor: default;
   border: solid black 1px;
@@ -8,6 +9,8 @@ svg {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+  width: 90%;
+  height:50%;
 }
 
 body {
@@ -18,6 +21,11 @@ body {
 input.qform{
   margin-top: 3px;
   margin-bottom: 4px;
+}
+
+.rename span{
+  display: block;
+  font-family: 'Ek Mukta', sans-serif;
 }
 
 div.question-text{
@@ -46,6 +54,19 @@ path.link {
   transition: stroke-width 0.5s;
 }
 
+path.halflink{
+  fill: none;
+  stroke: #000;
+  cursor: default;
+  pointer-events: none
+
+}
+
+.start {
+  fill:none;
+  stroke: #000;
+}
+
 .qdiagram {
   display: block;
 }
@@ -54,9 +75,6 @@ svg:not(.active):not(.ctrl) path.link {
   cursor: pointer;
 }
 
-path.link.dragline {
-  pointer-events: none;
-}
 
 path.link:hover{
   stroke-width: 6px !important;
@@ -74,25 +92,33 @@ path.link.hidden {
 }
 
 .link-padding {
-  stroke-width: 35px;
+  stroke-width: 15;
   fill: none;
   stroke: black;
   stroke-opacity: 0;
 }
 
 circle.node {
-  stroke-width: 1.5px;
+  stroke-width: 1px;
   cursor: pointer;
 }
 
 circle.node.accepting {
   stroke: #000 !important;
-  stroke-width: 2.5px;
+  stroke-width: 1.2px;
+}
+
+.accepting-ring{
+  stroke: black !important;
+  stroke-width: 1.2px;
+  fill-opacity: 0;
+  pointer-events: none;
 }
 
 .linklabel {
   font-family: 'Ek Mukta', sans-serif;
   dominant-baseline: central;
+  text-anchor: middle;
 }
 
 .linklabel:hover{
@@ -101,19 +127,62 @@ circle.node.accepting {
 
 text.nodename {
   text-anchor: middle;
-  font-family: "Ek Mukta";
+  font-family: "Ek Mukta", sans-serif;
   dominant-baseline: central;
   alignment-baseline: central;
   pointer-events: none;
 }
 
 .contextmenu {
+    fill: white;
+    fill-opacity: 0.3;
     display: inline-block;
     background-color: #fff;
     border: 1px #ccc solid;
     box-shadow: #333 2px 2px 4px;
     padding: 2px 2px 2px 2px;
     font-family: arial, helvetica, sans-serif;
+}
+
+.context-menu-text{
+  pointer-events: none;
+}
+
+.context-background-rect {
+  fill: #f2f2f2;
+  fill-opacity: 0.7;
+  stroke: #d9d9d9
+}
+
+.context-background-rect:hover {
+  fill: #d9d9d9;
+  stroke: #bfbfbf;
+}
+
+.rename-checkbox {
+  fill: white;
+  fill-opacity: 0.2;
+  stroke: black;
+}
+
+.rename-background-rect{
+  fill: white;
+  fill-opacity: 0.7;
+  stroke: #d9d9d9
+}
+
+.checkmark {
+  stroke: none;
+  pointer-events: none;
+}
+
+.checkmark.checked {
+  stroke: black;
+}
+
+.svg-button {
+  stroke: black;
+  fill: #d9d9d9;
 }
 
 .button {
@@ -147,12 +216,22 @@ text.nodename {
 .control-rect {
   pointer-events: all;
   z-index: 3;
-  transform: translate(0px);
+}
+
+.control-img{
+  pointer-events: none;
 }
 
 .control-rect:hover {
-  transform: translate(-1px);
   stroke: rgb(120,30,30) !important;
+}
+
+.gear-icon {
+  opacity: 0.5;
+}
+
+.gear-icon:hover {
+  opacity: 1;
 }
 
 .control-rect.selected{
@@ -330,6 +409,7 @@ input[type=checkbox]{
 .maindiv {
    float: left;
    width: 85%;
+   height: 80%;
 }
 
 .sidebar {

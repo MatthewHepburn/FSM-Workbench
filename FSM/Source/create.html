@@ -6,15 +6,11 @@
     <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
     <link rel="stylesheet" href="fsm.css">
-    <link rel="stylesheet" href="edit.css">
   </head>
 
   <body class="canvas"
-  data-nodes='[{"id":0,"accepting":false,"name":"","x":200,"y":250,"fixed":1,"index":0,"weight":2,"px":200,"py":250}]'
-  data-links='[]'
-  data-question='{"type":"none", "alphabet":["a", "b", "ε"], "alphabetType":"char"}'
-  data-options='{"constrainRename":true}'
-  data-iconaddress = 'http://homepages.inf.ed.ac.uk/s1020995/dev/img/Icons/'>
+  data-machinelist= '[{"nodes":[{"id":"A","x":0,"y":50,"isInit":true},{"id":"B","x":50,"y":50},{"id":"C","x":50,"y":100},{"id":"D","x":200,"y":50,"isAccepting":true}],"links":[{"from":"A","to":"B","input":["c"]},{"from":"B","to":"C","input":["d"]},{"from":"C","to":"B","input":["e"]},{"from":"B","to":"D","input":["f"]}],"attributes":{"alphabet":["10p","20p"],"isTransducer":false,"allowEpsilon":false}}]'
+  data-iconaddress = 'img/icons/'>
     <div class="maindiv" style="width:85%">
         <div class="menu">
       	<a href='index.html' class='pure-button'>Home</a>
@@ -37,7 +33,9 @@
           </div>
         </fieldset>
     	</div>
-      <svg id="main-svg" width="960" height="500" class="active">
+      <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
+        <g class="links"></g>
+        <g class="nodes"></g>
         <defs>
           <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
           <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
@@ -45,6 +43,7 @@
       </svg>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+    <script src="model.js"></script>
     <script src="fsm.js"></script>
     <script type="text/javascript" src="create.js"></script>
   </body>
