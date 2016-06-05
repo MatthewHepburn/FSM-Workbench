@@ -1224,13 +1224,17 @@ var Controller = {
         }
     },
 
-
-
     requestNodeRename: function(node){
         var canvasID = node.machine.id;
         Display.submitAllRename(canvasID);
         Display.drawNodeRenameForm(canvasID, node);
     },
+
+    setAlphabet: function(machine, alphabetArray){
+        machine.setAlphabet(alphabetArray);
+        Display.updateAllLinkLabels(machine.id);
+    },
+
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
         m = new Model.Machine("m1");

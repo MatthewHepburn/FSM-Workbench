@@ -260,6 +260,10 @@ var Model = {
 
         this.setAlphabet = function(alphabetArray){
             this.alphabet = alphabetArray;
+            //Now enforce this alphabet by removing illegal symbols
+            for(var linkID in this.links){
+                this.links[linkID].enforceAlphabet();
+            }
         };
     },
     // Constructor for a node object
@@ -374,6 +378,14 @@ var Model = {
             this.input = inputList;
             this.hasEpsilon = hasEpsilon;
         };
+
+        this.enforceAlphabet = function(){
+            //Remove any inputs prohibited by the machine alphabet.
+            var alphabet = this.machine.alphabet;
+            var allowEpsilon = this.machine.allowEpsilon;
+            this.input = this.input.filter(x => alphabet.indexOf(x) !== -1);
+            this.hasEpsilon = this.hasEpsilon && allowEpsilon;
+        }
     },
     //Holds the question logic and the variables that govern the current question.
     question: {
