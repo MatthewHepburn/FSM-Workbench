@@ -1039,6 +1039,15 @@ var Display = {
                                 .on("contextmenu", function(node){EventHandler.nodeContextClick(node);})
                                 .on("click", function(node){EventHandler.nodeClick(node);});
 
+        //Enforce physics setting on new nodes
+        var newNodeObjs = nodeGs.data()
+        if(Controller.getPhysicsSetting() == "off"){
+            for(var i = 0; i< newNodeObjs.length; i++){
+                newNodeObjs[i].fixed = true
+            }
+        }
+
+
         if(Controller.getColourScheme() === "monochrome"){
             Display.styleMonochrome(canvasID, newCircles)
         } else {
@@ -1164,6 +1173,22 @@ var Display = {
         for(var id in Display.canvasVars){
             circles = d3.select(`#${id}`).selectAll(".nodeg").selectAll(".node");
             styleFunction(id, circles);
+        }
+
+    },
+    updateNodePhysics:function(){
+        for(var i = 0; i < Model.machines.length; i++){
+            var machine = Model.machines[i];
+            for(var nodeID in machine.nodes){
+                var node = machine.nodes[nodeID];
+                if(Controller.getPhysicsSetting() === "on"){
+                    node.fixed = false;
+                    Display.update(node.machine.id)
+                }
+                else if(Controller.getPhysicsSetting() === "off"){
+                    node.fixed = true;
+                }
+            }
         }
 
     },
@@ -1379,6 +1404,9 @@ var Controller = {
         if(oldSettings.colourScheme.value !== this.settings.colourScheme.value){
             Display.updateNodeStyle();
         }
+        if(oldSettings.forceLayout.value !== this.settings.forceLayout.value){
+            Display.updateNodePhysics();
+        }
         //Create a simplified object to save to local storage.
         var saveObj = {}
         for(var key in settingsObj){
@@ -1457,6 +1485,9 @@ var Controller = {
         return this.settings.colourScheme.value;
     },
 
+    getPhysicsSetting: function(){
+        return this.settings.forceLayout.value;
+    },
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
         Controller.loadSettings();
