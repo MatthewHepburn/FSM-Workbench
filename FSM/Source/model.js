@@ -408,6 +408,9 @@ var Model = {
             if (Model.question.type === "give-list"){
                 return Model.question.checkGiveList(input);
             }
+            if(Model.question.type === "satisfy-list"){
+                return Model.question.checkSatisfyList();
+            }
         },
         checkGiveList: function(input){
             var machine = Model.machines[0];
@@ -439,6 +442,37 @@ var Model = {
             });
 
             return {input, messages, allCorrectFlag, isCorrectList};
+        },
+        checkSatisfyList(){
+            var machine = Model.machines[0];
+            var feedbackObj = {allCorrectFlag: true, acceptList:[], rejectList:[]}
+            var splitSymbol = Model.question.splitSymbol;
+            var acceptList = Model.question.shouldAccept;
+            var rejectList = Model.question.shouldReject;
+
+            //Check the acceptList
+            for(var i = 0; i < acceptList.length; i++){
+                //Split the input into individual tokens based on the split symbol.
+                var input = acceptList[i].split(splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0);
+                if(machine.accepts(input)){
+                    feedbackObj.acceptList[i] = true;
+                } else {
+                    feedbackObj.acceptList[i] = false;
+                    feedbackObj.allCorrectFlag = false;
+                }
+            }
+
+            for(var i = 0; i < rejectList.length; i++){
+                var input = rejectList[i].split(splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0);
+                if(!machine.accepts(input)){
+                    feedbackObj.rejectList[i] = true;
+                } else {
+                    feedbackObj.rejectList[i] = false;
+                    feedbackObj.allCorrectFlag = false;
+                }
+            }
+
+            return feedbackObj;
         }
     }
 };

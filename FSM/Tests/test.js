@@ -405,39 +405,47 @@ describe('Model', function() {
         before(function(){
             model.machines = [];
             questionObj = {"type": "satisfy-list",
-                           "shouldAccept": ["10p 10p 10p 10p 10p", "20p 20p 10p", "10p, 20p, 20p 20p", "10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 20p"],
+                           "shouldAccept": ["10p 10p 10p 10p 10p", "20p 20p 10p", "10p 20p 20p 20p", "10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 10p 20p"],
                            "shouldReject": ["10p 20p", "20p 20p", "10p 10p 10p 10p", "", "10p"],
                            "splitSymbol": " "
                         };
             model.question.setUpQuestion(questionObj)
         });
 
-        it("should approve a correct machine", function(){
-            spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
-                    "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"B","from":"C","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
-                    "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
-                };
-            model.addMachine(spec);
-            feedbackObj = model.question.checkAnswer(input);
-            expect(feedbackObj).to.be.ok;
-            expect(feedbackObj.allCorrectFlag).to.be.true;
-            expect(feedbackObj.acceptList.reduce((x,y) => x && y, true)).to.be.true;
-            expect(feedbackObj.rejectList.reduce((x,y) => x && y, true)).to.be.true;
+        describe("should approve a correct machine", function(){
+            before(function(){
+                spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
+                        "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"C","from":"B","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
+                        "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
+                    };
+                model.addMachine(spec);
+                feedbackObj = model.question.checkAnswer();
+            })
+
+            it("feedback object should be ok", function(){expect(feedbackObj).to.be.ok;});
+            it("feedback object should be correct", function(){
+                expect(feedbackObj.allCorrectFlag).to.be.true;
+                expect(feedbackObj.acceptList.reduce((x,y) => x && y, true)).to.be.true;
+                expect(feedbackObj.rejectList.reduce((x,y) => x && y, true)).to.be.true;
+            });
         })
 
-        it("should reject an incorrect machine", function(){
-            spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"isAcc": true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
-                    "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"B","from":"C","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
-                    "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
-                };
-            model.addMachine(spec);
-            feedbackObj = model.question.checkAnswer(input);
-            expect(feedbackObj).to.be.ok;
-            expect(feedbackObj.allCorrectFlag).to.be.false;
-            expect(feedbackObj.acceptList.reduce((x,y) => x && y, true)).to.be.true;
-            expect(feedbackObj.rejectList.reduce((x,y) => x && y, true)).to.be.false;
-            expect(feedbackObj.rejectList[3]).to.be.false;
-        })
+        describe("should reject an incorrect machine", function(){
+            before(function(){
+                model.machines = []
+                spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"isAcc": true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
+                        "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"C","from":"B","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
+                        "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
+                    };
+                model.addMachine(spec);
+            })
+            it("feedback object should be ok", function(){feedbackObj = model.question.checkAnswer();})
+            it("allCorrectFlag should be false", function(){expect(feedbackObj.allCorrectFlag).to.be.false;});
+            it("all entries in feedbackObj.acceptList should be true", function(){expect(feedbackObj.acceptList.reduce((x,y) => x && y, true)).to.be.true;});
+            it("there should be at least one false entry in feedbackObj.rejectList", function(){expect(feedbackObj.rejectList.reduce((x,y) => x && y, true)).to.be.false;});
+            it("feedbackObj.rejectList[3] should be false", function(){expect(feedbackObj.rejectList[3]).to.be.false;});
+
+        }).pass
     });
 
 });
