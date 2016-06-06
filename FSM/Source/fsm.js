@@ -793,26 +793,11 @@ var Display = {
                 d3.select("#" + linkID).attr("d", pathD);
                 d3.select("#" + paddingID).attr("d", pathD);
             });
+
         // Update the rotation and position of each linklabel
-        svg.selectAll(".linklabel")
-            .each(function(link){
-            	var positionObj = Display.getLinkLabelPosition(link.source, link.target);
+        Display.updateLinkLabelPositions(svg, false)
 
-                //Do not update position for minor changes – avoids unwanted text jitter in Firefox
-            	if(this.x.baseVal.length > 0 && this.y.baseVal.length > 0){
-            		var prevX = this.x.baseVal[0].value;
-            		var prevY = this.y.baseVal[0].value;
-            		var minChange = 0.4; //arbitrary constant – tweak by eye. Set to zero to make all changes.
-            		if (Math.abs(positionObj.x - prevX) < minChange && Math.abs(positionObj.y - prevY) < minChange){
-            			return;
-            		}
-            	}
-
-                d3.select(this)
-                    .attr("x", positionObj.x)
-                    .attr("y", positionObj.y)
-                    .attr("transform", "rotate(" + positionObj.rotation + ", " + positionObj.x +", " + positionObj.y +")");
-            });
+        // Update the position of each node name
         svg.selectAll(".nodename")
             .each(function(node){
                 d3.select(this).attr("x", node.x).attr("y", node.y);
@@ -1160,6 +1145,39 @@ var Display = {
     updateLinkLabel: function(link){
         var svg = d3.select("#" + link.machine.id);
         svg.select("#" + link.id + "-label").text(Display.linkLabelText(link));
+    },
+    repositionAllLinkLabels: function(){
+        for(var canvasID in Display.canvasVars){
+            var svg = d3.select(`#${canvasID}`)
+            Display.updateLinkLabelPositions(svg, true)
+        }
+    },
+    updateLinkLabelPositions: function(svg, forceChange){
+        svg.selectAll(".linklabel")
+            .each(function(link){
+                var positionObj = Display.getLinkLabelPosition(link.source, link.target);
+
+                //Do not update position for minor changes – avoids unwanted text jitter in Firefox unless forceChange is specified
+                if(!forceChange && this.x.baseVal.length > 0 && this.y.baseVal.length > 0){
+                    var prevX = this.x.baseVal[0].value;
+                    var prevY = this.y.baseVal[0].value;
+                    var minChange = 0.4; //arbitrary constant – tweak by eye. Set to zero to make all changes.
+                    if (Math.abs(positionObj.x - prevX) < minChange && Math.abs(positionObj.y - prevY) < minChange){
+                        return;
+                    }
+                }
+
+                d3.select(this)
+                    .attr("x", positionObj.x)
+                    .attr("y", positionObj.y)
+                    .attr("transform", function(){
+                        if(Controller.getLabelRotation() === "never" || (Controller.getLabelRotation() === "long only"  && d3.select(this).html().length < 2)){
+                            return null;
+                        } else {
+                            return "rotate(" + positionObj.rotation + ", " + positionObj.x +", " + positionObj.y +")";
+                        }
+                    });
+            });
 
     },
     updateNodeName: function(node){
@@ -1345,7 +1363,7 @@ var Controller = {
     settings:{
         colourScheme: {description: "Colour scheme", value:"colour", options:["colour", "monochrome"]},
         forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
-        labelRotation: {description:"Rotate transition labels", value:"always", options:["always","short only", "never"]}
+        labelRotation: {description:"Rotate transition labels", value:"long only", options:["always","long only", "never"]}
     },
     addMachine: function(specObj){
         //Adds a machine to the model and displays it on a new canvas
@@ -1406,6 +1424,9 @@ var Controller = {
         }
         if(oldSettings.forceLayout.value !== this.settings.forceLayout.value){
             Display.updateNodePhysics();
+        }
+        if(oldSettings.labelRotation.value !== this.settings.labelRotation.value){
+            Display.repositionAllLinkLabels();
         }
         //Create a simplified object to save to local storage.
         var saveObj = {}
@@ -1487,6 +1508,9 @@ var Controller = {
 
     getPhysicsSetting: function(){
         return this.settings.forceLayout.value;
+    },
+    getLabelRotation: function(){
+        return this.settings.labelRotation.value;
     },
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
