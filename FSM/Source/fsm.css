@@ -100,17 +100,12 @@ path.link.hidden {
 
 circle.node {
   stroke-width: 1px;
+  stroke: #000;
   cursor: pointer;
-}
-
-circle.node.accepting {
-  stroke: #000 !important;
-  stroke-width: 1.2px;
 }
 
 .accepting-ring{
   stroke: black !important;
-  stroke-width: 1.2px;
   fill-opacity: 0;
   pointer-events: none;
 }

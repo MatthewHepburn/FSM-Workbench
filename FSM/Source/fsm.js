@@ -1065,6 +1065,7 @@ var Display = {
                 .attr("cy", node.y)
                 .attr("r", Display.acceptingRadius)
                 .attr("class", "accepting-ring")
+                .attr("stroke-width", 0.8)
                 .attr("id", "ar" + node.id);
                 return;
             }
@@ -1214,7 +1215,8 @@ var Display = {
         //Takes a selection of node circles and applies multicoloured styling to them
         var colours = Display.canvasVars[canvasID].colours;
         circleSelection.style("fill", d => colours(d.id))
-                       .style("stroke-width", 0);
+                       .style("stroke-width", 1)
+                       .style("stroke", "#000000")
     },
     styleMonochrome:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies monochrome styling to them
