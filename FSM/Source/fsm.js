@@ -549,8 +549,64 @@ var Display = {
             .text("OK");
 
     },
+    drawTrace:function(canvasID, traceObj){
+        var svg = d3.select(`#${canvasID}`)
+        //Check if trace is already present;
+        if (svg.classed("trace")){
+            Display.dismissTrace(svg);
+            return;
+        }
+        svg.classed("trace", true);
+
+        var traceG = svg.append("g")
+                        .classed("trace-g", true);
+
+        Display.appendTraceControls(svg, traceG);
+    },
+    appendTraceControls(svg, element){
+        var iconAddress = Global.iconAddress;
+        var bwidth = 20; //button width
+        var strokeWidth = 1;
+        var margin = 5;
+        var canvasID = svg.attr("id");
+
+        var g = element.append("g").classed("tracecontrols", true);
+        // Tool names and functions to call on click.
+        var tools = [["rewind", function(){Display.rewindTraces(svg)}],
+                     ["back", function(){Display.stepTraceBack(svg)}],
+                     ["forward", function(){Display.stepTraceForward(svg)}],
+                     ["stop", function(){Display.dismissTrace(svg)}]];
+        var width = svg.attr("width")
+        var height = svg.attr("height")
+
+        // create a button for each tool in tools
+        for (var i = 0; i < tools.length; i++){
+            g.append("image")
+                .attr("y",  6 * height/7 +  0.5 * margin)
+                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + 0.5 * margin + (i * bwidth))
+                .attr("width", bwidth - margin)
+                .attr("height", bwidth - margin)
+                .attr("xlink:href", iconAddress +"trace-"+ tools[i][0] +".svg")
+                .attr("class", "control-img");
+            g.append("rect")
+                .attr("width", bwidth)
+                .attr("height", bwidth)
+                .attr("x", (width/2) - (0.5 * bwidth * tools.length ) + (i * bwidth))
+                .attr("y", 6 * height/7)
+                .attr("fill", "#101010")
+                .attr("fill-opacity", 0)
+                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
+                .classed("tracecontrol-rect", true)
+                .attr("id", `canvasID-${tools[i][0]}`)
+                .on("click", tools[i][1]);
+        }
+    },
+    dismissTrace(svg){
+        svg.select(".trace-g").remove();
+        svg.classed("trace", false);
+    },
     drawUnconstrainedLinkRenameForm: function(canvasID, link){
-        // This creates a rename form as a textbox where anything can be entered
+        // This function creates a rename form as a textbox where anything can be entered
         var svg = d3.select("#" + canvasID);
 
         // Derive the position of the form from the location of the link label
