@@ -1504,6 +1504,11 @@ var Controller = {
         Display.updateAllLinkLabels(machine.id);
     },
 
+    startTrace: function(machine, sequence){
+        var traceObj = machine.getTrace();
+        Display.drawTrace(machine.id, traceObj)
+    },
+
     getColourScheme: function(){
         return this.settings.colourScheme.value;
     },

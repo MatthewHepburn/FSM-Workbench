@@ -448,5 +448,27 @@ describe('Model', function() {
         }).pass
     });
 
+    describe("Test the Machine.getTrace()", function(){
+        describe("Test with a simple machine with only 3 states", function(){
+            var machine, traceObj
+            before(function(){
+                var spec = {"nodes":[{"id":"A","x":91,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],
+                            "links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],
+                            "attributes":{"alphabet":["a","b"],"allowEpsilon":false,"isTransducer":false}};
+                machine = model.addMachine(spec)
+            });
+            it("traceObj should be ok", function(){
+                traceObj = machine.getTrace(["a","b"]);
+                expect(traceObj).to.be.ok;
+            });
+            it("The expected properties of traceObj should be present", function(){
+                expect(traceObj.states).to.be.ok;
+                expect(traceObj.links).to.be.ok;
+                expect(traceObj.doesAccept).to.be.ok;
+                expect(traceObj.input).to.be.ok
+            });
+        });
+    });
+
 });
 
