@@ -33,7 +33,11 @@ var Model = {
         this.allowEpsilon = true;
         this.isTransducer = false;
         this.currentState = [];
+
+        //Track links used on last step
         this.linksUsed = [];
+        this.nonEpsLinksUsed = [];
+        this.epsilonLinksUsed = [];
 
         this.addNode = function(x, y, name, isInitial, isAccepting){
             //Adds a node to the machine. Returns the node.
@@ -125,6 +129,65 @@ var Model = {
             this.lastLinkID += 1;
             return this.id + "-L" + String(this.lastLinkID);
         };
+        this.getTrace = function(sequence){
+            //Returns a traceObj that can be used to display a machine's execution for some input
+            //Setup object
+            var traceObj = {states:[], links:[], doesAccept: undefined, input: undefined};
+            traceObj.input = JSON.parse(JSON.stringify(sequence)); //JSON copy
+
+            var linksUsedThisStep = [];
+            var machine = this;
+            var inputSymbol = undefined;
+
+            //Used to create an object for traceObj.links that also includes the transition used;
+            var getLinkUsedObj = function(linkID){
+                var link = machine.links[linkID]
+                return {
+                    "link": link,
+                    "epsUsed": false,
+                    "inputIndex": link.inputIndexOf(inputSymbol)
+                }
+            }
+
+            //Used for epsilon links
+            var getEpsLinkUsedObj = function(linkID){
+                var link = machine.links[linkID]
+                return {
+                    "link": link,
+                    "epsUsed": true
+                }
+            }
+
+            var getNode = function(nodeID){
+                return machine.nodes[nodeID];
+            }
+
+            this.setToInitialState();
+            traceObj.states.push(this.currentState.map(getNode));
+            traceObj.links.push(this.epsilonLinksUsed.map(getEpsLinkUsedObj));
+
+            var i = 0;
+            while(i < sequence.length && this.currentState.length > 0){
+                //Advance machine
+                inputSymbol = sequence[i];
+                this.step(inputSymbol);
+
+                //Record new state and links used to get there
+                traceObj.states.push(this.currentState.map(getNode));
+                linksUsedThisStep = [];
+                linksUsedThisStep = linksUsedThisStep.concat(this.epsilonLinksUsed.map(getEpsLinkUsedObj));
+                linksUsedThisStep = linksUsedThisStep.concat(this.nonEpsLinksUsed.map(getLinkUsedObj));
+                traceObj.links.push(linksUsedThisStep);
+
+                i = i + 1;
+            }
+
+            traceObj.doesAccept = this.isInAcceptingState();
+
+            return traceObj;
+
+
+        };
         this.getSpec = function(){
             //Returns an object that describes the current machine in the form accepted by Machine.build
             var spec = {"nodes": [], "links": [], "attributes":{
@@ -211,6 +274,7 @@ var Model = {
             }
             while (frontier.length > 0);
             this.linksUsed = this.linksUsed.concat(linksUsed);
+            this.epsilonLinksUsed = linksUsed;
         };
         this.step = function(symbol){
             // The machine changes its state based on an input symbol
@@ -228,6 +292,7 @@ var Model = {
             }
             this.currentState = newNodes;
             this.linksUsed = linksUsed;
+            this.nonEpsLinksUsed = linksUsed.map(x => x); //copy
             this.followEpsilonTransitions();
         };
 
@@ -385,6 +450,16 @@ var Model = {
             var allowEpsilon = this.machine.allowEpsilon;
             this.input = this.input.filter(x => alphabet.indexOf(x) !== -1);
             this.hasEpsilon = this.hasEpsilon && allowEpsilon;
+        }
+
+        this.inputIndexOf = function(symbol){
+            //Given an input symbol, return the index of that symbol in this.input
+            var index = this.input.indexOf(symbol)
+            if(index < 0){
+                throw new Error(`Symbol:'${symbol}' not found in link ${this.id}`);
+            } else {
+                return index;
+            }
         }
     },
     //Holds the question logic and the variables that govern the current question.

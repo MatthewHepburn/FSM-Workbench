@@ -467,6 +467,32 @@ describe('Model', function() {
                 expect(traceObj.doesAccept).to.be.ok;
                 expect(traceObj.input).to.be.ok
             });
+            it("the traceObj.states array should be correct", function(){
+                //traceObj.states should be a list of lists of nodes: [[Node], [Node, Node, Node], [Node]]
+                expect(traceObj.states.length).to.equal(3);
+                expect(traceObj.states[0][0].isInitial).to.be.true;
+                expect(traceObj.states[0].length).to.equal(1);
+                expect(traceObj.states[2][0].isAccepting).to.be.true;
+            });
+            it("the traceObj.links array should be correct",function(){
+                //traceObj.links should be a list of lists of objects: [[{link:Link, epsUsed:false, inputIndex:0}, {link:Link, epsUsed:true}],[{}]]
+                expect(traceObj.links.length).to.equal(3);
+                expect(traceObj.links[0].length).to.equal(0); //As no links taken before first input;
+
+                expect(traceObj.links[1].length).to.equal(1);
+                expect(traceObj.links[1][0].epsUsed).to.be.false;
+                expect(traceObj.links[1][0].inputIndex).to.equal(0)
+
+                expect(traceObj.links[2].length).to.equal(1);
+                expect(traceObj.links[2][0].epsUsed).to.be.false;
+                expect(traceObj.links[2][0].inputIndex).to.equal(0)
+            });
+            it("traceObj.doesAccept should be true", function(){expect(traceObj.doesAccept).to.be.true});
+            it("traceObj.input should be correct", function(){
+                expect(traceObj.input.length).to.equal(2);
+                expect(traceObj.input[0]).to.equal("a");
+                expect(traceObj.input[1]).to.equal("b");
+            });
         });
     });
 
