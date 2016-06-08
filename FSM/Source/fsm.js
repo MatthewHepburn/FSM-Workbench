@@ -947,6 +947,28 @@ var Display = {
             return Display.canvasVars[canvasID].linkInProgressNode;
         }
     },
+    appendLinkLabelTspans:function(element,link){
+        //Append <tspan> to element. Allows individual input elements to be addressable, allowing them to be highlighted.
+        var e = d3.select(element)
+        for(var i = 0; i < link.input.length; i++){
+            //TODO implement case for transducers
+            e.append("tspan")
+             .text(link.input[i])
+             .attr("id", link => `${link.id}-input-${i}`);
+
+            //Add separator
+            if(i < link.input.length - 1 && !link.hasEpsilon){
+                e.append("tspan")
+                 .text(", ")
+                 .classed("linklabel-separator", true);
+            }
+        }
+        if(link.hasEpsilon){
+            e.append("tspan")
+             .text("ε")
+             .attr("id",link => `${link.id}-input-eps`);
+        }
+    },
     linkLabelText:function(link){
         //Create the label string for a link
         var labelString;
@@ -1113,14 +1135,15 @@ var Display = {
                .attr("id", function(d){return "linkpad" + d.id;});
 
         // Add link labels
-        newLinks.append("svg:text")
+        var textElements = newLinks.append("svg:text")
             .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
             .on("click", function(link){EventHandler.linkClick(link);})
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
             .attr("font-size", 1.2 * Display.acceptingRadius) // Set the font height, using the radius of the inner ring of accepting nodes as a somewhat arbitrary reference point.
             .attr("id", function(link){return link.id + "-label";})
-            .text(function(link){return Display.linkLabelText(link);});
+
+        textElements.each(function(link){Display.appendLinkLabelTspans(this, link)});
 
         linkGs.exit().remove(); //Remove links whose data has been deleted
 
