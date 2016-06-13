@@ -610,6 +610,10 @@ var Display = {
             d3.select(`#${linkID}`).classed("trace-used-link", true)
             if(linkUsageObj.epsUsed){
                 //Handle case of epsilon link
+                d3.select(`#${linkID}-input-eps`).classed("trace-used-link-input", true)
+            } else {
+                var inputIndex = linkUsageObj.inputIndex;
+                d3.select(`#${linkID}-input-${inputIndex}`).classed("trace-used-link-input", true)
             }
         }
     },
@@ -629,7 +633,7 @@ var Display = {
     },
     resetTraceStyling(svg){
         //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
-        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link"]
+        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link", "trace-used-link-input"]
         traceClasses.forEach(function(className){
             svg.selectAll("." + className).classed(className, false)
         })
@@ -1173,6 +1177,20 @@ var Display = {
             canvasVars.submitRenameFunction(renameForm);
         }
     },
+    clearMenus:function(svg){
+        //Submits rename menus, dismisses the trace, dismisses context menus
+        //Accepts a d3 selection or a canvasID
+        if(!(svg instanceof d3.selection)){
+            var canvasID = svg;
+            svg = d3.select(`#${svg}`);
+        } else {
+            canvasID = svg.attr("id");
+        }
+        Display.submitAllRename(canvasID);
+        Display.dismissTrace(svg);
+        Display.dismissContextMenu();
+
+    },
     setUpQuestion: function(){
         var qType = Model.question.type;
         var checkButtonTypes = ["give-list"]; //Question types with a check button
@@ -1553,9 +1571,10 @@ var Controller = {
         Display.newCanvas(machineID, newMachine);
         Display.update(machineID);
     },
-    beginLink: function(souceNode){
+    beginLink: function(sourceNode){
         // Called when the user is using the link tool add a link starting from sourceNode
-        Display.beginLink(souceNode);
+        Display.clearMenus(sourceNode.machine.id);
+        Display.beginLink(sourceNode);
     },
     checkAnswer: function(){
         //Check if input must be collected
@@ -1620,6 +1639,7 @@ var Controller = {
     },
     endLink: function(canvasID){
         // Called to end a link creation action.
+        Display.clearMenus(canvasID)
         Display.endLink(canvasID);
     },
     createLink: function(sourceNode, targetNode){
@@ -1635,6 +1655,7 @@ var Controller = {
         var newLink = sourceNode.machine.addLink(sourceNode, targetNode);
         Controller.endLink(sourceNode.machine.id);
         Display.update(sourceNode.machine.id);
+        Display.clearMenus(sourceNode.machine.id);
         Controller.requestLinkRename(newLink);
 
     },
@@ -1643,28 +1664,32 @@ var Controller = {
         Display.deleteCanvas(machineID);
     },
     deleteLink: function(link){
+        Display.clearMenus(link.machine.id);
         link.machine.deleteLink(link);
         Display.update(link.machine.id);
     },
     createNode: function(machine, x, y, isInitial, isAccepting){
+        Display.clearMenus(machine.id);
         machine.addNode(x, y, "", isInitial, isAccepting);
         Display.update(machine.id);
     },
     deleteNode: function(node){
+        Display.clearMenus(node.machine.id);
         node.machine.deleteNode(node);
         Display.update(node.machine.id);
     },
     reverseLink: function(link){
+        Display.clearMenus(link.machine.id);
         link.reverse();
         Display.update(link.machine.id);
         Display.updateAllLinkLabels(link.machine.id);
     },
     requestLinkRename: function(link){
+        // Submit any currently open rename form on the same canvas.
+        Display.clearMenus(link.machine.id);
         var canvasID = link.machine.id;
         var svg = d3.select("#"+canvasID);
         var mousePosition = d3.mouse(svg.node());
-        // Submit any currently open rename form on the same canvas.
-        Display.submitAllRename(canvasID);
         if (link.machine.alphabet.length === 0){
             Display.drawUnconstrainedLinkRenameForm(canvasID, link);
         } else {
@@ -1673,17 +1698,19 @@ var Controller = {
     },
 
     requestNodeRename: function(node){
+        Display.clearMenus(node.machine.id);
         var canvasID = node.machine.id;
-        Display.submitAllRename(canvasID);
         Display.drawNodeRenameForm(canvasID, node);
     },
 
     setAlphabet: function(machine, alphabetArray){
+        Display.clearMenus(machine.id);
         machine.setAlphabet(alphabetArray);
         Display.updateAllLinkLabels(machine.id);
     },
 
     startTrace: function(machine, sequence){
+        Display.clearMenus(machine.id);
         var traceObj = machine.getTrace(sequence);
         Display.drawTrace(machine.id, traceObj)
     },
@@ -1738,21 +1765,28 @@ var Controller = {
         link.setInput(input, hasEpsilon);
         Display.updateLinkLabel(link);
         Display.dismissRenameMenu(link.machine.id);
+        Display.clearMenus(canvasID);
     },
     submitNodeRename: function(node, newName){
         node.name = newName;
         Display.updateNodeName(node);
         Display.dismissRenameMenu(node.machine.id);
+        Display.clearMenus(node.machine.id);
     },
     toggleAccepting: function(node){
         node.toggleAccepting();
         Display.update(node.machine.id);
+        Display.clearMenus(node.machine.id);
     },
     toggleInitial: function(node){
         node.toggleInitial();
         Display.update(node.machine.id);
+        Display.clearMenus(node.machine.id);
     },
     toolSelect: function(canvasID, oldMode, newMode){
+        if(newMode !== "none"){
+            Display.clearMenus(canvasID);
+        }
         if(oldMode === "linetool"){
             Controller.endLink(canvasID);
         }

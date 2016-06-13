@@ -447,11 +447,11 @@ input[type=checkbox]{
 }
 
 .trace-current{
-  fill: #00FF00 !important;
+  fill: #49E20E !important;
 }
 
 .trace-consumed{
-  color: #444444 !important;
+  fill: #A7A7A7 !important;
 }
 
 .input.trace-consumed{
@@ -464,5 +464,15 @@ input[type=checkbox]{
 }
 
 .input.trace-next{
+  text-decoration: underline;
+}
+
+.trace-used-link{
+  stroke: #3A6629 !important;
+  stroke-width: 2;
+}
+
+.trace-used-link-input{
+  fill: #3A6629;
   text-decoration: underline;
 }
