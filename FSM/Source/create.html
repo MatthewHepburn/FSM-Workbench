@@ -9,7 +9,9 @@
   </head>
 
   <body class="canvas"
-  data-machinelist= '[{"nodes":[{"id":"A","x":0,"y":50,"isInit":true},{"id":"B","x":50,"y":50},{"id":"C","x":50,"y":100},{"id":"D","x":200,"y":50,"isAccepting":true}],"links":[{"from":"A","to":"B","input":["c"]},{"from":"B","to":"C","input":["d"]},{"from":"C","to":"B","input":["e"]},{"from":"B","to":"D","input":["f"]}],"attributes":{"alphabet":["10p","20p"],"isTransducer":false,"allowEpsilon":false}}]'
+  data-machinelist= '[{"nodes":[{"id":"A","x":91,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],
+                            "links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],
+                            "attributes":{"alphabet":["a","b"],"allowEpsilon":false,"isTransducer":false}}]'
   data-iconaddress = 'img/icons/'>
     <div class="maindiv" style="width:85%">
         <div class="menu">

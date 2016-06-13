@@ -23,6 +23,13 @@ var Model = {
         }
         return list;
     },
+    parseInput(inputString, splitSymbol){
+        //Takes an input string (e.g. "abbbc") and returns a sequence based on the split symbol (e.g. ["a", "b", "b", "b", "c"])
+        if(splitSymbol === undefined){
+            splitSymbol = this.question.splitSymbol;
+        }
+        return inputString.split(splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0);
+    },
     // Constructor for a machine object
     // TODO consider adding functions via the prototype instead of adding them in the constructor for memory efficiency.
     Machine: function(id) {
@@ -134,6 +141,7 @@ var Model = {
             //Setup object
             var traceObj = {states:[], links:[], doesAccept: undefined, input: undefined};
             traceObj.input = JSON.parse(JSON.stringify(sequence)); //JSON copy
+            traceObj.inputSeparator = JSON.parse(JSON.stringify(Model.question.splitSymbol));
 
             var linksUsedThisStep = [];
             var machine = this;
@@ -465,6 +473,7 @@ var Model = {
     //Holds the question logic and the variables that govern the current question.
     question: {
         type: "none",
+        splitSymbol:"",
         allowEditing: true,
         setUpQuestion: function(questionObj){
             // Assign properties from the question object to this object

@@ -7,8 +7,15 @@ var create = {
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
             .on("click", function(){
-                var input = model.parseInput(document.querySelector("#traceform").value);
-                display.showTrace(input);
+                var machine = Model.machines[0]
+                //Try to guess a split symbol
+                var splitSymbol = ""
+                if(machine.alphabet.filter(x => x.length > 1).length > 0){ //True if the alphabet contains a symbol longer than 1 char.
+                    splitSymbol = " "
+                }
+                var input = Model.parseInput(document.querySelector("#traceform").value, splitSymbol);
+
+                Controller.startTrace(machine, input);
                 console.log(input);
             });
     },

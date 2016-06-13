@@ -558,10 +558,43 @@ var Display = {
         }
         svg.classed("trace", true);
 
+        //create a g to hold all trace objects
         var traceG = svg.append("g")
                         .classed("trace-g", true);
 
+        //Add the trace controls to that g
         Display.appendTraceControls(svg, traceG);
+
+        //Draw the input text
+        Display.appendInputText(svg, traceG, traceObj.input, traceObj.inputSeparator)
+    },
+    appendInputText: function(svg, element, input, separator){
+        //Create a text element to hold the input text
+        var textElement = element.append("g").classed("trace-input", true).append("text");
+        var canvasID = svg.attr("id")
+
+        //Add the input text as tspans
+        for(var i = 0; i < input.length; i++){
+            textElement.append("tspan").text(input[i]).attr("id", `${canvasID}-trace-input-${i}`)
+            //Add separator if not last element
+            if(i < input.length + 1){
+                textElement.append("tspan").text(separator + "   ").attr("id",`${canvasID}-trace-input-separator-${i}`).attr("xml:space", "preserve")
+            }
+
+        }
+
+        //Position text element
+        var svgWidth = svg.attr("width");
+        var svgHeight = svg.attr("height");
+        var textY = 0.07 * svgHeight;
+        var textWidth = textElement.node().getBBox().width;
+        var textX = svgWidth/2 - textWidth/2;
+        //prevent text disappearing off left side:
+        if (textX < 0.02 * svgWidth){
+            textX = 0.02 * svgWidth;
+        }
+        textElement.attr("y", textY);
+        textElement.attr("x", textX);
     },
     appendTraceControls(svg, element){
         var iconAddress = Global.iconAddress;
@@ -1584,7 +1617,7 @@ var Controller = {
     },
 
     startTrace: function(machine, sequence){
-        var traceObj = machine.getTrace();
+        var traceObj = machine.getTrace(sequence);
         Display.drawTrace(machine.id, traceObj)
     },
 
