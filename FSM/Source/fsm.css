@@ -442,3 +442,27 @@ input[type=checkbox]{
   text-decoration: none;
 }
 
+.trace-not-current{
+  fill: #FFFFFF !important;
+}
+
+.trace-current{
+  fill: #00FF00 !important;
+}
+
+.trace-consumed{
+  color: #444444 !important;
+}
+
+.input.trace-consumed{
+  text-decoration:  line-through;
+}
+
+
+.trace-next{
+  color: black;
+}
+
+.input.trace-next{
+  text-decoration: underline;
+}

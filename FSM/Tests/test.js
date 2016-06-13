@@ -448,7 +448,7 @@ describe('Model', function() {
         }).pass
     });
 
-    describe("Test the Machine.getTrace()", function(){
+    describe("Test Machine.getTrace()", function(){
         describe("Test with a simple machine with only 3 states", function(){
             var machine, traceObj
             before(function(){

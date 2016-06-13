@@ -551,10 +551,13 @@ var Display = {
     },
     drawTrace:function(canvasID, traceObj){
         var svg = d3.select(`#${canvasID}`)
+        var canvasVars = Display.getCanvasVars(canvasID)
+        canvasVars.traceStep = 0;
+        canvasVars.traceObj = traceObj
+
         //Check if trace is already present;
         if (svg.classed("trace")){
             Display.dismissTrace(svg);
-            return;
         }
         svg.classed("trace", true);
 
@@ -563,10 +566,62 @@ var Display = {
                         .classed("trace-g", true);
 
         //Add the trace controls to that g
-        Display.appendTraceControls(svg, traceG);
+        Display.appendTraceControls(svg, traceG, canvasID);
 
         //Draw the input text
         Display.appendInputText(svg, traceG, traceObj.input, traceObj.inputSeparator)
+
+        //Initialise trace
+        Display.drawTraceStep(svg, 0, canvasID)
+    },
+    drawTraceStep(svg, step, canvasID){
+        var canvasVars = Display.getCanvasVars(canvasID)
+        canvasVars.traceStep = step;
+        var traceObj = canvasVars.traceObj
+
+        //reset all trace styling
+        Display.resetTraceStyling(svg)
+
+        //Class next input element
+        svg.select(`#${canvasID}-trace-input-${step}`).classed("trace-next", true)
+        svg.select(`#${canvasID}-trace-input-separator-${step}`).classed("trace-next", true)
+
+        //Class consumed input
+        for(var i = 0;  i < step; i++){
+            svg.select(`#${canvasID}-trace-input-${i}`).classed("trace-consumed", true)
+            svg.select(`#${canvasID}-trace-input-separator-${i}`).classed("trace-consumed", true)
+        }
+
+        //Class all nodes as not current
+        svg.selectAll(".node").classed("trace-not-current", true)
+
+        //Class current states
+        var currentNodes = traceObj.states[step];
+        for(var i = 0; i < currentNodes.length; i++){
+            var nodeID = currentNodes[i].id;
+            d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false)
+        }
+    },
+    stepTrace:function(svg, deltaStep, machineID){
+        //advances the trace by deltaStep steps. NB deltaStep can be negative => deltaStep = -1 means move back one step
+        var canvasVars = Display.getCanvasVars(machineID);
+        var currentStep = canvasVars.traceStep;
+        var traceObj = canvasVars.traceObj;
+        var newStep = currentStep + deltaStep
+
+        //Ensure new step is in allowed range
+        if(newStep < 0 || newStep >=traceObj.states.length){
+            return;
+        }
+
+        Display.drawTraceStep(svg, newStep, machineID)
+    },
+    resetTraceStyling(svg){
+        //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
+        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current"]
+        traceClasses.forEach(function(className){
+            svg.selectAll("." + className).classed(className, false)
+        })
     },
     appendInputText: function(svg, element, input, separator){
         //Create a text element to hold the input text
@@ -575,10 +630,10 @@ var Display = {
 
         //Add the input text as tspans
         for(var i = 0; i < input.length; i++){
-            textElement.append("tspan").text(input[i]).attr("id", `${canvasID}-trace-input-${i}`)
+            textElement.append("tspan").text(input[i]).attr("id", `${canvasID}-trace-input-${i}`).classed("input", true)
             //Add separator if not last element
             if(i < input.length + 1){
-                textElement.append("tspan").text(separator + "   ").attr("id",`${canvasID}-trace-input-separator-${i}`).attr("xml:space", "preserve")
+                textElement.append("tspan").text(separator + "   ").attr("id",`${canvasID}-trace-input-separator-${i}`).attr("xml:space", "preserve").classed("input-separator", true)
             }
 
         }
@@ -596,18 +651,17 @@ var Display = {
         textElement.attr("y", textY);
         textElement.attr("x", textX);
     },
-    appendTraceControls(svg, element){
+    appendTraceControls(svg, element, canvasID){
         var iconAddress = Global.iconAddress;
         var bwidth = 20; //button width
         var strokeWidth = 1;
         var margin = 5;
-        var canvasID = svg.attr("id");
 
         var g = element.append("g").classed("tracecontrols", true);
         // Tool names and functions to call on click.
-        var tools = [["rewind", function(){Display.rewindTraces(svg)}],
-                     ["back", function(){Display.stepTraceBack(svg)}],
-                     ["forward", function(){Display.stepTraceForward(svg)}],
+        var tools = [["rewind", function(){Display.drawTraceStep(svg, 0, canvasID)}],
+                     ["back", function(){Display.stepTrace(svg, -1, canvasID)}],
+                     ["forward", function(){Display.stepTrace(svg, 1, canvasID)}],
                      ["stop", function(){Display.dismissTrace(svg)}]];
         var width = svg.attr("width")
         var height = svg.attr("height")
@@ -637,6 +691,7 @@ var Display = {
     dismissTrace(svg){
         svg.select(".trace-g").remove();
         svg.classed("trace", false);
+        Display.resetTraceStyling(svg);
     },
     drawUnconstrainedLinkRenameForm: function(canvasID, link){
         // This function creates a rename form as a textbox where anything can be entered

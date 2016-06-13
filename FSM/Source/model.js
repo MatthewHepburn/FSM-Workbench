@@ -142,6 +142,7 @@ var Model = {
             var traceObj = {states:[], links:[], doesAccept: undefined, input: undefined};
             traceObj.input = JSON.parse(JSON.stringify(sequence)); //JSON copy
             traceObj.inputSeparator = JSON.parse(JSON.stringify(Model.question.splitSymbol));
+            traceObj.machineID = this.id;
 
             var linksUsedThisStep = [];
             var machine = this;
