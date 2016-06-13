@@ -601,6 +601,17 @@ var Display = {
             var nodeID = currentNodes[i].id;
             d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false)
         }
+
+        //Classs used links and link inputs
+        var usedLinks = traceObj.links[step]
+        for(var i = 0; i < usedLinks.length; i++){
+            var linkUsageObj = usedLinks[i];
+            var linkID = linkUsageObj.link.id;
+            d3.select(`#${linkID}`).classed("trace-used-link", true)
+            if(linkUsageObj.epsUsed){
+                //Handle case of epsilon link
+            }
+        }
     },
     stepTrace:function(svg, deltaStep, machineID){
         //advances the trace by deltaStep steps. NB deltaStep can be negative => deltaStep = -1 means move back one step
@@ -618,7 +629,7 @@ var Display = {
     },
     resetTraceStyling(svg){
         //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
-        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current"]
+        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link"]
         traceClasses.forEach(function(className){
             svg.selectAll("." + className).classed(className, false)
         })
@@ -1101,7 +1112,7 @@ var Display = {
              .attr("id", link => `${link.id}-input-${i}`);
 
             //Add separator
-            if(i < link.input.length - 1 && !link.hasEpsilon){
+            if(i < link.input.length - 1 || link.hasEpsilon){
                 e.append("tspan")
                  .text(", ")
                  .classed("linklabel-separator", true);
@@ -1312,7 +1323,8 @@ var Display = {
     },
     updateLinkLabel: function(link){
         var svg = d3.select("#" + link.machine.id);
-        svg.select("#" + link.id + "-label").text(Display.linkLabelText(link));
+        var label = svg.select("#" + link.id + "-label").text("").node();
+        Display.appendLinkLabelTspans(label, link)
     },
     repositionAllLinkLabels: function(){
         for(var canvasID in Display.canvasVars){
@@ -1722,7 +1734,7 @@ var Controller = {
     submitLinkRename: function(canvasID, link, formType){
         var inputObj = Display.getLinkRenameResult(canvasID, formType);
         var input = inputObj.input;
-        var hasEpsilon = input.hasEpsilon;
+        var hasEpsilon = inputObj.hasEpsilon;
         link.setInput(input, hasEpsilon);
         Display.updateLinkLabel(link);
         Display.dismissRenameMenu(link.machine.id);
