@@ -498,31 +498,48 @@ var Model = {
             }
         },
         checkGiveList: function(input){
+            // Input received as list of strings.
             var machine = Model.machines[0];
-
-            // Input received as list of strings. Split each of the strings as specifed by the question and remove whitespace
-            // Eg a splitSymbol of "" would process the strings character-by-character, " " would process them like words
-            input = input.map(x => x.split(this.splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0));
-            // Filter here to ensure that the new array doesn't contain the empty string
 
             var allCorrectFlag = true;
             var messages = new Array(Model.question.lengths.length).fill(""); // feedback messages to show the user for each question
             var isCorrectList = new Array(Model.question.lengths.length).fill(true); // Tracks whether each answer is correct
+            var seen = [] //Use to catch duplicates. Not an efficient algorithm but the dataset is tiny.
 
-            input.forEach(function(sequence, index){
+            input.forEach(function(string, index){
+                var sequence = Model.parseInput(string)
                 var thisLength = sequence.length;
                 var expectedLength = Model.question.lengths[index];
                 if (thisLength !== expectedLength){
                     allCorrectFlag = false;
                     isCorrectList[index] = false;
-                    messages[index] = `Incorrect length - expected ${expectedLength} but got ${thisLength}.`;
+                    messages[index] = `Incorrect length – expected ${expectedLength} but got ${thisLength}.`;
                     return;
                 }
-                // Correct length - check if machine accepts
+                // Correct length – check if duplicate
+                if(seen.indexOf(string)!== -1){
+                    allCorrectFlag = false
+                    isCorrectList[index] = false;
+                    messages[index] = `Incorrect – duplicate entry.`;
+                    return;
+                }
+                seen.push(string)
+
+                //Not duplicate – check if all symbols are in the machine's alphabet
+                var nonAlphabetSymbols = sequence.filter(x => machine.alphabet.indexOf(x) === -1)
+                if(nonAlphabetSymbols.length > 0){
+                    allCorrectFlag = false
+                    isCorrectList[index] = false;
+                    messages[index] = `Incorrect – '${nonAlphabetSymbols[0]}' is not in the machine's alphabet.`;
+                    return;
+                }
+
+                //Sequence is within alphabet – check if the machine accepts it
                 if (!machine.accepts(sequence)){
                     allCorrectFlag = false;
                     isCorrectList[index] = false;
-                    messages[index] = "Incorrect - not accepted by machine";
+                    messages[index] = "Incorrect – not accepted by machine.";
+                    return;
                 }
             });
 

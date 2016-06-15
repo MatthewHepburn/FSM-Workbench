@@ -405,7 +405,7 @@ describe('Model', function() {
             input = ["cdef", "cdef"]
             feedbackObj = model.question.checkAnswer(input);
             expect(feedbackObj).to.be.ok;
-            expect(feedbackObj.isCorrectList[0]).to.be.false;
+            expect(feedbackObj.isCorrectList[0]).to.be.true;
             expect(feedbackObj.allCorrectFlag).to.be.false;
             expect(feedbackObj.messages.reduce((x,y) => x + y, "")).to.not.equal(""); //all message entries should not be empty;
         })
