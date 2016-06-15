@@ -246,6 +246,24 @@ var Display = {
         text.remove();
         return result;
     },
+    giveFeedback: function(feedbackObj){
+        if(Model.question.type == "satisfy-list"){
+            feedbackObj.acceptList.forEach(function(isCorrect, i){
+                d3.select(`#td-acc-adj-${i}`)
+                  .text("")
+                  .append("img")
+                  .classed("x-check", true)
+                  .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
+            })
+            feedbackObj.rejectList.forEach(function(isCorrect, i){
+                d3.select(`#td-rej-adj-${i}`)
+                  .text("")
+                  .append("img")
+                  .classed("x-check", true)
+                  .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
+            })
+        }
+    },
     drawGearIcon: function(svg){
         //Draw a gear icon in the top right corner, and register a function to draw the settings menu on click.
 
@@ -1193,7 +1211,7 @@ var Display = {
     },
     setUpQuestion: function(){
         var qType = Model.question.type;
-        var checkButtonTypes = ["give-list"]; //Question types with a check button
+        var checkButtonTypes = ["give-list", "satisfy-list"]; //Question types with a check button
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }

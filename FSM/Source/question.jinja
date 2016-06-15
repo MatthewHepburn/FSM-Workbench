@@ -45,12 +45,12 @@
               <tr><th>Accept</th><th class="table-space"> </th><th>Reject</th><th class="table-space"> </th></tr>
               {%- for n in range(0, longestLength) -%}
                 {%- if n < shouldAccept|length -%}
-                  <tr><td id="td-acc-{{ loop.index0}}">'{{ shouldAccept[loop.index0]}}'</td> <td id="td-acc-adj-{{ loop.index0}}"></td>
+                  <tr><td class="satisfy-list" id="td-acc-{{ loop.index0}}">'{{ shouldAccept[loop.index0]}}'</td> <td id="td-acc-adj-{{ loop.index0}}"></td>
                 {%- else -%}
                   <tr><td></td><td></td>
                 {%- endif -%}
                 {%- if n < shouldReject|length -%}
-                  <td id="td-rej-{{ loop.index0 }}">'{{ shouldReject[loop.index0]}}'</td> <td id="td-acc-adj-{{ loop.index0}}"></td></tr>
+                  <td class="satisfy-list" id="td-rej-{{ loop.index0 }}">'{{ shouldReject[loop.index0]}}'</td> <td id="td-rej-adj-{{ loop.index0}}"></td></tr>
                 {%- else -%}
                   <td></td><td></td></tr>
                 {%- endif -%}
