@@ -12,7 +12,7 @@
     </style>
     <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-    <link rel="stylesheet" href="{{ addresses.cssAddress }}fsm2.css">
+    <link rel="stylesheet" href="{{ addresses.cssAddress }}fsm.css">
   </head>
 
   <body class="canvas" data-machinelist='{{ machinelist }}'
@@ -42,18 +42,19 @@
       <div class="button-div"><button id="check-button" class="pure-button" type="submit">Check</button></div>
       {% endif %}
     </div>
-    <svg id="m1" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
+    <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
       <g class="links"></g>
       <g class="nodes"></g>
-          <defs>
-            <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
-            <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
-        </defs>
+      <defs>
+        <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
+        <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
+      </defs>
     </svg>
-    <div class="rate"> Good question? <br><a id='rate-yes' class='rate-button pure-button'>Yes</a><a id='rate-no' class='rate-button pure-button'>No</a> </div>
+  <div class="rate"> Good question? <br><a id='rate-yes' class='rate-button pure-button'>Yes</a><a id='rate-no' class='rate-button pure-button'>No</a> </div>
   <div class='survey'><a href="https://www.surveymonkey.com/r/L33JCRN">Take survey</a></div>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
-  <script defer src="{{ addresses.jsAddress }}fsm2.js"></script>
+  <script defer src="{{ addresses.jsAddress }}model.js"></script>
+  <script defer src="{{ addresses.jsAddress }}fsm.js"></script>
   </div>
   {% if showSidebar %}
   <div class="sidebar">
