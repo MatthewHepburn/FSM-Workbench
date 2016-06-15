@@ -17,25 +17,25 @@
         "nodes": [
           {
             "id": "A",
-            "x": 283,
-            "y": 210,
+            "x": 83,
+            "y": 160,
             "isInit": true
           },
           {
             "id": "B",
-            "x": 432,
-            "y": 218
+            "x": 232,
+            "y": 168
           },
           {
             "id": "C",
-            "x": 572,
-            "y": 274,
+            "x": 372,
+            "y": 224,
             "isAcc": true
           },
           {
             "id": "D",
-            "x": 549,
-            "y": 123,
+            "x": 349,
+            "y": 73,
             "isAcc": true
           }
         ],
@@ -74,5 +74,78 @@
     "filename": "give-list-1",
     "name": "Accepting States II",
     "id": "f6161c3cac004a418b340bb2eebd79f8"
+  },
+  {
+    "data-question": {
+      "type": "satisfy-list",
+      "text": "test question",
+      "splitSymbol": "",
+      "shouldAccept": [
+        "ab",
+        "aab",
+        "aaaab",
+        "aaaaab"
+      ],
+      "shouldReject": [
+        "",
+        "a",
+        "b",
+        "aba",
+        "ba",
+        "aaaaba",
+        "ababa"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 90,
+            "y": 120,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 190,
+            "y": 123
+          },
+          {
+            "id": "C",
+            "x": 290,
+            "y": 119,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true,
+          "isTransducer": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "satisfy-list-1",
+    "name": "satisfy-list-1-test",
+    "id": "d2136f8744124f798cdc35e6b0beb9aa"
   }
 ]

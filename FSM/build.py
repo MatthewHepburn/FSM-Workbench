@@ -136,6 +136,13 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
             variables["lengths"] = questionJSON["lengths"]
             variables["prefill"] = changePrefillFormat(variables["lengths"], questionJSON["prefill"])
 
+        if variables["questionType"] == "satisfy-list":
+            longestLength = max(len(questionJSON["shouldAccept"]), len(questionJSON["shouldReject"]))
+            variables["shouldAccept"] = questionJSON["shouldAccept"]
+            variables["shouldReject"] = questionJSON["shouldReject"]
+            variables["longestLength"] = longestLength
+
+
         # Omit check button for some question types.
         if variables["questionType"] != "demo" and variables["questionType"] != "none":
             variables["hasCheck"] = True
@@ -172,6 +179,16 @@ def getQuestionList(qDict):
     keys = qDict.keys()
     newList = sorted(keys, key=lambda pageID: qDict[pageID]["question-number"])
     return newList
+
+def padList(inList, targetLength, symbol):
+    #Returns a copy of the provided list, padded out to the target length if it is shorter using symbol
+    #e.g. padList([1,2], 3, "") => [1,2,""]
+    returnList = list(inList)
+    nToAdd = targetLength - len(returnList)
+    if nToAdd < 1:
+        return returnList
+    return returnList + ([symbol] * nToAdd);
+
 
 
 if __name__ == "__main__":
