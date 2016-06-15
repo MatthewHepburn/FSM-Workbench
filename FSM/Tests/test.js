@@ -396,6 +396,20 @@ describe('Model', function() {
             expect(feedbackObj.isCorrectList.reduce((x,y) => x || y, false)).to.be.false //all isCorrect entries should be false;
         });
 
+        it("should reject duplicate entries", function(){
+            questionObj = {"type": "give-list",
+                           "lengths": [4,4],
+                           "splitSymbol": ""
+                        };
+            model.question.setUpQuestion(questionObj)
+            input = ["cdef", "cdef"]
+            feedbackObj = model.question.checkAnswer(input);
+            expect(feedbackObj).to.be.ok;
+            expect(feedbackObj.isCorrectList[0]).to.be.false;
+            expect(feedbackObj.allCorrectFlag).to.be.false;
+            expect(feedbackObj.messages.reduce((x,y) => x + y, "")).to.not.equal(""); //all message entries should not be empty;
+        })
+
 
     });
 
