@@ -34,9 +34,16 @@ div.question-text{
   font-family: 'Ek Mukta', sans-serif;
 }
 
-.pure-form-aligned .pure-control-group label {
-  width: 5.2em;
+.satisfy-list-label{
+  width: 5.2em !important;
   font-family: 'Ek Mukta', sans-serif;
+}
+
+.satisfy-list-feedback{
+  margin-left: 0.25em !important;
+  font-family: 'Ek Mukta', sans-serif;
+  text-align: left !important;
+  width: unset !important;
 }
 
 .pure-form-aligned .pure-control-group {
@@ -312,21 +319,22 @@ input[type=checkbox]{
   padding-bottom: 0px;
 }
 
+.satisfy-list{
+  cursor: pointer;
+}
 
-
+.satisfy-list:hover {
+  text-decoration: underline;
+}
 
 .qtable {
   width: 110%;
+  font-family: 'Ek Mukta', sans-serif;
 }
 
 .qtable th {
   text-align: left
 }
-
-.qtable {
-  font-family: 'Ek Mukta', sans-serif;
-}
-
 .table-div {
   display: table;
 }

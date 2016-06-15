@@ -247,22 +247,57 @@ var Display = {
         return result;
     },
     giveFeedback: function(feedbackObj){
-        if(Model.question.type == "satisfy-list"){
-            feedbackObj.acceptList.forEach(function(isCorrect, i){
-                d3.select(`#td-acc-adj-${i}`)
-                  .text("")
-                  .append("img")
-                  .classed("x-check", true)
-                  .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
-            })
-            feedbackObj.rejectList.forEach(function(isCorrect, i){
-                d3.select(`#td-rej-adj-${i}`)
-                  .text("")
-                  .append("img")
-                  .classed("x-check", true)
-                  .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
-            })
+        if(Model.question.type === "satisfy-list"){
+            Display.giveFeedbackForSatisfyList(feedbackObj);
+            return;
         }
+        if(Model.question.type === "give-list"){
+            Display.giveFeedbackForGiveList(feedbackObj);
+            return;
+        }
+        throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
+    },
+    giveFeedbackForGiveList: function(feedbackObj){
+        for(var i = 0; i < feedbackObj.isCorrectList.length; i++){
+            var isCorrect = feedbackObj.isCorrectList[i];
+
+            //Clear any previous feedback
+            var feedbackLabel = d3.select(`#satisfy-list-feedback-${i}`).text("");
+            var inputBox = d3.select(`#qf${i}`).classed("correct", false).classed("incorrect", false)
+
+            //Do nothing if an input of length 0 was provided - assume that the user has simply not attempted that yet.
+            if(feedbackObj.input[i].length === 0){
+                continue;
+            }
+
+            //Add a tick/cross as needed
+            if(isCorrect){
+                var feedbackText = "✓ ";
+            } else {
+                feedbackText = "☓ ";
+            }
+            //Add the message
+            feedbackLabel.text(feedbackText + feedbackObj.messages[i])
+
+            //Style the input box:
+            d3.select(`#qf${i}`).classed("correct", isCorrect).classed("incorrect", !isCorrect)
+        }
+    },
+    giveFeedbackForSatisfyList: function(feedbackObj){
+        feedbackObj.acceptList.forEach(function(isCorrect, i){
+            d3.select(`#td-acc-adj-${i}`)
+              .text("")
+              .append("img")
+              .classed("x-check", true)
+              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
+        })
+        feedbackObj.rejectList.forEach(function(isCorrect, i){
+            d3.select(`#td-rej-adj-${i}`)
+              .text("")
+              .append("img")
+              .classed("x-check", true)
+              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
+        })
     },
     drawGearIcon: function(svg){
         //Draw a gear icon in the top right corner, and register a function to draw the settings menu on click.
@@ -1215,6 +1250,30 @@ var Display = {
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }
+
+        if(qType === "satisfy-list"){
+            //make list entries clickable to show trace
+            Model.question.shouldAccept.forEach(function(string, i){
+                var onclick = function(){
+                    var sequence = Model.parseInput(string);
+                    var machine = Model.machines[0];
+                    Controller.startTrace(machine, sequence)
+                }
+                d3.select(`#td-acc-${i}`)
+                  .on("click", onclick)
+            })
+
+            Model.question.shouldReject.forEach(function(string, i){
+                var onclick = function(){
+                    var sequence = Model.parseInput(string);
+                    var machine = Model.machines[0];
+                    Controller.startTrace(machine, sequence)
+                }
+                d3.select(`#td-rej-${i}`)
+                  .on("click", onclick)
+            })
+        }
+
     },
     update: function(canvasID){
         var colours = Display.canvasVars[canvasID].colours;
@@ -1596,7 +1655,7 @@ var Controller = {
     },
     checkAnswer: function(){
         //Check if input must be collected
-        if(["give-list"].indexOf(Model.question.type) !== 0){
+        if(["give-list"].indexOf(Model.question.type) !== -1){
             var input = Controller.getQuestionInput(Model.question.type)
         }
         var feedbackObj = Model.question.checkAnswer(input);
@@ -1608,7 +1667,7 @@ var Controller = {
         if(type === "give-list"){
             // Obtain the users input as a list of unproccessed strings
             input = [];
-            model.question.lengths.forEach(function(v, index){
+            Model.question.lengths.forEach(function(v, index){
                 input[index] = d3.select("#qf" + index).node().value;
             });
         }

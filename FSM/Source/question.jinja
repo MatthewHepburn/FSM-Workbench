@@ -30,27 +30,35 @@
     </div>
   	<div class="question">
       <div class="question-text">{{ questionHTML }}</div>
+
       {%- if lengths -%}
+      {# give-list questiont type #}
         <form class="pure-form-aligned pure-form qformblock" name="qform">
           {%- for len in lengths -%}
-            <div class="pure-control-group"><label for="qf{{ loop.index0 }}">{{ len }} symbols</label><input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value="{{ prefill[loop.index0] }}"></div>
+            <div class="pure-control-group">
+              <label class="satisfy-list-label" for="qf{{ loop.index0 }}">{{ len }} symbols</label>
+              <input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value="{{ prefill[loop.index0] }}">
+              <label for="qf{{ loop.index0 }}" class="satisfy-list-feedback" id="satisfy-list-feedback-{{ loop.index0 }}"> </label>
+            </div>
           {% endfor %}
           <input type=image src='{{ addresses.iconAddress }}spacer.gif'>
           </form>
       {% endif %}
+
       {%- if shouldAccept -%}
+      {# satisfy-list question type #}
         <div class="table-div">
           <table class="qtable">
             <tbody>
               <tr><th>Accept</th><th class="table-space"> </th><th>Reject</th><th class="table-space"> </th></tr>
               {%- for n in range(0, longestLength) -%}
                 {%- if n < shouldAccept|length -%}
-                  <tr><td class="satisfy-list" id="td-acc-{{ loop.index0}}">'{{ shouldAccept[loop.index0]}}'</td> <td id="td-acc-adj-{{ loop.index0}}"></td>
+                  <tr><td class="satisfy-list" id="td-acc-{{ loop.index0}}"><a>'{{ shouldAccept[loop.index0]}}'</a></td> <td id="td-acc-adj-{{ loop.index0}}"></td>
                 {%- else -%}
                   <tr><td></td><td></td>
                 {%- endif -%}
                 {%- if n < shouldReject|length -%}
-                  <td class="satisfy-list" id="td-rej-{{ loop.index0 }}">'{{ shouldReject[loop.index0]}}'</td> <td id="td-rej-adj-{{ loop.index0}}"></td></tr>
+                  <td class="satisfy-list" id="td-rej-{{ loop.index0 }}"><a>'{{ shouldReject[loop.index0]}}'</a></td> <td id="td-rej-adj-{{ loop.index0}}"></td></tr>
                 {%- else -%}
                   <td></td><td></td></tr>
                 {%- endif -%}
@@ -59,6 +67,7 @@
           </table>
         </div>
       {% endif %}
+
       {%- if hasCheck -%}
       <div class="button-div"><button id="check-button" class="pure-button" type="submit">Check</button></div>
       {% endif %}
