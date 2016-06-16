@@ -72,6 +72,18 @@
       {%- if hasCheck -%}
       <div class="button-div"><button id="check-button" class="pure-button" type="submit">Check</button></div>
       {% endif %}
+
+      {%- if inputAlphabet -%}
+      {# add input buttons for give-input #}
+      <div class="button-div">
+        {%- for char in inputAlphabet -%}
+        <button  class="give-input-button pure-button">{{char}}</button>
+        {%- endfor -%}
+        <button class="give-input-reset pure-button">Reset</button>
+      </div>
+
+      {%- endif -%}
+
     </div>
     <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
       <g class="links"></g>

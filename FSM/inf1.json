@@ -147,5 +147,105 @@
     "filename": "satisfy-list-1",
     "name": "satisfy-list-1-test",
     "id": "d2136f8744124f798cdc35e6b0beb9aa"
+  },
+  {
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 93,
+            "y": 120,
+            "isInit": true,
+            "name": "0"
+          },
+          {
+            "id": "B",
+            "x": 192,
+            "y": 123,
+            "name": "1"
+          },
+          {
+            "id": "C",
+            "x": 292,
+            "y": 125,
+            "name": "2"
+          },
+          {
+            "id": "D",
+            "x": 392,
+            "y": 128,
+            "name": "3"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "D",
+            "input": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true,
+          "isTransducer": false
+        }
+      }
+    ],
+    "data-question": {
+      "type": "give-input",
+      "text": "test",
+      "target": "accept",
+      "alphabet": [
+        "a",
+        "b"
+      ]
+    },
+    "data-options": {},
+    "filename": "give-input-1",
+    "name": "give-input-1-test",
+    "id": "1a26bbcde4524e74a94cced7fa5e57ce"
   }
 ]

@@ -142,12 +142,15 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
             variables["shouldReject"] = questionJSON["shouldReject"]
             variables["longestLength"] = longestLength
 
+        if variables["questionType"] == "give-input":
+            variables["inputAlphabet"] = questionJSON["alphabet"]
+
 
         # Omit check button for some question types.
-        if variables["questionType"] != "demo" and variables["questionType"] != "none":
-            variables["hasCheck"] = True
-        else:
+        if variables["questionType"] in ["none", "give-input"]:
             variables["hasCheck"] = False
+        else:
+            variables["hasCheck"] = True
 
         outputText = question_template.render(variables)
         filename = question["filename"] + ".html"

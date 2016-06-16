@@ -423,11 +423,11 @@ input[type=checkbox]{
   font-size: x-large;
 }
 
-#demo-reset{
+.give-input-reset{
   background-color: #DA3737;
 }
 
-.demo-button {
+.give-input-button {
     margin-right: 2px;
 }
 
