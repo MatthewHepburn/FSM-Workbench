@@ -606,7 +606,7 @@ var Display = {
             .text("OK");
 
     },
-    drawTrace:function(canvasID, traceObj){
+    drawTrace:function(canvasID, traceObj, hideControls){
         var svg = d3.select(`#${canvasID}`)
         var canvasVars = Display.getCanvasVars(canvasID)
         canvasVars.traceStep = 0;
@@ -623,7 +623,11 @@ var Display = {
                         .classed("trace-g", true);
 
         //Add the trace controls to that g
-        Display.appendTraceControls(svg, traceG, canvasID);
+        if(!hideControls){
+            // This option is used in the give-input question type.
+            Display.appendTraceControls(svg, traceG, canvasID);
+        }
+
 
         //Draw the input text
         Display.appendInputText(svg, traceG, traceObj.input, traceObj.inputSeparator)
@@ -674,8 +678,9 @@ var Display = {
             }
         }
     },
-    stepTrace:function(svg, deltaStep, machineID){
+    stepTrace:function(machineID, deltaStep){
         //advances the trace by deltaStep steps. NB deltaStep can be negative => deltaStep = -1 means move back one step
+        var svg = d3.select("#" + machineID);
         var canvasVars = Display.getCanvasVars(machineID);
         var currentStep = canvasVars.traceStep;
         var traceObj = canvasVars.traceObj;
@@ -731,9 +736,9 @@ var Display = {
 
         var g = element.append("g").classed("tracecontrols", true);
         // Tool names and functions to call on click.
-        var tools = [["rewind", function(){Display.drawTraceStep(svg, 0, canvasID)}],
-                     ["back", function(){Display.stepTrace(svg, -1, canvasID)}],
-                     ["forward", function(){Display.stepTrace(svg, 1, canvasID)}],
+        var tools = [["rewind", function(){Display.drawTraceStep(canvasID, 0)}],
+                     ["back", function(){Display.stepTrace(canvasID, -1)}],
+                     ["forward", function(){Display.stepTrace(canvasID, 1)}],
                      ["stop", function(){Display.dismissTrace(svg)}]];
         var width = svg.attr("width")
         var height = svg.attr("height")
@@ -1291,6 +1296,18 @@ var Display = {
                 Controller.startTrace(machine, inputSequence)
               })
         }
+        if(qType === "give-input"){
+            //Adds event listeners to the input buttons
+            d3.selectAll(".give-input-button")
+              .on("click", function(){
+                var inputSymbol = this.innerHTML;
+                Controller.giveMachinesInput(inputSymbol);
+              });
+            d3.select(".give-input-reset")
+              .on("click", function(){
+                Controller.resetMachines();
+              })
+        }
 
     },
     update: function(canvasID){
@@ -1807,10 +1824,10 @@ var Controller = {
         Display.updateAllLinkLabels(machine.id);
     },
 
-    startTrace: function(machine, sequence){
+    startTrace: function(machine, sequence, hideControls){
         Display.clearMenus(machine.id);
         var traceObj = machine.getTrace(sequence);
-        Display.drawTrace(machine.id, traceObj)
+        Display.drawTrace(machine.id, traceObj, hideControls)
     },
 
     getColourScheme: function(){
@@ -1822,6 +1839,27 @@ var Controller = {
     },
     getLabelRotation: function(){
         return this.settings.labelRotation.value;
+    },
+    giveMachinesInput: function(symbol){
+        //Used by the give-input question type
+        //Add the input to the model
+        Model.question.currentInput.push(symbol);
+        Model.machines.forEach(function(m){
+            //Draw a trace for each machine and then advance it to the latest stage
+            Controller.startTrace(m, Model.question.currentInput, true) //true param for hideControls option
+            var traceObj = Display.getCanvasVars(m.id).traceObj
+            Display.stepTrace(m.id, traceObj.states.length-1)
+        })
+    },
+    resetMachines: function(){
+        //Used by the give-input question type
+        Model.question.currentInput = [];
+        Model.machines.forEach(function(m){
+            //Draw a trace for each machine
+            Controller.startTrace(m, Model.question.currentInput, true) //true param for hideControls option
+        })
+
+
     },
     init: function(){
         //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
@@ -1848,11 +1886,14 @@ var Controller = {
 
     },
     setUpQuestion: function(){
-        // get the question object and from the DOM and pass it to Model
+        // get the question object and from the DOM and pass it to Model, do additional work as recquired by each question type
         var body = document.querySelector("body");
         if (body.dataset.question != undefined){
             var questionObj = JSON.parse(body.dataset.question);
             Model.question.setUpQuestion(questionObj);
+        }
+        if(Model.question.type === "give-input"){
+            Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, true)}) //true param for hideControls option
         }
 
     },

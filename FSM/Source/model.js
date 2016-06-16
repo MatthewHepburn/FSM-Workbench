@@ -481,10 +481,13 @@ var Model = {
             for(var property in questionObj){
                 this[property] = questionObj[property];
             }
-            if(["give-list", "select-states", "does-accept", "demo"].indexOf(Model.question.type) == -1){
+            if(["give-list", "select-states", "does-accept", "give-input"].indexOf(Model.question.type) == -1){
                 this.allowEditing = true;
             } else {
                 this.allowEditing = false;
+            }
+            if(Model.question.type === "give-input"){
+                Model.question.currentInput = [];
             }
 
         },
