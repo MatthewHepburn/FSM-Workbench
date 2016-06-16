@@ -160,6 +160,10 @@ var Display = {
         canvasVars.linkInProgress = false;
         canvasVars.linkInProgressNode = null;
     },
+    isLinkInProgress: function(canvasID){
+        var canvasVars = Display.canvasVars[canvasID];
+        return canvasVars.linkInProgress === true;
+    },
     getInitialArrowPath: function(node){
         // Returns the description of a path resembling a '>'
         var arrowHeight = 0.6 * Display.nodeRadius;
@@ -262,7 +266,7 @@ var Display = {
             var isCorrect = feedbackObj.isCorrectList[i];
 
             //Clear any previous feedback
-            var feedbackLabel = d3.select(`#satisfy-list-feedback-${i}`).text("");
+            var feedbackLabel = d3.select(`#give-list-feedback-${i}`).text("");
             var inputBox = d3.select(`#qf${i}`).classed("correct", false).classed("incorrect", false)
 
             //Do nothing if an input of length 0 was provided - assume that the user has simply not attempted that yet.
@@ -815,6 +819,9 @@ var Display = {
             .attr("r", 1)
             .attr("fill", "#000000");
     },
+    dismissSettingsMenu: function(svg){
+        svg.selectAll(".settings-menu").remove();
+    },
     drawSettingsMenu: function(svg){
         //Check if settings menu already exists, dismiss and return if it is.
         var existingMenu = svg.select(".settings-menu")
@@ -1241,6 +1248,7 @@ var Display = {
         }
         Display.submitAllRename(canvasID);
         Display.dismissTrace(svg);
+        Display.dismissSettingsMenu(svg);
         Display.dismissContextMenu();
 
     },
@@ -1272,6 +1280,16 @@ var Display = {
                 d3.select(`#td-rej-${i}`)
                   .on("click", onclick)
             })
+        }
+        if(qType === "give-list"){
+            //Add listeners to the 'trace' button
+            d3.selectAll(".give-list-show-trace")
+              .on("click", function(d, i){
+                var inputString = d3.select(`#qf${i}`).node().value;
+                var inputSequence = Model.parseInput(inputString);
+                var machine = Model.machines[0];
+                Controller.startTrace(machine, inputSequence)
+              })
         }
 
     },
@@ -1507,8 +1525,11 @@ var EventHandler = {
         var canvasID = machine.id;
         if(!checkTarget || d3.event.target.id === canvasID){
             Display.dismissContextMenu();
-            Controller.endLink(machine.id);
             var toolMode = Display.canvasVars[canvasID].toolMode;
+            if(toolMode === "linetool" && Display.isLinkInProgress(canvasID)){
+                //End a link if one is in progress
+                Controller.endLink(machine.id);
+            }
             if (toolMode === "none" || toolMode === "linetool" || toolMode === "texttool" || toolMode === "deletetool"){
                 return;
             }

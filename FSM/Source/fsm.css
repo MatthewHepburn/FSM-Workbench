@@ -34,16 +34,30 @@ div.question-text{
   font-family: 'Ek Mukta', sans-serif;
 }
 
-.satisfy-list-label{
+.give-list-label{
   width: 5.2em !important;
   font-family: 'Ek Mukta', sans-serif;
 }
 
-.satisfy-list-feedback{
+.give-list-feedback{
   margin-left: 0.25em !important;
   font-family: 'Ek Mukta', sans-serif;
   text-align: left !important;
   width: unset !important;
+}
+
+.give-list-show-trace{
+  text-decoration: underline;
+  font-size: small;
+  margin-left: 0.25em !important;
+  font-family: 'Ek Mukta', sans-serif;
+  text-align: left !important;
+  width: unset !important;
+}
+
+.give-list-show-trace:hover{
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .pure-form-aligned .pure-control-group {

@@ -36,9 +36,10 @@
         <form class="pure-form-aligned pure-form qformblock" name="qform">
           {%- for len in lengths -%}
             <div class="pure-control-group">
-              <label class="satisfy-list-label" for="qf{{ loop.index0 }}">{{ len }} symbols</label>
+              <label class="give-list-label" for="qf{{ loop.index0 }}">{{ len }} symbols</label>
               <input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value="{{ prefill[loop.index0] }}">
-              <label for="qf{{ loop.index0 }}" class="satisfy-list-feedback" id="satisfy-list-feedback-{{ loop.index0 }}"> </label>
+              <label for="qf {{ loop.index0 }}" class="give-list-show-trace" id="give-list-show-trace-{{ loop.index0 }}">trace</label>
+              <label for="qf{{ loop.index0 }}" class="give-list-feedback" id="give-list-feedback-{{ loop.index0 }}"> </label>
             </div>
           {% endfor %}
           <input type=image src='{{ addresses.iconAddress }}spacer.gif'>
