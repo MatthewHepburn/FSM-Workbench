@@ -335,10 +335,113 @@ var Model = {
         this.setAlphabet = function(alphabetArray){
             this.alphabet = alphabetArray;
             //Now enforce this alphabet by removing illegal symbols
+            this.enforceAlphabet();
+
+        };
+
+        this.enforceAlphabet = function(){
+            //Remove any input symbols in the machine that are not in this.alphabet
             for(var linkID in this.links){
                 this.links[linkID].enforceAlphabet();
             }
         };
+
+        this.mergeNodes = function(s1, s2){
+            //Takes two states in the machine and combines them
+
+            this.enforceAlphabet(); //Overkill?
+
+            var name = `{${s1.name}, ${s2.name}}`;
+            var inboundLinks = this.getLinksTo(s1).concat(this.getLinksTo(s2));
+            var outgoingLinks = s1.getOutgoingLinks().concat(s2.getOutgoingLinks());
+            var isInitial = s1.isInitial && s2.isInitial;
+            var isAccepting = s1.isAccepting && s2.isAccepting;
+
+            var x = (s1.x + s2.x)/2;
+            var y = (s1.y + s2.y)/2;
+
+            this.deleteNode(s1);
+            this.deleteNode(s2);
+
+            var mergedNode = this.addNode(x, y, name, isInitial, isAccepting)
+
+            //Modify the source/target of the old links as appropriate and merge the lists
+            inboundLinks.forEach(l => l.target = mergedNode);
+            outgoingLinks.forEach(l => l.source = mergedNode);
+            var oldLinks = inboundLinks.concat(outgoingLinks);
+
+            //Add back links to the new node
+            for(var i in oldLinks){
+                var l = oldLinks[i];
+                var source = l.source
+                var target = l.target
+                //See if link already exists
+                var existingLink = source.getLinkTo(target)
+                if(existingLink !== null){
+                    //Link present, combine input symbols
+                    var newInput = existingLink.input.concat(l.input) //Will contain duplicates, but they are removed in Link.setInput
+                    var hasEpsilon = l.hasEpsilon || existingLink.hasEpsilon;
+                    existingLink.setInput(newInput, hasEpsilon);
+                } else {
+                    //No link present, create it
+                    var input = l.input;
+                    var hasEpsilon = l.hasEpsilon;
+                    var output = {};
+                    this.addLink(source, target, input, output, hasEpsilon)
+                }
+            }
+
+            return mergedNode;
+        };
+
+        this.minimize = function(){
+            //Minimize the current machine
+            this.enforceAlphabet() //Need alphabet to be accurate
+
+            do{
+                //Log initial number of states. Repeat minimimisation process until there is no reduction.
+                var numOfStates = Object.keys(this.nodes).length;
+
+                //1 - create an entry for every pair of states
+                var statePairs = {};
+                var stateIDs = Object.keys(this.nodes)
+                for(var i = 0; i < stateIDs.length; i++){
+                    for(var j = i + 1; j < stateIDs.length; j++){
+                        var pairID = stateIDs[i] + "-" + stateIDs[j];
+                        var distinguishable = false;
+                        var state1 = this.nodes[pairID[i]];
+                        var state2 = this.nodes[pairID[j]];
+                        if(state1.isAccepting !== state2.isAccepting){
+                            //States cannot be indistinguisable if one is accepting and one is not
+                            distinguishable = true;
+                        }
+                        if(state1.isInit){
+                            //States cannot be indistinguisable if one is initial and one is not
+                            distinguishable = true;
+                        }
+                        statePairs[pairID] = {state1, state2, distinguishable}
+                    }
+                }
+
+            } while(numOfStates < Object.keys(this.nodes).length)
+        }
+
+        this.getLinksTo = function(targetNode){
+            //Returns an array containing all links to targetNode
+            if (targetNode instanceof Model.Node === false){
+                targetNode = this.nodes[targetNode];
+            }
+            var links = []
+            for(var nodeID in this.nodes){
+                var node = this.nodes[nodeID]
+                var linkToTarget = node.getLinkTo(targetNode);
+                if(linkToTarget !== null){
+                    links.push(linkToTarget)
+                }
+            }
+            return links;
+
+        }
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
@@ -405,6 +508,11 @@ var Model = {
             }
             return null;
         };
+        this.getOutgoingLinks = function(){
+            //Returns an array of all links starting from this node
+            return Object.keys(this.outgoingLinks).map(id => this.outgoingLinks[id])
+        }
+
     },
     // Constructor for a link object
     Link: function(machine, linkID, sourceNode, targetNode, input, output, hasEpsilon){
