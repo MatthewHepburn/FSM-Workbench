@@ -250,6 +250,11 @@ var Display = {
         text.remove();
         return result;
     },
+    appendNextButton: function(selection){
+        var button = selection.append("a").text("Next").classed("pure-button", true).classed("extra-next", true);
+        var nextURL = d3.select("#nav-next").attr("href");
+        button.attr("href", nextURL);
+    },
     giveFeedback: function(feedbackObj){
         if(Model.question.type === "satisfy-list"){
             Display.giveFeedbackForSatisfyList(feedbackObj);
@@ -259,7 +264,21 @@ var Display = {
             Display.giveFeedbackForGiveList(feedbackObj);
             return;
         }
+        if(Model.question.type === "give-input"){
+            Display.giveFeedbackForGiveInput(feedbackObj);
+            return;
+        }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
+    },
+    giveFeedbackForGiveInput: function(){
+        var buttonDiv = d3.select(".button-div");
+        //If feedback already present, do nothing.
+        if(!d3.select(".give-input-tick").empty()){
+            return;
+        }
+        //Add tick
+        buttonDiv.append("span").text("✓").classed("give-input-tick", true)
+        Display.appendNextButton(buttonDiv);
     },
     giveFeedbackForGiveList: function(feedbackObj){
         for(var i = 0; i < feedbackObj.isCorrectList.length; i++){
@@ -1850,6 +1869,11 @@ var Controller = {
             var traceObj = Display.getCanvasVars(m.id).traceObj
             Display.stepTrace(m.id, traceObj.states.length-1)
         })
+        //Query the model for correctness
+        var feedbackObj = Model.question.checkAnswer();
+        if (feedbackObj.allCorrectFlag){
+            Display.giveFeedback(feedbackObj);
+        }
     },
     resetMachines: function(){
         //Used by the give-input question type

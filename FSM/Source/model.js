@@ -499,6 +499,19 @@ var Model = {
             if(Model.question.type === "satisfy-list"){
                 return Model.question.checkSatisfyList();
             }
+            if(Model.question.type === "give-input"){
+                return Model.question.checkGiveInput();
+            }
+        },
+        checkGiveInput: function(){
+            var feedbackObj = {allCorrectFlag: false};
+            if (Model.question.target === "none"){
+                return feedbackObj;
+            }
+            if (Model.question.target === "accept"){
+                feedbackObj.allCorrectFlag = Model.machines.filter(m => m.isInAcceptingState()).length === Model.machines.length; //All machines should be in an accepting state.
+                return feedbackObj;
+            }
         },
         checkGiveList: function(input){
             // Input received as list of strings.

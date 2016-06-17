@@ -498,3 +498,9 @@ input[type=checkbox]{
   fill: #3A6629;
   text-decoration: underline;
 }
+
+.give-input-tick{
+  color: green;
+  font-size: xx-large;
+  vertical-align: middle;
+}
