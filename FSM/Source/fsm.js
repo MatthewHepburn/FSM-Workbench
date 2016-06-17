@@ -189,7 +189,7 @@ var Display = {
         if (node1.id === node2.id){
             return {
                 x: node1.x,
-                y: node2.y - 60,
+                y: node2.y - 45,
                 rotation: 0
             };
         }
