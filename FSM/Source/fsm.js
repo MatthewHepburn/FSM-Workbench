@@ -1621,7 +1621,10 @@ var EventHandler = {
         var svg = d3.select("#" + link.machine.id);
         Global.contextMenuShowing = true;
         var mousePosition = d3.mouse(svg.node());
-        Display.drawLinkContextMenu(svg, link, mousePosition);
+        if(Model.question.allowEditing){
+            Display.drawLinkContextMenu(svg, link, mousePosition);
+        }
+
 
     },
     nodeClick: function(node){
@@ -1660,7 +1663,10 @@ var EventHandler = {
         var svg = d3.select("#" + node.machine.id);
         Global.contextMenuShowing = true;
         var mousePosition = d3.mouse(svg.node());
-        Display.drawNodeContextMenu(svg, node, mousePosition);
+        if(Model.question.allowEditing){
+            Display.drawNodeContextMenu(svg, node, mousePosition);
+        }
+
     },
     linkRenameFormKeypress:function(link, context, formType){
         // Event handler to prevent submission of page on return key
