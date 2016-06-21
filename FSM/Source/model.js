@@ -480,7 +480,7 @@ var Model = {
                     //if any node is unnamed, return ""
                     return ""
                 }
-                return "{" + nodeSet.map(node=>node.id).reduce((x,y) => `${x}, ${y}`) + "}"
+                return "{" + nodeSet.map(node=>node.name).reduce((x,y) => `${x}, ${y}`) + "}"
             }
 
             //Start with the initial nodeSet of the machine
