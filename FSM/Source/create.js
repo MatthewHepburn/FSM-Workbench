@@ -3,6 +3,7 @@ var create = {
         // Setup the creation environment.
         create.registerTraceButtonListener();
         create.registerAlphabetButtonListener();
+        create.registerDFAbuttonListener();
     },
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
@@ -26,6 +27,12 @@ var create = {
                 create.setalphabet(alphabet);
                 console.log(alphabet);
             });
+    },
+    registerDFAbuttonListener: function(){
+        d3.select("#dfa-button").on("click", function(){
+            var machine = Model.machines[0];
+            Controller.convertToDFA(machine);
+        });
     },
     setalphabet: function(string){
         try{

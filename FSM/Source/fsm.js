@@ -1539,6 +1539,9 @@ var Display = {
         }
 
     },
+    resetColours: function(canvasID){
+    	Display.canvasVars[canvasID].colours = d3.scale.category10();
+    },
     styleColour:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies multicoloured styling to them
         var colours = Display.canvasVars[canvasID].colours;
@@ -1776,6 +1779,13 @@ var Controller = {
         if(localStorage){
             localStorage.setItem('settings', JSON.stringify(saveObj));
         }
+    },
+    convertToDFA:function(machine){
+    	Display.clearMenus(machine.id);
+    	machine.convertToDFA();
+    	Display.resetColours(machine.id);
+    	Display.forceTick(machine.id);
+    	Display.update(machine.id);
     },
     endLink: function(canvasID){
         // Called to end a link creation action.
