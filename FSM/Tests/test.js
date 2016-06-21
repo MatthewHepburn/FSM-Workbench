@@ -517,7 +517,7 @@ describe('Model', function() {
 
 
 
-        describe("test machine 1", function(){
+        describe("test machine 1:", function(){
             var spec = {"nodes":[{"id":"A","x":104,"y":108,"isInit":true},{"id":"B","x":187,"y":164},{"id":"C","x":277,"y":121,"isAcc":true},{"id":"D","x":194,"y":65}],"links":[{"to":"B","from":"A","input":["c"]},{"to":"C","from":"B","input":["c"],"hasEps":true},{"to":"D","from":"A","input":["a"]},{"to":"C","from":"D","input":["b"]},{"to":"A","from":"D","hasEps":true},{"to":"D","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
             var machine = model.addMachine(spec);
             var shouldAccept = ["ab", "abab", "cc", "c", "ccab", "ccacc", "ccac", "abacab"].map(str => model.parseInput(str, ""));
@@ -526,13 +526,13 @@ describe('Model', function() {
             describe("before conversion", function(){
                 shouldAccept.forEach(function(sequence){
                                 var displayStr = sequence.reduce((x,y)=>x+y)
-                                it(`should accept '${displayStr}' before conversion`, function(){
+                                it(`should accept '${displayStr}'`, function(){
                                     expect(machine.accepts(sequence)).to.be.true;
                                 })
                             });
                 shouldReject.forEach(function(sequence){
                                 var displayStr = sequence.reduce((x,y)=>x+y)
-                                it(`should reject '${displayStr}' before conversion`, function(){
+                                it(`should reject '${displayStr}'`, function(){
                                     expect(machine.accepts(sequence)).to.be.false;
                                 })
                             });
@@ -540,16 +540,16 @@ describe('Model', function() {
             });
 
             describe("after conversion", function(){
-                machine.convertToDFA();
+                before(function(){machine.convertToDFA();});
                 shouldAccept.forEach(function(sequence){
                                 var displayStr = sequence.reduce((x,y)=>x+y)
-                                it(`should accept '${displayStr}' after conversion`, function(){
+                                it(`should accept '${displayStr}'`, function(){
                                     expect(machine.accepts(sequence)).to.be.true;
                                 })
                             })
                 shouldReject.forEach(function(sequence){
                                 var displayStr = sequence.reduce((x,y)=>x+y)
-                                it(`should reject '${displayStr}' after conversion`, function(){
+                                it(`should reject '${displayStr}'`, function(){
                                     expect(machine.accepts(sequence)).to.be.false;
                                 })
                             })
@@ -557,7 +557,7 @@ describe('Model', function() {
             });
         });
 
-        describe("test machine 2", function(){
+        describe("test machine 2:", function(){
             var spec = {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isTransducer":false}};
             var machine = model.addMachine(spec)
             var splitSymbol = " ";
@@ -566,7 +566,7 @@ describe('Model', function() {
             describe("before conversion", function(){
                 shouldAccept.forEach(function(displayStr){
                                 var sequence = model.parseInput(displayStr, splitSymbol)
-                                it(`should accept '${displayStr}' before conversion`, function(){
+                                it(`should accept '${displayStr}'`, function(){
                                     expect(machine.accepts(sequence)).to.be.true;
                                 })
                             })
@@ -574,10 +574,10 @@ describe('Model', function() {
             })
 
             describe("after conversion", function(){
-                machine.convertToDFA();
+                before(function(){machine.convertToDFA();});
                 shouldAccept.forEach(function(displayStr){
                                 var sequence = model.parseInput(displayStr, splitSymbol)
-                                it(`should accept '${displayStr}' after conversion`, function(){
+                                it(`should accept '${displayStr}'`, function(){
                                     expect(machine.accepts(sequence)).to.be.true;
                                 })
                             })
@@ -590,5 +590,37 @@ describe('Model', function() {
         })
     });
 
+    describe("Test minimization to DFA:", function(){
+        before(function(){
+            model.machines = []
+        })
+        describe("test machine 1", function(){
+            var spec = {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isTransducer":false}};
+            var machine = model.addMachine(spec)
+            var splitSymbol = " ";
+            var shouldAccept = ["s1 s1 s2 s3 s1", "s3", "s2", "", "s1 s2 s1"]
+
+            describe("before minimization", function(){
+                shouldAccept.forEach(function(displayStr){
+                                var sequence = model.parseInput(displayStr, splitSymbol)
+                                it(`should accept '${displayStr}'`, function(){
+                                    expect(machine.accepts(sequence)).to.be.true;
+                                })
+                            })
+
+            })
+
+            describe("after minimization", function(){
+                before(function(){machine.minimize();});
+                shouldAccept.forEach(function(displayStr){
+                                var sequence = model.parseInput(displayStr, splitSymbol)
+                                it(`should accept '${displayStr}'`, function(){
+                                    expect(machine.accepts(sequence)).to.be.true;
+                                })
+                            })
+
+            })
+        });
+    });
 });
 

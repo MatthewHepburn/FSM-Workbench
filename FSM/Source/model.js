@@ -409,36 +409,57 @@ var Model = {
         };
 
         this.minimize = function(){
-            //Minimize the current machine TODO - Brzozowski's algorithm
-            this.enforceAlphabet() //Need alphabet to be accurate
-
-            do{
-                //Log initial number of states. Repeat minimimisation process until there is no reduction.
-                var numOfStates = Object.keys(this.nodes).length;
-
-                //1 - create an entry for every pair of states
-                var statePairs = {};
-                var stateIDs = Object.keys(this.nodes)
-                for(var i = 0; i < stateIDs.length; i++){
-                    for(var j = i + 1; j < stateIDs.length; j++){
-                        var pairID = stateIDs[i] + "-" + stateIDs[j];
-                        var distinguishable = false;
-                        var state1 = this.nodes[pairID[i]];
-                        var state2 = this.nodes[pairID[j]];
-                        if(state1.isAccepting !== state2.isAccepting){
-                            //States cannot be indistinguisable if one is accepting and one is not
-                            distinguishable = true;
-                        }
-                        if(state1.isInit){
-                            //States cannot be indistinguisable if one is initial and one is not
-                            distinguishable = true;
-                        }
-                        statePairs[pairID] = {state1, state2, distinguishable}
-                    }
-                }
-
-            } while(numOfStates < Object.keys(this.nodes).length)
+            this.reverse();
+            this.convertToDFA();
+            this.reverse();
+            this.convertToDFA();
         };
+
+        // this.minimize = function(){
+        //     //Minimize the current machine TODO - Brzozowski's algorithm
+        //     this.enforceAlphabet() //Need alphabet to be accurate
+
+        //     do{
+        //         //Log initial number of states. Repeat minimimisation process until there is no reduction.
+        //         var numOfStates = Object.keys(this.nodes).length;
+
+        //         //1 - create an entry for every pair of states
+        //         var statePairs = {};
+        //         var stateIDs = Object.keys(this.nodes)
+        //         for(var i = 0; i < stateIDs.length; i++){
+        //             for(var j = i + 1; j < stateIDs.length; j++){
+        //                 var pairID = stateIDs[i] + "-" + stateIDs[j];
+        //                 var distinguishable = false;
+        //                 var state1 = this.nodes[pairID[i]];
+        //                 var state2 = this.nodes[pairID[j]];
+        //                 if(state1.isAccepting !== state2.isAccepting){
+        //                     //States cannot be indistinguisable if one is accepting and one is not
+        //                     distinguishable = true;
+        //                 }
+        //                 if(state1.isInit){
+        //                     //States cannot be indistinguisable if one is initial and one is not
+        //                     distinguishable = true;
+        //                 }
+        //                 statePairs[pairID] = {state1, state2, distinguishable}
+        //             }
+        //         }
+
+        //     } while(numOfStates < Object.keys(this.nodes).length)
+        // };
+
+        this.reverse = function(){
+            for(var nodeID in this.nodes){
+                var node = this.nodes[nodeID]
+                var isAccepting = node.isInitial;
+                var isInitial = node.isAccepting;
+                node.isAccepting = isAccepting;
+                node.isInitial = isInitial;
+            }
+            for(var linkID in this.links){
+                var link = this.links[linkID]
+                link.reverse();
+            }
+        }
 
         this.convertToDFA = function(){
             this.enforceAlphabet();

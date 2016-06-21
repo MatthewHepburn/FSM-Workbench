@@ -1787,6 +1787,13 @@ var Controller = {
     	Display.forceTick(machine.id);
     	Display.update(machine.id);
     },
+    minimize:function(machine){
+    	Display.clearMenus(machine.id);
+    	machine.minimize();
+    	Display.resetColours(machine.id);
+    	Display.forceTick(machine.id);
+    	Display.update(machine.id);
+    },
     endLink: function(canvasID){
         // Called to end a link creation action.
         Display.clearMenus(canvasID)
