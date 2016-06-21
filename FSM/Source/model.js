@@ -100,6 +100,11 @@ var Model = {
                 }
             });
         };
+        this.deleteAllNodes = function(){
+            for(var nodeID in this.nodes){
+                this.deleteNode(nodeID);
+            }
+        };
         this.build = function(spec){
             //Sets up the machine based on a specification object passed in
             this.nodes = {};
@@ -255,6 +260,15 @@ var Model = {
             });
             this.followEpsilonTransitions();
         };
+        this.setToState = function(nodeList){
+            //Takes an array of nodes and sets them as the currrent state (used in DFA conversion)
+            var nodeIDs = nodeList.map(x => x.id);
+            this.currentState = nodeIDs;
+
+        };
+        this.getCurrentNodeList = function(){
+            return this.currentState.map(id => this.nodes[id]);
+        }
         this.followEpsilonTransitions = function(){
             var linksUsed = [];
             var visitedStates = [];
@@ -381,7 +395,7 @@ var Model = {
                     //Link present, combine input symbols
                     var newInput = existingLink.input.concat(l.input) //Will contain duplicates, but they are removed in Link.setInput
                     var hasEpsilon = l.hasEpsilon || existingLink.hasEpsilon;
-                    existingLink.setInput(newInput, hasEpsilon);
+                    existingLink.setInput(newInput, hasEpsilon); //TODO refactor to use Link.addInput()
                 } else {
                     //No link present, create it
                     var input = l.input;
@@ -395,7 +409,7 @@ var Model = {
         };
 
         this.minimize = function(){
-            //Minimize the current machine
+            //Minimize the current machine TODO - Brzozowski's algorithm
             this.enforceAlphabet() //Need alphabet to be accurate
 
             do{
@@ -424,7 +438,125 @@ var Model = {
                 }
 
             } while(numOfStates < Object.keys(this.nodes).length)
-        }
+        };
+
+        this.convertToDFA = function(){
+            this.enforceAlphabet();
+            //Obj of form {"m1-n1+m1-n2":{
+                                        // nodes:[Node, Node],
+                                        // reachable: {"a":[Node], "b":[Node, Node]},
+                                        // name:"{a, b}"}},
+                                        // isInitial:true,
+                                        // isAccepting: false,
+                                        // x: 210,
+                                        // y: 10
+            //This will be used to construct the new machine
+            var nodeSets = {};
+            //Track the nodeSets to be investigated. form: [{"m1-n1+m1n2":[Node, Node]}]
+
+            var newNodeSets = []
+
+            var addToNewNodeSets = function(nodeSet){
+                //Takes an array of nodes, and add it to the newNodeSets array
+                //Sort the nodeSet, to ensure that each nodeSet has only one ID:
+                nodeSet.sort(function(x,y){
+                    if(x.id < y.id){
+                        return -1;
+                    }
+                    return 1;
+                })
+                var id = nodeSet.map(node => node.id).reduce((x,y)=> `${x}+${y}`);
+                var obj = {id, nodes:nodeSet};
+                newNodeSets.push(obj)
+                return id;
+            }
+
+            var nameNodeSet = function(nodeSet){
+                //Creates a name for a nodeSet, based on the names of the consitituent nodes
+                if(nodeSet.length === 1){
+                    return nodeSet[0].name
+                }
+                if(nodeSet.filter(node => node.name === "").length > 0){
+                    //if any node is unnamed, return ""
+                    return ""
+                }
+                return "{" + nodeSet.map(node=>node.id).reduce((x,y) => `${x}, ${y}`) + "}"
+            }
+
+            //Start with the initial nodeSet of the machine
+            this.setToInitialState();
+            var initialNodeSet = this.getCurrentNodeList()
+            addToNewNodeSets(initialNodeSet)
+            var firstNodeSet = true
+
+            //Populate nodeSets, adding to newNodeSets as new reachable combinations are discovered.
+            while(newNodeSets.length > 0){
+                var nodeSet = newNodeSets.pop();
+                if(nodeSets[nodeSet.id]){
+                    continue;
+                }
+                //First nodeSet is inital, all others are not
+                if(firstNodeSet){
+                    var isInitial = true;
+                    firstNodeSet = false;
+                } else {
+                    isInitial = false;
+                }
+
+                this.setToState(nodeSet.nodes)
+                var isAccepting = this.isInAcceptingState();
+                var reachable = {};
+                var name = nameNodeSet(nodeSet.nodes)
+                var x = nodeSet.nodes.map(node => node.x).reduce((x1,x2)=> x1 + x2)/nodeSet.nodes.length //set x to mean value of nodes in set
+                var y = nodeSet.nodes.map(node => node.y).reduce((y1,y2)=> y1 + y2)/nodeSet.nodes.length //set x to mean value of nodes in set
+                for(var i = 0; i < this.alphabet.length; i++){
+                    var symbol = this.alphabet[i];
+                    this.setToState(nodeSet.nodes);
+                    this.step(symbol)
+                    var reachableNodes = this.getCurrentNodeList();
+                    if(reachableNodes.length > 0){
+                        var id = addToNewNodeSets(reachableNodes)
+                        reachable[symbol] = id
+                    } else {
+                        reachable[symbol] = "none"
+                    }
+
+                }
+                var obj = {nodes:nodeSet.nodes, reachable, name, isInitial, isAccepting, x, y}
+                nodeSets[nodeSet.id] = obj;
+            }
+
+            //Now, clear the current machine
+            this.deleteAllNodes();
+            //And recreate from nodeSets, first create nodes for each nodeSet;
+            for(var nodeSetID in nodeSets){
+                var nodeSet = nodeSets[nodeSetID];
+                var newNode = this.addNode(nodeSet.x, nodeSet.y, nodeSet.name, nodeSet.isInitial, nodeSet.isAccepting)
+                nodeSet.newNode = newNode;
+            }
+            //And then create links as needed
+            for(var nodeSetID in nodeSets){
+                var nodeSet = nodeSets[nodeSetID];
+                var sourceNode = nodeSet.newNode;
+                for(symbol in nodeSet.reachable){
+                    var targetNodeID = nodeSet.reachable[symbol]
+                    if(targetNodeID === "none"){
+                        continue;
+                    }
+                    var targetNode = nodeSets[targetNodeID].newNode;
+                    var linkExists = sourceNode.hasLinkTo(targetNode);
+                    if(linkExists){
+                        var link = sourceNode.getLinkTo(targetNode);
+                        link.addInput([symbol], false);
+                    } else {
+                        this.addLink(sourceNode, targetNode, [symbol], undefined, false);
+                    }
+
+                }
+            }
+
+
+        };
 
         this.getLinksTo = function(targetNode){
             //Returns an array containing all links to targetNode
@@ -543,6 +675,13 @@ var Model = {
                 this.machine.deleteLink(this);
             }
         };
+
+        this.addInput = function(inputList, hasEpsilon){
+            //Adds to the existing allowed input
+            inputList = inputList.concat(this.input)
+            hasEpsilon = this.hasEpsilon || hasEpsilon;
+            this.setInput(inputList, hasEpsilon);
+        }
 
         this.setInput = function(inputList, hasEpsilon){
             // First, strip out duplicates in inputlist
