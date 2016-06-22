@@ -25,6 +25,7 @@ var create = {
     registerAlphabetButtonListener:function(){
         d3.select("#setalphabet-button")
             .on("click", function(){
+                this.blur();
                 var alphabet = document.querySelector("#setalphabet").value;
                 create.setalphabet(alphabet);
                 console.log(alphabet);
@@ -32,18 +33,21 @@ var create = {
     },
     registerDFAbuttonListener: function(){
         d3.select("#dfa-button").on("click", function(){
+            this.blur();
             var machine = Model.machines[0];
             Controller.convertToDFA(machine);
         });
     },
     registerReverseButtonListener: function(){
         d3.select("#reverse-button").on("click", function(){
+            this.blur();
             var machine = Model.machines[0];
             Controller.reverseMachine(machine);
         });
     },
     registerMinimalDFAButtonListener: function(){
         d3.select("#minimal-dfa-button").on("click", function(){
+            this.blur();
             var machine = Model.machines[0];
             Controller.minimize(machine);
         });
