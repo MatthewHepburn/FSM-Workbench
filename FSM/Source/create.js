@@ -5,6 +5,7 @@ var create = {
         create.registerAlphabetButtonListener();
         create.registerDFAbuttonListener();
         create.registerReverseButtonListener();
+        create.registerMinimalDFAButtonListener();
     },
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
@@ -39,6 +40,12 @@ var create = {
         d3.select("#reverse-button").on("click", function(){
             var machine = Model.machines[0];
             Controller.reverseMachine(machine);
+        });
+    },
+    registerMinimalDFAButtonListener: function(){
+        d3.select("#minimal-dfa-button").on("click", function(){
+            var machine = Model.machines[0];
+            Controller.minimize(machine);
         });
     },
     setalphabet: function(string){
