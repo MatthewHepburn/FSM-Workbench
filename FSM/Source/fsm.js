@@ -1794,6 +1794,13 @@ var Controller = {
     	Display.forceTick(machine.id);
     	Display.update(machine.id);
     },
+    reverseMachine:function(machine){
+    	Display.clearMenus(machine.id);
+    	machine.reverse();
+    	Display.resetColours(machine.id);
+    	Display.forceTick(machine.id);
+    	Display.update(machine.id);
+    },
     endLink: function(canvasID){
         // Called to end a link creation action.
         Display.clearMenus(canvasID)

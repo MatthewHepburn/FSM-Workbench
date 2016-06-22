@@ -622,5 +622,37 @@ describe('Model', function() {
             })
         });
     });
+    describe("Test Machine.reverse()", function(){
+        before(function(){
+            model.machines = []
+        })
+        describe("simple example", function(){
+            var spec = {"nodes":[{"id":"A","x":148,"y":119,"isInit":true},{"id":"B","x":248,"y":125,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"A","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}}
+            var machine = model.addMachine(spec);
+            var splitSymbol = "";
+            var shouldAccept = ["a", "aba", "ababa"]
+            var shouldReject = ["b", "aa", "baba", "abab"]
+
+            describe("before reversing", function(){
+                shouldAccept.forEach(function(displayStr){
+                                var sequence = model.parseInput(displayStr, splitSymbol)
+                                it(`should accept '${displayStr}'`, function(){
+                                    expect(machine.accepts(sequence)).to.be.true;
+                                })
+                            })
+            })
+
+            describe("after reversing", function(){
+                before(function(){machine.reverse();});
+                shouldAccept.forEach(function(displayStr){
+                                var sequence = model.parseInput(displayStr, splitSymbol)
+                                it(`should accept '${displayStr}'`, function(){
+                                    expect(machine.accepts(sequence)).to.be.true;
+                                })
+                            })
+            })
+
+        })
+    })
 });
 
