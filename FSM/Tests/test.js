@@ -462,6 +462,56 @@ describe('Model', function() {
         }).pass
     });
 
+    describe("Test the give-equivalent question type", function(){
+        before(function(){
+            model.machines = [];
+
+        });
+        describe("test for machine equal to a*a(b|c)a*", function(){
+            var questionObj = {type:"give-equivalent",
+                               splitSymbol: "",
+                               targetMachineSpec: {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}}
+                               }
+            before(function(){
+                model.question.setUpQuestion(questionObj)
+            })
+            it("should reject incorrect input", function(){
+                var incorrectSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169,"isAcc":true},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                var machine = model.addMachine(incorrectSpec);
+                var feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj.allCorrectFlag).to.be.false;
+            })
+            it("should reject a machine with no accepting states", function(){
+                var noAccSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169,"isAcc":false},{"id":"C","x":272,"y":164,"isAcc":false}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                model.deleteMachine(model.machines[0].id);
+                model.addMachine(noAccSpec);
+                var feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj.allCorrectFlag).to.be.false;
+            })
+            it("should reject a machine with no initial states", function(){
+                var noInitSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":false},{"id":"B","x":172,"y":169,"isAcc":true},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                model.deleteMachine(model.machines[0].id);
+                model.addMachine(noInitSpec);
+                var feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj.allCorrectFlag).to.be.false;
+            })
+            it("should accept a machine identical to the spec", function(){
+                var identicalSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                model.deleteMachine(model.machines[0].id);
+                model.addMachine(identicalSpec);
+                var feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj.allCorrectFlag).to.be.true;
+            })
+            it("should accept a machine equivalent to the spec", function(){
+                var equivalentSpec = {"nodes":[{"id":"A","x":75,"y":168,"isInit":true},{"id":"B","x":175,"y":163},{"id":"C","x":275,"y":164,"isAcc":true},{"id":"D","x":255,"y":103,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["c"]},{"to":"C","from":"C","input":["a"]},{"to":"D","from":"B","input":["b"]},{"to":"D","from":"D","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                model.deleteMachine(model.machines[0].id);
+                model.addMachine(equivalentSpec);
+                var feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj.allCorrectFlag).to.be.true;
+            })
+        })
+    });
+
     describe("Test Machine.getTrace()", function(){
         describe("Test with a simple machine with only 3 states", function(){
             var machine, traceObj
@@ -654,7 +704,7 @@ describe('Model', function() {
 
         })
     })
-    describe("Test machine.isEquivilantTo():", function(){
+    describe("Test machine.isEquivalentTo():", function(){
         before(function(){
             model.machines = []
         })
@@ -671,17 +721,18 @@ describe('Model', function() {
                 expect(m2.accepts(["a", "a", "c", "c", "b"])).to.be.true;
                 expect(m1.accepts(["a", "a", "c", "c", "b"])).to.be.false;
             })
-            it("m1 and m2 should not be equivilant", function(){
-                expect(m1.isEquivilantTo(m2)).to.be.false;
-                expect(m2.isEquivilantTo(m1)).to.be.false;
+            it("m1 and m2 should not be equivalent", function(){
+                expect(m1.isEquivalentTo(m2)).to.be.false;
+                expect(m2.isEquivalentTo(m1)).to.be.false;
             })
-            it("m1 should be equivilant to itself", function(){
-                expect(m1.isEquivilantTo(m1)).to.be.true;
+            it("m1 should be equivalent to itself", function(){
+                expect(m1.isEquivalentTo(m1)).to.be.true;
             })
-            it("m2 should be equivilant to itself", function(){
-                expect(m2.isEquivilantTo(m2)).to.be.true;
+            it("m2 should be equivalent to itself", function(){
+                expect(m2.isEquivalentTo(m2)).to.be.true;
             });
         })
     });
+
 });
 

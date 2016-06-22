@@ -416,7 +416,6 @@ var Model = {
                     this.addLink(source, target, input, output, hasEpsilon)
                 }
             }
-
             return mergedNode;
         };
 
@@ -427,7 +426,7 @@ var Model = {
             this.convertToDFA();
         };
 
-        this.isEquivilantTo = function(machine){
+        this.isEquivalentTo = function(machine){
             //Compares this to machine and returns true if both machines are isomorphic after minimization.
             //Create copies to avoid altering orginal machines:
             var m1 = new Model.Machine("temp1")
