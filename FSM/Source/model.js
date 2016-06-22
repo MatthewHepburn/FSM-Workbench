@@ -141,6 +141,18 @@ var Model = {
             this.lastLinkID += 1;
             return this.id + "-L" + String(this.lastLinkID);
         };
+        this.getAcceptingNodeCount = function(){
+            var acceptingNodes = Object.keys(this.nodes).map(nodeID => this.nodes[nodeID]).filter(node => node.isAccepting);
+            return acceptingNodes.length;
+        };
+        this.getNodeCount = function(){
+            //returns the number of nodes in the machine
+            return Object.keys(this.nodes).length;
+        };
+        this.getLinkCount = function(){
+            //returns the number of links in the machine
+            return Object.keys(this.nodes).length;
+        };
         this.getTrace = function(sequence){
             //Returns a traceObj that can be used to display a machine's execution for some input
             //Setup object
@@ -415,37 +427,104 @@ var Model = {
             this.convertToDFA();
         };
 
-        // this.minimize = function(){
-        //     //Minimize the current machine TODO - Brzozowski's algorithm
-        //     this.enforceAlphabet() //Need alphabet to be accurate
+        this.isEquivilantTo = function(machine){
+            //Compares this to machine and returns true if both machines are isomorphic after minimization.
+            //Create copies to avoid altering orginal machines:
+            var m1 = new Model.Machine("temp1")
+            var m2 = new Model.Machine("temp2")
+            m1.build(this.getSpec());
+            m2.build(machine.getSpec());
+            m1.minimize();
+            m2.minimize();
 
-        //     do{
-        //         //Log initial number of states. Repeat minimimisation process until there is no reduction.
-        //         var numOfStates = Object.keys(this.nodes).length;
+            //Perform simple tests to rule out equivilance first:
+            if(m1.getNodeCount() !== m2.getNodeCount()){
+                return false;
+            }
+            if(m1.getLinkCount() !== m2.getLinkCount()){
+                return false;
+            }
+            if(m1.getAcceptingNodeCount() !== m2.getAcceptingNodeCount()){
+                return false;
+            }
+            //Must have same alphabet
+            if(m1.alphabet.filter(symbol => m2.alphabet.indexOf(symbol) === -1).length !== 0){
+                return false;
+            }
 
-        //         //1 - create an entry for every pair of states
-        //         var statePairs = {};
-        //         var stateIDs = Object.keys(this.nodes)
-        //         for(var i = 0; i < stateIDs.length; i++){
-        //             for(var j = i + 1; j < stateIDs.length; j++){
-        //                 var pairID = stateIDs[i] + "-" + stateIDs[j];
-        //                 var distinguishable = false;
-        //                 var state1 = this.nodes[pairID[i]];
-        //                 var state2 = this.nodes[pairID[j]];
-        //                 if(state1.isAccepting !== state2.isAccepting){
-        //                     //States cannot be indistinguisable if one is accepting and one is not
-        //                     distinguishable = true;
-        //                 }
-        //                 if(state1.isInit){
-        //                     //States cannot be indistinguisable if one is initial and one is not
-        //                     distinguishable = true;
-        //                 }
-        //                 statePairs[pairID] = {state1, state2, distinguishable}
-        //             }
-        //         }
+            var alphabet = m1.alphabet;
+            var m1Nodes = Object.keys(m1.nodes).map(nodeID => m1.nodes[nodeID])
+            var m2Nodes = Object.keys(m2.nodes).map(nodeID => m2.nodes[nodeID])
 
-        //     } while(numOfStates < Object.keys(this.nodes).length)
-        // };
+            var m1InitialNodes = m1Nodes.filter(node => node.isInitial);
+            var m2InitialNodes = m2Nodes.filter(node => node.isInitial);
+
+            if(m1InitialNodes.length !== 1 || m2InitialNodes.length !== 1){
+                throw new Error("Minimized DFAs should only have one initial state")
+            }
+
+            var m1Initial = m1InitialNodes[0];
+            var m2Initial = m2InitialNodes[0];
+
+            //Find a mapping from nodes in m1 to m2, starting with the initial states
+            //Start by checking that each node has the correct outgoing links
+            var mapping = {}
+            var frontier = [[m1Initial.id, m2Initial.id]]
+            while(frontier.length > 0){
+                var nodePair = frontier.pop();
+
+                if(mapping[nodePair[0]]){ //If a mapping exists, it must be the same as the current pair
+                    if(mapping[nodePair[0]] !== nodePair[1]){
+                        return false;
+                    } else {
+                        continue; //If the pair is the same, then continue as no need to recheck.
+                    }
+                }
+                var m1Node = m1.nodes[nodePair[0]];
+                var m2Node = m2.nodes[nodePair[1]];
+
+                var m1Outgoing = m1Node.getOutgoingLinks();
+                var m2Outgoing = m2Node.getOutgoingLinks();
+
+                if(m1Outgoing.length != m2Outgoing.length){ //Nodes must have same number of outgoing links. Only need to  consider outgoing links, as all nodes (and so all links) will be considered.
+                    return false;
+                }
+
+                for(var i = 0; i < alphabet.length; i++){
+                    var symbol = alphabet[i];
+                    var m1Link = m1Outgoing.find(link => link.input.indexOf(symbol) !== -1)
+                    var m2Link = m2Outgoing.find(link => link.input.indexOf(symbol) !== -1)
+                    if(!(m1Link && m2Link)){ //If either node does not have a link for this symbol, then both must not have a link.
+                        if(m1Link || m2Link){
+                            return false;
+                        } else {
+                            continue; //both undefined => neither has a link for that symbol. Continue to next symbol.
+                        }
+                    }
+                    //Link exists, so the target nodes must be equivilant.
+                    var m1Target = m1Link.target;
+                    var m2Target = m2Link.target;
+                    //Check for reflexive links
+                    if(m1Link.isReflexive() || m2Link.isReflexive()){
+                        //if either is reflexive, both must be
+                        if(!(m1Link.isReflexive() && m2Link.isReflexive())){
+                            return false
+                        }
+                    } else{
+                        //Only need to add to the frontier if not reflexive
+                        frontier.push([m1Target.id, m2Target.id])
+                    }
+                }
+
+                //Add node pair to mapping:
+                mapping[m1Node.id] = m2Node.id;
+
+            }
+
+            //All checks passed, so equivilant
+            return true;
+
+        };
 
         this.reverse = function(){
             for(var nodeID in this.nodes){
@@ -753,6 +832,10 @@ var Model = {
                 return index;
             }
         }
+
+        this.isReflexive = function(){
+            return this.source.id === this.target.id;
+        };
     },
     //Holds the question logic and the variables that govern the current question.
     question: {

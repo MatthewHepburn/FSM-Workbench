@@ -654,5 +654,34 @@ describe('Model', function() {
 
         })
     })
+    describe("Test machine.isEquivilantTo():", function(){
+        before(function(){
+            model.machines = []
+        })
+        describe("simple example", function(){
+            var spec1 = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["c"]},{"to":"B","from":"B","input":["a","b"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var spec2 = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]},{"to":"B","from":"B","input":["a","c"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var m1 = model.addMachine(spec1)
+            var m2 = model.addMachine(spec2)
+            it("m1 should accept 'aabbc' and m2 should not", function(){
+                expect(m1.accepts(["a", "a", "b", "b", "c"])).to.be.true;
+                expect(m2.accepts(["a", "a", "b", "b", "c"])).to.be.false;
+            })
+            it("m2 should accept 'aaccb' and m1 should not", function(){
+                expect(m2.accepts(["a", "a", "c", "c", "b"])).to.be.true;
+                expect(m1.accepts(["a", "a", "c", "c", "b"])).to.be.false;
+            })
+            it("m1 and m2 should not be equivilant", function(){
+                expect(m1.isEquivilantTo(m2)).to.be.false;
+                expect(m2.isEquivilantTo(m1)).to.be.false;
+            })
+            it("m1 should be equivilant to itself", function(){
+                expect(m1.isEquivilantTo(m1)).to.be.true;
+            })
+            it("m2 should be equivilant to itself", function(){
+                expect(m2.isEquivilantTo(m2)).to.be.true;
+            });
+        })
+    });
 });
 
