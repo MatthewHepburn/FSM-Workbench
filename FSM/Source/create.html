@@ -9,9 +9,7 @@
   </head>
 
   <body class="canvas"
-  data-machinelist= '[{"nodes":[{"id":"A","x":91,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],
-                            "links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],
-                            "attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}}]'
+  data-machinelist= '[{"nodes":[{"id":"A","x":91,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],                       "links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}}]'
   data-iconaddress = 'img/icons/'>
     <div class="maindiv" style="width:85%">
         <div class="menu">
@@ -35,7 +33,8 @@
           </div>
         </fieldset>
         <div>
-          <button class="pure-button" type="submit" id="dfa-button">Convert to DFA</button>
+          <button class="pure-button create-row" type="submit" id="dfa-button">Convert to DFA</button>
+          <button class="pure-button create-row" type="submit" id="reverse-button">Reverse</button>
     	</div>
       <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
         <g class="links"></g>

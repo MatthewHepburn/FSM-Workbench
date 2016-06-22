@@ -455,9 +455,24 @@ var Model = {
                 node.isAccepting = isAccepting;
                 node.isInitial = isInitial;
             }
+            // Create a list of reversed links to be created
+            var newLinks = []
             for(var linkID in this.links){
+                //Can't use link.reverse() due to the way that that combines links
                 var link = this.links[linkID]
-                link.reverse();
+                var source = link.target;
+                var target = link.source;
+                var input = link.input;
+                var output = link.output;
+                var hasEpsilon = link.hasEpsilon;
+                var newLink = {source, target, input, output, hasEpsilon}
+                newLinks.push(newLink);
+                this.deleteLink(link); //Delete all links
+            }
+            //Create new links
+            for(var i = 0; i < newLinks.length; i++){
+                var link = newLinks[i]
+                this.addLink(link.source, link.target, link.input, link.output, link.hasEpsilon)
             }
         }
 
