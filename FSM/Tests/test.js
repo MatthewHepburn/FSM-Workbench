@@ -734,5 +734,67 @@ describe('Model', function() {
         })
     });
 
+    describe("test machine.getUnionWith()", function(){
+        describe("union of a*b* with ab:", function(){
+            var m1, m2, union;
+
+            var m1 = new model.Machine("a*b*");
+            var m2 = new model.Machine("ab");
+
+            var m1Spec = {"nodes":[{"id":"A","x":95,"y":131,"isAcc":true,"isInit":true},{"id":"B","x":195,"y":130,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["b"]},{"to":"B","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+            var m2Spec = {"nodes":[{"id":"A","x":95,"y":131,"isAcc":true,"isInit":true},{"id":"B","x":195,"y":130,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["b"]},{"to":"B","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+
+            m1.build(m1Spec);
+            m2.build(m2Spec);
+
+            it("m1 should accept a*b*", function(){
+                var acceptList = ["", "a", "b", "aab", "aaa", "bbb", "abbbb", "ab"]
+                var rejectList = ["ba", "abbba", "bbba", "ababababa"]
+                var splitSymbol = "";
+                acceptList.map(x => model.parseInput(x, splitSymbol));
+                rejectList.map(x => model.parseInput(x, splitSymbol));
+                acceptList.forEach(function(sequence){
+                    expect(m1.accepts(sequence)).to.be.true;
+                });
+                rejectList.forEach(function(sequence){
+                    expect(m1.accepts(sequence)).to.be.false;
+                })
+            })
+
+            it("m2 should accept ab", function(){
+                var acceptList = ["ab"]
+                var rejectList = ["ba", "abbba", "bbba", "ababababa", "", "a", "b", "aab", "aaa", "bbb", "abbbb"]
+                var splitSymbol = "";
+                acceptList.map(x => model.parseInput(x, splitSymbol));
+                rejectList.map(x => model.parseInput(x, splitSymbol));
+                acceptList.forEach(function(sequence){
+                    expect(m2.accepts(sequence)).to.be.true;
+                });
+                rejectList.forEach(function(sequence){
+                    expect(m2.accepts(sequence)).to.be.false;
+                })
+            })
+
+            it("union should accept only ab", function(){
+                var union = m1.getUnionWith(m2);
+                var acceptList = ["ab"]
+                var rejectList = ["ba", "abbba", "bbba", "ababababa", "", "a", "b", "aab", "aaa", "bbb", "abbbb"]
+                var splitSymbol = "";
+                acceptList.map(x => model.parseInput(x, splitSymbol));
+                rejectList.map(x => model.parseInput(x, splitSymbol));
+                acceptList.forEach(function(sequence){
+                    expect(union.accepts(sequence)).to.be.true;
+                });
+                rejectList.forEach(function(sequence){
+                    expect(union.accepts(sequence)).to.be.false;
+                })
+
+            });
+
+
+        })
+    })
+
+
 });
 

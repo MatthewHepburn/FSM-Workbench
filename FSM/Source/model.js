@@ -536,6 +536,95 @@ var Model = {
 
         };
 
+        this.complement = function(){
+            //Changes the machine to accept the complement of its current languge
+            //This is done by making the blackhole state explicit and making each accepting state non-accepting and vice versa.
+            this.completelySpecify("blackhole")
+            var nodes = this.getNodeList();
+            nodes.forEach(node => node.isAccepting = !node.isAccepting);
+        };
+
+        this.getUnionWith = function(machine){
+            //Returns a machine that accepts L = L(this) ∩ L(machine)
+            //Create copies to avoid altering original machines
+            var m1 = new Machine("temp1");
+            m1.build(this.getSpec());
+            var m2 = new Machine("temp2");
+            m2.build(machine.getSpec())
+
+            m1.completelySpecify();
+            m1.minimize();
+            m2.completelySpecify();
+            m2.minimize();
+
+            var unionMachine = new Machine("u1");
+
+            var alphabet = m1.alphabet.filter(symbol => m2.alphabet.indexOf(symbol) !== -1);
+            unionMachine.setAlphabet(alphabet);
+
+            var m1Initial = m1.getNodeList().find(node => node.isInitial);
+            var m2Initial = m2.getNodeList().find(node => node.isInitial);
+
+            var getPairID = (pair => pair[0].id + "-" + pair[1].id);
+
+            var nodeFrontier = [[m1Initial, m2Initial]];
+            var linksToAdd = []
+            var addedNodes = {} //Will map a pairID to a Node oject
+
+            while(nodeFrontier.length > 0){
+                var pair = nodeFrontier.pop();
+                var pairID = getPairID(pair);
+
+                //See if this node pair has already been added.
+                if(addedNodes[pairID]){
+                    continue;
+                }
+
+                var n1 = pair[0];
+                var n2 = pair[1];
+
+                var isAccepting = n1.isAccepting && n2.isAccepting;
+                var isInitial = n1.isInitial && n2.isInitial;
+
+                addedNodes[pairID] = unionMachine.addNode(0, 0, "", isInitial, isAccepting);
+
+                alphabet.forEach(function(symbol){
+                    //For the pair of nodes, get the state that they will move to for this symbol
+                    m1Target = m1.nodes[n1.getReachableNodes(symbol).nodeIDs[0]]
+                    m2Target = m2.nodes[n2.getReachableNodes(symbol).nodeIDs[0]]
+                    //And add it to the frontier
+                    var newPair = [m1Target, m2Target];
+                    nodeFrontier.push(newPair);
+                    //Noting the link that must be created
+                    linksToAdd.push({source:pairID, target: getPairID(newPair), symbol})
+                });
+
+            }
+
+            //All nodes created, now add the links:
+            while(linksToAdd.length > 0){
+                var link = linksToAdd.push();
+                var sourceNode = addedNodes[link.source]
+                var targetNode = addedNodes[link.target]
+                var input = [link.symbol]
+                //Test if link exists
+                //See if link already exists
+                var existingLink = sourceNode.getLinkTo(targetNode)
+                if(existingLink !== null){
+                    //Link present, combine input symbols
+                    existingLink.addInput(input, false);
+                } else {
+                    //No link present, create it
+                    var hasEpsilon = false;
+                    var output = {};
+                    unionMachine.addLink(sourceNode, targetNode, input, output, hasEpsilon);
+                }
+            }
+
+            return unionMachine;
+
+        };
+
         this.reverse = function(){
             for(var nodeID in this.nodes){
                 var node = this.nodes[nodeID]
@@ -790,6 +879,7 @@ var Model = {
         this.getReachableNodes = function(symbol){
             //Return an object containing nodeIDs of nodes reachable from this node for the given input symbol
             //and the linkIDs of links used
+            //Form {nodeIDs: ["m1-n1"], linkIDS: ["m1-L1"]}
             var keys = Object.keys(this.outgoingLinks);
             var nodeIDs = [];
             var linkIDs = [];
