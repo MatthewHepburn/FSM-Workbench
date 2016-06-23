@@ -145,6 +145,11 @@ var Model = {
             var acceptingNodes = Object.keys(this.nodes).map(nodeID => this.nodes[nodeID]).filter(node => node.isAccepting);
             return acceptingNodes.length;
         };
+        this.getInitialNodeCount = function(){
+            //Returns the number of nodes where node.isInitial == true;
+            var initialNodes = Object.keys(this.nodes).map(nodeID => this.nodes[nodeID]).filter(node => node.isInitial);
+            return initialNodes.length;
+        };
         this.getNodeCount = function(){
             //returns the number of nodes in the machine
             return Object.keys(this.nodes).length;
@@ -278,9 +283,15 @@ var Model = {
             this.currentState = nodeIDs;
 
         };
+        this.getNodeList = function(){
+            //Returns an array of all nodes in the machine
+            return Object.keys(this.nodes).map(nodeID => this.nodes[nodeID]);
+
+        };
         this.getCurrentNodeList = function(){
+            //Returns an array of the nodes that the machine is currently in
             return this.currentState.map(id => this.nodes[id]);
-        }
+        };
         this.followEpsilonTransitions = function(){
             var linksUsed = [];
             var visitedStates = [];
@@ -554,6 +565,65 @@ var Model = {
             }
         }
 
+        this.completelySpecify = function(type){
+            //Completely specifies the machine by ensuring that every state has a transition for every symbol
+            //Can be done in two ways:
+            //For type = "blackhole" all unspecified transitions are sent to an explicit blackhole state
+            //For type = "ignore" all unspecifed input is ignored using reflexive links (ie unspecified input does not change machine state)
+
+            //Check that action is needed:
+            if(this.isCompletelySpecified()){
+                return;
+            }
+
+            if(type === "blackhole"){
+                //Add a new node to be the black-hole state
+                var blackholeName = "🚮"; //Try also 🗑
+                var blackholeNode = this.addNode(150, 150, blackholeName, false, false);
+            }
+
+            var nodes = this.getNodeList();
+            var alphabet = this.alphabet;
+
+            //For every node, find the symbols without input
+            for(var i = 0; i < nodes.length; i++){
+                var node = nodes[i];
+                //Test every symbol in the alphabet
+                var unspecifiedInput = [] //All symbols that the node does not have a link for.
+                for(var j = 0; j < alphabet.length; j++){
+                    var symbol = alphabet[j];
+                    var reachableNodes = node.getReachableNodes(symbol);
+                    if(reachableNodes.nodeIDs.length === 0){
+                        unspecifiedInput.push(symbol)
+                    }
+                }
+                if(unspecifiedInput.length > 0){
+                    var targetNode = type === "blackhole"? blackholeNode : node; //Add link to either blackhole or current node as needed
+                    this.addLink(node, targetNode, unspecifiedInput, undefined, false);
+                }
+            }
+
+
+        };
+
+        this.isCompletelySpecified = function(){
+            //Returns true if every node has at least one link for every input to every state
+            var nodes = this.getNodeList();
+            var alphabet = this.alphabet;
+            for(var i = 0; i < nodes.length; i++){
+                var node = nodes[i];
+                //Test every symbol in the alphabet
+                for(var j = 0; j < alphabet.length; j++){
+                    var symbol = alphabet[j];
+                    var reachableNodes = node.getReachableNodes(symbol);
+                    if(reachableNodes.nodeIDs.length === 0){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+
         this.convertToDFA = function(){
             this.enforceAlphabet();
             //Obj of form {"m1-n1+m1-n2":{
@@ -579,10 +649,13 @@ var Model = {
                     }
                     return 1;
                 })
-                var id = nodeSet.map(node => node.id).reduce((x,y)=> `${x}+${y}`);
-                var obj = {id, nodes:nodeSet};
-                newNodeSets.push(obj)
-                return id;
+                if(nodeSet.length > 0){
+                    var id = nodeSet.map(node => node.id).reduce((x,y)=> `${x}+${y}`);
+                    var obj = {id, nodes:nodeSet};
+                    newNodeSets.push(obj)
+                    return id;
+                }
+
             }
 
             var nameNodeSet = function(nodeSet){
@@ -857,16 +930,41 @@ var Model = {
 
         },
         checkAnswer: function(input){
-            //Input other than the machine only recquired for some question types
-            if (Model.question.type === "give-list"){
-                return Model.question.checkGiveList(input);
+            //Input other than the machine only recquired for some question types (but always passed along anyway for simplicity)
+            var checkFunctions = {"give-list": this.checkGiveList,
+                                  "satisfy-list": this.checkSatisfyList,
+                                  "give-input": this.checkGiveInput,
+                                  "give-equivalent": this.checkGiveEquivalent}
+            if(!checkFunctions[this.type]){
+                throw new Error(`No check function for type '${this.type}'`)
+            }else{
+                return checkFunctions[this.type](input);
             }
-            if(Model.question.type === "satisfy-list"){
-                return Model.question.checkSatisfyList();
+        },
+        checkGiveEquivalent: function(){
+            //setup target machine if it does not exist already
+            if(!Model.question.targetMachine){
+                Model.question.targetMachine = new Model.Machine("tgt");
+                Model.question.targetMachine.build(Model.question.targetMachineSpec);
             }
-            if(Model.question.type === "give-input"){
-                return Model.question.checkGiveInput();
+            var targetMachine = Model.question.targetMachine;
+            var inputMachine = Model.machines[0];
+            var feedbackObj = {allCorrectFlag: false, message:"", incorrectSequence:undefined};
+            //Catch invalid machines here
+            if(inputMachine.getAcceptingNodeCount() === 0){
+                feedbackObj.message = "Machine must have an accepting state.";
+                return feedbackObj;
             }
+            if(inputMachine.getInitialNodeCount() === 0){
+                feedbackObj.message = "Machine must have an initial state.";
+                return feedbackObj;
+            }
+            if(Model.machines[0].isEquivalentTo(targetMachine)){
+                feedbackObj.allCorrectFlag = true;
+                return feedbackObj;
+            }
+            //We now know the machine is incorrect, we now must construct an error message
+            return feedbackObj;
         },
         checkGiveInput: function(){
             var feedbackObj = {allCorrectFlag: false};
