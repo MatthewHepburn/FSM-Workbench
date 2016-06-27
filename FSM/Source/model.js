@@ -536,6 +536,47 @@ var Model = {
 
         };
 
+        this.getAcceptedSequence = function(){
+            //Returns a sequence that the machine accepts, or null if no strings are accepted.
+            //Uses a breadth-first search so should return one of the shortest strings.
+            if(this.getAcceptingNodeCount() === 0){
+                return null;
+            }
+
+            this.setToInitialState();
+            if(this.isInAcceptingState()){
+                return [];
+            }
+
+            var frontierLinks = [];
+            var pathToNode = {};
+
+            this.getCurrentNodeList().forEach(function(node){
+                pathToNode[node.id] = []
+                var outgoingLinks = node.getOutgoingLinks();
+                outgoingLinks.filter(link => !pathToNode[link.target]).filter(link => link.input.length > 0 || link.hasEpsilon).forEach(link => frontierLinks.push(link))
+            })
+
+            while(frontierLinks.length > 0){
+                var link = frontierLinks.pop();
+                var symbol = link.hasEpsilon ? [] : [link.input[0]];
+                var sourceNode = link.source;
+                var targetNode = link.target;
+                if(targetNode.isAccepting){
+                    return pathToNode[sourceNode.id].concat(symbol);
+                } else{
+                    pathToNode[targetNode.id] = pathToNode[sourceNode.id].concat(symbol);
+                    var outgoingLinks = targetNode.getOutgoingLinks().filter(link => !pathToNode[link.target]).filter(link => link.input.length > 0 || link.hasEpsilon);
+                    //We want to the return the shortest string possible, so add link to the front of the queue if it contains an epsilon link (as this does not add length to the sequence)
+                    outgoingLinks.filter(l => l.hasEpsilon).forEach(l => frontierLinks.unshift(l))
+                    //Add to the back instead
+                    outgoingLinks.filter(l => l.hasEpsilon).forEach(l => frontierLinks.push(l))
+
+                }
+            }
+            return null;
+        };
+
         this.complement = function(){
             //Changes the machine to accept the complement of its current languge
             //This is done by making the blackhole state explicit and making each accepting state non-accepting and vice versa.
