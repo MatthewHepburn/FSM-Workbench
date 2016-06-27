@@ -1101,6 +1101,35 @@ var Model = {
                 return feedbackObj;
             }
             //We now know the machine is incorrect, we now must construct an error message
+
+            var inputComplement = new Model.Machine("m1c")
+            inputComplement.build(inputMachine.getSpec())
+            inputComplement.complement()
+
+            //This machine accepts sequences that the input machine rejects but the target machine accepts:
+            var unionInputComplementWithTarget = inputComplement.getUnionWith(targetMachine);
+
+            var incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence()
+            if(incorrectSequence !== null){
+                var printableSequence = incorrectSequence.filter((x,y) => x + Model.question.splitSymbol + y, "");
+                feedbackObj.message = `Incorrect – the machine should accept '${printableSequence}'`
+                feedbackObj.incorrectSequence = incorrectSequence;
+            }
+
+            var targetComplement = new Model.Machine("t1c");
+            targetComplement.build(targetMachine.getSpec());
+            targetComplement.complement();
+
+            //This machine accepts sequences that the input machine accepts but the target machine rejects:
+            var unionInputWithTargetComplement = inputMachine.getUnionWith(targetComplement);
+
+            var incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence()
+            if(incorrectSequence !== null){
+                var printableSequence = incorrectSequence.filter((x,y) => x + Model.question.splitSymbol + y, "");
+                feedbackObj.message = `Incorrect – the machine should reject '${printableSequence}'`
+                feedbackObj.incorrectSequence = incorrectSequence;
+            }
+
             return feedbackObj;
         },
         checkGiveInput: function(){
