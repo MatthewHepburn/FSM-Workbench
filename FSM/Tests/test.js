@@ -1,3 +1,4 @@
+import "babel-polyfill";
 var expect = require('chai').expect;
 var model = require("../Source/model.js") //NB - importing from Source not deploy, may need to be altered later.
 
@@ -742,7 +743,7 @@ describe('Model', function() {
             var m2 = new model.Machine("ab");
 
             var m1Spec = {"nodes":[{"id":"A","x":95,"y":131,"isAcc":true,"isInit":true},{"id":"B","x":195,"y":130,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["b"]},{"to":"B","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
-            var m2Spec = {"nodes":[{"id":"A","x":95,"y":131,"isAcc":true,"isInit":true},{"id":"B","x":195,"y":130,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["b"]},{"to":"B","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+            var m2Spec = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
 
             m1.build(m1Spec);
             m2.build(m2Spec);

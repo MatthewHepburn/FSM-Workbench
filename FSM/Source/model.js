@@ -547,17 +547,18 @@ var Model = {
         this.getUnionWith = function(machine){
             //Returns a machine that accepts L = L(this) ∩ L(machine)
             //Create copies to avoid altering original machines
-            var m1 = new Machine("temp1");
+            var m1 = new Model.Machine("temp1");
             m1.build(this.getSpec());
-            var m2 = new Machine("temp2");
+            var m2 = new Model.Machine("temp2");
             m2.build(machine.getSpec())
 
-            m1.completelySpecify();
             m1.minimize();
-            m2.completelySpecify();
+            m1.completelySpecify("blackhole"); //Machines must be fully specified - an implicit sink state for unspecified input is not enough for this process.
             m2.minimize();
+            m2.completelySpecify("blackhole");
 
-            var unionMachine = new Machine("u1");
+
+            var unionMachine = new Model.Machine("u1");
 
             var alphabet = m1.alphabet.filter(symbol => m2.alphabet.indexOf(symbol) !== -1);
             unionMachine.setAlphabet(alphabet);
@@ -590,20 +591,21 @@ var Model = {
 
                 alphabet.forEach(function(symbol){
                     //For the pair of nodes, get the state that they will move to for this symbol
-                    m1Target = m1.nodes[n1.getReachableNodes(symbol).nodeIDs[0]]
-                    m2Target = m2.nodes[n2.getReachableNodes(symbol).nodeIDs[0]]
+                    var m1Target = m1.nodes[n1.getReachableNodes(symbol).nodeIDs[0]]
+                    var m2Target = m2.nodes[n2.getReachableNodes(symbol).nodeIDs[0]]
                     //And add it to the frontier
                     var newPair = [m1Target, m2Target];
                     nodeFrontier.push(newPair);
                     //Noting the link that must be created
-                    linksToAdd.push({source:pairID, target: getPairID(newPair), symbol})
+                    var target = getPairID(newPair);
+                    linksToAdd.push({source:pairID, target, symbol})
                 });
 
             }
 
             //All nodes created, now add the links:
             while(linksToAdd.length > 0){
-                var link = linksToAdd.push();
+                var link = linksToAdd.pop();
                 var sourceNode = addedNodes[link.source]
                 var targetNode = addedNodes[link.target]
                 var input = [link.symbol]
@@ -659,6 +661,10 @@ var Model = {
             //Can be done in two ways:
             //For type = "blackhole" all unspecified transitions are sent to an explicit blackhole state
             //For type = "ignore" all unspecifed input is ignored using reflexive links (ie unspecified input does not change machine state)
+
+            if(!["blackhole", "ignore"].includes(type)){
+                throw new Error(`Unexpected type: '${type}'' in Model.Machine.completelySpecify.`);
+            }
 
             //Check that action is needed:
             if(this.isCompletelySpecified()){
@@ -886,7 +892,7 @@ var Model = {
             for(var i = 0; i < keys.length; i++){
                 var linkID = keys[i];
                 var link = this.outgoingLinks[linkID];
-                if(link.input.indexOf(symbol) != -1){
+                if(link.input.indexOf(symbol) !== -1){
                     nodeIDs.push(link.target.id);
                     linkIDs.push(linkID);
                 }

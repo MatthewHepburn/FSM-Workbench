@@ -4,18 +4,22 @@
   "scripts": {
     "preinstall": "npm install uglify-js -g; npm install uglifycss -g",
     "build": "python build.py",
-    "test": "./node_modules/istanbul/lib/cli.js cover -x '*test.js' ./node_modules/mocha/bin/_mocha Tests --  -R spec -t 5000",
+    "test": "./node_modules/istanbul/lib/cli.js cover -x '*test.js' ./node_modules/mocha/bin/_mocha Tests --  -R spec -t 5000 --compilers js:babel-register",
     "babel": "babel Deploy -d Deploy",
     "uglifyjs": "uglifyjs  --screw-ie8 --compress"
   },
   "devDependencies": {
     "babel-cli": "~6.9.0",
-    "babel-core": "~6.9.0",
+    "babel-core": "~6.10.4",
     "babel-preset-es2015": "~6.9.0",
     "chai": "~3.5.0",
     "istanbul": "^0.4.3",
     "jsdom": "~9.2.0",
-    "mocha": "~2.5.3"
+    "mocha": "~2.5.3",
+    "webpack": "~1.13.1",
+    "babel-loader": "~6.2.4",
+    "babel-register": "~6.9.0",
+    "babel-polyfill": "~6.9.1"
   },
   "babel": {
     "presets": [
