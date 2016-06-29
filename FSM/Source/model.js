@@ -1112,7 +1112,11 @@ var Model = {
             var incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence()
             if(incorrectSequence !== null){
                 var printableSequence = incorrectSequence.filter((x,y) => x + Model.question.splitSymbol + y, "");
-                feedbackObj.message = `Incorrect – the machine should accept '${printableSequence}'`
+                if(incorrectSequence.length > 0){
+                    feedbackObj.message = `Incorrect – the machine should accept ‘${printableSequence}’`;
+                } else {
+                    feedbackObj.message = `Incorrect – the machine should accept the empty string`
+                }
                 feedbackObj.incorrectSequence = incorrectSequence;
             }
 
@@ -1126,7 +1130,11 @@ var Model = {
             var incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence()
             if(incorrectSequence !== null){
                 var printableSequence = incorrectSequence.filter((x,y) => x + Model.question.splitSymbol + y, "");
-                feedbackObj.message = `Incorrect – the machine should reject '${printableSequence}'`
+                if(incorrectSequence.length > 0){
+                    feedbackObj.message = `Incorrect – the machine should reject ‘${printableSequence}’`;
+                } else {
+                    feedbackObj.message = `Incorrect – the machine should reject the empty string`
+                }
                 feedbackObj.incorrectSequence = incorrectSequence;
             }
 

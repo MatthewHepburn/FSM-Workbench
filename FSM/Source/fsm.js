@@ -268,7 +268,26 @@ var Display = {
             Display.giveFeedbackForGiveInput(feedbackObj);
             return;
         }
+        if(Model.question.type === "give-equivalent"){
+            Display.giveFeedbackForGiveEquivalent(feedbackObj);
+            return;
+        }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
+    },
+    giveFeedbackForGiveEquivalent:function(feedbackObj){
+        var buttonDiv = d3.select(".button-div");
+        if(buttonDiv.select("#give-equivalent-feedback").empty()){
+            buttonDiv.append("div").attr("id", "give-equivalent-feedback");
+        }
+        var feedbackDiv = buttonDiv.select("#give-equivalent-feedback");
+        feedbackDiv.text("");
+        if(feedbackObj.allCorrectFlag === true){
+            feedbackDiv.append("span").text("✓").classed("give-equivalent-tick", true);
+            return;
+        } else {
+            feedbackDiv.append("span").text("☓").classed("give-equivalent-cross", true)
+            feedbackDiv.append("span").text(feedbackObj.message).classed("give-equivalent-text", true);
+        }
     },
     giveFeedbackForGiveInput: function(){
         var buttonDiv = d3.select(".button-div");
@@ -1278,7 +1297,7 @@ var Display = {
     },
     setUpQuestion: function(){
         var qType = Model.question.type;
-        var checkButtonTypes = ["give-list", "satisfy-list"]; //Question types with a check button
+        var checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent"]; //Question types with a check button
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }

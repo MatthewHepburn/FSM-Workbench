@@ -34,6 +34,26 @@ div.question-text{
   font-family: 'Ek Mukta', sans-serif;
 }
 
+#give-equivalent-feedback{
+  display: inline;
+  margin-left: 1em;
+}
+
+.give-equivalent-cross{
+  color: red;
+  font-size: xx-large;
+  vertical-align: middle;
+  margin-right: 0.5em;
+}
+
+.give-equivalent-tick{
+  color: green;
+  font-size: xx-large;
+  vertical-align: middle;
+  margin-right: 0.5em;
+
+}
+
 .give-list-label{
   width: 5.2em !important;
   font-family: 'Ek Mukta', sans-serif;
