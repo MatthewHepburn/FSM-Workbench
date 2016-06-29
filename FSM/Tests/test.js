@@ -954,6 +954,23 @@ describe('Model', function() {
                 expect(machine.accepts(sequence)).to.be.true;
             })
         })
+        describe("-machine 2-", function(){
+            var spec = {"nodes":[{"id":"A","x":53,"y":134,"isInit":true},{"id":"B","x":136,"y":78},{"id":"C","x":148,"y":165},{"id":"D","x":248,"y":161},{"id":"E","x":236,"y":73},{"id":"F","x":322,"y":124,"isAcc":true}],"links":[{"to":"B","from":"A","hasEps":true},{"to":"C","from":"A","hasEps":true},{"to":"D","from":"C","input":["a"]},{"to":"D","from":"D","input":["b"]},{"to":"E","from":"B","input":["c"]},{"to":"F","from":"E","hasEps":true}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var machine = new model.Machine("t1");
+            machine.build(spec);
+            var sequence;
+            it("should return ['c']", function(){
+                sequence = machine.getAcceptedSequence();
+                expect(sequence).to.not.equal(null);
+                expect(sequence.length).to.equal(1);
+                expect(sequence[0]).to.equal("c");
+            })
+            it("should return a sequence accepted by the machine", function(){
+                expect(machine.accepts(sequence)).to.be.true;
+            })
+        })
+
+
     })
 
     describe("Test Machine.complement", function(){
