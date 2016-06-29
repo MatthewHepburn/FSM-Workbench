@@ -939,8 +939,41 @@ describe('Model', function() {
         })
     })
 
+    describe("Test Machine.complement", function(){
+        describe("Strings that a machine accepts should be rejected by that machine's complement", function(){
+            var m1 = new model.Machine("t1");
+            var m2 = new model.Machine("t2");
+            var spec = {"nodes":[{"id":"A","x":61,"y":78,"isInit":true},{"id":"B","x":160,"y":74,"isAcc":true},{"id":"C","x":260,"y":79,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
 
+            //Strings that m1 should accept
+            var accList = ["ab", "a", "aa", "aaab", "aaacaa"];
+            var rejList = ["b", "bc", "abba", "acab"];
+            //Strings that m2 should reject
+            var splitSymbol = "";
 
+            m1.build(spec);
+            m2.build(spec);
+            m2.complement();
+            accList.forEach(function(str){
+                var sequence = model.parseInput(str, splitSymbol)
+                it(`m1 should accept ${str}`, function(){
+                    expect(m1.accepts(sequence)).to.be.true;
+                })
+                it(`m1.complement() should not accept ${str}`, function(){
+                    expect(m1.accepts(sequence)).to.be.false;
+                })
+            })
 
+            rejList.forEach(function(str){
+                var sequence = model.parseInput(str, splitSymbol)
+                it(`m1 should not accept ${str}`, function(){
+                    expect(m1.accepts(sequence)).to.be.false;
+                })
+                it(`m1.complement() should accept ${str}`, function(){
+                    expect(m1.accepts(sequence)).to.be.true;
+                })
+            })
+        })
+    })
 });
 
