@@ -329,7 +329,8 @@
         "attributes": {
           "alphabet": [
             "a",
-            "b"
+            "b",
+            "c"
           ],
           "allowEpsilon": true,
           "isTransducer": false

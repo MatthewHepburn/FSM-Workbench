@@ -485,6 +485,7 @@ describe('Model', function() {
             })
             it("should reject incorrect input 2", function(){
                 var incorrectSpec = {"nodes":[{"id":"A","x":92,"y":120,"isInit":true,"name":"0"},{"id":"B","x":192,"y":123,"name":"1"},{"id":"C","x":292,"y":125,"isAcc":true,"name":"2"},{"id":"D","x":392,"y":128,"isAcc":true,"name":"3"}],"links":[{"to":"B","from":"A","input":["a","b"]},{"to":"C","from":"B","input":["a"]},{"to":"A","from":"B","input":["b"]},{"to":"B","from":"C","input":["b"]},{"to":"D","from":"C","input":["b"]},{"to":"D","from":"D","input":["a","b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+                model.deleteMachine(model.machines[0].id);
                 var machine = model.addMachine(incorrectSpec);
                 var feedbackObj = model.question.checkAnswer();
                 expect(feedbackObj.allCorrectFlag).to.be.false;
@@ -918,6 +919,24 @@ describe('Model', function() {
             });
 
         });
+    })
+
+
+
+    describe("Test Machine.getAcceptedSequence", function(){
+        describe("-machine 1-", function(){
+            var machine = new model.Machine("t1");
+            machine.build({"nodes":[{"id":"A","x":94,"y":162,"isInit":true},{"id":"B","x":170,"y":227},{"id":"C","x":160,"y":87},{"id":"D","x":236,"y":152,"isAcc":true}],"links":[{"to":"B","from":"D","input":["b","c"]},{"to":"D","from":"D","input":["a"]},{"to":"D","from":"C","input":["b","c"]},{"to":"C","from":"C","input":["a"]},{"to":"B","from":"B","input":["a","b","c"]},{"to":"B","from":"A","input":["b","c"]},{"to":"C","from":"A","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}});
+            var sequence;
+            it("should return a sequence of length 2", function(){
+                sequence = machine.getAcceptedSequence();
+                expect(sequence).to.not.equal(null);
+                expect(sequence.length).to.equal(2);
+            })
+            it("should return a sequence accepted by the machine", function(){
+                expect(machine.accepts(sequence)).to.be.true;
+            })
+        })
     })
 
 

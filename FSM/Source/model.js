@@ -566,11 +566,11 @@ var Model = {
                     return pathToNode[sourceNode.id].concat(symbol);
                 } else{
                     pathToNode[targetNode.id] = pathToNode[sourceNode.id].concat(symbol);
-                    var outgoingLinks = targetNode.getOutgoingLinks().filter(link => !pathToNode[link.target]).filter(link => link.input.length > 0 || link.hasEpsilon);
+                    var outgoingLinks = targetNode.getOutgoingLinks().filter(link => !pathToNode[link.target.id]).filter(link => link.input.length > 0 || link.hasEpsilon);
                     //We want to the return the shortest string possible, so add link to the front of the queue if it contains an epsilon link (as this does not add length to the sequence)
                     outgoingLinks.filter(l => l.hasEpsilon).forEach(l => frontierLinks.unshift(l))
                     //Add to the back instead
-                    outgoingLinks.filter(l => l.hasEpsilon).forEach(l => frontierLinks.push(l))
+                    outgoingLinks.filter(l => !l.hasEpsilon).forEach(l => frontierLinks.push(l))
 
                 }
             }
@@ -1111,13 +1111,14 @@ var Model = {
 
             var incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence()
             if(incorrectSequence !== null){
-                var printableSequence = incorrectSequence.filter((x,y) => x + Model.question.splitSymbol + y, "");
+                var printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
                     feedbackObj.message = `Incorrect – the machine should accept ‘${printableSequence}’`;
                 } else {
                     feedbackObj.message = `Incorrect – the machine should accept the empty string`
                 }
                 feedbackObj.incorrectSequence = incorrectSequence;
+                return feedbackObj;
             }
 
             var targetComplement = new Model.Machine("t1c");
@@ -1129,7 +1130,7 @@ var Model = {
 
             var incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence()
             if(incorrectSequence !== null){
-                var printableSequence = incorrectSequence.filter((x,y) => x + Model.question.splitSymbol + y, "");
+                var printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
                     feedbackObj.message = `Incorrect – the machine should reject ‘${printableSequence}’`;
                 } else {
