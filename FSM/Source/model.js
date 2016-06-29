@@ -1087,7 +1087,7 @@ var Model = {
             }
             var targetMachine = Model.question.targetMachine;
             var inputMachine = Model.machines[0];
-            var feedbackObj = {allCorrectFlag: false, message:"", incorrectSequence:undefined};
+            var feedbackObj = {allCorrectFlag: false, message:"", incorrectSequence:undefined, shouldAcceptIncorrect: undefined};
             //Catch invalid machines here
             if(inputMachine.getAcceptingNodeCount() === 0){
                 feedbackObj.message = "Machine must have an accepting state.";
@@ -1119,6 +1119,7 @@ var Model = {
                     feedbackObj.message = `Incorrect – the machine should accept the empty string`
                 }
                 feedbackObj.incorrectSequence = incorrectSequence;
+                feedbackObj.shouldAcceptIncorrect = true;
                 return feedbackObj;
             }
 
@@ -1138,6 +1139,7 @@ var Model = {
                     feedbackObj.message = `Incorrect – the machine should reject the empty string`
                 }
                 feedbackObj.incorrectSequence = incorrectSequence;
+                feedbackObj.shouldAcceptIncorrect = false;
             }
 
             return feedbackObj;

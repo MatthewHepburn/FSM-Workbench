@@ -469,10 +469,13 @@ describe('Model', function() {
 
         });
         describe("test for machine equal to a*a(b|c)a*", function(){
+            var targetMachineSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var targetMachine = new model.Machine("tgt");
+            targetMachine.build(targetMachineSpec);
             var questionObj = {type:"give-equivalent",
                                splitSymbol: "",
-                               targetMachineSpec: {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}}
-                               }
+                               targetMachineSpec
+                               };
             before(function(){
                 model.question.setUpQuestion(questionObj)
             })
@@ -482,6 +485,13 @@ describe('Model', function() {
                 var feedbackObj = model.question.checkAnswer();
                 expect(feedbackObj.allCorrectFlag).to.be.false;
                 expect(feedbackObj.message.length > 0).to.be.true;
+                if(feedbackObj.shouldAcceptIncorrect === true){
+                    expect(machine.accepts(feedbackObj.incorrectSequence)).to.be.false;
+                    expect(targetMachine.accepts(feedbackObj.incorrectSequence)).to.be.true;
+                } else {
+                    expect(machine.accepts(feedbackObj.incorrectSequence)).to.be.true;
+                    expect(targetMachine.accepts(feedbackObj.incorrectSequence)).to.be.false;
+                }
             })
             it("should reject incorrect input 2", function(){
                 var incorrectSpec = {"nodes":[{"id":"A","x":92,"y":120,"isInit":true,"name":"0"},{"id":"B","x":192,"y":123,"name":"1"},{"id":"C","x":292,"y":125,"isAcc":true,"name":"2"},{"id":"D","x":392,"y":128,"isAcc":true,"name":"3"}],"links":[{"to":"B","from":"A","input":["a","b"]},{"to":"C","from":"B","input":["a"]},{"to":"A","from":"B","input":["b"]},{"to":"B","from":"C","input":["b"]},{"to":"D","from":"C","input":["b"]},{"to":"D","from":"D","input":["a","b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
@@ -490,6 +500,13 @@ describe('Model', function() {
                 var feedbackObj = model.question.checkAnswer();
                 expect(feedbackObj.allCorrectFlag).to.be.false;
                 expect(feedbackObj.message.length > 0).to.be.true;
+                if(feedbackObj.shouldAcceptIncorrect === true){
+                    expect(machine.accepts(feedbackObj.incorrectSequence)).to.be.false;
+                    expect(targetMachine.accepts(feedbackObj.incorrectSequence)).to.be.true;
+                } else {
+                    expect(machine.accepts(feedbackObj.incorrectSequence)).to.be.true;
+                    expect(targetMachine.accepts(feedbackObj.incorrectSequence)).to.be.false;
+                }
             })
             it("should reject a machine with no accepting states", function(){
                 var noAccSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169,"isAcc":false},{"id":"C","x":272,"y":164,"isAcc":false}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
