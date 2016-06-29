@@ -960,7 +960,7 @@ describe('Model', function() {
                     expect(m1.accepts(sequence)).to.be.true;
                 })
                 it(`m1.complement() should not accept ${str}`, function(){
-                    expect(m1.accepts(sequence)).to.be.false;
+                    expect(m2.accepts(sequence)).to.be.false;
                 })
             })
 
@@ -970,7 +970,7 @@ describe('Model', function() {
                     expect(m1.accepts(sequence)).to.be.false;
                 })
                 it(`m1.complement() should accept ${str}`, function(){
-                    expect(m1.accepts(sequence)).to.be.true;
+                    expect(m2.accepts(sequence)).to.be.true;
                 })
             })
         })

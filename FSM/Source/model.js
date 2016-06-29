@@ -580,6 +580,7 @@ var Model = {
         this.complement = function(){
             //Changes the machine to accept the complement of its current languge
             //This is done by making the blackhole state explicit and making each accepting state non-accepting and vice versa.
+            this.convertToDFA();
             this.completelySpecify("blackhole")
             var nodes = this.getNodeList();
             nodes.forEach(node => node.isAccepting = !node.isAccepting);
