@@ -4,6 +4,7 @@ full_stats.json
 stats.json
 Deploy/
 FSM/coverage
+FSM/.nyc_output
 
 # Node Files #
 ##############
