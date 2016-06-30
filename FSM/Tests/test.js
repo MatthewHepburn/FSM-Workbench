@@ -938,6 +938,106 @@ describe('Model', function() {
         });
     })
 
+    describe("Test Machine.completelySpecify", function(){
+        describe("'Ignore' mode", function(){
+            var spec = {"nodes":[{"id":"A","x":157,"y":173,"isInit":true},{"id":"B","x":256,"y":157},{"id":"C","x":168,"y":73,"isAcc":true},{"id":"D","x":356,"y":152}],"links":[{"to":"B","from":"A","input":["open"]},{"to":"C","from":"A","input":["lock"]},{"to":"A","from":"C","input":["unlock"]},{"to":"D","from":"B","input":["lock"]},{"to":"B","from":"D","input":["unlock"]},{"to":"A","from":"B","input":["close"]}],"attributes":{"alphabet":["open","close","lock","unlock"],"allowEpsilon":true,"isTransducer":false}};
+            var originalMachine = new model.Machine("orig");
+            originalMachine.build(spec);
+            var completeMachine = new model.Machine("comp");
+            completeMachine.build(spec);
+            completeMachine.completelySpecify("ignore");
+            describe("Complete machine should accept everything that the original does", function(){
+                var accList = ["lock", "open close lock", "open lock unlock close lock", "lock unlock lock"];
+                var splitSymbol = " "
+                accList.forEach(function(str){
+                    var sequence = model.parseInput(str, splitSymbol)
+                    it(`both should accept '${str}'`, function(){
+                        expect(originalMachine.accepts(sequence)).to.be.true;
+                        expect(completeMachine.accepts(sequence)).to.be.true;
+                    })
+                })
+            })
+            describe("Complete machine should ignore unexpected input", function(){
+                var accList = ["lock open", "open open close close lock", "open open lock lock close unlock close lock", " lock lock unlock unlock lock"];
+                var splitSymbol = " "
+                accList.forEach(function(str){
+                    var sequence = model.parseInput(str, splitSymbol)
+                    it(`Only the complete machine should accept '${str}'`, function(){
+                        expect(originalMachine.accepts(sequence)).to.be.false;
+                        expect(completeMachine.accepts(sequence)).to.be.true;
+                    })
+                })
+            })
+        })
+    })
+
+    describe("Test Machine.mergeNodes", function(){
+        describe("machine 1", function(){
+            var origMachine, mergeMachine;
+            before(function(){
+                var spec = {"nodes":[{"id":"A","x":95,"y":110,"isInit":true,"name":"A"},{"id":"B","x":190,"y":140,"name":"B"},{"id":"C","x":285,"y":107,"isAcc":true,"name":"C"},{"id":"D","x":189,"y":77,"name":"D"}],"links":[{"to":"B","from":"A","input":["a1"]},{"to":"C","from":"B","input":["a2"]},{"to":"D","from":"A","input":["a2"]},{"to":"C","from":"D","input":["a2"]}],"attributes":{"alphabet":["a1","a2"],"allowEpsilon":true,"isTransducer":false}};
+                origMachine = new model.Machine("t1");
+                mergeMachine = new model.Machine("t2");
+                origMachine.build(spec);
+                mergeMachine.build(spec);
+                //Identify nodes to be merged
+                mergeMachine.setToInitialState();
+                var initNode = mergeMachine.getCurrentNodeList()[0]
+                var links = initNode.getOutgoingLinks()
+                expect(links.length).to.equal(2);
+                var n1 = links[0].target;
+                var n2 = links[1].target;
+                mergeMachine.mergeNodes(n1,n2);
+            })
+
+            it("premerge machine should accept ['a2', 'a2]", function(){
+                expect(origMachine.accepts(["a2", "a2"])).to.be.true;
+            })
+            it("premerge machine should accept ['a1', 'a2]", function(){
+                expect(origMachine.accepts(["a1", "a2"])).to.be.true;
+            })
+            it("merged machine should accept ['a2', 'a2]", function(){
+                expect(mergeMachine.accepts(["a2", "a2"])).to.be.true;
+            })
+            it("merged machine should accept ['a1', 'a2]", function(){
+                expect(mergeMachine.accepts(["a1", "a2"])).to.be.true;
+            })
+        })
+        describe("machine 2", function(){
+            var origMachine, mergeMachine;
+            before(function(){
+                var spec = {"nodes":[{"id":"A","x":74,"y":88,"isInit":true,"name":"i1"},{"id":"B","x":74,"y":169,"isInit":true,"name":"i2"},{"id":"C","x":166,"y":128,"name":"C"},{"id":"D","x":257,"y":88,"isAcc":true,"name":"a1"},{"id":"E","x":263,"y":152,"isAcc":true,"name":"a2"}],"links":[{"to":"C","from":"A","input":["1"],"hasEps":true},{"to":"C","from":"B","input":["2"],"hasEps":true},{"to":"D","from":"C","input":["1","2","3"]},{"to":"E","from":"C","hasEps":true}],"attributes":{"alphabet":["1","2","3"],"allowEpsilon":true,"isTransducer":false}};
+                origMachine = new model.Machine("t1");
+                mergeMachine = new model.Machine("t2");
+                origMachine.build(spec);
+                mergeMachine.build(spec);
+                //Identify nodes to be merged
+                mergeMachine.setToInitialState();
+                var n1 = mergeMachine.getCurrentNodeList()[0];
+                var n2 = mergeMachine.getCurrentNodeList()[1];
+                mergeMachine.mergeNodes(n1,n2);
+
+                var acceptingNodes = mergeMachine.getNodeList().filter(node => node.isAccepting);
+                var n3 = acceptingNodes[0];
+                var n4 = acceptingNodes[1];
+                mergeMachine.mergeNodes(n3,n4);
+            })
+
+            it("premerge machine should accept []", function(){
+                expect(origMachine.accepts([])).to.be.true;
+            })
+            it("premerge machine should accept ['2', '2]", function(){
+                expect(origMachine.accepts(["2", "2"])).to.be.true;
+            })
+            it("merged machine should accept []", function(){
+                expect(mergeMachine.accepts([])).to.be.true;
+            })
+            it("merged machine should accept ['2', '2]", function(){
+                expect(mergeMachine.accepts(["2", "2"])).to.be.true;
+            })
+        })
+    })
+
 
 
     describe("Test Machine.getAcceptedSequence", function(){
@@ -1010,4 +1110,3 @@ describe('Model', function() {
         })
     })
 });
-
