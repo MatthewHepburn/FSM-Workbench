@@ -6,46 +6,25 @@
 
 var edit = {
     question: {},
-    questionTypes: ["demo", "does-accept", "give-list", "give-equivalent", "satisfy-definition","satisfy-list", "satisfy-regex", "select-states"],
+    questionTypes: ["give-list", "give-equivalent", "satisfy-list"],
     questionSchema: {
-        "common":{
-            "text": {"description": "Text of the question. HTML tags allowed.", "optional": false, "expectStr":true},
-            "filename":{"description": "The filename this question should have", "optional": true, "expectStr": true, "default": "filename"},
-            "questionTitle":{"description": "The title of this question", "optional": true, "expectStr": true, "default": "Question Title"},
-            "alphabetType": {"description": "Should the machine take input a character at a time (char) or consider longer strings as a single symbol (symbol).", "optional":false,"expectStr":true},
-            "alphabet": {"description": 'A list of the symbols that the machine operates on. Include ε if allowed. Eg ["a","b", "ε"]', "optional":false, "default":'["a","b","ε"]', "expectStr":false}
+        common:{
+            text: {description: "Text of the question. HTML tags allowed.", optional: false, expectStr: true},
+            filename:{description: "The filename this question should have", optional: true, expectStr: true, default: "filename"},
+            questionTitle:{description: "The title of this question", optional: true, expectStr: true, default: "Question Title"},
+            alphabet: {description: 'A list of the symbols that the machine operates on. Eg ["a","b"]', optional:false, default:'["a","b"]', expectStr:false},
+            allowEpsilon: {description: "Does the machine permit epsilon transitions?", optional:false, default:true, expectStr:false},
+            splitSymbol: {description: "Symbol that sepates input. Blank to split on every character", optional:false, default:"", expectStr:true}
 
-        },
-        "does-accept":{
-            "strList": {"description": 'A list of strings for the user to determine if the machine accepts. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false}
         },
         "give-list":{
             "splitSymbol": {"description": "The symbol used to split input into discrete tokens. Leave blank to split on the empty string (ie treat each character as a separate token) or enter ',' for comma separated tokens or ' ' for space separated tokens.", "optional": true, "default": "", "expectStr": true},
             "lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[1,2]","expectStr":false},
             "prefill": {"description": "An option to automatically fill in some of the fields. Eg {'0': 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":"{ }", "expectStr":false}
         },
-        "select-states":{
-            "initialState" : {"description": "A list of the IDs of states that the machine is in at the start of the question. The start state has ID 0.", "optional": false, "default":"[0]", "expectStr":false},
-            "nSteps": {"description": "The number of steps to execute before selecting states. Eg  - 1 would be the set of states directly after initialState", "optional":false, "default":"1", "expectStr":false},
-            "input": {"description": "The input to be considered for this question", "optional":false, "default":'["a","b","b"]', "expectStr":false}
-        },
         "satisfy-list":{
             "acceptList": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
             "rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false}
-        },
-        "satisfy-definition":{
-
-        },
-        "satisfy-regex":{
-            "regex": {"description": "Regular expression that the machine should accept. In the format accepted by JavaScript regexes. Eg abb(abb)*", "optional":false, "default":"a(a|b)*", "expectStr":true},
-            "minAcceptLength": {"description": "The length of the shortest string that the regex accepts.", "optional":false, "default":4, "expectStr":false},
-            "deterministic": {"description": "Optional parameter. If true, the machine must be deterministic, if false the machine must be nondeterministic. If not specified, either is acceptable", "optional":true, "default":"", "expectStr":false},
-            "maxStates": {"description": "Optional parameter. Maximum number of states the machine is allowed to have. NB, allowing too many states can lead to crashes.", "optional":true, "default":4, "expectStr":false}
-        },
-        "demo":{
-            "hasGoal": {"description": "If true - the user is correct if they enter a sequence ending on an accepting state", "optional":false, "default":false, "expectStr":false, "isBoolean":true},
-            "goalType": {"description": "Only needed if hasGoal = true. Can be 'accepting' - the user must get the machine to an accepting state - or 'output' - the user must make the machine give a particular output", "optional":true, "default":"accepting", "expectStr":true, "isBoolean":false},
-            "outputTarget" :{"description": "Only needed if goalType=output. The output string the user must make the machine output", "optional":true, "default":"abccba", "expectStr":true, "isBoolean":false}
         },
         "give-equivalent":{
 
@@ -63,11 +42,17 @@ var edit = {
     questionOptions:function(){
         d3.select(".questiondata").html("");
         edit.askQuestionText(edit.questionSchema.common.text.description);
-        edit.askQuestionCharType(edit.questionSchema.common.alphabetType.description);
 
         var alphabetQ = edit.questionSchema.common.alphabet;
         edit.askQuestionOption("alphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional);
         d3.select("#alphabet").on("change", edit.setAlphabet);
+
+        var epsQ = edit.questionSchema.common.allowEpsilon
+        edit.askQuestionOption("allowEpsilon", epsQ.description, epsQ.default, epsQ.isOptional, true);
+        d3.select("#allowEpsilon").on("change", edit.setAlphabet);
+
+        var splitQ = edit.questionSchema.common.splitSymbol
+        edit.askQuestionOption("splitSymbol", splitQ.description, splitQ.default, splitQ.isOptional, false);
 
         var filenameQ = edit.questionSchema.common.filename;
         edit.askQuestionOption("filename", filenameQ.description, filenameQ["default"], filenameQ.optional);
@@ -224,8 +209,10 @@ var edit = {
 
     setAlphabet:function(){
         var alphabet = JSON.parse(document.querySelector("#alphabet").value);
+        var allowEpsilon = JSON.parse(document.querySelector("#allowEpsilon").value);
         for(var i = 0; i < Model.machines.length; i++){
-            Model.machines[i].alphabet = alphabet;
+            var machine = Model.machines[i]
+            Controller.setAlphabet(machine, alphabet, allowEpsilon)
         }
     },
     showTwoMachines: function(){

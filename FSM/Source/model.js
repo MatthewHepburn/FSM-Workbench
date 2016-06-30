@@ -369,7 +369,10 @@ var Model = {
             return this.isInAcceptingState();
         };
 
-        this.setAlphabet = function(alphabetArray){
+        this.setAlphabet = function(alphabetArray, allowEpsilon){
+            if(allowEpsilon !== undefined){
+                this.allowEpsilon = allowEpsilon;
+            }
             this.alphabet = alphabetArray;
             //Now enforce this alphabet by removing illegal symbols
             this.enforceAlphabet();

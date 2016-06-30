@@ -5,15 +5,14 @@
     <title>FSM Question Creator</title>
     <link href='http://fonts.googleapis.com/css?family=Ek+Mukta:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-    <link rel="stylesheet" href="fsm2.css">
-    <link rel="stylesheet" href="edit.css">
+    <link rel="stylesheet" href="fsm.css">
   </head>
 
   <body class="canvas"
   data-machinelist= '[{"nodes":[{"id":"A","x":151,"y":55,"isAcc":true,"name":"TIM"},{"id":"B","x":34,"y":49,"isInit":true},{"id":"C","x":265,"y":50,"isAcc":true, "name":"Q"}],"links":[{"to":"B","from":"A"},{"to":"A","from":"B","hasEps":true},{"to":"C","from":"A","hasEps":true},{"to":"A","from":"A","hasEps":true}], "attributes": {"alphabet": [], "allowEpsilon": true}}]'
   data-question='{"type":"none"}'
   data-options='{"constrainRename":false, "responsiveResize": false}'
-  data-iconaddress = 'img/Icons/'
+  data-iconaddress = 'img/icons/'
   data-pageid= "d156dfe8a5c746d88e7a97156e791365">
     <div class="maindiv">
     	<div class="questiontype"></div>
@@ -21,17 +20,18 @@
       <div class="questiondata"></div>
       <div class='buttondiv'></div>
       <div class='jsonout'></div>
-      <svg id="m1" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
-          <g class="links"></g>
-          <g class="nodes"></g>
+      <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
+              <g class="links"></g>
+              <g class="nodes"></g>
               <defs>
                 <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
                 <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
               </defs>
-      </svg>
+            </svg>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
-    <script src="fsm2.js"></script>
-    <script type="text/javascript" src="edit2.js"></script>
+    <script src="model.js"></script>
+    <script src="fsm.js"></script>
+    <script type="text/javascript" src="edit2.js" defer></script>
   </body>
 </html>

@@ -28,6 +28,8 @@ var Display = {
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
                     .attr("id", id)
+                    .attr("width", 500)
+                    .attr("height", 300)
                     .attr("viewBox", "0 0 500 300")
                     .attr("preserveAspectRatio","xMidYMid meet")
                     .on("contextmenu", function(){EventHandler.backgroundContextClick(machine);})
@@ -1886,9 +1888,9 @@ var Controller = {
         Display.drawNodeRenameForm(canvasID, node);
     },
 
-    setAlphabet: function(machine, alphabetArray){
+    setAlphabet: function(machine, alphabetArray, allowEpsilon){
         Display.clearMenus(machine.id);
-        machine.setAlphabet(alphabetArray);
+        machine.setAlphabet(alphabetArray, allowEpsilon);
         Display.updateAllLinkLabels(machine.id);
     },
 

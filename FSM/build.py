@@ -30,7 +30,7 @@ def setAddresses(toDeploy):
         addresses = {
             "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
-            "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/Icons/",
+            "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/icons/",
             "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/"
         }
     else:
