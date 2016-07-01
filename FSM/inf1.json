@@ -217,6 +217,510 @@
   {
     "data-question": {
       "type": "satisfy-list",
+      "text": "Modify the FSM below to accept the strings on the left but reject the strings on the right.",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "shouldAccept": [
+        "aa",
+        "aba",
+        "abba",
+        "aaa",
+        "abaa"
+      ],
+      "shouldReject": [
+        "",
+        "a",
+        "a",
+        "aaba"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 93,
+            "y": 130,
+            "isInit": true,
+            "name": "1"
+          },
+          {
+            "id": "B",
+            "x": 193,
+            "y": 130,
+            "name": "2"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "machine-construction-2",
+    "name": "Machine construction II",
+    "id": "c828299302cb42939462ca5788007755"
+  },
+  {
+    "data-question": {
+      "type": "satisfy-list",
+      "text": "Design a FSM to represent the logic of a vending machine. It sells water for 40p and Irn-Bru for 50p. It accepts 10p and 20p coins.<br>The user is not required to enter exact money - eg if they enter 60p they should still be able to purchase water.",
+      "allowEpsilon": "false",
+      "splitSymbol": ", ",
+      "shouldAccept": [
+        "10p, 10p, 10p, 10p, 10p, Irn-Bru",
+        "20p, 20p, Water",
+        "10p 20p 20p, Irn-Bru",
+        "20p, 20p, 20p, Water",
+        "10p, 10p, 20p, 10p, Water"
+      ],
+      "shouldReject": [
+        "",
+        "10p, 10p, Water",
+        "10p, 10p, 20p, Water, Water"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 52,
+            "y": 196,
+            "isInit": true,
+            "name": "1"
+          },
+          {
+            "id": "B",
+            "x": 152,
+            "y": 196,
+            "name": "2"
+          },
+          {
+            "id": "C",
+            "x": 103,
+            "y": 109
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "20p"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "10p"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "C",
+            "input": [
+              "10p"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "10p",
+            "20p",
+            "Water",
+            "Irn-Bru"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "vending-machine-1",
+    "name": "Vending machine acceptor",
+    "id": "159d34df52fc4d248053f6623f408b71"
+  },
+  {
+    "data-question": {
+      "type": "give-list",
+      "text": "For each of the lengths given, give a sequence that the Finite State Machine will accept.",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "lengths": [
+        3,
+        7
+      ],
+      "prefill": {}
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 115,
+            "y": 195,
+            "isInit": true,
+            "name": "1"
+          },
+          {
+            "id": "B",
+            "x": 215,
+            "y": 195,
+            "name": "2"
+          },
+          {
+            "id": "C",
+            "x": 315,
+            "y": 194
+          },
+          {
+            "id": "D",
+            "x": 415,
+            "y": 195,
+            "isAcc": true
+          },
+          {
+            "id": "E",
+            "x": 114,
+            "y": 95
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "E",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "nondeterministic-transitions-3",
+    "name": "Nondeterministic Transitions III",
+    "id": "48c1323783f7429b9ae5fb03d10387d4"
+  },
+  {
+    "data-question": {
+      "type": "satisfy-list",
+      "text": "Epsilon transitions are useful for combining machines. Below are two machine fragments that accept \"abc\" and \"aac\", combine them using epsilon transitions to form a single machine that accepts both \"abc\" and \"aac\".",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "shouldAccept": [
+        "abc",
+        "aac"
+      ],
+      "shouldReject": [
+        "",
+        "a",
+        "b",
+        "abcaac",
+        "bc",
+        "ac"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 127,
+            "y": 39,
+            "name": "T"
+          },
+          {
+            "id": "B",
+            "x": 227,
+            "y": 39
+          },
+          {
+            "id": "C",
+            "x": 327,
+            "y": 39
+          },
+          {
+            "id": "D",
+            "x": 427,
+            "y": 39,
+            "isAcc": true
+          },
+          {
+            "id": "E",
+            "x": 426,
+            "y": 240,
+            "isAcc": true
+          },
+          {
+            "id": "F",
+            "x": 83,
+            "y": 140,
+            "isInit": true,
+            "name": "S"
+          },
+          {
+            "id": "G",
+            "x": 326,
+            "y": 240
+          },
+          {
+            "id": "H",
+            "x": 226,
+            "y": 240
+          },
+          {
+            "id": "I",
+            "x": 126,
+            "y": 240
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "c"
+            ]
+          },
+          {
+            "to": "H",
+            "from": "I",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "G",
+            "from": "H",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "G",
+            "input": [
+              "c"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "combining-with-epsilon",
+    "name": "Combining machines with ε transitions",
+    "id": "057696acdc1143c3b7eb3cdf6437a4bb"
+  },
+  {
+    "data-question": {
+      "type": "give-equivalent",
+      "text": "Regular expressions can be used to define languages accepted by finite state machines. <br>One operator used in regular expressions is *, the Kleene star. It means that the symbol before it must appear 0 or more times.<br>For example,<b> a*b*</b> means 'a' zero or more times followed by 'b' zero or more time. This language includes the empty string, \"a\", \"b\", \"ab\", \"aa\", \"bb\", etc.<br>Construct a finite state machine which is accepts the language definined by the regular expression <b>a*b*</b>",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "targetMachineSpec": {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 78,
+            "y": 123,
+            "isAcc": true,
+            "isInit": true,
+            "name": "S"
+          },
+          {
+            "id": "B",
+            "x": 178,
+            "y": 118,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "A",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 83,
+            "y": 123,
+            "isInit": true
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      },
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 78,
+            "y": 123,
+            "isAcc": true,
+            "isInit": true,
+            "name": "S"
+          },
+          {
+            "id": "B",
+            "x": 178,
+            "y": 118,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "A",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "kleene-star-1",
+    "name": "Regular expressions - Kleene star I",
+    "id": "7e3194c04ffb4928916717d2dd5d8fdb"
+  },
+  {
+    "data-question": {
+      "type": "satisfy-list",
       "text": "test question",
       "splitSymbol": "",
       "shouldAccept": [
