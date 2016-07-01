@@ -1,8 +1,87 @@
 [
   {
     "data-question": {
+      "type": "give-input",
+      "text": "When a Finite State Machine is given an input, it uses that input to chose which state to move to.<br>Use the buttons below to give the machine an input that moves it to state 3.",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "target": "accept",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 93,
+            "y": 123,
+            "isInit": true,
+            "name": "0"
+          },
+          {
+            "id": "B",
+            "x": 193,
+            "y": 124,
+            "name": "1"
+          },
+          {
+            "id": "C",
+            "x": 293,
+            "y": 125,
+            "name": "2"
+          },
+          {
+            "id": "D",
+            "x": 393,
+            "y": 126,
+            "isAcc": true,
+            "name": "3"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A"
+          },
+          {
+            "to": "A",
+            "from": "B"
+          },
+          {
+            "to": "C",
+            "from": "B"
+          },
+          {
+            "to": "B",
+            "from": "C"
+          },
+          {
+            "to": "D",
+            "from": "C"
+          },
+          {
+            "to": "D",
+            "from": "D"
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "give-input-intro-to-fsm",
+    "name": "Introducing FSMs I",
+    "id": "3138777f0f8c4929a12da09c768dd693"
+  },
+  {
+    "data-question": {
       "type": "give-list",
-      "text": "A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states. \nThe machine accepts 2 sequences. One is \"aa\", give the other.",
+      "text": "A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states.<br>The machine accepts 2 sequences. One is \"aa\", give the other.",
       "lengths": [
         2,
         2
@@ -78,6 +157,66 @@
   {
     "data-question": {
       "type": "satisfy-list",
+      "text": "Modify the machine below so that it accepts sequences consisting of an <b>odd number of 'a's followed by 'bc'.</b><br><b>Hint</b>: to create links between states, select the link tool and then click source state and the target state.",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "shouldAccept": [
+        "a",
+        "aaabc",
+        "aaaaabc",
+        "aaaaaaabc"
+      ],
+      "shouldReject": [
+        "a",
+        "ab",
+        "aabc",
+        "bc"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 98,
+            "y": 129,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 198,
+            "y": 129
+          },
+          {
+            "id": "C",
+            "x": 298,
+            "y": 129
+          },
+          {
+            "id": "D",
+            "x": 398,
+            "y": 129,
+            "isAcc": true
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "machine-construction-1",
+    "name": "Machine construction I",
+    "id": "5e676df3559d4391b728134568f619ba"
+  },
+  {
+    "data-question": {
+      "type": "satisfy-list",
       "text": "test question",
       "splitSymbol": "",
       "shouldAccept": [
@@ -144,7 +283,7 @@
       }
     ],
     "data-options": {},
-    "filename": "satisfy-list-1",
+    "filename": "satisfy-list-test",
     "name": "satisfy-list-1-test",
     "id": "d2136f8744124f798cdc35e6b0beb9aa"
   },
