@@ -6,15 +6,15 @@
 
 var edit = {
     question: {},
-    questionTypes: ["give-list", "give-equivalent", "satisfy-list"],
+    questionTypes: ["give-equivalent", "give-input", "give-list", "satisfy-list"].sort(),
     questionSchema: {
         common:{
             text: {description: "Text of the question. HTML tags allowed.", optional: false, expectStr: true},
             filename:{description: "The filename this question should have", optional: true, expectStr: true, default: "filename"},
             questionTitle:{description: "The title of this question", optional: true, expectStr: true, default: "Question Title"},
             alphabet: {description: 'A list of the symbols that the machine operates on. Eg ["a","b"]', optional:false, default:'["a","b"]', expectStr:false},
-            allowEpsilon: {description: "Does the machine permit epsilon transitions?", optional:false, default:true, expectStr:false},
-            splitSymbol: {description: "The symbol used to split input into discrete tokens. Leave blank to split on the empty string (ie treat each character as a separate token) or enter ',' for comma separated tokens or ' ' for space separated tokens.", optional:false, default:"", expectStr:true}
+            allowEpsilon: {description: "Does the machine permit epsilon transitions?", optional:false, default:true, isBoolean:true, expectStr:false},
+            splitSymbol: {description: "The symbol used to split input into discrete tokens. Leave blank to split on the empty string (ie treat each character as a separate token) or enter ',' for comma separated tokens or ' ' for space separated tokens.", optional:true, default:"", expectStr:true}
 
         },
         "give-list":{
@@ -25,7 +25,10 @@ var edit = {
             "acceptList": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
             "rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false}
         },
-        "give-equivalent":{
+        "give-equivalent":{},
+        "give-input":{
+            target: {description: "The success condition for the question. 'accept' means the user must enter an accepted sequence, 'output' means the user must enter a sequence that produces a particular output.", optional:false, default: "accept", expectStr:true, options:["accept", "none", "output"]},
+            outputSequence: {description: "The sequence to output if the target is 'output'. In form ['a', 'b', 'b'].", optional:true, default:"[]", expectStr: false}
 
         }
     },
@@ -43,21 +46,21 @@ var edit = {
         edit.askQuestionText(edit.questionSchema.common.text.description);
 
         var alphabetQ = edit.questionSchema.common.alphabet;
-        edit.askQuestionOption("alphabet", alphabetQ.description, alphabetQ["default"], alphabetQ.optional);
+        edit.askQuestionOption("alphabet", alphabetQ);
         d3.select("#alphabet").on("change", edit.setAlphabet);
 
         var epsQ = edit.questionSchema.common.allowEpsilon
-        edit.askQuestionOption("allowEpsilon", epsQ.description, epsQ.default, epsQ.isOptional, true);
+        edit.askQuestionOption("allowEpsilon", epsQ);
         d3.select("#allowEpsilon").on("change", edit.setAlphabet);
 
         var splitQ = edit.questionSchema.common.splitSymbol
-        edit.askQuestionOption("splitSymbol", splitQ.description, splitQ.default, splitQ.isOptional, false);
+        edit.askQuestionOption("splitSymbol", splitQ);
 
         var filenameQ = edit.questionSchema.common.filename;
-        edit.askQuestionOption("filename", filenameQ.description, filenameQ["default"], filenameQ.optional);
+        edit.askQuestionOption("filename", filenameQ);
 
         var titleQ = edit.questionSchema.common.questionTitle;
-        edit.askQuestionOption("questionTitle", titleQ.description, titleQ["default"], titleQ.optional);
+        edit.askQuestionOption("questionTitle", titleQ);
 
         var qType = document.querySelector(".questiontypedropdown").value;
         if (qType == "give-equivalent"){
@@ -68,40 +71,46 @@ var edit = {
         var q = edit.questionSchema[qType];
         var fields = Object.keys(q);
         for (var i = 0; i< fields.length; i++){
-            var name = fields[i];
-            var description = q[name].description;
-            var isOptional = q[name].optional;
-            var defaultValue = q[name]["default"];
-            var isBoolean = false;
-            if (q[name].isBoolean != undefined){
-                isBoolean = q[name].isBoolean;
-            }
-            edit.askQuestionOption(name, description, defaultValue, isOptional, isBoolean);
+            var name = fields[i]
+            var obj = q[name];
+            edit.askQuestionOption(name, obj);
         }
         var button = "<a class='pure-button' id='getjson'>Get JSON</a>";
         document.querySelector(".buttondiv").innerHTML = button;
         document.querySelector("#getjson").addEventListener("click", edit.getJSON);
     },
-    askQuestionOption:function(name, description,defaultValue, isOptional, isBoolean){
+    askQuestionOption:function(name, obj){
+        var description = obj.description;
+        var defaultValue = obj.default;
+        var isOptional = obj.optional === true;
+        var isBoolean = obj.isBoolean === true;
+        var isDropdown = obj.options !== undefined;
+        if(isBoolean){
+            isDropdown = true
+            var options = [true, false]
+        } else if(isDropdown){
+            options = obj.options;
+        }
+        //description,defaultValue, isOptional, isBoolean, isDropdown
         var div = d3.select(".questiondata")
                     .append("div")
                         .classed("form-item", true)
                         .classed("pure-form", true)
                         .attr("id", `${name}-div`)
                         .text(`${name} : `);
-        if (isBoolean){
+        if (isDropdown){
             var select = div.append("select")
                             .attr("id", name);
 
-            select.append("option")
-                  .attr("value", true)
-                  .text("True")
-                  .attr("selected", defaultValue === true);
+            options.forEach(function(optStr){
+                var option = select.append("option")
+                  .attr("value", optStr)
+                  .text(optStr);
 
-            select.append("option")
-                  .attr("value", false)
-                  .text("False")
-                  .attr("selected", defaultValue === false);
+                if(defaultValue === optStr){
+                    option.attr("selected", "true")
+                }
+            })
 
         }
         else{
@@ -116,6 +125,7 @@ var edit = {
         var help = div.append("a")
                       .attr("id", "desc"+name)
                       .classed("help", true)
+                      .classed("pure-button", true)
                       .text(" ? ")
 
         var showDescription = function(){
@@ -174,10 +184,23 @@ var edit = {
                        "filename": document.querySelector("#filename").value,
                        "name":document.querySelector("#questionTitle").value,
                        "id": edit.getGUID()};
+        if(qType === "give-equivalent"){
+            //Don't want to also have the target machine
+            outObj["data-machinelist"] = [Model.machines[0].getSpec()]
+
+        }
+
         outObj["data-machinelist"] = Model.getMachineList();
         var questionObj = {"type": qType};
         // Store common variables
         questionObj.text = document.querySelector("#text").value;
+        questionObj.allowEpsilon = document.querySelector("#allowEpsilon").value;
+        questionObj.splitSymbol = document.querySelector("#splitSymbol").value;
+
+        if(qType == "give-equivalent"){
+            questionObj.targetMachineSpec = Model.machines[1].getSpec()
+        }
+
 
         var schema = edit.questionSchema[qType];
         var fields = Object.keys(schema);
