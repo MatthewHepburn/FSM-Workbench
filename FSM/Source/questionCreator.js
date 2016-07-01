@@ -22,8 +22,8 @@ var edit = {
             "prefill": {"description": "An option to automatically fill in some of the fields. Eg {\"0\": 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":"{\"0\": \"aa\"}", "expectStr":false}
         },
         "satisfy-list":{
-            "acceptList": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
-            "rejectList": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false}
+            "shouldAccept": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
+            "shouldReject": {"description": 'A list of strings that the machine should reject. Eg ["b","bba"]', "optional":false, "default":'["b","bba"]', "expectStr":false}
         },
         "give-equivalent":{},
         "give-input":{
@@ -94,10 +94,13 @@ var edit = {
         //description,defaultValue, isOptional, isBoolean, isDropdown
         var div = d3.select(".questiondata")
                     .append("div")
-                        .classed("form-item", true)
-                        .classed("pure-form", true)
-                        .attr("id", `${name}-div`)
-                        .text(`${name} : `);
+                        .attr("id", `${name}-outer-div`)
+                        .classed("option-holder", true)
+                            .append("div")
+                            .classed("form-item", true)
+                            .classed("pure-form", true)
+                            .attr("id", `${name}-div`)
+                            .text(`${name} : `);
         if (isDropdown){
             var select = div.append("select")
                             .attr("id", name);
@@ -132,8 +135,9 @@ var edit = {
             //Check if description is already there
             var desc = d3.select(`#${name}-desc`);
             if(desc.empty()){
-                d3.select(`#${name}-div`).append("span")
+                d3.select(`#${name}-outer-div`).append("span")
                     .attr("id", `${name}-desc`)
+                    .classed("desc-text", true)
                     .text(description);
             } else {
                 desc.remove();
@@ -193,7 +197,7 @@ var edit = {
         outObj["data-machinelist"] = Model.getMachineList();
         var questionObj = {"type": qType};
         // Store common variables
-        questionObj.text = document.querySelector("#text").value;
+        questionObj.text = document.querySelector("#text").value.replace(/\n/g, "<br>");
         questionObj.allowEpsilon = document.querySelector("#allowEpsilon").value;
         questionObj.splitSymbol = document.querySelector("#splitSymbol").value;
 
@@ -222,7 +226,8 @@ var edit = {
 
         if (!error){
             outObj["data-question"] = questionObj;
-            var jsonOutDiv = d3.select(".jsonout").text(edit.escapeHTML(JSON.stringify(outObj)));
+            var jsonOutDiv = d3.select(".jsonout").text("")
+            jsonOutDiv.append("pre").text(JSON.stringify(outObj));
             var saveDiv = jsonOutDiv.append("div").classed("savediv", true);
             if (localStorage.getItem("password") !==  null){
                 saveDiv.text("Save to server");

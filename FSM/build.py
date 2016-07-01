@@ -102,6 +102,8 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
     for question in data:
         print(question["filename"])
         question["question-number"] = i
+        #Remove the html from the question object to avoid issues escaping it
+        questionText = question["data-question"].pop("text")
         i = i + 1
         variables = {
             "addresses": addresses,
@@ -130,7 +132,8 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
 
         # Extract information to do some server-side rendering
         questionJSON = json.loads(variables["question"])
-        variables["questionHTML"] = questionJSON["text"]
+        variables["questionHTML"] = questionText
+
         variables["questionType"] = questionJSON["type"]
         if variables["questionType"] == "give-list":
             variables["lengths"] = questionJSON["lengths"]
@@ -143,7 +146,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
             variables["longestLength"] = longestLength
 
         if variables["questionType"] == "give-input":
-            variables["inputAlphabet"] = questionJSON["alphabet"]
+            variables["inputAlphabet"] = question["data-machinelist"][0]["attributes"]["alphabet"]
 
 
         # Omit check button for some question types.
