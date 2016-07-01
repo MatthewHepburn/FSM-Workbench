@@ -61,7 +61,7 @@ var edit = {
 
         var qType = document.querySelector(".questiontypedropdown").value;
         if (qType == "give-equivalent"){
-            edit.showTwoMachines();
+            edit.showTwoMachines("Initial machine", "Target machine");
         } else {
             edit.showOneMachine();
         }
@@ -236,17 +236,41 @@ var edit = {
             Controller.setAlphabet(machine, alphabet, allowEpsilon)
         }
     },
-    showTwoMachines: function(){
-        // First check if a second machine already exists
+    showTwoMachines: function(labelLeft, labelRight){
+        // check if a second machine already exists
         if (d3.select("#m2").size == 1){
+            d3.select("#m1-label").text(labelLeft)
+            d3.select("#m2-label").text(labelRight)
             return;
         }
+
         // Setup the new machine as a clone of the original
         var specObj = Model.machines[0].getSpec();
         // Tell the controller to create a new machine - this will create an SVG element as well as a Machine object
-        Controller.addMachine(specObj);
+        var machineID = Controller.addMachine(specObj);
+
+        //add labels
+        if(d3.select("#m1-label").empty()){
+            d3.select("#m1").append("text")
+              .text(labelLeft)
+              .attr("id", "m1-label")
+              .attr("x", 350)
+              .attr("y", 25)
+        } else {
+            d3.select("#m1-label").text(labelLeft)
+        }
+        if(d3.select("#m2-label").empty()){
+            d3.select(`#${machineID}`).append("text")
+              .text(labelRight)
+              .attr("id", "m2-label")
+              .attr("x", 350)
+              .attr("y", 25)
+        }
     },
     showOneMachine: function(){
+        d3.select("#m1-label").text("");
+        d3.select("#m2-label").text("");
+
         // First check if a second machine already exists
         if (d3.select("#m2").size == 0){
             return;

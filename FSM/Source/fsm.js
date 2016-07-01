@@ -1734,6 +1734,10 @@ var Controller = {
         var machineID = newMachine.id
         Display.newCanvas(machineID, newMachine);
         Display.update(machineID);
+        if(Model.question.allowEditing){
+            Display.drawControlPalette(machineID)
+        }
+        return machineID;
     },
     beginLink: function(sourceNode){
         // Called when the user is using the link tool add a link starting from sourceNode
