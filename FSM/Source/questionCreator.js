@@ -14,13 +14,12 @@ var edit = {
             questionTitle:{description: "The title of this question", optional: true, expectStr: true, default: "Question Title"},
             alphabet: {description: 'A list of the symbols that the machine operates on. Eg ["a","b"]', optional:false, default:'["a","b"]', expectStr:false},
             allowEpsilon: {description: "Does the machine permit epsilon transitions?", optional:false, default:true, expectStr:false},
-            splitSymbol: {description: "Symbol that sepates input. Blank to split on every character", optional:false, default:"", expectStr:true}
+            splitSymbol: {description: "The symbol used to split input into discrete tokens. Leave blank to split on the empty string (ie treat each character as a separate token) or enter ',' for comma separated tokens or ' ' for space separated tokens.", optional:false, default:"", expectStr:true}
 
         },
         "give-list":{
-            "splitSymbol": {"description": "The symbol used to split input into discrete tokens. Leave blank to split on the empty string (ie treat each character as a separate token) or enter ',' for comma separated tokens or ' ' for space separated tokens.", "optional": true, "default": "", "expectStr": true},
-            "lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[1,2]","expectStr":false},
-            "prefill": {"description": "An option to automatically fill in some of the fields. Eg {'0': 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":"{ }", "expectStr":false}
+            "lengths": {"description": "A list of integers, each representing a target length of accepted input for the user to provide. Eg [3,3,6]", "optional": false, "default":"[2,2,3]","expectStr":false},
+            "prefill": {"description": "An option to automatically fill in some of the fields. Eg {\"0\": 'aab'} would fill the first field with the string 'aab'.", "optional":true, "default":"{\"0\": \"aa\"}", "expectStr":false}
         },
         "satisfy-list":{
             "acceptList": {"description": 'A list of strings that the machine should accept. Eg ["a","aab","abb"]', "optional":false, "default":'["a","aab"]', "expectStr":false},
@@ -84,32 +83,54 @@ var edit = {
         document.querySelector("#getjson").addEventListener("click", edit.getJSON);
     },
     askQuestionOption:function(name, description,defaultValue, isOptional, isBoolean){
-        var html = "<p>" + name;
+        var div = d3.select(".questiondata")
+                    .append("div")
+                        .classed("form-item", true)
+                        .classed("pure-form", true)
+                        .attr("id", `${name}-div`)
+                        .text(`${name} : `);
         if (isBoolean){
-            if (defaultValue == true){
-                html += ": <select id='" + name +"'><option selected='selected' value=true>True</option><option value=false>False</option></select>";
-            } else{
-                html += ": <select id='" + name +"'><option value=true>True</option><option selected='selected' value=false>False</option></select>";
-            }
+            var select = div.append("select")
+                            .attr("id", name);
+
+            select.append("option")
+                  .attr("value", true)
+                  .text("True")
+                  .attr("selected", defaultValue === true);
+
+            select.append("option")
+                  .attr("value", false)
+                  .text("False")
+                  .attr("selected", defaultValue === false);
+
         }
         else{
             if (!isOptional){
-                html += "* ";
+                div.text(name + "* : ");
             }
-            html += ": <input type='text' id='" + name +"' value='" + defaultValue + "''>";
+            div.append("input")
+               .attr("type", "text")
+               .attr("id", name)
+               .attr("value", defaultValue);
         }
-        html += "<a id='desc" + name + "'>  ?</a></p>";
+        var help = div.append("a")
+                      .attr("id", "desc"+name)
+                      .classed("help", true)
+                      .text(" ? ")
 
-        // Use method below as inserting normally resets the event listeners
-        var siblings = document.querySelector(".questiondata").children;
-        var lastSibling = siblings[siblings.length - 1];
-        lastSibling.insertAdjacentHTML("afterend",html);
+        var showDescription = function(){
+            //Check if description is already there
+            var desc = d3.select(`#${name}-desc`);
+            if(desc.empty()){
+                d3.select(`#${name}-div`).append("span")
+                    .attr("id", `${name}-desc`)
+                    .text(description);
+            } else {
+                desc.remove();
+            }
+        };
 
-        var id = "#desc" + name;
-        var f = function(){alert(description);};
-        d3.select(id)
-            .classed("showdesc", true);
-        document.querySelector(id).addEventListener("click", f);
+        help.on("click", showDescription)
 
     },
 

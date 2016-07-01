@@ -6,8 +6,15 @@ div.question {
 	padding:3px;
 	width: 75%;
 }
-div.question:empty { 
+div.question:empty {
     border: none;
     margin: 0px;
     padding: 0px;
+}
+
+.form-item{
+	border: 0.1em;
+	border: 0.1em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
 }
