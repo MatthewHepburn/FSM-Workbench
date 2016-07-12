@@ -63,11 +63,7 @@ var edit = {
         edit.askQuestionOption("questionTitle", titleQ);
 
         var qType = document.querySelector(".questiontypedropdown").value;
-        if (qType == "give-equivalent"){
-            edit.showTwoMachines("Initial machine", "Target machine");
-        } else {
-            edit.showOneMachine();
-        }
+
         var q = edit.questionSchema[qType];
         var fields = Object.keys(q);
         for (var i = 0; i< fields.length; i++){
@@ -78,6 +74,14 @@ var edit = {
         var button = "<a class='pure-button' id='getjson'>Get JSON</a>";
         document.querySelector(".buttondiv").innerHTML = button;
         document.querySelector("#getjson").addEventListener("click", edit.getJSON);
+
+        if (qType == "give-equivalent"){
+            edit.showTwoMachines("Initial machine", "Target machine");
+            edit.showTestRegex()
+        } else {
+            edit.showOneMachine();
+        }
+
     },
     askQuestionOption:function(name, obj){
         var description = obj.description;
@@ -191,10 +195,9 @@ var edit = {
         if(qType === "give-equivalent"){
             //Don't want to also have the target machine
             outObj["data-machinelist"] = [Model.machines[0].getSpec()]
-
+        } else {
+            outObj["data-machinelist"] = Model.getMachineList();
         }
-
-        outObj["data-machinelist"] = Model.getMachineList();
         var questionObj = {"type": qType};
         // Store common variables
         questionObj.text = document.querySelector("#text").value.replace(/\n/g, "<br>");
@@ -304,6 +307,74 @@ var edit = {
             return;
         }
         Controller.deleteMachine("m2");
+
+    },
+
+    showTestRegex: function(){
+        var div = d3.select(".questiondata").append("div").attr("id", "test-regex-div");
+        div.append("input")
+               .attr("type", "text")
+               .attr("id", "test-regex-input")
+               .attr("value", "a*b*");
+
+        var button = div.append("a")
+                        .attr("id", "test-regex-button")
+                        .classed("pure-button", true)
+                        .text("Test Regex")
+
+        var span = div.append("span")
+            .attr("id", "test-regex-feedback")
+
+
+        button.on("click", function(){
+            var input = document.querySelector("#test-regex-input").value
+            var message = edit.testRegex(input)
+            if(message === true){
+                message = "✓"
+            }
+            span.text(message);
+        })
+
+    },
+
+    testRegex: function(str){
+        //Tests the given regex string on the second machine, using the inefficient but serviceable approach from v1
+        var m = Model.machines[1];
+        var alphabet = m.alphabet;
+        if(m.getAcceptingNodeCount() === 0){
+            return "No accepting states"
+        }
+        var toString = x => x.reduce((x,y) => x + y, "")
+        var nStates = m.getNodeCount();
+        var sequences = [[]]
+        var regex = new RegExp(str)
+        while(sequences[0].length <= nStates){
+            var newSequences = []
+            for(var i = 0; i < sequences.length; i++){
+                var thisSequence = sequences[i]
+                var string = toString(thisSequence)
+                var regexAccepts = true;
+                if (regex.exec(string) == null || regex.exec(string)[0] != string){
+                    regexAccepts = false;
+                }
+                var machineAccepts = m.accepts(thisSequence)
+                if(regexAccepts && !machineAccepts){
+                    return `Machine rejects '${string}' which regex accepts`
+                }
+                if(!regexAccepts && machineAccepts){
+                    return `Regex rejects '${string}' which machine accepts`
+                }
+
+                //Populate newSequences
+                for(var j = 0; j< alphabet.length; j++){
+                    var symbol = alphabet[j]
+                    var newSequence = thisSequence.concat([symbol])
+                    newSequences.push(newSequence)
+                }
+            }
+            sequences = newSequences
+        }
+        return true;
 
     }
 

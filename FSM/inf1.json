@@ -663,54 +663,6 @@
           ],
           "allowEpsilon": true
         }
-      },
-      {
-        "nodes": [
-          {
-            "id": "A",
-            "x": 78,
-            "y": 123,
-            "isAcc": true,
-            "isInit": true,
-            "name": "S"
-          },
-          {
-            "id": "B",
-            "x": 178,
-            "y": 118,
-            "isAcc": true
-          }
-        ],
-        "links": [
-          {
-            "to": "A",
-            "from": "A",
-            "input": [
-              "a"
-            ]
-          },
-          {
-            "to": "B",
-            "from": "A",
-            "input": [
-              "a"
-            ]
-          },
-          {
-            "to": "B",
-            "from": "B",
-            "input": [
-              "b"
-            ]
-          }
-        ],
-        "attributes": {
-          "alphabet": [
-            "a",
-            "b"
-          ],
-          "allowEpsilon": true
-        }
       }
     ],
     "data-options": {},
