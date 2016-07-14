@@ -145,6 +145,9 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
             variables["shouldReject"] = questionJSON["shouldReject"]
             variables["longestLength"] = longestLength
 
+        if variables["questionType"] == "does-accept":
+            variables["sequences"] = questionJSON["sequences"]
+
         if variables["questionType"] == "give-input":
             variables["inputAlphabet"] = question["data-machinelist"][0]["attributes"]["alphabet"]
 

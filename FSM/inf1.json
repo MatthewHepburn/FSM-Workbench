@@ -270,6 +270,82 @@
   {
     "data-question": {
       "type": "give-list",
+      "text": "A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states.<br>The machine accepts 2 sequences. One is \"aa\", give the other.",
+      "lengths": [
+        2,
+        2
+      ],
+      "prefill": {
+        "0": "aa"
+      },
+      "splitSymbol": ""
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 83,
+            "y": 160,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 232,
+            "y": 168
+          },
+          {
+            "id": "C",
+            "x": 372,
+            "y": 224,
+            "isAcc": true
+          },
+          {
+            "id": "D",
+            "x": 349,
+            "y": 73,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ]
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "give-list-1",
+    "name": "Accepting States II",
+    "id": "f6161c3cac004a418b340bb2eebd79f8"
+  },
+  {
+    "data-question": {
+      "type": "give-list",
       "text": "FSMs can be in a particular state more than once. The machine shown accepts<br>inputs consisting of N times '<i>a</i>' followed by '<i>bb</i>' where N is a multiple of 3.<br><b>For each of the lengths given, give an input the machine will accept</b>",
       "allowEpsilon": "false",
       "splitSymbol": "",
@@ -366,82 +442,6 @@
     "filename": "give-list-cyles",
     "name": "Introducing cycles",
     "id": "d28fa5713e994235a854cb78c71f4596"
-  },
-  {
-    "data-question": {
-      "type": "give-list",
-      "text": "A finite state machine accepts a sequence if that sequence ends in an accepting state. In this example, states ‘3’ and ‘4’  are accepting states.<br>The machine accepts 2 sequences. One is \"aa\", give the other.",
-      "lengths": [
-        2,
-        2
-      ],
-      "prefill": {
-        "0": "aa"
-      },
-      "splitSymbol": ""
-    },
-    "data-machinelist": [
-      {
-        "nodes": [
-          {
-            "id": "A",
-            "x": 83,
-            "y": 160,
-            "isInit": true
-          },
-          {
-            "id": "B",
-            "x": 232,
-            "y": 168
-          },
-          {
-            "id": "C",
-            "x": 372,
-            "y": 224,
-            "isAcc": true
-          },
-          {
-            "id": "D",
-            "x": 349,
-            "y": 73,
-            "isAcc": true
-          }
-        ],
-        "links": [
-          {
-            "to": "B",
-            "from": "A",
-            "input": [
-              "a"
-            ]
-          },
-          {
-            "to": "D",
-            "from": "B",
-            "input": [
-              "a"
-            ]
-          },
-          {
-            "to": "C",
-            "from": "B",
-            "input": [
-              "b"
-            ]
-          }
-        ],
-        "attributes": {
-          "alphabet": [
-            "a",
-            "b"
-          ]
-        }
-      }
-    ],
-    "data-options": {},
-    "filename": "give-list-1",
-    "name": "Accepting States II",
-    "id": "f6161c3cac004a418b340bb2eebd79f8"
   },
   {
     "data-question": {
@@ -569,6 +569,124 @@
     "filename": "machine-construction-2",
     "name": "Machine construction II",
     "id": "c828299302cb42939462ca5788007755"
+  },
+  {
+    "data-question": {
+      "type": "select-states",
+      "text": "Instead of operating on single characters, FSMs will sometimes treat longer strings as a single token. This is often used when modelling control systems. <br>The machine below is a simplified representation of a self-service checkout.<br><b>Select the state</b> that the machine would be in after the input: start, scan_item, bag_item, scan_item, bag_item.",
+      "allowEpsilon": "false",
+      "splitSymbol": " ",
+      "initialSequence": [],
+      "targetSequence": [
+        "start",
+        "scan_item",
+        "bag_item",
+        "scan_item",
+        "bag_item"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 91,
+            "y": 128,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 138,
+            "y": 216
+          },
+          {
+            "id": "C",
+            "x": 191,
+            "y": 131
+          },
+          {
+            "id": "D",
+            "x": 291,
+            "y": 133
+          },
+          {
+            "id": "E",
+            "x": 390,
+            "y": 128
+          },
+          {
+            "id": "F",
+            "x": 343,
+            "y": 218,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "scan_item"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "start"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "scan_item"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "bag_item"
+            ]
+          },
+          {
+            "to": "F",
+            "from": "D",
+            "input": [
+              "pay"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "E",
+            "input": [
+              "bag_item"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "scan_item"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "start",
+            "scan_item",
+            "bag_item",
+            "pay"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "select-states-self-service",
+    "name": "Using longer tokens",
+    "id": "b88a6ceffd0a40ef9413973995a50ec2"
   },
   {
     "data-question": {
@@ -735,121 +853,114 @@
   },
   {
     "data-question": {
-      "type": "select-states",
-      "text": "Instead of operating on single characters, FSMs will sometimes treat longer strings as a single token. This is often used when modelling control systems. <br>The machine below is a simplified representation of a self-service checkout.<br><b>Select the state</b> that the machine would be in after the input: start, scan_item, bag_item, scan_item, bag_item.",
+      "type": "does-accept",
+      "text": "A non-deterministic finite automaton accepts a sequence if there is <b>at <br>least one path</b> for that sequence that <b>ends in an accepting state</b>.<br><br>For the sequences below, tick those that the machine would accept.",
       "allowEpsilon": "false",
-      "splitSymbol": " ",
-      "initialSequence": [],
-      "targetSequence": [
-        "start",
-        "scan_item",
-        "bag_item",
-        "scan_item",
-        "bag_item"
-      ]
+      "splitSymbol": "",
+      "sequences": ["aaab", "ac", "baabc", "abb", "abba", "aaaabcb"]
     },
     "data-machinelist": [
       {
         "nodes": [
           {
             "id": "A",
-            "x": 91,
-            "y": 128,
-            "isInit": true
+            "x": 101,
+            "y": 129,
+            "isInit": true,
+            "name": "0"
           },
           {
             "id": "B",
-            "x": 138,
-            "y": 216
+            "x": 201,
+            "y": 129,
+            "name": "1"
           },
           {
             "id": "C",
-            "x": 191,
-            "y": 131
+            "x": 301,
+            "y": 129,
+            "isAcc": true,
+            "name": "3"
           },
           {
             "id": "D",
-            "x": 291,
-            "y": 133
+            "x": 401,
+            "y": 129,
+            "name": "4"
           },
           {
             "id": "E",
-            "x": 390,
-            "y": 128
-          },
-          {
-            "id": "F",
-            "x": 343,
-            "y": 218,
-            "isAcc": true
+            "x": 254,
+            "y": 213,
+            "name": "2"
           }
         ],
         "links": [
           {
-            "to": "C",
-            "from": "A",
-            "input": [
-              "scan_item"
-            ]
-          },
-          {
             "to": "B",
             "from": "A",
             "input": [
-              "start"
+              "a"
             ]
           },
           {
             "to": "C",
             "from": "B",
             "input": [
-              "scan_item"
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "E",
+            "input": [
+              "c"
             ]
           },
           {
             "to": "D",
             "from": "C",
             "input": [
-              "bag_item"
-            ]
-          },
-          {
-            "to": "F",
-            "from": "D",
-            "input": [
-              "pay"
+              "a"
             ]
           },
           {
             "to": "D",
-            "from": "E",
+            "from": "D",
             "input": [
-              "bag_item"
+              "a"
             ]
           },
           {
-            "to": "E",
-            "from": "D",
+            "to": "A",
+            "from": "A",
             "input": [
-              "scan_item"
+              "a",
+              "b"
             ]
           }
         ],
         "attributes": {
           "alphabet": [
-            "start",
-            "scan_item",
-            "bag_item",
-            "pay"
+            "a",
+            "b",
+            "c"
           ],
           "allowEpsilon": false
         }
       }
     ],
     "data-options": {},
-    "filename": "select-states-self-service",
-    "name": "Using longer tokens",
-    "id": "b88a6ceffd0a40ef9413973995a50ec2"
+    "filename": "does-accept-nfa",
+    "name": "Nondeterministic transitions II",
+    "id": "cb0c308c26544603b125f5ff0d962d2f"
   },
   {
     "data-question": {

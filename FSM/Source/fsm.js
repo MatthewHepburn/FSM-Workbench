@@ -1333,7 +1333,7 @@ var Display = {
     },
     setUpQuestion: function(){
         var qType = Model.question.type;
-        var checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent", "select-states"]; //Question types with a check button
+        var checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent", "select-states", "does-accept", "satisfy-definition"]; //Question types with a check button
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }

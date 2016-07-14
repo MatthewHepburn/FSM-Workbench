@@ -31,6 +31,17 @@
   	<div class="question">
       <div class="question-text">{{ questionHTML }}</div>
 
+      {%- if sequences -%}
+      {# does-accept questiont type #}
+      <table id="does-accept-table">
+        <tbody>
+            {%- for s in sequences -%}
+            <tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="{{ s }}">{{ s }}</td><td class="table-space"> </td><td id="feedback-{{ loop.index0 }}"></td></tr>
+            {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+
       {%- if lengths -%}
       {# give-list questiont type #}
         <form class="pure-form-aligned pure-form qformblock" name="qform">
