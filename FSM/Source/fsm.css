@@ -34,19 +34,19 @@ div.question-text{
   font-family: 'Ek Mukta', sans-serif;
 }
 
-#give-equivalent-feedback{
+#adjacent-feedback{
   display: inline;
   margin-left: 1em;
 }
 
-.give-equivalent-cross{
+.adjacent-cross{
   color: red;
   font-size: xx-large;
   vertical-align: middle;
   margin-right: 0.5em;
 }
 
-.give-equivalent-tick{
+.adjacent-tick{
   color: green;
   font-size: xx-large;
   vertical-align: middle;
@@ -64,6 +64,20 @@ div.question-text{
   font-family: 'Ek Mukta', sans-serif;
   text-align: left !important;
   width: unset !important;
+}
+
+.select-states-show-trace{
+  text-decoration: underline;
+  font-size: small;
+  margin-left: 0.25em !important;
+  font-family: 'Ek Mukta', sans-serif;
+  text-align: left !important;
+  width: unset !important;
+}
+
+.select-states-show-trace:hover{
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .give-list-show-trace{
@@ -488,13 +502,23 @@ input[type=checkbox]{
   fill: #FFFFFF !important;
 }
 
-.trace-current{
-  fill: #49E20E !important;
+.node.trace-current{
+  fill: rgb(44, 160, 44) !important;
 }
 
 .trace-consumed{
   fill: #A7A7A7 !important;
 }
+
+.node.selected{
+  fill: #ffeb00 !important;
+  stroke-width: 2 !important;
+}
+
+.node.selected.trace-current{
+  fill: #b7d657 !important;
+}
+
 
 .input.trace-consumed{
   text-decoration:  line-through;

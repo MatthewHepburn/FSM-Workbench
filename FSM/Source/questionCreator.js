@@ -6,7 +6,7 @@
 
 var edit = {
     question: {},
-    questionTypes: ["give-equivalent", "give-input", "give-list", "satisfy-list"].sort(),
+    questionTypes: ["give-equivalent", "give-input", "give-list", "satisfy-list", "select-states"].sort(),
     questionSchema: {
         common:{
             text: {description: "Text of the question. HTML tags allowed.", optional: false, expectStr: true},
@@ -30,6 +30,10 @@ var edit = {
             target: {description: "The success condition for the question. 'accept' means the user must enter an accepted sequence, 'output' means the user must enter a sequence that produces a particular output.", optional:false, default: "accept", expectStr:true, options:["accept", "none", "output"]},
             outputSequence: {description: "The sequence to output if the target is 'output'. In form ['a', 'b', 'b'].", optional:true, default:"[]", expectStr: false}
 
+        },
+        "select-states":{
+            initialSequence: {description: "The input sequence given to the machine prior to the user's interaction", default:'["a"]', expectStr:false},
+            targetSequence: {description: "The input sequence that moves the machine from the state it is in after processing initialSequence to the target", default: '["b"]', expectStr: false}
         }
     },
     createQuestionPrompt:function() {

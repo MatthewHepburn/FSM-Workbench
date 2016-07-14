@@ -912,6 +912,11 @@ var Model = {
         this.outgoingLinks = {};
         this.x = x;
         this.y = y;
+        this.selected = false;
+
+        this.toggleSelected = function(){
+            this.selected = !this.selected;
+        };
 
         this.toggleAccepting = function(){
             this.isAccepting = ! this.isAccepting;
@@ -1072,10 +1077,13 @@ var Model = {
         },
         checkAnswer: function(input){
             //Input other than the machine only recquired for some question types (but always passed along anyway for simplicity)
-            var checkFunctions = {"give-list": this.checkGiveList,
-                                  "satisfy-list": this.checkSatisfyList,
-                                  "give-input": this.checkGiveInput,
-                                  "give-equivalent": this.checkGiveEquivalent}
+            var checkFunctions = {
+                "give-equivalent": this.checkGiveEquivalent,
+                "give-input": this.checkGiveInput,
+                "give-list": this.checkGiveList,
+                "satisfy-list": this.checkSatisfyList,
+                "select-states": this.checkSelectStates
+                                  }
             if(!checkFunctions[this.type]){
                 throw new Error(`No check function for type '${this.type}'`)
             }else{
@@ -1205,7 +1213,7 @@ var Model = {
 
             return {input, messages, allCorrectFlag, isCorrectList};
         },
-        checkSatisfyList(){
+        checkSatisfyList: function(){
             var machine = Model.machines[0];
             var feedbackObj = {allCorrectFlag: true, acceptList:[], rejectList:[]}
             var splitSymbol = Model.question.splitSymbol;
@@ -1235,6 +1243,33 @@ var Model = {
             }
 
             return feedbackObj;
+        },
+        checkSelectStates: function(){
+            var machine = Model.machines[0];
+            var selectedNodes = machine.getNodeList().filter(node => node.selected);
+
+            //Determine the nodes that should be collected.
+            var initialInput = Model.question.initialSequence;
+            var subsequentInput = Model.question.targetSequence;
+
+            var completeSequence = initialInput.concat(subsequentInput);
+            machine.setToInitialState()
+            machine.accepts(completeSequence)
+            var targetNodes = machine.getCurrentNodeList();
+
+            var feedbackObj = {allCorrectFlag: false, initialInput, subsequentInput}
+
+            //Determine if target nodes are the same as selected nodes
+            if(targetNodes.length !== selectedNodes.length){
+                return feedbackObj;
+            }
+            if(targetNodes.filter(node => selectedNodes.includes(node)).length !== targetNodes.length){
+                return feedbackObj;
+            }
+
+            feedbackObj.allCorrectFlag = true;
+            return feedbackObj;
+
         }
     }
 };

@@ -1002,5 +1002,85 @@
     "filename": "give-equiv-1",
     "name": "give-equivalent-1-test",
     "id": "685903588ba944639cd9622428e91c34"
+  },
+  {
+    "data-question": {
+      "type": "select-states",
+      "text": "Where does machine move to given input 'b' if it is in state B",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "initialSequence": [
+        "a"
+      ],
+      "targetSequence": [
+        "b"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 108,
+            "y": 124,
+            "isInit": true,
+            "name": "A"
+          },
+          {
+            "id": "B",
+            "x": 208,
+            "y": 118,
+            "name": "B"
+          },
+          {
+            "id": "C",
+            "x": 295,
+            "y": 69,
+            "isAcc": true,
+            "name": "C"
+          },
+          {
+            "id": "D",
+            "x": 306,
+            "y": 135,
+            "name": "D"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "test-select-states",
+    "name": "test select states",
+    "id": "567271de7c01471fbf36e48f5d5f76b6"
   }
 ]

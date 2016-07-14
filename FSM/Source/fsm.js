@@ -274,21 +274,54 @@ var Display = {
             Display.giveFeedbackForGiveEquivalent(feedbackObj);
             return;
         }
+        if(Model.question.type === "select-states"){
+        	Display.giveFeedbackForSelectStates(feedbackObj);
+        	return;
+        }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
+    },
+    giveFeedbackForSelectStates: function(feedbackObj){
+    	var buttonDiv = d3.select(".button-div");
+        if(buttonDiv.select("#adjacent-feedback").empty()){
+            buttonDiv.append("div").attr("id", "adjacent-feedback");
+        }
+        var feedbackDiv = buttonDiv.select("#adjacent-feedback");
+        feedbackDiv.text("");
+        if(feedbackObj.allCorrectFlag === true){
+            feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);  //TODO rename this class
+            return;
+        } else {
+            feedbackDiv.append("span").text("☓").classed("adjacent-cross", true)
+            var message = "show trace"
+            var traceButton = feedbackDiv.append("span").text(message).classed("select-states-show-trace", true);
+            traceButton.on("click", function(){
+            	var fullSequence = feedbackObj.initialInput.concat(feedbackObj.subsequentInput);
+            	var stepToStart = feedbackObj.initialInput.length
+            	var machine = Model.machines[0];
+            	Controller.startTrace(machine, fullSequence, stepToStart)
+            	d3.select(".stop").on("click", function(){
+            		var svg = d3.select(`#${machine.id}`)
+            		Display.dismissTrace(svg);
+            		Controller.setUpQuestion();
+            	})
+            })
+
+        }
+
     },
     giveFeedbackForGiveEquivalent:function(feedbackObj){
         var buttonDiv = d3.select(".button-div");
-        if(buttonDiv.select("#give-equivalent-feedback").empty()){
-            buttonDiv.append("div").attr("id", "give-equivalent-feedback");
+        if(buttonDiv.select("#adjacent-feedback").empty()){
+            buttonDiv.append("div").attr("id", "adjacent-feedback");
         }
-        var feedbackDiv = buttonDiv.select("#give-equivalent-feedback");
+        var feedbackDiv = buttonDiv.select("#adjacent-feedback");
         feedbackDiv.text("");
         if(feedbackObj.allCorrectFlag === true){
-            feedbackDiv.append("span").text("✓").classed("give-equivalent-tick", true);
+            feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);
             return;
         } else {
-            feedbackDiv.append("span").text("☓").classed("give-equivalent-cross", true)
-            feedbackDiv.append("span").text(feedbackObj.message).classed("give-equivalent-text", true);
+            feedbackDiv.append("span").text("☓").classed("adjacent-cross", true)
+            feedbackDiv.append("span").text(feedbackObj.message).classed("adjacent-feedback-text", true);
         }
     },
     giveFeedbackForGiveInput: function(){
@@ -801,7 +834,8 @@ var Display = {
                 .attr("fill-opacity", 0)
                 .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
                 .classed("tracecontrol-rect", true)
-                .attr("id", `canvasID-${tools[i][0]}`)
+                .classed(tools[i][0], true)
+                .attr("id", `${canvasID}-${tools[i][0]}`)
                 .on("click", tools[i][1]);
         }
     },
@@ -1299,7 +1333,7 @@ var Display = {
     },
     setUpQuestion: function(){
         var qType = Model.question.type;
-        var checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent"]; //Question types with a check button
+        var checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent", "select-states"]; //Question types with a check button
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }
@@ -1310,7 +1344,7 @@ var Display = {
                 var onclick = function(){
                     var sequence = Model.parseInput(string);
                     var machine = Model.machines[0];
-                    Controller.startTrace(machine, sequence)
+                    Controller.startTrace(machine, sequence, 0)
                 }
                 d3.select(`#td-acc-${i}`)
                   .on("click", onclick)
@@ -1320,7 +1354,7 @@ var Display = {
                 var onclick = function(){
                     var sequence = Model.parseInput(string);
                     var machine = Model.machines[0];
-                    Controller.startTrace(machine, sequence)
+                    Controller.startTrace(machine, sequence, 0)
                 }
                 d3.select(`#td-rej-${i}`)
                   .on("click", onclick)
@@ -1333,7 +1367,7 @@ var Display = {
                 var inputString = d3.select(`#qf${i}`).node().value;
                 var inputSequence = Model.parseInput(inputString);
                 var machine = Model.machines[0];
-                Controller.startTrace(machine, inputSequence)
+                Controller.startTrace(machine, inputSequence, 0)
               })
         }
         if(qType === "give-input"){
@@ -1575,6 +1609,25 @@ var Display = {
         circleSelection.style("fill","#FFFFFF")
                        .style("stroke-width", 1)
                        .style("stroke", "#000000");
+    },
+    makeNodesSelectable: function(machine){
+    	if (machine instanceof Model.Machine === true){
+    	    var machineID = machine.id;
+    	} else{
+    	    machineID = machine
+    	    machine = Display.getCanvasVars(machineID).machine;
+    	}
+    	var getOnClickFunction = function(node){
+    		return function(){
+    			node.toggleSelected();
+    			var nodeDisplay = d3.select(`#${node.id}`)
+    			nodeDisplay.classed("selected", !nodeDisplay.classed("selected"))
+    		}
+    	}
+    	var svg = d3.select(`#${machineID}`)
+    	var nodes = svg.selectAll(".node").each(function(node){
+    		d3.select(this).on("click", getOnClickFunction(node))
+    	})
     }
 };
 
@@ -1898,10 +1951,13 @@ var Controller = {
         Display.updateAllLinkLabels(machine.id);
     },
 
-    startTrace: function(machine, sequence, hideControls){
+    startTrace: function(machine, sequence, position, hideControls){
         Display.clearMenus(machine.id);
         var traceObj = machine.getTrace(sequence);
         Display.drawTrace(machine.id, traceObj, hideControls)
+        if(position !== 0){
+            Display.stepTrace(machine.id, position)
+        }
     },
 
     getColourScheme: function(){
@@ -1920,7 +1976,7 @@ var Controller = {
         Model.question.currentInput.push(symbol);
         Model.machines.forEach(function(m){
             //Draw a trace for each machine and then advance it to the latest stage
-            Controller.startTrace(m, Model.question.currentInput, true) //true param for hideControls option
+            Controller.startTrace(m, Model.question.currentInput,0, true) //true param for hideControls option
             var traceObj = Display.getCanvasVars(m.id).traceObj
             Display.stepTrace(m.id, traceObj.states.length-1)
         })
@@ -1935,7 +1991,7 @@ var Controller = {
         Model.question.currentInput = [];
         Model.machines.forEach(function(m){
             //Draw a trace for each machine
-            Controller.startTrace(m, Model.question.currentInput, true) //true param for hideControls option
+            Controller.startTrace(m, Model.question.currentInput,0, true) //true param for hideControls option
         })
 
 
@@ -1972,7 +2028,15 @@ var Controller = {
             Model.question.setUpQuestion(questionObj);
         }
         if(Model.question.type === "give-input"){
-            Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, true)}) //true param for hideControls option
+            Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, 0,  true)}) //true param for hideControls option
+        }
+        if(Model.question.type === 'select-states'){
+            Model.machines.forEach(function(m){
+                var initialSequence = Model.question.initialSequence;
+                var stepsTaken = initialSequence.length;
+                Controller.startTrace(m, initialSequence, stepsTaken, true);
+                Display.makeNodesSelectable(m)
+            })
         }
 
     },
