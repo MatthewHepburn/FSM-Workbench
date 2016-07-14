@@ -1082,13 +1082,28 @@ var Model = {
                 "give-input": this.checkGiveInput,
                 "give-list": this.checkGiveList,
                 "satisfy-list": this.checkSatisfyList,
-                "select-states": this.checkSelectStates
+                "select-states": this.checkSelectStates,
+                "does-accept": this.checkDoesAccept
                                   }
             if(!checkFunctions[this.type]){
                 throw new Error(`No check function for type '${this.type}'`)
             }else{
                 return checkFunctions[this.type](input);
             }
+        },
+        checkDoesAccept: function(input){
+            var machine = Model.machines[0];
+            var sequences = Model.question.sequences.map(str => Model.parseInput(str));
+            var feedbackObj = {allCorrectFlag: true, isCorrectList: Array(sequences.length).fill(true)};
+            for(var i = 0; i< sequences.length; i++){
+                var answer = input[i]
+                var doesAccept = machine.accepts(sequences[i])
+                if(answer !== doesAccept){
+                    feedbackObj.allCorrectFlag = false;
+                    feedbackObj.isCorrectList = false;
+                }
+            }
+            return feedbackObj;
         },
         checkGiveEquivalent: function(){
             //setup target machine if it does not exist already

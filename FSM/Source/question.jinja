@@ -36,7 +36,7 @@
       <table id="does-accept-table">
         <tbody>
             {%- for s in sequences -%}
-            <tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="{{ s }}">{{ s }}</td><td class="table-space"> </td><td id="feedback-{{ loop.index0 }}"></td></tr>
+            <tr class="does-accept-cb"><td><input class="does-accept-cb" type="checkbox" value="{{ s }}" id="does-accept-checkbox-{{ loop.index0 }}">{{ s }}</td><td class="table-space"> </td><td id="feedback-{{ loop.index0 }}"></td></tr>
             {% endfor %}
         </tbody>
       </table>

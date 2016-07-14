@@ -278,7 +278,14 @@ var Display = {
         	Display.giveFeedbackForSelectStates(feedbackObj);
         	return;
         }
+        if(Model.question.type === "does-accept"){
+        	Display.giveFeedbackForDoesAccept(feedbackObj);
+        	return;
+        }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
+    },
+    giveFeedbackForDoesAccept: function(){
+    	throw new Error("Not yet implemented");
     },
     giveFeedbackForSelectStates: function(feedbackObj){
     	var buttonDiv = d3.select(".button-div");
@@ -1799,7 +1806,7 @@ var Controller = {
     },
     checkAnswer: function(){
         //Check if input must be collected
-        if(["give-list"].indexOf(Model.question.type) !== -1){
+        if(["give-list", "does-accept"].includes(Model.question.type)){
             var input = Controller.getQuestionInput(Model.question.type)
         }
         var feedbackObj = Model.question.checkAnswer(input);
@@ -1814,6 +1821,13 @@ var Controller = {
             Model.question.lengths.forEach(function(v, index){
                 input[index] = d3.select("#qf" + index).node().value;
             });
+        }
+        if(type === "does-accept"){
+        	// Construct a true/false array, based on which checkboxes are selected
+        	input = [];
+        	for(var i = 0; i < Model.question.sequences.length; i++){
+        		input[i] = d3.select(`#does-accept-checkbox-${i}`).node().checked;
+        	}
         }
         return input;
     },
