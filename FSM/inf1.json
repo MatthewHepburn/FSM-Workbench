@@ -949,6 +949,64 @@
   },
   {
     "data-question": {
+      "type": "select-states",
+      "text": "As well as allowing multiple paths out of a state for a single input, non-deterministic finite automata also allow <b>epsilon transitions</b>. <br>These are special transitions (shown as ε) that can be taken <b>without consuming any input</b>. <br>The machine below can end in two different states for the input \"a\". Select them.",
+      "allowEpsilon": "true",
+      "splitSymbol": " ",
+      "initialSequence": [],
+      "targetSequence": [
+        "a"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 106,
+            "y": 128,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 206,
+            "y": 128
+          },
+          {
+            "id": "C",
+            "x": 306,
+            "y": 128
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "hasEps": true
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "select-states-intro-to-epsilon",
+    "name": "Introducing ε transitions",
+    "id": "66fefee9f6ba4d1b96c1efc2b213d3e6"
+  },
+  {
+    "data-question": {
       "type": "satisfy-list",
       "text": "Epsilon transitions are useful for combining machines. Below are two machine fragments that accept \"abc\" and \"aac\", combine them using epsilon transitions to form a single machine that accepts both \"abc\" and \"aac\".",
       "allowEpsilon": "true",
@@ -1159,6 +1217,291 @@
     "filename": "kleene-star-1",
     "name": "Regular expressions - Kleene star I",
     "id": "7e3194c04ffb4928916717d2dd5d8fdb"
+  },
+  {
+    "data-question": {
+      "type": "give-equivalent",
+      "text": "Another regular expression operator is <b>or</b>, written as a vertical bar: |. <br>For example <b>aa|bb</b> matches \"aa\" and \"bb\" but not \"ab\"<br>Construct a finite state machine that accepts the language described by <b>aa|bb</b>",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "targetMachineSpec": {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 107,
+            "y": 132,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 207,
+            "y": 130
+          },
+          {
+            "id": "C",
+            "x": 307,
+            "y": 129,
+            "isAcc": true
+          },
+          {
+            "id": "D",
+            "x": 179,
+            "y": 201
+          },
+          {
+            "id": "E",
+            "x": 279,
+            "y": 202,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "A",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 106,
+            "y": 128,
+            "isInit": true
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "give-equivalent-intro-to-or",
+    "name": "Regular expressions - Boolean or",
+    "id": "abc16525672948a5902a53cd1342a6e9"
+  },
+  {
+    "data-question": {
+      "type": "give-equivalent",
+      "text": "When the Kleene Star (*) is applied to bracketed expression, it is not necessary for each of the zero<br> or more matches of the expression to be identical, so long as they each match the expression.<br><br>For example <b>(ab|c)*</b> matches \"cab\", with the bracketed expression first accepting \"c\" and then \"ab\".<br>Construct a finite state machine that accepts the language defined by the regular expression <b>(ab|c)*</b>",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "targetMachineSpec": {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 156,
+            "y": 98,
+            "isAcc": true,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 211,
+            "y": 181
+          },
+          {
+            "id": "C",
+            "x": 256,
+            "y": 92,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "C",
+            "hasEps": true
+          },
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "c"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 106,
+            "y": 128,
+            "isInit": true
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "give-equivalent-kleene-bracket",
+    "name": "Regular expressions - Kleene star II",
+    "id": "2258e5fb5df44f4abf65676be48874d7"
+  },
+  {
+    "data-question": {
+      "type": "give-equivalent",
+      "text": "Construct a finite state machine which accepts the language defined by the expression <b>abb(abb)*</b>",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "targetMachineSpec": {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 104,
+            "y": 103,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 192,
+            "y": 54
+          },
+          {
+            "id": "C",
+            "x": 274,
+            "y": 111
+          },
+          {
+            "id": "D",
+            "x": 187,
+            "y": 160,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "D",
+            "hasEps": true
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 100,
+            "y": 125,
+            "isInit": true
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "give-equivalent-abb",
+    "name": "Regular expressions - abb(abb)*",
+    "id": "c542b17ff0054febbab7543b44f636c8"
   },
   {
     "data-question": {
