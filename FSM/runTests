@@ -1,3 +1,0 @@
-#!/bin/bash
-cd Tests
-python3 -m unittest acceptingStates1 acceptingStates2 demo1 giveList2 introducingCycles introducingFSMs2
