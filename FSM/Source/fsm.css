@@ -51,7 +51,16 @@ div.question-text{
   font-size: xx-large;
   vertical-align: middle;
   margin-right: 0.5em;
+}
 
+.table-cross{
+  color: red;
+  font-size: x-large;
+}
+
+.table-tick{
+  color: green;
+  font-size: x-large;
 }
 
 .give-list-label{

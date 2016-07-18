@@ -284,8 +284,15 @@ var Display = {
         }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
     },
-    giveFeedbackForDoesAccept: function(){
-    	throw new Error("Not yet implemented");
+    giveFeedbackForDoesAccept: function(feedbackObj){
+    	for(var i = 0; i < feedbackObj.isCorrectList.length; i++){
+    		var feedbackSpace = d3.select(`#feedback-${i}`)
+    		if(feedbackObj.isCorrectList[i] === true){
+    			feedbackSpace.text("✓").classed("table-tick", true);
+    		}else{
+    			feedbackSpace.text("☓").classed("table-cross", true);
+    		}
+    	}
     },
     giveFeedbackForSelectStates: function(feedbackObj){
     	var buttonDiv = d3.select(".button-div");
@@ -295,10 +302,10 @@ var Display = {
         var feedbackDiv = buttonDiv.select("#adjacent-feedback");
         feedbackDiv.text("");
         if(feedbackObj.allCorrectFlag === true){
-            feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);  //TODO rename this class
+            feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);
             return;
         } else {
-            feedbackDiv.append("span").text("☓").classed("adjacent-cross", true)
+            feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
             var message = "show trace"
             var traceButton = feedbackDiv.append("span").text(message).classed("select-states-show-trace", true);
             traceButton.on("click", function(){

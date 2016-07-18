@@ -1100,7 +1100,7 @@ var Model = {
                 var doesAccept = machine.accepts(sequences[i])
                 if(answer !== doesAccept){
                     feedbackObj.allCorrectFlag = false;
-                    feedbackObj.isCorrectList = false;
+                    feedbackObj.isCorrectList[i] = false;
                 }
             }
             return feedbackObj;
