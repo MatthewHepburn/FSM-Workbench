@@ -547,6 +547,113 @@ describe("Model", function() {
         });
     });
 
+    describe("Test the satisfy-definition question type", function(){
+        describe("It should correctly identify a correct machine", function(){
+            model.machines = [];
+            const questionObj = {
+                type: "satisfy-definition",
+                text: "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the initial state of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
+                allowEpsilon: "false",
+                splitSymbol: "",
+                defintion: {states: ["1","2","3","4"],
+                            alphabet: ["a","b","c"],
+                            initialStates: ["1"],
+                            acceptingStates: ["3","4"],
+                            links: [{to: "2",from: "1",symbol: "a"},{to: "3",from: "2",symbol: "b"},{to: "4",from: "2",symbol: "c"},{to: "2",from: "3",symbol: "b"}]
+                            }
+            };
+
+            const spec = {nodes:[{id:"A",x:105,y:175,isInit:true,name:"1"},{id:"B",x:201,y:148,name:"2"},{id:"C",x:202,y:48,isAcc:true,name:"3"},{id:"D",x:301,y:151,isAcc:true,name:"4"}],links:[{to:"B",from:"A",input:["a"]},{to:"C",from:"B",input:["b"]},{to:"D",from:"B",input:["c"]},{to:"B",from:"C",input:["b"]}],attributes:{alphabet:["a","b","c"],allowEpsilon:false}};
+
+            before(function(){
+                model.addMachine(spec);
+                model.question.setUpQuestion(questionObj);
+            });
+
+            let feedbackObj = {};
+            it("feedback object should be ok", function(){
+                feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj).to.be.ok;
+            });
+            it("feedback object should be correct", function(){
+                expect(feedbackObj.allCorrectFlag).to.be.true;
+                expect(feedbackObj.message).to.equal("");
+            });
+
+        });
+        describe("It should correctly reject a machine missing a link", function(){
+            model.machines = [];
+            const questionObj = {
+                type: "satisfy-definition",
+                text: "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the initial state of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
+                allowEpsilon: "false",
+                splitSymbol: "",
+                defintion: {states: ["1","2","3","4"],
+                            alphabet: ["a","b","c"],
+                            initialStates: ["1"],
+                            acceptingStates: ["3","4"],
+                            links: [{to: "2",from: "1",symbol: "a"},{to: "3",from: "2",symbol: "b"},{to: "4",from: "2",symbol: "c"},{to: "2",from: "3",symbol: "b"}]
+                            }
+            };
+
+            const spec = {nodes:[{id:"A",x:105,y:175,isInit:true,name:"1"},{id:"B",x:201,y:148,name:"2"},{id:"C",x:202,y:48,isAcc:true,name:"3"},{id:"D",x:301,y:151,isAcc:true,name:"4"}],links:[{to:"C",from:"B",input:["b"]},{to:"D",from:"B",input:["c"]},{to:"B",from:"C",input:["b"]}],attributes:{alphabet:["a","b","c"],allowEpsilon:false}};
+
+            before(function(){
+                model.addMachine(spec);
+                model.question.setUpQuestion(questionObj);
+            });
+
+            let feedbackObj = {};
+            it("feedback object should be ok", function(){
+                feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj).to.be.ok;
+            });
+            it("allCorrectFlag should be false", function(){
+                expect(feedbackObj.allCorrectFlag).to.be.false;
+            });
+            it("message should not be empty", function(){
+                expect(feedbackObj.message).to.not.equal("");
+            });
+
+        });
+        describe("It should correctly reject a machine with incorrect accepting states", function(){
+            model.machines = [];
+            const questionObj = {
+                type: "satisfy-definition",
+                text: "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the initial state of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
+                allowEpsilon: "false",
+                splitSymbol: "",
+                defintion: {states: ["1","2","3","4"],
+                            alphabet: ["a","b","c"],
+                            initialStates: ["1"],
+                            acceptingStates: ["3","4"],
+                            links: [{to: "2",from: "1",symbol: "a"},{to: "3",from: "2",symbol: "b"},{to: "4",from: "2",symbol: "c"},{to: "2",from: "3",symbol: "b"}]
+                            }
+            };
+
+            const spec = {nodes:[{id:"A",x:105,y:175,isInit:true,isAcc:true,name:"1"},{id:"B",x:201,y:148,name:"2"},{id:"C",x:202,y:48,name:"3"},{id:"D",x:301,y:151,isAcc:true,name:"4"}],links:[{to:"B",from:"A",input:["a"]},{to:"C",from:"B",input:["b"]},{to:"D",from:"B",input:["c"]},{to:"B",from:"C",input:["b"]}],attributes:{alphabet:["a","b","c"],allowEpsilon:false}};
+
+            before(function(){
+                model.addMachine(spec);
+                model.question.setUpQuestion(questionObj);
+            });
+
+
+            let feedbackObj = {};
+            it("feedback object should be ok", function(){
+                feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj).to.be.ok;
+            });
+            it("allCorrectFlag should be false", function(){
+                expect(feedbackObj.allCorrectFlag).to.be.false;
+            });
+            it("message should not be empty", function(){
+                expect(feedbackObj.message).to.not.equal("");
+            });
+
+        });
+    });
+
     describe("Test Machine.getTrace()", function(){
         describe("Test with a simple machine with only 3 states", function(){
             var machine, traceObj;
