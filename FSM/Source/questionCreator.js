@@ -222,7 +222,7 @@ const edit = {
             questionObj.targetMachineSpec = Model.machines[1].getSpec();
         }
         if(qType === "satisfy-definition"){
-            questionObj.defintion = edit.getFormalDefinition();
+            questionObj.definition = edit.getFormalDefinition();
         }
 
 

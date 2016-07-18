@@ -282,7 +282,27 @@ const Display = {
             Display.giveFeedbackForDoesAccept(feedbackObj);
             return;
         }
+        if(Model.question.type === "satisfy-definition"){
+            Display.giveFeedbackForSatisfyDefinition(feedbackObj);
+            return;
+        }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
+    },
+    giveFeedbackForSatisfyDefinition:function(feedbackObj){
+        var buttonDiv = d3.select(".button-div");
+        if(buttonDiv.select("#adjacent-feedback").empty()){
+            buttonDiv.append("div").attr("id", "adjacent-feedback");
+        }
+        var feedbackDiv = buttonDiv.select("#adjacent-feedback");
+        feedbackDiv.text("");
+        if(feedbackObj.allCorrectFlag === true){
+            feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);
+            return;
+        } else {
+            feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
+            feedbackDiv.append("span").text(feedbackObj.message).classed("adjacent-feedback-text", true);
+        }
+
     },
     giveFeedbackForDoesAccept: function(feedbackObj){
         for(let i = 0; i < feedbackObj.isCorrectList.length; i++){

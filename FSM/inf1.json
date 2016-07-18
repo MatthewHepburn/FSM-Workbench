@@ -1268,7 +1268,7 @@
       "text": "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the initial state of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
       "allowEpsilon": "false",
       "splitSymbol": "",
-      "defintion": {
+      "definition": {
         "states": [
           "1",
           "2",
@@ -1334,7 +1334,7 @@
     ],
     "data-options": {},
     "filename": "satisfy-definition-1",
-    "name": "Formal machine definition",
+    "name": "Formal machine definition I",
     "id": "df18d7c3bf5146c58d0c6c56276ba583"
   },
   {

@@ -1078,18 +1078,114 @@ const Model = {
         checkAnswer: function(input){
             //Input other than the machine only recquired for some question types (but always passed along anyway for simplicity)
             var checkFunctions = {
+                "does-accept": this.checkDoesAccept,
                 "give-equivalent": this.checkGiveEquivalent,
                 "give-input": this.checkGiveInput,
                 "give-list": this.checkGiveList,
+                "satisfy-definition": this.checkSatisfyDefintion,
                 "satisfy-list": this.checkSatisfyList,
-                "select-states": this.checkSelectStates,
-                "does-accept": this.checkDoesAccept
+                "select-states": this.checkSelectStates
             };
             if(!checkFunctions[this.type]){
                 throw new Error(`No check function for type '${this.type}'`);
             }else{
                 return checkFunctions[this.type](input);
             }
+        },
+        checkSatisfyDefintion: function(){
+            const machine = Model.machines[0];
+            const spec = Model.question.definition;
+            const feedbackObj = {allCorrectFlag: false, message: ""};
+
+            //Test number of states.
+            const nNodes = machine.getNodeCount();
+            if(nNodes !== spec.states.length){
+                feedbackObj.message = `Incorrect – the machine should have ${spec.states.length} states but it has ${nNodes} states.`;
+                return feedbackObj;
+            }
+
+            //Test that each state name is present.
+            const nodes = machine.getNodeList();
+            const nodeNames = nodes.map(node => node.name);
+            const missingNodeNames = spec.states.filter(name => !nodeNames.includes(name));
+            if(missingNodeNames.length > 0){
+                feedbackObj.message = `Incorrect – the machine should have a state named ‘${missingNodeNames[0]}’.`;
+                return feedbackObj;
+            }
+
+            //Test that there are the correct number of accepting states;
+            const acceptingStates = nodes.filter(node => node.isAccepting).map(node => node.name);
+            if(acceptingStates.length !== spec.acceptingStates.length){
+                feedbackObj.message = `Incorrect – the machine should have ${spec.acceptingStates.length} accepting states but it has ${acceptingStates.length} accepting states.`;
+                return feedbackObj;
+            }
+
+            //Test that the accepting states are correct;
+            const missingAcceptingNodeNames = spec.acceptingStates.filter(name => !acceptingStates.includes(name));
+            if(missingAcceptingNodeNames.length > 0){
+                feedbackObj.message = `Incorrect – state ‘${missingAcceptingNodeNames[0]}’ should be an accepting state.`;
+                return feedbackObj;
+            }
+
+            //Test that there are the correct number of initial states;
+            const initialStates = nodes.filter(node => node.isInitial).map(node => node.name);
+            if(initialStates.length !== spec.initialStates.length){
+                feedbackObj.message = `Incorrect – the machine should have ${spec.initialStates.length} initial states but it has ${initialStates.length} initial states.`;
+                return feedbackObj;
+            }
+
+            //Test that the initial states are correct;
+            const missingInitialStateNames = spec.initialStates.filter(name => !initialStates.includes(name));
+            if(missingInitialStateNames.length > 0){
+                feedbackObj.message = `Incorrect – state ‘${missingInitialStateNames[0]}’ should be an initial state.`;
+                return feedbackObj;
+            }
+
+            //Create a dictionary mapping names to nodes
+            const nodeDict = {};
+            nodes.forEach(function(node){
+                nodeDict[node.name] = node;
+            });
+
+            //Test that all links that should be there are present
+            for(let i = 0; i < spec.links.length; i++){
+                const link = spec.links[i];
+                const sourceNode = nodeDict[link.from];
+                const targetNode = nodeDict[link.to];
+                const reachableNodes = sourceNode.getReachableNodes(link.symbol).nodeIDs.map(nodeID => machine.nodes[nodeID]);
+                if(!reachableNodes.includes(targetNode)){
+                    feedbackObj.message = `Incorrect – there should be a link from state ‘${link.from}’ to ‘${link.to}’ for ‘${link.symbol}’.`;
+                    return feedbackObj;
+                }
+            }
+
+            const links = spec.links;
+            //Test that all links that are present should be there
+            for(const linkID in machine.links){
+                const link = machine.links[linkID];
+                const from = link.source.name;
+                const to = link.target.name;
+                for(let i = 0; i < link.input.length; i++){
+                    const symbol = link.input[i];
+                    let found = false;
+                    for(let j = 0; j < links.length && !found; j++){
+                        const specLink = links[j];
+                        if(to === specLink.to && from === specLink.from && symbol == specLink.symbol){
+                            found = true;
+                        }
+                    }
+                    if(!found){
+                        feedbackObj.message = `Incorrect – there should not be a link from state ‘${from}’ to ‘${to}’ for ‘${symbol}’.`;
+                        return feedbackObj;
+                    }
+                }
+            }
+
+            feedbackObj.allCorrectFlag = true;
+            return feedbackObj;
+
+
+
         },
         checkDoesAccept: function(input){
             var machine = Model.machines[0];
