@@ -75,6 +75,20 @@ div.question-text{
   width: unset !important;
 }
 
+.does-accept-show-trace{
+  text-decoration: underline;
+  font-size: small;
+  margin-left: 0.75em !important;
+  font-family: 'Ek Mukta', sans-serif;
+  text-align: left !important;
+  width: unset !important;
+}
+
+.does-accept-show-trace:hover{
+  font-weight: bold;
+  cursor: pointer;
+}
+
 .select-states-show-trace{
   text-decoration: underline;
   font-size: small;

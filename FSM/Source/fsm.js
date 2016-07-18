@@ -285,13 +285,24 @@ const Display = {
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
     },
     giveFeedbackForDoesAccept: function(feedbackObj){
-        for(var i = 0; i < feedbackObj.isCorrectList.length; i++){
-            var feedbackSpace = d3.select(`#feedback-${i}`);
+        for(let i = 0; i < feedbackObj.isCorrectList.length; i++){
+            const feedbackSpace = d3.select(`#feedback-${i}`);
+            const traceSpace = d3.select(`#does-accept-trace-${i}`);
             if(feedbackObj.isCorrectList[i] === true){
                 feedbackSpace.text("✓").classed("table-tick", true);
             }else{
                 feedbackSpace.text("☓").classed("table-cross", true);
             }
+            if(traceSpace.text() === ""){
+                const inputSequence = Model.question.sequences[i];
+                traceSpace
+                    .text("trace")
+                    .on("click", function(){
+                        Controller.startTrace(m, inputSequence, 0);
+                    });
+            }
+
+
         }
     },
     giveFeedbackForSelectStates: function(feedbackObj){
