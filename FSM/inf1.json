@@ -1264,6 +1264,81 @@
   },
   {
     "data-question": {
+      "type": "satisfy-definition",
+      "text": "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the initial state of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "defintion": {
+        "states": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "alphabet": [
+          "a",
+          "b",
+          "c"
+        ],
+        "initialStates": [
+          "1"
+        ],
+        "acceptingStates": [
+          "3",
+          "4"
+        ],
+        "links": [
+          {
+            "to": "2",
+            "from": "1",
+            "symbol": "a"
+          },
+          {
+            "to": "3",
+            "from": "2",
+            "symbol": "b"
+          },
+          {
+            "to": "4",
+            "from": "2",
+            "symbol": "c"
+          },
+          {
+            "to": "2",
+            "from": "3",
+            "symbol": "b"
+          }
+        ]
+      }
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 100,
+            "y": 125,
+            "isInit": true
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "satisfy-definition-1",
+    "name": "Formal machine definition",
+    "id": "df18d7c3bf5146c58d0c6c56276ba583"
+  },
+  {
+    "data-question": {
       "type": "give-equivalent",
       "text": "Regular expressions can be used to define languages accepted by finite state machines. <br>One operator used in regular expressions is *, the Kleene star. It means that the symbol before it must appear 0 or more times.<br>For example,<b> a*b*</b> means 'a' zero or more times followed by 'b' zero or more time. This language includes the empty string, \"a\", \"b\", \"ab\", \"aa\", \"bb\", etc.<br>Construct a finite state machine which is accepts the language definined by the regular expression <b>a*b*</b>",
       "allowEpsilon": "true",

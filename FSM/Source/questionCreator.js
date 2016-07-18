@@ -1,10 +1,11 @@
 "use strict";
+/*eslint-env es6 */
 //Declare global readonlys for ESLint
 /*global d3*/
 /*global Controller*/
 /*global Model*/
 
-var edit = {
+const edit = {
     question: {},
     questionTypes: ["give-equivalent", "give-input", "give-list", "satisfy-list", "select-states", "does-accept", "satisfy-definition"].sort(),
     questionSchema: {
@@ -59,11 +60,11 @@ var edit = {
         edit.askQuestionOption("alphabet", alphabetQ);
         d3.select("#alphabet").on("change", edit.setAlphabet);
 
-        var epsQ = edit.questionSchema.common.allowEpsilon
+        var epsQ = edit.questionSchema.common.allowEpsilon;
         edit.askQuestionOption("allowEpsilon", epsQ);
         d3.select("#allowEpsilon").on("change", edit.setAlphabet);
 
-        var splitQ = edit.questionSchema.common.splitSymbol
+        var splitQ = edit.questionSchema.common.splitSymbol;
         edit.askQuestionOption("splitSymbol", splitQ);
 
         var filenameQ = edit.questionSchema.common.filename;
@@ -77,7 +78,7 @@ var edit = {
         var q = edit.questionSchema[qType];
         var fields = Object.keys(q);
         for (var i = 0; i< fields.length; i++){
-            var name = fields[i]
+            var name = fields[i];
             var obj = q[name];
             edit.askQuestionOption(name, obj);
         }
@@ -85,9 +86,12 @@ var edit = {
         document.querySelector(".buttondiv").innerHTML = button;
         document.querySelector("#getjson").addEventListener("click", edit.getJSON);
 
-        if (qType == "give-equivalent"){
+        if (qType === "give-equivalent"){
             edit.showTwoMachines("Initial machine", "Target machine");
-            edit.showTestRegex()
+            edit.showTestRegex();
+        } else if(qType === "satisfy-definition"){
+            edit.showTwoMachines("Initial machine", "Specified machine");
+            edit.showGetFormalDefinition();
         } else {
             edit.showOneMachine();
         }
@@ -100,8 +104,8 @@ var edit = {
         var isBoolean = obj.isBoolean === true;
         var isDropdown = obj.options !== undefined;
         if(isBoolean){
-            isDropdown = true
-            var options = [true, false]
+            isDropdown = true;
+            var options = [true, false];
         } else if(isDropdown){
             options = obj.options;
         }
@@ -125,9 +129,9 @@ var edit = {
                   .text(optStr);
 
                 if(defaultValue === optStr){
-                    option.attr("selected", "true")
+                    option.attr("selected", "true");
                 }
-            })
+            });
 
         }
         else{
@@ -143,7 +147,7 @@ var edit = {
                       .attr("id", "desc"+name)
                       .classed("help", true)
                       .classed("pure-button", true)
-                      .text(" ? ")
+                      .text(" ? ");
 
         var showDescription = function(){
             //Check if description is already there
@@ -158,7 +162,7 @@ var edit = {
             }
         };
 
-        help.on("click", showDescription)
+        help.on("click", showDescription);
 
     },
 
@@ -202,9 +206,9 @@ var edit = {
                        "filename": document.querySelector("#filename").value,
                        "name":document.querySelector("#questionTitle").value,
                        "id": edit.getGUID()};
-        if(qType === "give-equivalent"){
+        if(qType === "give-equivalent" || qType === "satisfy-definition"){
             //Don't want to also have the target machine
-            outObj["data-machinelist"] = [Model.machines[0].getSpec()]
+            outObj["data-machinelist"] = [Model.machines[0].getSpec()];
         } else {
             outObj["data-machinelist"] = Model.getMachineList();
         }
@@ -214,8 +218,11 @@ var edit = {
         questionObj.allowEpsilon = document.querySelector("#allowEpsilon").value;
         questionObj.splitSymbol = document.querySelector("#splitSymbol").value;
 
-        if(qType == "give-equivalent"){
-            questionObj.targetMachineSpec = Model.machines[1].getSpec()
+        if(qType === "give-equivalent"){
+            questionObj.targetMachineSpec = Model.machines[1].getSpec();
+        }
+        if(qType === "satisfy-definition"){
+            questionObj.defintion = edit.getFormalDefinition();
         }
 
 
@@ -239,7 +246,7 @@ var edit = {
 
         if (!error){
             outObj["data-question"] = questionObj;
-            var jsonOutDiv = d3.select(".jsonout").text("")
+            var jsonOutDiv = d3.select(".jsonout").text("");
             jsonOutDiv.append("pre").text(JSON.stringify(outObj));
             var saveDiv = jsonOutDiv.append("div").classed("savediv", true);
             if (localStorage.getItem("password") !==  null){
@@ -273,15 +280,15 @@ var edit = {
         var alphabet = JSON.parse(document.querySelector("#alphabet").value);
         var allowEpsilon = JSON.parse(document.querySelector("#allowEpsilon").value);
         for(var i = 0; i < Model.machines.length; i++){
-            var machine = Model.machines[i]
-            Controller.setAlphabet(machine, alphabet, allowEpsilon)
+            var machine = Model.machines[i];
+            Controller.setAlphabet(machine, alphabet, allowEpsilon);
         }
     },
     showTwoMachines: function(labelLeft, labelRight){
         // check if a second machine already exists
-        if (d3.select("#m2").size == 1){
-            d3.select("#m1-label").text(labelLeft)
-            d3.select("#m2-label").text(labelRight)
+        if (d3.select("#m2").size() == 1){
+            d3.select("#m1-label").text(labelLeft);
+            d3.select("#m2-label").text(labelRight);
             return;
         }
 
@@ -296,16 +303,16 @@ var edit = {
               .text(labelLeft)
               .attr("id", "m1-label")
               .attr("x", 350)
-              .attr("y", 25)
+              .attr("y", 25);
         } else {
-            d3.select("#m1-label").text(labelLeft)
+            d3.select("#m1-label").text(labelLeft);
         }
         if(d3.select("#m2-label").empty()){
             d3.select(`#${machineID}`).append("text")
               .text(labelRight)
               .attr("id", "m2-label")
               .attr("x", 350)
-              .attr("y", 25)
+              .attr("y", 25);
         }
     },
     showOneMachine: function(){
@@ -320,30 +327,106 @@ var edit = {
 
     },
 
+    showGetFormalDefinition: function(){
+        const div = d3.select(".questiondata").append("div").attr("id", "get-definition-div");
+
+        const button = div.append("a")
+                        .attr("id", "get-definition-button")
+                        .classed("pure-button", true)
+                        .text("Get Definition");
+
+        const span = div.append("span")
+            .attr("id", "get-definition-output");
+
+
+        button.on("click", function(){
+            const spec = edit.getFormalDefinitionString();
+            span.text(spec);
+        });
+    },
+
+    getFormalDefinition: function(){
+        const machine = Model.machines[1];
+        const states = machine.getNodeList();
+        const spec = {};
+
+        spec.states = states.map(node => node.name);
+        spec.alphabet = machine.alphabet;
+        spec.initialStates = states.filter(node => node.isInitial).map(node => node.name);
+        spec.acceptingStates = states.filter(node => node.isAccepting).map(node => node.name);
+        //Split links so that each symbol is its own object
+        spec.links = [];
+        for(const linkID in machine.links){
+            const link = machine.links[linkID];
+            const to = link.target.name;
+            const from = link.source.name;
+            for(let i = 0; i < link.input.length; i++){
+                spec.links.push({to, from, symbol:link.input[i]});
+            }
+        }
+
+        return spec;
+
+    },
+
+    getFormalDefinitionString: function(){
+        const spec = edit.getFormalDefinition();
+        //Check that all states have names:
+        if(spec.states.includes("")){
+            return "All nodes must have a name";
+        }
+        const states = spec.states;
+        const alphabet = spec.alphabet;
+        const initialStates = spec.initialStates;
+        const acceptingStates = spec.acceptingStates;
+        const links = spec.links;
+
+        const linkStrings = links.map(link => `(${link.from},${link.symbol},${link.to})`).sort();
+
+        var prettyPrintArray = function(name, array){
+            let outString =  `<em>${name}</em> = {`;
+            if(array.length > 0){
+                outString += array.reduce((x,y)=>x + "," + y);
+            }
+            return outString +"}";
+        };
+
+        let specStr = "";
+        specStr += prettyPrintArray("Q", states.sort()) + "<br>";
+        specStr += prettyPrintArray("Σ", alphabet) + "<br>";
+        specStr += prettyPrintArray("s<sub>0</sub>", initialStates.sort()) + "<br>";
+        specStr += prettyPrintArray("F", acceptingStates.sort()) + "<br>";
+        specStr += prettyPrintArray("δ", linkStrings);
+        return specStr;
+
+
+    },
+
     showTestRegex: function(){
-        var div = d3.select(".questiondata").append("div").attr("id", "test-regex-div");
+        const div = d3.select(".questiondata").append("div").attr("id", "test-regex-div");
+
         div.append("input")
                .attr("type", "text")
                .attr("id", "test-regex-input")
                .attr("value", "a*b*");
 
-        var button = div.append("a")
+        const button = div.append("a")
                         .attr("id", "test-regex-button")
                         .classed("pure-button", true)
-                        .text("Test Regex")
+                        .text("Test Regex");
 
-        var span = div.append("span")
-            .attr("id", "test-regex-feedback")
+        const span = div.append("span")
+            .attr("id", "test-regex-feedback");
 
 
         button.on("click", function(){
-            var input = document.querySelector("#test-regex-input").value
-            var message = edit.testRegex(input)
+            const input = document.querySelector("#test-regex-input").value;
+            let message = edit.testRegex(input);
             if(message === true){
-                message = "✓"
+                message = "✓";
             }
             span.text(message);
-        })
+        });
 
     },
 
@@ -352,37 +435,37 @@ var edit = {
         var m = Model.machines[1];
         var alphabet = m.alphabet;
         if(m.getAcceptingNodeCount() === 0){
-            return "No accepting states"
+            return "No accepting states";
         }
-        var toString = x => x.reduce((x,y) => x + y, "")
+        var toString = x => x.reduce((x,y) => x + y, "");
         var nStates = m.getNodeCount();
-        var sequences = [[]]
-        var regex = new RegExp(str)
+        var sequences = [[]];
+        var regex = new RegExp(str);
         while(sequences[0].length <= 2 * nStates){
-            var newSequences = []
+            var newSequences = [];
             for(var i = 0; i < sequences.length; i++){
-                var thisSequence = sequences[i]
-                var string = toString(thisSequence)
+                var thisSequence = sequences[i];
+                var string = toString(thisSequence);
                 var regexAccepts = true;
                 if (regex.exec(string) == null || regex.exec(string)[0] != string){
                     regexAccepts = false;
                 }
-                var machineAccepts = m.accepts(thisSequence)
+                var machineAccepts = m.accepts(thisSequence);
                 if(regexAccepts && !machineAccepts){
-                    return `Machine rejects '${string}' which regex accepts`
+                    return `Machine rejects '${string}' which regex accepts`;
                 }
                 if(!regexAccepts && machineAccepts){
-                    return `Regex rejects '${string}' which machine accepts`
+                    return `Regex rejects '${string}' which machine accepts`;
                 }
 
                 //Populate newSequences
                 for(var j = 0; j< alphabet.length; j++){
-                    var symbol = alphabet[j]
-                    var newSequence = thisSequence.concat([symbol])
-                    newSequences.push(newSequence)
+                    var symbol = alphabet[j];
+                    var newSequence = thisSequence.concat([symbol]);
+                    newSequences.push(newSequence);
                 }
             }
-            sequences = newSequences
+            sequences = newSequences;
         }
         return true;
 
