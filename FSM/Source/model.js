@@ -2,12 +2,12 @@
 
 // This holds the domain model and the functions needed to interact with it. It should not interact with the DOM and
 // it should not recquire d3.
-var Model = {
+const Model = {
     machines: [], // This may be better as an object, with machine IDs as keys.
     addMachine: function(specificationObj){
         //Creates a new machine as specified by specificationObj, adds it to the machinelist and returns the new machine.
-        var newID = "m" + (this.machines.length + 1);
-        var newMachine = new Model.Machine(newID);
+        const newID = "m" + (this.machines.length + 1);
+        const newMachine = new Model.Machine(newID);
         newMachine.build(specificationObj);
         this.machines.push(newMachine);
         return newMachine;
@@ -17,8 +17,8 @@ var Model = {
     },
     getMachineList: function(){
         //Returns a list of specifications for the current machine(s)
-        var list = [];
-        for(var i = 0; i < Model.machines.length; i++){
+        const list = [];
+        for(let i = 0; i < Model.machines.length; i++){
             list.push(Model.machines[i].getSpec());
         }
         return list;
@@ -51,8 +51,8 @@ var Model = {
             isInitial = isInitial === undefined? false : isInitial;
             isAccepting = isAccepting === undefined? false : isAccepting;
             name = name === undefined? "" : name;
-            var nodeID = this.getNextNodeID();
-            var newNode = new Model.Node(this, nodeID, x, y, name, isInitial, isAccepting);
+            const nodeID = this.getNextNodeID();
+            const newNode = new Model.Node(this, nodeID, x, y, name, isInitial, isAccepting);
             this.nodes[nodeID] = newNode;
             return newNode;
 
@@ -69,8 +69,8 @@ var Model = {
             input = input === undefined? [] : input;
             output = output === undefined? {} : output;
             hasEpsilon = hasEpsilon === undefined? false : hasEpsilon;
-            var linkID = this.getNextLinkID();
-            var newLink = new Model.Link(this, linkID, sourceNode, targetNode, input, output, hasEpsilon);
+            const linkID = this.getNextLinkID();
+            const newLink = new Model.Link(this, linkID, sourceNode, targetNode, input, output, hasEpsilon);
             this.links[linkID] = newLink;
             sourceNode.outgoingLinks[linkID] = newLink;
             return newLink;
@@ -391,19 +391,19 @@ var Model = {
 
             this.enforceAlphabet(); //Overkill?
 
-            var name = `{${s1.name}, ${s2.name}}`;
-            var inboundLinks = this.getLinksTo(s1).concat(this.getLinksTo(s2));
-            var outgoingLinks = s1.getOutgoingLinks().concat(s2.getOutgoingLinks());
-            var isInitial = s1.isInitial && s2.isInitial;
-            var isAccepting = s1.isAccepting && s2.isAccepting;
+            const name = `{${s1.name}, ${s2.name}}`;
+            const inboundLinks = this.getLinksTo(s1).concat(this.getLinksTo(s2));
+            const outgoingLinks = s1.getOutgoingLinks().concat(s2.getOutgoingLinks());
+            const isInitial = s1.isInitial && s2.isInitial;
+            const isAccepting = s1.isAccepting && s2.isAccepting;
 
-            var x = (s1.x + s2.x)/2;
-            var y = (s1.y + s2.y)/2;
+            const x = (s1.x + s2.x)/2;
+            const y = (s1.y + s2.y)/2;
 
             this.deleteNode(s1);
             this.deleteNode(s2);
 
-            var mergedNode = this.addNode(x, y, name, isInitial, isAccepting);
+            const mergedNode = this.addNode(x, y, name, isInitial, isAccepting);
 
             //Modify the source/target of the old links as appropriate and merge the lists
             inboundLinks.forEach(l => l.target = mergedNode);
@@ -411,7 +411,7 @@ var Model = {
             var oldLinks = inboundLinks.concat(outgoingLinks);
 
             //Add back links to the new node
-            for(var i in oldLinks){
+            for(let i in oldLinks){
                 var l = oldLinks[i];
                 var source = l.source;
                 var target = l.target;
@@ -420,12 +420,12 @@ var Model = {
                 if(existingLink !== null){
                     //Link present, combine input symbols
                     var newInput = existingLink.input.concat(l.input); //Will contain duplicates, but they are removed in Link.setInput
-                    var hasEpsilon = l.hasEpsilon || existingLink.hasEpsilon;
+                    let hasEpsilon = l.hasEpsilon || existingLink.hasEpsilon;
                     existingLink.setInput(newInput, hasEpsilon); //TODO refactor to use Link.addInput()
                 } else {
                     //No link present, create it
                     var input = l.input;
-                    var hasEpsilon = l.hasEpsilon;
+                    let hasEpsilon = l.hasEpsilon;
                     var output = {};
                     this.addLink(source, target, input, output, hasEpsilon);
                 }
@@ -673,30 +673,30 @@ var Model = {
         };
 
         this.reverse = function(){
-            for(var nodeID in this.nodes){
-                var node = this.nodes[nodeID];
-                var isAccepting = node.isInitial;
-                var isInitial = node.isAccepting;
+            for(let nodeID in this.nodes){
+                const node = this.nodes[nodeID];
+                const isAccepting = node.isInitial;
+                const isInitial = node.isAccepting;
                 node.isAccepting = isAccepting;
                 node.isInitial = isInitial;
             }
             // Create a list of reversed links to be created
-            var newLinks = [];
-            for(var linkID in this.links){
+            const newLinks = [];
+            for(let linkID in this.links){
                 //Can't use link.reverse() due to the way that that combines links
-                var link = this.links[linkID];
-                var source = link.target;
-                var target = link.source;
-                var input = link.input;
-                var output = link.output;
-                var hasEpsilon = link.hasEpsilon;
-                var newLink = {source, target, input, output, hasEpsilon};
+                const link = this.links[linkID];
+                const source = link.target;
+                const target = link.source;
+                const input = link.input;
+                const output = link.output;
+                const hasEpsilon = link.hasEpsilon;
+                const newLink = {source, target, input, output, hasEpsilon};
                 newLinks.push(newLink);
                 this.deleteLink(link); //Delete all links
             }
             //Create new links
-            for(var i = 0; i < newLinks.length; i++){
-                var link = newLinks[i];
+            for(let i = 0; i < newLinks.length; i++){
+                const link = newLinks[i];
                 this.addLink(link.source, link.target, link.input, link.output, link.hasEpsilon);
             }
         };
@@ -856,24 +856,24 @@ var Model = {
             //Now, clear the current machine
             this.deleteAllNodes();
             //And recreate from nodeSets, first create nodes for each nodeSet;
-            for(var nodeSetID in nodeSets){
-                var nodeSet = nodeSets[nodeSetID];
-                var newNode = this.addNode(nodeSet.x, nodeSet.y, nodeSet.name, nodeSet.isInitial, nodeSet.isAccepting);
+            for(let nodeSetID in nodeSets){
+                const nodeSet = nodeSets[nodeSetID];
+                const newNode = this.addNode(nodeSet.x, nodeSet.y, nodeSet.name, nodeSet.isInitial, nodeSet.isAccepting);
                 nodeSet.newNode = newNode;
             }
             //And then create links as needed
-            for(var nodeSetID in nodeSets){
-                var nodeSet = nodeSets[nodeSetID];
-                var sourceNode = nodeSet.newNode;
+            for(let nodeSetID in nodeSets){
+                const nodeSet = nodeSets[nodeSetID];
+                const sourceNode = nodeSet.newNode;
                 for(symbol in nodeSet.reachable){
-                    var targetNodeID = nodeSet.reachable[symbol];
+                    const targetNodeID = nodeSet.reachable[symbol];
                     if(targetNodeID === "none"){
                         continue;
                     }
-                    var targetNode = nodeSets[targetNodeID].newNode;
-                    var linkExists = sourceNode.hasLinkTo(targetNode);
+                    const targetNode = nodeSets[targetNodeID].newNode;
+                    const linkExists = sourceNode.hasLinkTo(targetNode);
                     if(linkExists){
-                        var link = sourceNode.getLinkTo(targetNode);
+                        const link = sourceNode.getLinkTo(targetNode);
                         link.addInput([symbol], false);
                     } else {
                         this.addLink(sourceNode, targetNode, [symbol], undefined, false);
@@ -1111,9 +1111,9 @@ var Model = {
                 Model.question.targetMachine = new Model.Machine("tgt");
                 Model.question.targetMachine.build(Model.question.targetMachineSpec);
             }
-            var targetMachine = Model.question.targetMachine;
-            var inputMachine = Model.machines[0];
-            var feedbackObj = {allCorrectFlag: false, message:"", incorrectSequence:undefined, shouldAcceptIncorrect: undefined};
+            const targetMachine = Model.question.targetMachine;
+            const inputMachine = Model.machines[0];
+            const feedbackObj = {allCorrectFlag: false, message:"", incorrectSequence:undefined, shouldAcceptIncorrect: undefined};
             //Catch invalid machines here
             if(inputMachine.getAcceptingNodeCount() === 0){
                 feedbackObj.message = "Machine must have an accepting state.";
@@ -1129,16 +1129,16 @@ var Model = {
             }
             //We now know the machine is incorrect, we now must construct an error message
 
-            var inputComplement = new Model.Machine("m1c");
+            const inputComplement = new Model.Machine("m1c");
             inputComplement.build(inputMachine.getSpec());
             inputComplement.complement();
 
             //This machine accepts sequences that the input machine rejects but the target machine accepts:
-            var unionInputComplementWithTarget = inputComplement.getUnionWith(targetMachine);
+            const unionInputComplementWithTarget = inputComplement.getUnionWith(targetMachine);
 
-            var incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence();
+            let incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence();
             if(incorrectSequence !== null){
-                var printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
+                let printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
                     feedbackObj.message = `Incorrect – the machine should accept ‘${printableSequence}’`;
                 } else {
@@ -1149,16 +1149,16 @@ var Model = {
                 return feedbackObj;
             }
 
-            var targetComplement = new Model.Machine("t1c");
+            const targetComplement = new Model.Machine("t1c");
             targetComplement.build(targetMachine.getSpec());
             targetComplement.complement();
 
             //This machine accepts sequences that the input machine accepts but the target machine rejects:
-            var unionInputWithTargetComplement = inputMachine.getUnionWith(targetComplement);
+            const unionInputWithTargetComplement = inputMachine.getUnionWith(targetComplement);
 
-            var incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence();
+            incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence();
             if(incorrectSequence !== null){
-                var printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
+                let printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
                     feedbackObj.message = `Incorrect – the machine should reject ‘${printableSequence}’`;
                 } else {
@@ -1229,16 +1229,16 @@ var Model = {
             return {input, messages, allCorrectFlag, isCorrectList};
         },
         checkSatisfyList: function(){
-            var machine = Model.machines[0];
-            var feedbackObj = {allCorrectFlag: true, acceptList:[], rejectList:[]};
-            var splitSymbol = Model.question.splitSymbol;
-            var acceptList = Model.question.shouldAccept;
-            var rejectList = Model.question.shouldReject;
+            const machine = Model.machines[0];
+            const feedbackObj = {allCorrectFlag: true, acceptList:[], rejectList:[]};
+            const splitSymbol = Model.question.splitSymbol;
+            const acceptList = Model.question.shouldAccept;
+            const rejectList = Model.question.shouldReject;
 
             //Check the acceptList
-            for(var i = 0; i < acceptList.length; i++){
+            for(let i = 0; i < acceptList.length; i++){
                 //Split the input into individual tokens based on the split symbol.
-                var input = acceptList[i].split(splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0);
+                const input = acceptList[i].split(splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0);
                 if(machine.accepts(input)){
                     feedbackObj.acceptList[i] = true;
                 } else {
@@ -1247,8 +1247,8 @@ var Model = {
                 }
             }
 
-            for(var i = 0; i < rejectList.length; i++){
-                var input = rejectList[i].split(splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0);
+            for(let i = 0; i < rejectList.length; i++){
+                const input = rejectList[i].split(splitSymbol).map(y => y.replace(/ /g,"")).filter(z => z.length > 0);
                 if(!machine.accepts(input)){
                     feedbackObj.rejectList[i] = true;
                 } else {
@@ -1294,3 +1294,5 @@ var Model = {
 if (typeof module !== "undefined"){
     module.exports = Model;
 }
+
+/*global module*/

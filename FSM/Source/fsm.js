@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 // 'UI' or 'Interface' might be a more accurate name? ('View' as in MVC?)
-var Display = {
+const Display = {
     nodeRadius: 12,
     acceptingRadius: 0.7 * 12,
     canvasVars: {
@@ -349,12 +349,12 @@ var Display = {
         Display.appendNextButton(buttonDiv);
     },
     giveFeedbackForGiveList: function(feedbackObj){
-        for(var i = 0; i < feedbackObj.isCorrectList.length; i++){
-            var isCorrect = feedbackObj.isCorrectList[i];
+        for(let i = 0; i < feedbackObj.isCorrectList.length; i++){
+            const isCorrect = feedbackObj.isCorrectList[i];
 
             //Clear any previous feedback
-            var feedbackLabel = d3.select(`#give-list-feedback-${i}`).text("");
-            var inputBox = d3.select(`#qf${i}`).classed("correct", false).classed("incorrect", false);
+            const feedbackLabel = d3.select(`#give-list-feedback-${i}`).text("");
+            const inputBox = d3.select(`#qf${i}`).classed("correct", false).classed("incorrect", false);
 
             //Do nothing if an input of length 0 was provided - assume that the user has simply not attempted that yet.
             if(feedbackObj.input[i].length === 0){
@@ -362,8 +362,9 @@ var Display = {
             }
 
             //Add a tick/cross as needed
+            let feedbackText;
             if(isCorrect){
-                var feedbackText = "✓ ";
+                feedbackText = "✓ ";
             } else {
                 feedbackText = "☓ ";
             }
@@ -371,7 +372,7 @@ var Display = {
             feedbackLabel.text(feedbackText + feedbackObj.messages[i]);
 
             //Style the input box:
-            d3.select(`#qf${i}`).classed("correct", isCorrect).classed("incorrect", !isCorrect);
+            inputBox.classed("correct", isCorrect).classed("incorrect", !isCorrect);
         }
     },
     giveFeedbackForSatisfyList: function(feedbackObj){
@@ -633,7 +634,7 @@ var Display = {
 
 
         // Set the submit function
-        var submitFunction = function(d3InputElement){Controller.submitLinkRename(link.machine.id, link, "constrainedSVG");};
+        var submitFunction = function(){Controller.submitLinkRename(link.machine.id, link, "constrainedSVG");};
         Display.canvasVars[link.machine.id].submitRenameFunction = submitFunction;
 
         // Finally, add the "OK" button
@@ -723,9 +724,9 @@ var Display = {
         Display.drawTraceStep(svg, 0, canvasID);
     },
     drawTraceStep(svg, step, canvasID){
-        var canvasVars = Display.getCanvasVars(canvasID);
+        const canvasVars = Display.getCanvasVars(canvasID);
         canvasVars.traceStep = step;
-        var traceObj = canvasVars.traceObj;
+        const traceObj = canvasVars.traceObj;
 
         //reset all trace styling
         Display.resetTraceStyling(svg);
@@ -735,7 +736,7 @@ var Display = {
         svg.select(`#${canvasID}-trace-input-separator-${step}`).classed("trace-next", true);
 
         //Class consumed input
-        for(var i = 0;  i < step; i++){
+        for(let i = 0;  i < step; i++){
             svg.select(`#${canvasID}-trace-input-${i}`).classed("trace-consumed", true);
             svg.select(`#${canvasID}-trace-input-separator-${i}`).classed("trace-consumed", true);
         }
@@ -744,23 +745,23 @@ var Display = {
         svg.selectAll(".node").classed("trace-not-current", true);
 
         //Class current states
-        var currentNodes = traceObj.states[step];
-        for(var i = 0; i < currentNodes.length; i++){
-            var nodeID = currentNodes[i].id;
+        const currentNodes = traceObj.states[step];
+        for(let i = 0; i < currentNodes.length; i++){
+            const nodeID = currentNodes[i].id;
             d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false);
         }
 
         //Classs used links and link inputs
-        var usedLinks = traceObj.links[step];
-        for(var i = 0; i < usedLinks.length; i++){
-            var linkUsageObj = usedLinks[i];
-            var linkID = linkUsageObj.link.id;
+        const usedLinks = traceObj.links[step];
+        for(let i = 0; i < usedLinks.length; i++){
+            const linkUsageObj = usedLinks[i];
+            const linkID = linkUsageObj.link.id;
             d3.select(`#${linkID}`).classed("trace-used-link", true);
             if(linkUsageObj.epsUsed){
                 //Handle case of epsilon link
                 d3.select(`#${linkID}-input-eps`).classed("trace-used-link-input", true);
             } else {
-                var inputIndex = linkUsageObj.inputIndex;
+                const inputIndex = linkUsageObj.inputIndex;
                 d3.select(`#${linkID}-input-${inputIndex}`).classed("trace-used-link-input", true);
             }
         }
@@ -870,7 +871,7 @@ var Display = {
         // Get the string representing the current link conditions
         var current = Display.linkLabelText(link);
 
-        var submitFunction = function(d3InputElement){Controller.submitLinkRename(link.machine.id, link, "unconstrained");};
+        var submitFunction = function(){Controller.submitLinkRename(link.machine.id, link, "unconstrained");};
         Display.canvasVars[canvasID].submitRenameFunction = submitFunction;
 
         svg.append("foreignObject")
@@ -917,22 +918,22 @@ var Display = {
     },
     drawSettingsMenu: function(svg){
         //Check if settings menu already exists, dismiss and return if it is.
-        var existingMenu = svg.select(".settings-menu");
+        const existingMenu = svg.select(".settings-menu");
         if(!existingMenu.empty()){
             existingMenu.remove();
             return;
         }
 
-        var settings = Controller.getSettings();
-        var menuWidth = 0.5 * svg.attr("width");
-        var menuHeight = 0.5 * svg.attr("height");
-        var fontSize = 10;
-        var optionBorder =  2;
-        var xBorder = 15;
+        const settings = Controller.getSettings();
+        const menuWidth = 0.5 * svg.attr("width");
+        const menuHeight = 0.5 * svg.attr("height");
+        const fontSize = 10;
+        const optionBorder =  2;
+        const xBorder = 15;
 
-        var x = 0.25 * svg.attr("width");
-        var y = 0.1 * svg.attr("height");
-        var g = svg.append("g").classed("settings-menu", true);
+        const x = 0.25 * svg.attr("width");
+        const y = 0.1 * svg.attr("height");
+        const g = svg.append("g").classed("settings-menu", true);
 
         g.append("rect")
          .attr("x", x)
@@ -942,13 +943,11 @@ var Display = {
          .attr("fill", "#FFFFFF")
          .attr("stroke", "#555555");
 
-        var textX = x + xBorder;
-        var textY = y + (4 * fontSize);
-        var longestDescription = Display.getTextLength(svg,"Colour scheme", fontSize, "settings-menu");
-        var longestOption = 4 +  Display.getTextLength(svg,"monochrome", fontSize, "settings-menu");
+        const textX = x + xBorder;
+        let textY = y + (4 * fontSize);
+        const longestOption = 4 +  Display.getTextLength(svg,"monochrome", fontSize, "settings-menu");
 
-
-        var getOnClickFunction = function(currentTextSelection,settingsKey,x, y){
+        const getOnClickFunction = function(currentTextSelection,settingsKey,x, y){
             return function(){
                 //this function should be called to create the dropdown part of the dropdown menu
 
@@ -972,7 +971,7 @@ var Display = {
                         .attr("fill", "#FFFFFF")
                         .attr("stroke", "#444444");
 
-                for(var i = 0; i < options.length; i++){
+                for(let i = 0; i < options.length; i++){
                     //Add a background to allow highlighting on mouseover
                     drop.append("rect")
                         .attr("x", x)
@@ -999,7 +998,7 @@ var Display = {
             };
         };
 
-        for(var s in settings){
+        for(const s in settings){
             // Add the setting description.
             g.append("text")
              .text(settings[s].description)
@@ -1056,7 +1055,7 @@ var Display = {
             .attr("font-size", fontSize)
             .classed("settings-button-text", true)
             .on("click", function(){
-                for(s in settings){
+                for(const s in settings){
                     settings[s].value = d3.select(`#settings-${s}-option`).html();
                 }
                 Controller.setSettings(settings);
@@ -1399,7 +1398,6 @@ var Display = {
 
     },
     update: function(canvasID){
-        var colours = Display.canvasVars[canvasID].colours;
         var machine = this.canvasVars[canvasID].machine;
 
         var svg = d3.select("#"+canvasID);
@@ -1639,13 +1637,13 @@ var Display = {
             };
         };
         var svg = d3.select(`#${machineID}`);
-        var nodes = svg.selectAll(".node").each(function(node){
+        svg.selectAll(".node").each(function(node){
             d3.select(this).on("click", getOnClickFunction(node));
         });
     }
 };
 
-var EventHandler = {
+const EventHandler = {
     backgroundClick: function(machine, checkTarget){
         // Check that the target is the background - this handler will recieve all clicks on the svg
         // Or proceed anyway if checkTarget is false;
@@ -1789,7 +1787,7 @@ var EventHandler = {
     }
 };
 
-var Controller = {
+const Controller = {
     settings:{
         colourScheme: {description: "Colour scheme", value:"colour", options:["colour", "monochrome"]},
         forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
@@ -2096,7 +2094,7 @@ var Controller = {
     }
 };
 
-var Global = {
+const Global = {
     // Not certain if this is a good idea - object to hold global vars
     // Some globals useful to avoid keeping duplicated code in sync - this seems like
     // a more readable way of doing that than scattering global vars throughout the codebase
@@ -2110,7 +2108,7 @@ var Global = {
     "hasRated": false
 };
 
-var jsonCopy = function(x){
+const jsonCopy = function(x){
     // Return a copy of x
     return JSON.parse(JSON.stringify(x));
 };
@@ -2119,5 +2117,6 @@ var jsonCopy = function(x){
 /*global d3*/
 /*global Model*/
 
-var m;
+var m; //Holds the first machine. Primarily for debugging convenience.
+
 Controller.init();

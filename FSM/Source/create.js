@@ -1,4 +1,4 @@
-var create = {
+const create = {
     setup: function() {
         // Setup the creation environment.
         create.registerTraceButtonListener();
@@ -10,51 +10,49 @@ var create = {
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
             .on("click", function(){
-                var machine = Model.machines[0];
+                const machine = Model.machines[0];
                 //Try to guess a split symbol
-                var splitSymbol = "";
+                let splitSymbol = "";
                 if(machine.alphabet.filter(x => x.length > 1).length > 0){ //True if the alphabet contains a symbol longer than 1 char.
                     splitSymbol = " ";
                 }
-                var input = Model.parseInput(document.querySelector("#traceform").value, splitSymbol);
+                const input = Model.parseInput(document.querySelector("#traceform").value, splitSymbol);
 
                 Controller.startTrace(machine, input);
-                console.log(input);
             });
     },
     registerAlphabetButtonListener:function(){
         d3.select("#setalphabet-button")
             .on("click", function(){
                 this.blur();
-                var alphabet = document.querySelector("#setalphabet").value;
+                const alphabet = document.querySelector("#setalphabet").value;
                 create.setalphabet(alphabet);
-                console.log(alphabet);
             });
     },
     registerDFAbuttonListener: function(){
         d3.select("#dfa-button").on("click", function(){
             this.blur();
-            var machine = Model.machines[0];
+            const machine = Model.machines[0];
             Controller.convertToDFA(machine);
         });
     },
     registerReverseButtonListener: function(){
         d3.select("#reverse-button").on("click", function(){
             this.blur();
-            var machine = Model.machines[0];
+            const machine = Model.machines[0];
             Controller.reverseMachine(machine);
         });
     },
     registerMinimalDFAButtonListener: function(){
         d3.select("#minimal-dfa-button").on("click", function(){
             this.blur();
-            var machine = Model.machines[0];
+            const machine = Model.machines[0];
             Controller.minimize(machine);
         });
     },
     setalphabet: function(string){
         try{
-            var alphabet = JSON.parse(string);
+            const alphabet = JSON.parse(string);
             document.querySelector("#alphabeterror").innerHTML = "";
             if(alphabet.constructor !== Array){
                 throw new Error("alphabet must be an array.");
