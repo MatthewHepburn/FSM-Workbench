@@ -23,7 +23,7 @@ var Display = {
             "toolMode": "none",
             "linkInProgress": false,
             "linkInProgressNode": null,
-            "submitRenameFunction": null,
+            "submitRenameFunction": null
         };
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
@@ -69,12 +69,12 @@ var Display = {
         };
 
         var mouseoverFunction = function(){
-            var controlRect = d3.select(this)
+            var controlRect = d3.select(this);
             controlRect.attr("x", -1);
         };
 
         var mouseoutFunction = function(){
-            var controlRect = d3.select(this)
+            var controlRect = d3.select(this);
             controlRect.attr("x", 0);
         };
 
@@ -242,14 +242,14 @@ var Display = {
     },
     getTextLength:function(svg,text, fontSize, className){
         //Returns the length of some text in the units of the specified SVG when rendered as an SVG using the specifed fontSize and class.
-        var text = svg.append("text")
+        const textElem = svg.append("text")
                       .text(text)
                       .classed(className, true)
                       .attr("font-size", fontSize);
 
-        var boundingBox = text.node().getBBox();
-        var result = boundingBox.width;
-        text.remove();
+        const boundingBox = textElem.node().getBBox();
+        const result = boundingBox.width;
+        textElem.remove();
         return result;
     },
     appendNextButton: function(selection){
@@ -275,27 +275,27 @@ var Display = {
             return;
         }
         if(Model.question.type === "select-states"){
-        	Display.giveFeedbackForSelectStates(feedbackObj);
-        	return;
+            Display.giveFeedbackForSelectStates(feedbackObj);
+            return;
         }
         if(Model.question.type === "does-accept"){
-        	Display.giveFeedbackForDoesAccept(feedbackObj);
-        	return;
+            Display.giveFeedbackForDoesAccept(feedbackObj);
+            return;
         }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
     },
     giveFeedbackForDoesAccept: function(feedbackObj){
-    	for(var i = 0; i < feedbackObj.isCorrectList.length; i++){
-    		var feedbackSpace = d3.select(`#feedback-${i}`)
-    		if(feedbackObj.isCorrectList[i] === true){
-    			feedbackSpace.text("✓").classed("table-tick", true);
-    		}else{
-    			feedbackSpace.text("☓").classed("table-cross", true);
-    		}
-    	}
+        for(var i = 0; i < feedbackObj.isCorrectList.length; i++){
+            var feedbackSpace = d3.select(`#feedback-${i}`);
+            if(feedbackObj.isCorrectList[i] === true){
+                feedbackSpace.text("✓").classed("table-tick", true);
+            }else{
+                feedbackSpace.text("☓").classed("table-cross", true);
+            }
+        }
     },
     giveFeedbackForSelectStates: function(feedbackObj){
-    	var buttonDiv = d3.select(".button-div");
+        var buttonDiv = d3.select(".button-div");
         if(buttonDiv.select("#adjacent-feedback").empty()){
             buttonDiv.append("div").attr("id", "adjacent-feedback");
         }
@@ -306,19 +306,19 @@ var Display = {
             return;
         } else {
             feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
-            var message = "show trace"
+            var message = "show trace";
             var traceButton = feedbackDiv.append("span").text(message).classed("select-states-show-trace", true);
             traceButton.on("click", function(){
-            	var fullSequence = feedbackObj.initialInput.concat(feedbackObj.subsequentInput);
-            	var stepToStart = feedbackObj.initialInput.length
-            	var machine = Model.machines[0];
-            	Controller.startTrace(machine, fullSequence, stepToStart)
-            	d3.select(".stop").on("click", function(){
-            		var svg = d3.select(`#${machine.id}`)
-            		Display.dismissTrace(svg);
-            		Controller.setUpQuestion();
-            	})
-            })
+                var fullSequence = feedbackObj.initialInput.concat(feedbackObj.subsequentInput);
+                var stepToStart = feedbackObj.initialInput.length;
+                var machine = Model.machines[0];
+                Controller.startTrace(machine, fullSequence, stepToStart);
+                d3.select(".stop").on("click", function(){
+                    var svg = d3.select(`#${machine.id}`);
+                    Display.dismissTrace(svg);
+                    Controller.setUpQuestion();
+                });
+            });
 
         }
 
@@ -334,7 +334,7 @@ var Display = {
             feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);
             return;
         } else {
-            feedbackDiv.append("span").text("☓").classed("adjacent-cross", true)
+            feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
             feedbackDiv.append("span").text(feedbackObj.message).classed("adjacent-feedback-text", true);
         }
     },
@@ -345,7 +345,7 @@ var Display = {
             return;
         }
         //Add tick
-        buttonDiv.append("span").text("✓").classed("give-input-tick", true)
+        buttonDiv.append("span").text("✓").classed("give-input-tick", true);
         Display.appendNextButton(buttonDiv);
     },
     giveFeedbackForGiveList: function(feedbackObj){
@@ -354,7 +354,7 @@ var Display = {
 
             //Clear any previous feedback
             var feedbackLabel = d3.select(`#give-list-feedback-${i}`).text("");
-            var inputBox = d3.select(`#qf${i}`).classed("correct", false).classed("incorrect", false)
+            var inputBox = d3.select(`#qf${i}`).classed("correct", false).classed("incorrect", false);
 
             //Do nothing if an input of length 0 was provided - assume that the user has simply not attempted that yet.
             if(feedbackObj.input[i].length === 0){
@@ -368,10 +368,10 @@ var Display = {
                 feedbackText = "☓ ";
             }
             //Add the message
-            feedbackLabel.text(feedbackText + feedbackObj.messages[i])
+            feedbackLabel.text(feedbackText + feedbackObj.messages[i]);
 
             //Style the input box:
-            d3.select(`#qf${i}`).classed("correct", isCorrect).classed("incorrect", !isCorrect)
+            d3.select(`#qf${i}`).classed("correct", isCorrect).classed("incorrect", !isCorrect);
         }
     },
     giveFeedbackForSatisfyList: function(feedbackObj){
@@ -380,15 +380,15 @@ var Display = {
               .text("")
               .append("img")
               .classed("x-check", true)
-              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
-        })
+              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg");
+        });
         feedbackObj.rejectList.forEach(function(isCorrect, i){
             d3.select(`#td-rej-adj-${i}`)
               .text("")
               .append("img")
               .classed("x-check", true)
-              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg")
-        })
+              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg");
+        });
     },
     drawGearIcon: function(svg){
         //Draw a gear icon in the top right corner, and register a function to draw the settings menu on click.
@@ -400,7 +400,7 @@ var Display = {
                 .attr("height", 15)
                 .attr("xlink:href", Global.iconAddress + "gear.svg")
                 .attr("class", "gear-icon")
-                .on("click", function(){Display.drawSettingsMenu(svg)});
+                .on("click", function(){Display.drawSettingsMenu(svg);});
     },
     drawContextMenu:function(svg,mousePosition,actions){
         //Generic function to draw a context menu, with the labels and associated functions specified in actions in the
@@ -412,7 +412,7 @@ var Display = {
         // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser
         // First, find the longest string:
         var returnLonger = (x,y) => x.length > y.length ? x : y;
-        var longestLabel = actions.map(x => x[0]).reduce(returnLonger, "")
+        var longestLabel = actions.map(x => x[0]).reduce(returnLonger, "");
         // Then find its length:
         var longestLabelLength = Display.getTextLength(svg, longestLabel, fontSize, textClass);
 
@@ -421,7 +421,7 @@ var Display = {
 
         var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
         var menu = svg.append("g")
-                    .classed("context-menu-holder", true)
+                    .classed("context-menu-holder", true);
 
         // initial text coordinates
         var textX = menuCoords[0] + 5;
@@ -505,7 +505,7 @@ var Display = {
     getLinkRenameResult: function(canvasID, formType){
         //Get the result from each rename type differently
         if(formType === "constrainedSVG"){
-            return Display.getLinkRenameResultConstrainedSVG(canvasID, formType)
+            return Display.getLinkRenameResultConstrainedSVG(canvasID, formType);
         }
 
         throw new Error("No method for formType " + formType + " in Display.getLinkRenameResult");
@@ -517,11 +517,11 @@ var Display = {
         var svg = d3.select(`#${canvasID}`);
         var checkedSymbols = svg.select(".rename-menu-holder").selectAll(".checked").data();
         for(var i = 0; i< checkedSymbols.length; i++){
-            if(checkedSymbols[i] === 'ε'){
+            if(checkedSymbols[i] === "ε"){
                 input.hasEpsilon = true;
             }
             else{
-                input.input.push(checkedSymbols[i])
+                input.input.push(checkedSymbols[i]);
             }
         }
         return input;
@@ -542,7 +542,7 @@ var Display = {
         // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser.
         // First, find the longest string:
         var returnLonger = (x,y) => x.length > y.length ? x : y;
-        var longestSymbol = alphabet.reduce(returnLonger, "")
+        var longestSymbol = alphabet.reduce(returnLonger, "");
 
         // Then find its length:
         var longestSymbolLength = Display.getTextLength(svg, longestSymbol, fontSize, textClass);
@@ -569,7 +569,7 @@ var Display = {
             .attr("height", menuHeight)
             .attr("width", menuWidth)
             .classed("rename-background-rect", true)
-            .on("contextmenu", preventDefault)
+            .on("contextmenu", preventDefault);
 
 
 
@@ -577,18 +577,18 @@ var Display = {
         var getToggleFunction = function(id){
             return function(){
                 var checkmark = d3.select("#" + id);
-                checkmark.classed("checked", !checkmark.classed("checked"))
+                checkmark.classed("checked", !checkmark.classed("checked"));
             };
-        }
+        };
 
         //Add an entry for each symbol in the machine alphabet.
         for(var i = 0; i < alphabet.length; i++){
             var symbol = alphabet[i];
-            var id = link.machine.id + "-rename-option" + i
-            var checked = false
+            var id = link.machine.id + "-rename-option" + i;
+            var checked = false;
 
             if((symbol === "ε" && link.hasEpsilon) || link.input.indexOf(symbol) !== -1){
-                checked = true
+                checked = true;
             }
 
             var toggleFunction = getToggleFunction(id);
@@ -612,7 +612,7 @@ var Display = {
                 .attr("height", checkBoxSize)
                 .attr("width",  checkBoxSize)
                 .classed("rename-checkbox", true)
-                .on("click", toggleFunction)
+                .on("click", toggleFunction);
 
             //Add a tick to current checkbox (this will be visible only when the checkbox is selected)
             menu.append("path")
@@ -621,9 +621,9 @@ var Display = {
                 .attr("d", `M ${checkboxX} ${checkboxY} l ${checkBoxSize} ${checkBoxSize} m ${-checkBoxSize} 0 l ${checkBoxSize} ${-checkBoxSize}`)
                 .attr("id", id)
                 .data([symbol]) //pass in a list here, otherwise d3 will treat the string as a list of chars and assign only the first character.
-                .enter()
+                .enter();
 
-            textY += yStep
+            textY += yStep;
         }
 
         var buttonWidth = 1.7 * Display.getTextLength(svg, fontSize, "OK", "button-text");
@@ -642,7 +642,7 @@ var Display = {
             .attr("x", textX)
             .attr("width", buttonWidth)
             .attr("height", buttonHeight)
-            .classed("svg-button", true)
+            .classed("svg-button", true);
 
         menu.append("text")
             .text("OK")
@@ -651,7 +651,7 @@ var Display = {
             .attr("dominant-baseline", "central")
             .attr("x", buttonX + 0.5 * buttonWidth)
             .attr("y", buttonY + 0.5 * buttonHeight)
-            .on("click", Display.canvasVars[link.machine.id].submitRenameFunction)
+            .on("click", Display.canvasVars[link.machine.id].submitRenameFunction);
 
     },
     drawConstrainedLinkRenameForm: function(canvasID, link){
@@ -694,10 +694,10 @@ var Display = {
 
     },
     drawTrace:function(canvasID, traceObj, hideControls){
-        var svg = d3.select(`#${canvasID}`)
-        var canvasVars = Display.getCanvasVars(canvasID)
+        var svg = d3.select(`#${canvasID}`);
+        var canvasVars = Display.getCanvasVars(canvasID);
         canvasVars.traceStep = 0;
-        canvasVars.traceObj = traceObj
+        canvasVars.traceObj = traceObj;
 
         //Check if trace is already present;
         if (svg.classed("trace")){
@@ -717,51 +717,51 @@ var Display = {
 
 
         //Draw the input text
-        Display.appendInputText(svg, traceG, traceObj.input, traceObj.inputSeparator)
+        Display.appendInputText(svg, traceG, traceObj.input, traceObj.inputSeparator);
 
         //Initialise trace
-        Display.drawTraceStep(svg, 0, canvasID)
+        Display.drawTraceStep(svg, 0, canvasID);
     },
     drawTraceStep(svg, step, canvasID){
-        var canvasVars = Display.getCanvasVars(canvasID)
+        var canvasVars = Display.getCanvasVars(canvasID);
         canvasVars.traceStep = step;
-        var traceObj = canvasVars.traceObj
+        var traceObj = canvasVars.traceObj;
 
         //reset all trace styling
-        Display.resetTraceStyling(svg)
+        Display.resetTraceStyling(svg);
 
         //Class next input element
-        svg.select(`#${canvasID}-trace-input-${step}`).classed("trace-next", true)
-        svg.select(`#${canvasID}-trace-input-separator-${step}`).classed("trace-next", true)
+        svg.select(`#${canvasID}-trace-input-${step}`).classed("trace-next", true);
+        svg.select(`#${canvasID}-trace-input-separator-${step}`).classed("trace-next", true);
 
         //Class consumed input
         for(var i = 0;  i < step; i++){
-            svg.select(`#${canvasID}-trace-input-${i}`).classed("trace-consumed", true)
-            svg.select(`#${canvasID}-trace-input-separator-${i}`).classed("trace-consumed", true)
+            svg.select(`#${canvasID}-trace-input-${i}`).classed("trace-consumed", true);
+            svg.select(`#${canvasID}-trace-input-separator-${i}`).classed("trace-consumed", true);
         }
 
         //Class all nodes as not current
-        svg.selectAll(".node").classed("trace-not-current", true)
+        svg.selectAll(".node").classed("trace-not-current", true);
 
         //Class current states
         var currentNodes = traceObj.states[step];
         for(var i = 0; i < currentNodes.length; i++){
             var nodeID = currentNodes[i].id;
-            d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false)
+            d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false);
         }
 
         //Classs used links and link inputs
-        var usedLinks = traceObj.links[step]
+        var usedLinks = traceObj.links[step];
         for(var i = 0; i < usedLinks.length; i++){
             var linkUsageObj = usedLinks[i];
             var linkID = linkUsageObj.link.id;
-            d3.select(`#${linkID}`).classed("trace-used-link", true)
+            d3.select(`#${linkID}`).classed("trace-used-link", true);
             if(linkUsageObj.epsUsed){
                 //Handle case of epsilon link
-                d3.select(`#${linkID}-input-eps`).classed("trace-used-link-input", true)
+                d3.select(`#${linkID}-input-eps`).classed("trace-used-link-input", true);
             } else {
                 var inputIndex = linkUsageObj.inputIndex;
-                d3.select(`#${linkID}-input-${inputIndex}`).classed("trace-used-link-input", true)
+                d3.select(`#${linkID}-input-${inputIndex}`).classed("trace-used-link-input", true);
             }
         }
     },
@@ -771,33 +771,33 @@ var Display = {
         var canvasVars = Display.getCanvasVars(machineID);
         var currentStep = canvasVars.traceStep;
         var traceObj = canvasVars.traceObj;
-        var newStep = currentStep + deltaStep
+        var newStep = currentStep + deltaStep;
 
         //Ensure new step is in allowed range
         if(newStep < 0 || newStep >=traceObj.states.length){
             return;
         }
 
-        Display.drawTraceStep(svg, newStep, machineID)
+        Display.drawTraceStep(svg, newStep, machineID);
     },
     resetTraceStyling(svg){
         //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
-        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link", "trace-used-link-input"]
+        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link", "trace-used-link-input"];
         traceClasses.forEach(function(className){
-            svg.selectAll("." + className).classed(className, false)
-        })
+            svg.selectAll("." + className).classed(className, false);
+        });
     },
     appendInputText: function(svg, element, input, separator){
         //Create a text element to hold the input text
         var textElement = element.append("g").classed("trace-input", true).append("text");
-        var canvasID = svg.attr("id")
+        var canvasID = svg.attr("id");
 
         //Add the input text as tspans
         for(var i = 0; i < input.length; i++){
-            textElement.append("tspan").text(input[i]).attr("id", `${canvasID}-trace-input-${i}`).classed("input", true)
+            textElement.append("tspan").text(input[i]).attr("id", `${canvasID}-trace-input-${i}`).classed("input", true);
             //Add separator if not last element
             if(i < input.length + 1){
-                textElement.append("tspan").text(separator + "   ").attr("id",`${canvasID}-trace-input-separator-${i}`).attr("xml:space", "preserve").classed("input-separator", true)
+                textElement.append("tspan").text(separator + "   ").attr("id",`${canvasID}-trace-input-separator-${i}`).attr("xml:space", "preserve").classed("input-separator", true);
             }
 
         }
@@ -823,12 +823,12 @@ var Display = {
 
         var g = element.append("g").classed("tracecontrols", true);
         // Tool names and functions to call on click.
-        var tools = [["rewind", function(){Display.drawTraceStep(canvasID, 0)}],
-                     ["back", function(){Display.stepTrace(canvasID, -1)}],
-                     ["forward", function(){Display.stepTrace(canvasID, 1)}],
-                     ["stop", function(){Display.dismissTrace(svg)}]];
-        var width = svg.attr("width")
-        var height = svg.attr("height")
+        var tools = [["rewind", function(){Display.drawTraceStep(canvasID, 0);}],
+                     ["back", function(){Display.stepTrace(canvasID, -1);}],
+                     ["forward", function(){Display.stepTrace(canvasID, 1);}],
+                     ["stop", function(){Display.dismissTrace(svg);}]];
+        var width = svg.attr("width");
+        var height = svg.attr("height");
 
         // create a button for each tool in tools
         for (var i = 0; i < tools.length; i++){
@@ -917,7 +917,7 @@ var Display = {
     },
     drawSettingsMenu: function(svg){
         //Check if settings menu already exists, dismiss and return if it is.
-        var existingMenu = svg.select(".settings-menu")
+        var existingMenu = svg.select(".settings-menu");
         if(!existingMenu.empty()){
             existingMenu.remove();
             return;
@@ -928,7 +928,7 @@ var Display = {
         var menuHeight = 0.5 * svg.attr("height");
         var fontSize = 10;
         var optionBorder =  2;
-        var xBorder = 15
+        var xBorder = 15;
 
         var x = 0.25 * svg.attr("width");
         var y = 0.1 * svg.attr("height");
@@ -940,12 +940,12 @@ var Display = {
          .attr("width", menuWidth)
          .attr("height", menuHeight)
          .attr("fill", "#FFFFFF")
-         .attr("stroke", "#555555")
+         .attr("stroke", "#555555");
 
         var textX = x + xBorder;
         var textY = y + (4 * fontSize);
-        var longestDescription = Display.getTextLength(svg,"Colour scheme", fontSize, "settings-menu")
-        var longestOption = 4 +  Display.getTextLength(svg,"monochrome", fontSize, "settings-menu")
+        var longestDescription = Display.getTextLength(svg,"Colour scheme", fontSize, "settings-menu");
+        var longestOption = 4 +  Display.getTextLength(svg,"monochrome", fontSize, "settings-menu");
 
 
         var getOnClickFunction = function(currentTextSelection,settingsKey,x, y){
@@ -955,22 +955,22 @@ var Display = {
                 //if menu already open, dismiss and return
                 var existingMenu = d3.select(`#dropdown-${settingsKey}`);
                 if (!existingMenu.empty()){
-                    existingMenu.remove()
-                    return
+                    existingMenu.remove();
+                    return;
                 }
 
-                var drop = g.append("g").attr("id",`dropdown-${settingsKey}`)
+                var drop = g.append("g").attr("id",`dropdown-${settingsKey}`);
 
-                var options = settings[settingsKey].options
+                var options = settings[settingsKey].options;
 
                 //Add a white background under menu
-                    drop.append("rect")
+                drop.append("rect")
                         .attr("y", y)
                         .attr("x", x)
                         .attr("width", longestOption + 2 * optionBorder)
                         .attr("height", (fontSize + optionBorder)  * options.length + (2*optionBorder))
                         .attr("fill", "#FFFFFF")
-                        .attr("stroke", "#444444")
+                        .attr("stroke", "#444444");
 
                 for(var i = 0; i < options.length; i++){
                     //Add a background to allow highlighting on mouseover
@@ -985,19 +985,19 @@ var Display = {
                         .attr("stroke-opacity", 0)
                         .data([options[i]])
                         .on("click", function(){
-                            currentTextSelection.text(d3.select(this).data()[0])
+                            currentTextSelection.text(d3.select(this).data()[0]);
                             d3.select(`#dropdown-${settingsKey}`).remove();
-                        })
+                        });
                     //Add the text for each option
                     drop.append("text")
                         .classed("dropdown-option", true)
                         .attr("y", y + ((i +1)) * (optionBorder + fontSize))
                         .attr("x", x + optionBorder)
                         .attr("font-size", fontSize)
-                        .text(options[i])
+                        .text(options[i]);
                 }
-            }
-        }
+            };
+        };
 
         for(var s in settings){
             // Add the setting description.
@@ -1018,7 +1018,7 @@ var Display = {
 
             // Add a box around the text to show that it is a dropdown menu
             var boxX = x + menuWidth - longestOption - xBorder - optionBorder;
-            var boxY = textY - fontSize
+            var boxY = textY - fontSize;
             g.append("rect")
              .attr("x", boxX)
              .attr("y", textY - fontSize)
@@ -1027,15 +1027,15 @@ var Display = {
              .attr("fill", "#FFFFFF")
              .attr("fill-opacity", 0)
              .attr("stroke", "#444444")
-             .on("click", getOnClickFunction(optionText, s, boxX, boxY + fontSize + 2 * optionBorder))
+             .on("click", getOnClickFunction(optionText, s, boxX, boxY + fontSize + 2 * optionBorder));
 
             textY = textY  + 2 * fontSize;
         }
 
         //Add the submit button
-        var textWidth = Display.getTextLength(svg, "Save", fontSize, "settings-button-text")
-        var buttonWidth = 2 * textWidth
-        var buttonHeight = 1.5 * fontSize
+        var textWidth = Display.getTextLength(svg, "Save", fontSize, "settings-button-text");
+        var buttonWidth = 2 * textWidth;
+        var buttonHeight = 1.5 * fontSize;
         var submitX = x + menuWidth - buttonWidth - xBorder;
         var submitY = y + menuHeight - fontSize - 15;
         //Background
@@ -1046,7 +1046,7 @@ var Display = {
             .attr("width", buttonWidth)
             .attr("fill", "#BBBBBB")
             .classed("settings-button-background", true)
-            .attr("stroke", "#444444")
+            .attr("stroke", "#444444");
 
         //text
         g.append("text")
@@ -1057,11 +1057,11 @@ var Display = {
             .classed("settings-button-text", true)
             .on("click", function(){
                 for(s in settings){
-                    settings[s].value = d3.select(`#settings-${s}-option`).html()
+                    settings[s].value = d3.select(`#settings-${s}-option`).html();
                 }
-                Controller.setSettings(settings)
-                g.remove()
-            })
+                Controller.setSettings(settings);
+                g.remove();
+            });
 
 
 
@@ -1107,7 +1107,7 @@ var Display = {
             });
 
         // Update the rotation and position of each linklabel
-        Display.updateLinkLabelPositions(svg, false)
+        Display.updateLinkLabelPositions(svg, false);
 
         // Update the position of each node name
         svg.selectAll(".nodename")
@@ -1261,7 +1261,7 @@ var Display = {
     },
     appendLinkLabelTspans:function(element,link){
         //Append <tspan> to element. Allows individual input elements to be addressable, allowing them to be highlighted.
-        var e = d3.select(element)
+        var e = d3.select(element);
         for(var i = 0; i < link.input.length; i++){
             //TODO implement case for transducers
             e.append("tspan")
@@ -1358,43 +1358,43 @@ var Display = {
                 var onclick = function(){
                     var sequence = Model.parseInput(string);
                     var machine = Model.machines[0];
-                    Controller.startTrace(machine, sequence, 0)
-                }
+                    Controller.startTrace(machine, sequence, 0);
+                };
                 d3.select(`#td-acc-${i}`)
-                  .on("click", onclick)
-            })
+                  .on("click", onclick);
+            });
 
             Model.question.shouldReject.forEach(function(string, i){
                 var onclick = function(){
                     var sequence = Model.parseInput(string);
                     var machine = Model.machines[0];
-                    Controller.startTrace(machine, sequence, 0)
-                }
+                    Controller.startTrace(machine, sequence, 0);
+                };
                 d3.select(`#td-rej-${i}`)
-                  .on("click", onclick)
-            })
+                  .on("click", onclick);
+            });
         }
         if(qType === "give-list"){
             //Add listeners to the 'trace' button
             d3.selectAll(".give-list-show-trace")
               .on("click", function(d, i){
-                var inputString = d3.select(`#qf${i}`).node().value;
-                var inputSequence = Model.parseInput(inputString);
-                var machine = Model.machines[0];
-                Controller.startTrace(machine, inputSequence, 0)
-              })
+                  var inputString = d3.select(`#qf${i}`).node().value;
+                  var inputSequence = Model.parseInput(inputString);
+                  var machine = Model.machines[0];
+                  Controller.startTrace(machine, inputSequence, 0);
+              });
         }
         if(qType === "give-input"){
             //Adds event listeners to the input buttons
             d3.selectAll(".give-input-button")
               .on("click", function(){
-                var inputSymbol = this.innerHTML;
-                Controller.giveMachinesInput(inputSymbol);
+                  var inputSymbol = this.innerHTML;
+                  Controller.giveMachinesInput(inputSymbol);
               });
             d3.select(".give-input-reset")
               .on("click", function(){
-                Controller.resetMachines();
-              })
+                  Controller.resetMachines();
+              });
         }
 
     },
@@ -1420,18 +1420,18 @@ var Display = {
                                 .on("click", function(node){EventHandler.nodeClick(node);});
 
         //Enforce physics setting on new nodes
-        var newNodeObjs = nodeGs.data()
+        var newNodeObjs = nodeGs.data();
         if(Controller.getPhysicsSetting() == "off"){
             for(var i = 0; i< newNodeObjs.length; i++){
-                newNodeObjs[i].fixed = true
+                newNodeObjs[i].fixed = true;
             }
         }
 
 
         if(Controller.getColourScheme() === "monochrome"){
-            Display.styleMonochrome(canvasID, newCircles)
+            Display.styleMonochrome(canvasID, newCircles);
         } else {
-            Display.styleColour(canvasID, newCircles)
+            Display.styleColour(canvasID, newCircles);
         }
 
         // Add a name label:
@@ -1439,7 +1439,7 @@ var Display = {
         newNodes.append("svg:text")
             .classed("nodename", true)
             .attr("id", function(node){return node.id + "-label";})
-            .attr("font-size", 1.2 * Display.acceptingRadius) 	// Sets the font height relative to the radius of the inner ring on accepting nodes
+            .attr("font-size", 1.2 * Display.acceptingRadius)   // Sets the font height relative to the radius of the inner ring on accepting nodes
             .text(function(node){return node.name;});
 
 
@@ -1514,9 +1514,9 @@ var Display = {
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
             .attr("font-size", 1.2 * Display.acceptingRadius) // Set the font height, using the radius of the inner ring of accepting nodes as a somewhat arbitrary reference point.
-            .attr("id", function(link){return link.id + "-label";})
+            .attr("id", function(link){return link.id + "-label";});
 
-        textElements.each(function(link){Display.appendLinkLabelTspans(this, link)});
+        textElements.each(function(link){Display.appendLinkLabelTspans(this, link);});
 
         linkGs.exit().remove(); //Remove links whose data has been deleted
 
@@ -1542,12 +1542,12 @@ var Display = {
     updateLinkLabel: function(link){
         var svg = d3.select("#" + link.machine.id);
         var label = svg.select("#" + link.id + "-label").text("").node();
-        Display.appendLinkLabelTspans(label, link)
+        Display.appendLinkLabelTspans(label, link);
     },
     repositionAllLinkLabels: function(){
         for(var canvasID in Display.canvasVars){
-            var svg = d3.select(`#${canvasID}`)
-            Display.updateLinkLabelPositions(svg, true)
+            var svg = d3.select(`#${canvasID}`);
+            Display.updateLinkLabelPositions(svg, true);
         }
     },
     updateLinkLabelPositions: function(svg, forceChange){
@@ -1599,7 +1599,7 @@ var Display = {
                 var node = machine.nodes[nodeID];
                 if(Controller.getPhysicsSetting() === "on"){
                     node.fixed = false;
-                    Display.update(node.machine.id)
+                    Display.update(node.machine.id);
                 }
                 else if(Controller.getPhysicsSetting() === "off"){
                     node.fixed = true;
@@ -1609,14 +1609,14 @@ var Display = {
 
     },
     resetColours: function(canvasID){
-    	Display.canvasVars[canvasID].colours = d3.scale.category10();
+        Display.canvasVars[canvasID].colours = d3.scale.category10();
     },
     styleColour:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies multicoloured styling to them
         var colours = Display.canvasVars[canvasID].colours;
         circleSelection.style("fill", d => colours(d.id))
                        .style("stroke-width", 1)
-                       .style("stroke", "#000000")
+                       .style("stroke", "#000000");
     },
     styleMonochrome:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies monochrome styling to them
@@ -1625,23 +1625,23 @@ var Display = {
                        .style("stroke", "#000000");
     },
     makeNodesSelectable: function(machine){
-    	if (machine instanceof Model.Machine === true){
-    	    var machineID = machine.id;
-    	} else{
-    	    machineID = machine
-    	    machine = Display.getCanvasVars(machineID).machine;
-    	}
-    	var getOnClickFunction = function(node){
-    		return function(){
-    			node.toggleSelected();
-    			var nodeDisplay = d3.select(`#${node.id}`)
-    			nodeDisplay.classed("selected", !nodeDisplay.classed("selected"))
-    		}
-    	}
-    	var svg = d3.select(`#${machineID}`)
-    	var nodes = svg.selectAll(".node").each(function(node){
-    		d3.select(this).on("click", getOnClickFunction(node))
-    	})
+        if (machine instanceof Model.Machine === true){
+            var machineID = machine.id;
+        } else{
+            machineID = machine;
+            machine = Display.getCanvasVars(machineID).machine;
+        }
+        var getOnClickFunction = function(node){
+            return function(){
+                node.toggleSelected();
+                var nodeDisplay = d3.select(`#${node.id}`);
+                nodeDisplay.classed("selected", !nodeDisplay.classed("selected"));
+            };
+        };
+        var svg = d3.select(`#${machineID}`);
+        var nodes = svg.selectAll(".node").each(function(node){
+            d3.select(this).on("click", getOnClickFunction(node));
+        });
     }
 };
 
@@ -1797,12 +1797,12 @@ var Controller = {
     },
     addMachine: function(specObj){
         //Adds a machine to the model and displays it on a new canvas
-        var newMachine = Model.addMachine(specObj)
-        var machineID = newMachine.id
+        var newMachine = Model.addMachine(specObj);
+        var machineID = newMachine.id;
         Display.newCanvas(machineID, newMachine);
         Display.update(machineID);
         if(Model.question.allowEditing){
-            Display.drawControlPalette(machineID)
+            Display.drawControlPalette(machineID);
         }
         return machineID;
     },
@@ -1814,14 +1814,14 @@ var Controller = {
     checkAnswer: function(){
         //Check if input must be collected
         if(["give-list", "does-accept"].includes(Model.question.type)){
-            var input = Controller.getQuestionInput(Model.question.type)
+            var input = Controller.getQuestionInput(Model.question.type);
         }
         var feedbackObj = Model.question.checkAnswer(input);
         Display.giveFeedback(feedbackObj);
         // Logging.logAnswer(feedbackObj);
     },
     getQuestionInput:function(type){
-        var input
+        var input;
         if(type === "give-list"){
             // Obtain the users input as a list of unproccessed strings
             input = [];
@@ -1830,11 +1830,11 @@ var Controller = {
             });
         }
         if(type === "does-accept"){
-        	// Construct a true/false array, based on which checkboxes are selected
-        	input = [];
-        	for(var i = 0; i < Model.question.sequences.length; i++){
-        		input[i] = d3.select(`#does-accept-checkbox-${i}`).node().checked;
-        	}
+            // Construct a true/false array, based on which checkboxes are selected
+            input = [];
+            for(var i = 0; i < Model.question.sequences.length; i++){
+                input[i] = d3.select(`#does-accept-checkbox-${i}`).node().checked;
+            }
         }
         return input;
     },
@@ -1846,10 +1846,10 @@ var Controller = {
         if(!localStorage.getItem("settings")){
             return;
         }
-        var settingsObj = JSON.parse(localStorage.getItem("settings"))
+        var settingsObj = JSON.parse(localStorage.getItem("settings"));
         for(var s in settingsObj){
             if (this.settings[s]){
-                this.settings[s].value = settingsObj[s]
+                this.settings[s].value = settingsObj[s];
             }
         }
 
@@ -1859,7 +1859,7 @@ var Controller = {
     },
     setSettings: function(settingsObj){
         //Save the settings values and make any changes necessary to switch settings.
-        var oldSettings = jsonCopy(this.settings)
+        var oldSettings = jsonCopy(this.settings);
         this.settings = settingsObj;
         if(oldSettings.colourScheme.value !== this.settings.colourScheme.value){
             Display.updateNodeStyle();
@@ -1871,38 +1871,38 @@ var Controller = {
             Display.repositionAllLinkLabels();
         }
         //Create a simplified object to save to local storage.
-        var saveObj = {}
+        var saveObj = {};
         for(var key in settingsObj){
             saveObj[key] = settingsObj[key].value;
         }
         if(localStorage){
-            localStorage.setItem('settings', JSON.stringify(saveObj));
+            localStorage.setItem("settings", JSON.stringify(saveObj));
         }
     },
     convertToDFA:function(machine){
-    	Display.clearMenus(machine.id);
-    	machine.convertToDFA();
-    	Display.resetColours(machine.id);
-    	Display.forceTick(machine.id);
-    	Display.update(machine.id);
+        Display.clearMenus(machine.id);
+        machine.convertToDFA();
+        Display.resetColours(machine.id);
+        Display.forceTick(machine.id);
+        Display.update(machine.id);
     },
     minimize:function(machine){
-    	Display.clearMenus(machine.id);
-    	machine.minimize();
-    	Display.resetColours(machine.id);
-    	Display.forceTick(machine.id);
-    	Display.update(machine.id);
+        Display.clearMenus(machine.id);
+        machine.minimize();
+        Display.resetColours(machine.id);
+        Display.forceTick(machine.id);
+        Display.update(machine.id);
     },
     reverseMachine:function(machine){
-    	Display.clearMenus(machine.id);
-    	machine.reverse();
-    	Display.resetColours(machine.id);
-    	Display.forceTick(machine.id);
-    	Display.update(machine.id);
+        Display.clearMenus(machine.id);
+        machine.reverse();
+        Display.resetColours(machine.id);
+        Display.forceTick(machine.id);
+        Display.update(machine.id);
     },
     endLink: function(canvasID){
         // Called to end a link creation action.
-        Display.clearMenus(canvasID)
+        Display.clearMenus(canvasID);
         Display.endLink(canvasID);
     },
     createLink: function(sourceNode, targetNode){
@@ -1975,9 +1975,9 @@ var Controller = {
     startTrace: function(machine, sequence, position, hideControls){
         Display.clearMenus(machine.id);
         var traceObj = machine.getTrace(sequence);
-        Display.drawTrace(machine.id, traceObj, hideControls)
+        Display.drawTrace(machine.id, traceObj, hideControls);
         if(position !== 0){
-            Display.stepTrace(machine.id, position)
+            Display.stepTrace(machine.id, position);
         }
     },
 
@@ -1997,10 +1997,10 @@ var Controller = {
         Model.question.currentInput.push(symbol);
         Model.machines.forEach(function(m){
             //Draw a trace for each machine and then advance it to the latest stage
-            Controller.startTrace(m, Model.question.currentInput,0, true) //true param for hideControls option
-            var traceObj = Display.getCanvasVars(m.id).traceObj
-            Display.stepTrace(m.id, traceObj.states.length-1)
-        })
+            Controller.startTrace(m, Model.question.currentInput,0, true); //true param for hideControls option
+            var traceObj = Display.getCanvasVars(m.id).traceObj;
+            Display.stepTrace(m.id, traceObj.states.length-1);
+        });
         //Query the model for correctness
         var feedbackObj = Model.question.checkAnswer();
         if (feedbackObj.allCorrectFlag){
@@ -2012,8 +2012,8 @@ var Controller = {
         Model.question.currentInput = [];
         Model.machines.forEach(function(m){
             //Draw a trace for each machine
-            Controller.startTrace(m, Model.question.currentInput,0, true) //true param for hideControls option
-        })
+            Controller.startTrace(m, Model.question.currentInput,0, true); //true param for hideControls option
+        });
 
 
     },
@@ -2049,15 +2049,15 @@ var Controller = {
             Model.question.setUpQuestion(questionObj);
         }
         if(Model.question.type === "give-input"){
-            Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, 0,  true)}) //true param for hideControls option
+            Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, 0,  true);}); //true param for hideControls option
         }
-        if(Model.question.type === 'select-states'){
+        if(Model.question.type === "select-states"){
             Model.machines.forEach(function(m){
                 var initialSequence = Model.question.initialSequence;
                 var stepsTaken = initialSequence.length;
                 Controller.startTrace(m, initialSequence, stepsTaken, true);
-                Display.makeNodesSelectable(m)
-            })
+                Display.makeNodesSelectable(m);
+            });
         }
 
     },
@@ -2115,8 +2115,9 @@ var jsonCopy = function(x){
     return JSON.parse(JSON.stringify(x));
 };
 
-//Declare d3 as global readonly for ESLint
+//Declare global readonly variables for ESLint
 /*global d3*/
+/*global Model*/
 
 var m;
 Controller.init();

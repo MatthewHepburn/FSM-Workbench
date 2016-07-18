@@ -10,11 +10,11 @@ var create = {
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
             .on("click", function(){
-                var machine = Model.machines[0]
+                var machine = Model.machines[0];
                 //Try to guess a split symbol
-                var splitSymbol = ""
+                var splitSymbol = "";
                 if(machine.alphabet.filter(x => x.length > 1).length > 0){ //True if the alphabet contains a symbol longer than 1 char.
-                    splitSymbol = " "
+                    splitSymbol = " ";
                 }
                 var input = Model.parseInput(document.querySelector("#traceform").value, splitSymbol);
 
@@ -59,7 +59,7 @@ var create = {
             if(alphabet.constructor !== Array){
                 throw new Error("alphabet must be an array.");
             }
-            Controller.setAlphabet(Model.machines[0], alphabet)
+            Controller.setAlphabet(Model.machines[0], alphabet);
         }
         catch(e){
             document.querySelector("#alphabeterror").innerHTML = 'Parse error - enter alphabet in form ["a", "b"]';
@@ -70,3 +70,8 @@ var create = {
 
 // Start create mode here
 create.setup();
+
+//Declare global variables for ESlint
+/*global d3*/
+/*global Model*/
+/*global Controller*/

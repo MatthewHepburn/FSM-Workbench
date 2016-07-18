@@ -172,26 +172,26 @@ var Model = {
 
             //Used to create an object for traceObj.links that also includes the transition used;
             var getLinkUsedObj = function(linkID){
-                var link = machine.links[linkID]
+                var link = machine.links[linkID];
                 return {
                     "link": link,
                     "epsUsed": false,
                     "inputIndex": link.inputIndexOf(inputSymbol)
-                }
-            }
+                };
+            };
 
             //Used for epsilon links
             var getEpsLinkUsedObj = function(linkID){
-                var link = machine.links[linkID]
+                var link = machine.links[linkID];
                 return {
                     "link": link,
                     "epsUsed": true
-                }
-            }
+                };
+            };
 
             var getNode = function(nodeID){
                 return machine.nodes[nodeID];
-            }
+            };
 
             this.setToInitialState();
             traceObj.states.push(this.currentState.map(getNode));
@@ -403,7 +403,7 @@ var Model = {
             this.deleteNode(s1);
             this.deleteNode(s2);
 
-            var mergedNode = this.addNode(x, y, name, isInitial, isAccepting)
+            var mergedNode = this.addNode(x, y, name, isInitial, isAccepting);
 
             //Modify the source/target of the old links as appropriate and merge the lists
             inboundLinks.forEach(l => l.target = mergedNode);
@@ -413,13 +413,13 @@ var Model = {
             //Add back links to the new node
             for(var i in oldLinks){
                 var l = oldLinks[i];
-                var source = l.source
-                var target = l.target
+                var source = l.source;
+                var target = l.target;
                 //See if link already exists
-                var existingLink = source.getLinkTo(target)
+                var existingLink = source.getLinkTo(target);
                 if(existingLink !== null){
                     //Link present, combine input symbols
-                    var newInput = existingLink.input.concat(l.input) //Will contain duplicates, but they are removed in Link.setInput
+                    var newInput = existingLink.input.concat(l.input); //Will contain duplicates, but they are removed in Link.setInput
                     var hasEpsilon = l.hasEpsilon || existingLink.hasEpsilon;
                     existingLink.setInput(newInput, hasEpsilon); //TODO refactor to use Link.addInput()
                 } else {
@@ -427,7 +427,7 @@ var Model = {
                     var input = l.input;
                     var hasEpsilon = l.hasEpsilon;
                     var output = {};
-                    this.addLink(source, target, input, output, hasEpsilon)
+                    this.addLink(source, target, input, output, hasEpsilon);
                 }
             }
             return mergedNode;
@@ -443,8 +443,8 @@ var Model = {
         this.isEquivalentTo = function(machine){
             //Compares this to machine and returns true if both machines are isomorphic after minimization.
             //Create copies to avoid altering orginal machines:
-            var m1 = new Model.Machine("temp1")
-            var m2 = new Model.Machine("temp2")
+            var m1 = new Model.Machine("temp1");
+            var m2 = new Model.Machine("temp2");
             m1.build(this.getSpec());
             m2.build(machine.getSpec());
             m1.minimize();
@@ -466,14 +466,14 @@ var Model = {
             }
 
             var alphabet = m1.alphabet;
-            var m1Nodes = Object.keys(m1.nodes).map(nodeID => m1.nodes[nodeID])
-            var m2Nodes = Object.keys(m2.nodes).map(nodeID => m2.nodes[nodeID])
+            var m1Nodes = Object.keys(m1.nodes).map(nodeID => m1.nodes[nodeID]);
+            var m2Nodes = Object.keys(m2.nodes).map(nodeID => m2.nodes[nodeID]);
 
             var m1InitialNodes = m1Nodes.filter(node => node.isInitial);
             var m2InitialNodes = m2Nodes.filter(node => node.isInitial);
 
             if(m1InitialNodes.length !== 1 || m2InitialNodes.length !== 1){
-                throw new Error("Minimized DFAs should only have one initial state")
+                throw new Error("Minimized DFAs should only have one initial state");
             }
 
             var m1Initial = m1InitialNodes[0];
@@ -481,8 +481,8 @@ var Model = {
 
             //Find a mapping from nodes in m1 to m2, starting with the initial states
             //Start by checking that each node has the correct outgoing links
-            var mapping = {}
-            var frontier = [[m1Initial.id, m2Initial.id]]
+            var mapping = {};
+            var frontier = [[m1Initial.id, m2Initial.id]];
             while(frontier.length > 0){
                 var nodePair = frontier.pop();
 
@@ -505,8 +505,8 @@ var Model = {
 
                 for(var i = 0; i < alphabet.length; i++){
                     var symbol = alphabet[i];
-                    var m1Link = m1Outgoing.find(link => link.input.indexOf(symbol) !== -1)
-                    var m2Link = m2Outgoing.find(link => link.input.indexOf(symbol) !== -1)
+                    var m1Link = m1Outgoing.find(link => link.input.indexOf(symbol) !== -1);
+                    var m2Link = m2Outgoing.find(link => link.input.indexOf(symbol) !== -1);
                     if(!(m1Link && m2Link)){ //If either node does not have a link for this symbol, then both must not have a link.
                         if(m1Link || m2Link){
                             return false;
@@ -521,11 +521,11 @@ var Model = {
                     if(m1Link.isReflexive() || m2Link.isReflexive()){
                         //if either is reflexive, both must be
                         if(!(m1Link.isReflexive() && m2Link.isReflexive())){
-                            return false
+                            return false;
                         }
                     } else{
                         //Only need to add to the frontier if not reflexive
-                        frontier.push([m1Target.id, m2Target.id])
+                        frontier.push([m1Target.id, m2Target.id]);
                     }
                 }
 
@@ -555,10 +555,10 @@ var Model = {
             var pathToNode = {};
 
             this.getCurrentNodeList().forEach(function(node){
-                pathToNode[node.id] = []
+                pathToNode[node.id] = [];
                 var outgoingLinks = node.getOutgoingLinks();
-                outgoingLinks.filter(link => !pathToNode[link.target]).filter(link => link.input.length > 0 || link.hasEpsilon).forEach(link => frontierLinks.push(link))
-            })
+                outgoingLinks.filter(link => !pathToNode[link.target]).filter(link => link.input.length > 0 || link.hasEpsilon).forEach(link => frontierLinks.push(link));
+            });
 
             while(frontierLinks.length > 0){
                 var link = frontierLinks.pop();
@@ -571,9 +571,9 @@ var Model = {
                     pathToNode[targetNode.id] = pathToNode[sourceNode.id].concat(symbol);
                     var outgoingLinks = targetNode.getOutgoingLinks().filter(link => !pathToNode[link.target.id]).filter(link => link.input.length > 0 || link.hasEpsilon);
                     //We want to the return the shortest string possible, so add link to the front of the queue if it contains an epsilon link (as this does not add length to the sequence)
-                    outgoingLinks.filter(l => l.hasEpsilon).forEach(l => frontierLinks.unshift(l))
+                    outgoingLinks.filter(l => l.hasEpsilon).forEach(l => frontierLinks.unshift(l));
                     //Add to the back instead
-                    outgoingLinks.filter(l => !l.hasEpsilon).forEach(l => frontierLinks.push(l))
+                    outgoingLinks.filter(l => !l.hasEpsilon).forEach(l => frontierLinks.push(l));
 
                 }
             }
@@ -584,7 +584,7 @@ var Model = {
             //Changes the machine to accept the complement of its current languge
             //This is done by making the blackhole state explicit and making each accepting state non-accepting and vice versa.
             this.convertToDFA();
-            this.completelySpecify("blackhole")
+            this.completelySpecify("blackhole");
             var nodes = this.getNodeList();
             nodes.forEach(node => node.isAccepting = !node.isAccepting);
         };
@@ -595,7 +595,7 @@ var Model = {
             var m1 = new Model.Machine("temp1");
             m1.build(this.getSpec());
             var m2 = new Model.Machine("temp2");
-            m2.build(machine.getSpec())
+            m2.build(machine.getSpec());
 
             m1.minimize();
             m1.completelySpecify("blackhole"); //Machines must be fully specified - an implicit sink state for unspecified input is not enough for this process.
@@ -614,8 +614,8 @@ var Model = {
             var getPairID = (pair => pair[0].id + "-" + pair[1].id);
 
             var nodeFrontier = [[m1Initial, m2Initial]];
-            var linksToAdd = []
-            var addedNodes = {} //Will map a pairID to a Node oject
+            var linksToAdd = [];
+            var addedNodes = {}; //Will map a pairID to a Node oject
 
             while(nodeFrontier.length > 0){
                 var pair = nodeFrontier.pop();
@@ -636,14 +636,14 @@ var Model = {
 
                 alphabet.forEach(function(symbol){
                     //For the pair of nodes, get the state that they will move to for this symbol
-                    var m1Target = m1.nodes[n1.getReachableNodes(symbol).nodeIDs[0]]
-                    var m2Target = m2.nodes[n2.getReachableNodes(symbol).nodeIDs[0]]
+                    var m1Target = m1.nodes[n1.getReachableNodes(symbol).nodeIDs[0]];
+                    var m2Target = m2.nodes[n2.getReachableNodes(symbol).nodeIDs[0]];
                     //And add it to the frontier
                     var newPair = [m1Target, m2Target];
                     nodeFrontier.push(newPair);
                     //Noting the link that must be created
                     var target = getPairID(newPair);
-                    linksToAdd.push({source:pairID, target, symbol})
+                    linksToAdd.push({source:pairID, target, symbol});
                 });
 
             }
@@ -651,12 +651,12 @@ var Model = {
             //All nodes created, now add the links:
             while(linksToAdd.length > 0){
                 var link = linksToAdd.pop();
-                var sourceNode = addedNodes[link.source]
-                var targetNode = addedNodes[link.target]
-                var input = [link.symbol]
+                var sourceNode = addedNodes[link.source];
+                var targetNode = addedNodes[link.target];
+                var input = [link.symbol];
                 //Test if link exists
                 //See if link already exists
-                var existingLink = sourceNode.getLinkTo(targetNode)
+                var existingLink = sourceNode.getLinkTo(targetNode);
                 if(existingLink !== null){
                     //Link present, combine input symbols
                     existingLink.addInput(input, false);
@@ -674,32 +674,32 @@ var Model = {
 
         this.reverse = function(){
             for(var nodeID in this.nodes){
-                var node = this.nodes[nodeID]
+                var node = this.nodes[nodeID];
                 var isAccepting = node.isInitial;
                 var isInitial = node.isAccepting;
                 node.isAccepting = isAccepting;
                 node.isInitial = isInitial;
             }
             // Create a list of reversed links to be created
-            var newLinks = []
+            var newLinks = [];
             for(var linkID in this.links){
                 //Can't use link.reverse() due to the way that that combines links
-                var link = this.links[linkID]
+                var link = this.links[linkID];
                 var source = link.target;
                 var target = link.source;
                 var input = link.input;
                 var output = link.output;
                 var hasEpsilon = link.hasEpsilon;
-                var newLink = {source, target, input, output, hasEpsilon}
+                var newLink = {source, target, input, output, hasEpsilon};
                 newLinks.push(newLink);
                 this.deleteLink(link); //Delete all links
             }
             //Create new links
             for(var i = 0; i < newLinks.length; i++){
-                var link = newLinks[i]
-                this.addLink(link.source, link.target, link.input, link.output, link.hasEpsilon)
+                var link = newLinks[i];
+                this.addLink(link.source, link.target, link.input, link.output, link.hasEpsilon);
             }
-        }
+        };
 
         this.completelySpecify = function(type){
             //Completely specifies the machine by ensuring that every state has a transition for every symbol
@@ -729,12 +729,12 @@ var Model = {
             for(var i = 0; i < nodes.length; i++){
                 var node = nodes[i];
                 //Test every symbol in the alphabet
-                var unspecifiedInput = [] //All symbols that the node does not have a link for.
+                var unspecifiedInput = []; //All symbols that the node does not have a link for.
                 for(var j = 0; j < alphabet.length; j++){
                     var symbol = alphabet[j];
                     var reachableNodes = node.getReachableNodes(symbol);
                     if(reachableNodes.nodeIDs.length === 0){
-                        unspecifiedInput.push(symbol)
+                        unspecifiedInput.push(symbol);
                     }
                 }
                 if(unspecifiedInput.length > 0){
@@ -778,7 +778,7 @@ var Model = {
             var nodeSets = {};
             //Track the nodeSets to be investigated. form: [{"m1-n1+m1n2":[Node, Node]}]
 
-            var newNodeSets = []
+            var newNodeSets = [];
 
             var addToNewNodeSets = function(nodeSet){
                 //Takes an array of nodes, and add it to the newNodeSets array
@@ -788,33 +788,33 @@ var Model = {
                         return -1;
                     }
                     return 1;
-                })
+                });
                 if(nodeSet.length > 0){
                     var id = nodeSet.map(node => node.id).reduce((x,y)=> `${x}+${y}`);
                     var obj = {id, nodes:nodeSet};
-                    newNodeSets.push(obj)
+                    newNodeSets.push(obj);
                     return id;
                 }
 
-            }
+            };
 
             var nameNodeSet = function(nodeSet){
                 //Creates a name for a nodeSet, based on the names of the consitituent nodes
                 if(nodeSet.length === 1){
-                    return nodeSet[0].name
+                    return nodeSet[0].name;
                 }
                 if(nodeSet.filter(node => node.name === "").length > 0){
                     //if any node is unnamed, return ""
-                    return ""
+                    return "";
                 }
-                return "{" + nodeSet.map(node=>node.name).reduce((x,y) => `${x}, ${y}`) + "}"
-            }
+                return "{" + nodeSet.map(node=>node.name).reduce((x,y) => `${x}, ${y}`) + "}";
+            };
 
             //Start with the initial nodeSet of the machine
             this.setToInitialState();
-            var initialNodeSet = this.getCurrentNodeList()
-            addToNewNodeSets(initialNodeSet)
-            var firstNodeSet = true
+            var initialNodeSet = this.getCurrentNodeList();
+            addToNewNodeSets(initialNodeSet);
+            var firstNodeSet = true;
 
             //Populate nodeSets, adding to newNodeSets as new reachable combinations are discovered.
             while(newNodeSets.length > 0){
@@ -830,26 +830,26 @@ var Model = {
                     isInitial = false;
                 }
 
-                this.setToState(nodeSet.nodes)
+                this.setToState(nodeSet.nodes);
                 var isAccepting = this.isInAcceptingState();
                 var reachable = {};
-                var name = nameNodeSet(nodeSet.nodes)
-                var x = nodeSet.nodes.map(node => node.x).reduce((x1,x2)=> x1 + x2)/nodeSet.nodes.length //set x to mean value of nodes in set
-                var y = nodeSet.nodes.map(node => node.y).reduce((y1,y2)=> y1 + y2)/nodeSet.nodes.length //set x to mean value of nodes in set
+                var name = nameNodeSet(nodeSet.nodes);
+                var x = nodeSet.nodes.map(node => node.x).reduce((x1,x2)=> x1 + x2)/nodeSet.nodes.length; //set x to mean value of nodes in set
+                var y = nodeSet.nodes.map(node => node.y).reduce((y1,y2)=> y1 + y2)/nodeSet.nodes.length; //set x to mean value of nodes in set
                 for(var i = 0; i < this.alphabet.length; i++){
                     var symbol = this.alphabet[i];
                     this.setToState(nodeSet.nodes);
-                    this.step(symbol)
+                    this.step(symbol);
                     var reachableNodes = this.getCurrentNodeList();
                     if(reachableNodes.length > 0){
-                        var id = addToNewNodeSets(reachableNodes)
-                        reachable[symbol] = id
+                        var id = addToNewNodeSets(reachableNodes);
+                        reachable[symbol] = id;
                     } else {
-                        reachable[symbol] = "none"
+                        reachable[symbol] = "none";
                     }
 
                 }
-                var obj = {nodes:nodeSet.nodes, reachable, name, isInitial, isAccepting, x, y}
+                var obj = {nodes:nodeSet.nodes, reachable, name, isInitial, isAccepting, x, y};
                 nodeSets[nodeSet.id] = obj;
             }
 
@@ -858,7 +858,7 @@ var Model = {
             //And recreate from nodeSets, first create nodes for each nodeSet;
             for(var nodeSetID in nodeSets){
                 var nodeSet = nodeSets[nodeSetID];
-                var newNode = this.addNode(nodeSet.x, nodeSet.y, nodeSet.name, nodeSet.isInitial, nodeSet.isAccepting)
+                var newNode = this.addNode(nodeSet.x, nodeSet.y, nodeSet.name, nodeSet.isInitial, nodeSet.isAccepting);
                 nodeSet.newNode = newNode;
             }
             //And then create links as needed
@@ -866,7 +866,7 @@ var Model = {
                 var nodeSet = nodeSets[nodeSetID];
                 var sourceNode = nodeSet.newNode;
                 for(symbol in nodeSet.reachable){
-                    var targetNodeID = nodeSet.reachable[symbol]
+                    var targetNodeID = nodeSet.reachable[symbol];
                     if(targetNodeID === "none"){
                         continue;
                     }
@@ -890,17 +890,17 @@ var Model = {
             if (targetNode instanceof Model.Node === false){
                 targetNode = this.nodes[targetNode];
             }
-            var links = []
+            var links = [];
             for(var nodeID in this.nodes){
-                var node = this.nodes[nodeID]
+                var node = this.nodes[nodeID];
                 var linkToTarget = node.getLinkTo(targetNode);
                 if(linkToTarget !== null){
-                    links.push(linkToTarget)
+                    links.push(linkToTarget);
                 }
             }
             return links;
 
-        }
+        };
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
@@ -975,8 +975,8 @@ var Model = {
         };
         this.getOutgoingLinks = function(){
             //Returns an array of all links starting from this node
-            return Object.keys(this.outgoingLinks).map(id => this.outgoingLinks[id])
-        }
+            return Object.keys(this.outgoingLinks).map(id => this.outgoingLinks[id]);
+        };
 
     },
     // Constructor for a link object
@@ -1011,10 +1011,10 @@ var Model = {
 
         this.addInput = function(inputList, hasEpsilon){
             //Adds to the existing allowed input
-            inputList = inputList.concat(this.input)
+            inputList = inputList.concat(this.input);
             hasEpsilon = this.hasEpsilon || hasEpsilon;
             this.setInput(inputList, hasEpsilon);
-        }
+        };
 
         this.setInput = function(inputList, hasEpsilon){
             // First, strip out duplicates in inputlist
@@ -1039,17 +1039,17 @@ var Model = {
             var allowEpsilon = this.machine.allowEpsilon;
             this.input = this.input.filter(x => alphabet.indexOf(x) !== -1);
             this.hasEpsilon = this.hasEpsilon && allowEpsilon;
-        }
+        };
 
         this.inputIndexOf = function(symbol){
             //Given an input symbol, return the index of that symbol in this.input
-            var index = this.input.indexOf(symbol)
+            var index = this.input.indexOf(symbol);
             if(index < 0){
                 throw new Error(`Symbol:'${symbol}' not found in link ${this.id}`);
             } else {
                 return index;
             }
-        }
+        };
 
         this.isReflexive = function(){
             return this.source.id === this.target.id;
@@ -1084,9 +1084,9 @@ var Model = {
                 "satisfy-list": this.checkSatisfyList,
                 "select-states": this.checkSelectStates,
                 "does-accept": this.checkDoesAccept
-                                  }
+            };
             if(!checkFunctions[this.type]){
-                throw new Error(`No check function for type '${this.type}'`)
+                throw new Error(`No check function for type '${this.type}'`);
             }else{
                 return checkFunctions[this.type](input);
             }
@@ -1096,8 +1096,8 @@ var Model = {
             var sequences = Model.question.sequences.map(str => Model.parseInput(str));
             var feedbackObj = {allCorrectFlag: true, isCorrectList: Array(sequences.length).fill(true)};
             for(var i = 0; i< sequences.length; i++){
-                var answer = input[i]
-                var doesAccept = machine.accepts(sequences[i])
+                var answer = input[i];
+                var doesAccept = machine.accepts(sequences[i]);
                 if(answer !== doesAccept){
                     feedbackObj.allCorrectFlag = false;
                     feedbackObj.isCorrectList[i] = false;
@@ -1129,20 +1129,20 @@ var Model = {
             }
             //We now know the machine is incorrect, we now must construct an error message
 
-            var inputComplement = new Model.Machine("m1c")
-            inputComplement.build(inputMachine.getSpec())
-            inputComplement.complement()
+            var inputComplement = new Model.Machine("m1c");
+            inputComplement.build(inputMachine.getSpec());
+            inputComplement.complement();
 
             //This machine accepts sequences that the input machine rejects but the target machine accepts:
             var unionInputComplementWithTarget = inputComplement.getUnionWith(targetMachine);
 
-            var incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence()
+            var incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence();
             if(incorrectSequence !== null){
                 var printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
                     feedbackObj.message = `Incorrect – the machine should accept ‘${printableSequence}’`;
                 } else {
-                    feedbackObj.message = `Incorrect – the machine should accept the empty string`
+                    feedbackObj.message = `Incorrect – the machine should accept the empty string`;
                 }
                 feedbackObj.incorrectSequence = incorrectSequence;
                 feedbackObj.shouldAcceptIncorrect = true;
@@ -1156,13 +1156,13 @@ var Model = {
             //This machine accepts sequences that the input machine accepts but the target machine rejects:
             var unionInputWithTargetComplement = inputMachine.getUnionWith(targetComplement);
 
-            var incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence()
+            var incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence();
             if(incorrectSequence !== null){
                 var printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
                     feedbackObj.message = `Incorrect – the machine should reject ‘${printableSequence}’`;
                 } else {
-                    feedbackObj.message = `Incorrect – the machine should reject the empty string`
+                    feedbackObj.message = `Incorrect – the machine should reject the empty string`;
                 }
                 feedbackObj.incorrectSequence = incorrectSequence;
                 feedbackObj.shouldAcceptIncorrect = false;
@@ -1187,10 +1187,10 @@ var Model = {
             var allCorrectFlag = true;
             var messages = new Array(Model.question.lengths.length).fill(""); // feedback messages to show the user for each question
             var isCorrectList = new Array(Model.question.lengths.length).fill(true); // Tracks whether each answer is correct
-            var seen = [] //Use to catch duplicates. Not an efficient algorithm but the dataset is tiny.
+            var seen = []; //Use to catch duplicates. Not an efficient algorithm but the dataset is tiny.
 
             input.forEach(function(string, index){
-                var sequence = Model.parseInput(string)
+                var sequence = Model.parseInput(string);
                 var thisLength = sequence.length;
                 var expectedLength = Model.question.lengths[index];
                 if (thisLength !== expectedLength){
@@ -1201,17 +1201,17 @@ var Model = {
                 }
                 // Correct length – check if duplicate
                 if(seen.indexOf(string)!== -1){
-                    allCorrectFlag = false
+                    allCorrectFlag = false;
                     isCorrectList[index] = false;
                     messages[index] = `Incorrect – duplicate entry.`;
                     return;
                 }
-                seen.push(string)
+                seen.push(string);
 
                 //Not duplicate – check if all symbols are in the machine's alphabet
-                var nonAlphabetSymbols = sequence.filter(x => machine.alphabet.indexOf(x) === -1)
+                var nonAlphabetSymbols = sequence.filter(x => machine.alphabet.indexOf(x) === -1);
                 if(nonAlphabetSymbols.length > 0){
-                    allCorrectFlag = false
+                    allCorrectFlag = false;
                     isCorrectList[index] = false;
                     messages[index] = `Incorrect – '${nonAlphabetSymbols[0]}' is not in the machine's alphabet.`;
                     return;
@@ -1230,7 +1230,7 @@ var Model = {
         },
         checkSatisfyList: function(){
             var machine = Model.machines[0];
-            var feedbackObj = {allCorrectFlag: true, acceptList:[], rejectList:[]}
+            var feedbackObj = {allCorrectFlag: true, acceptList:[], rejectList:[]};
             var splitSymbol = Model.question.splitSymbol;
             var acceptList = Model.question.shouldAccept;
             var rejectList = Model.question.shouldReject;
@@ -1268,11 +1268,11 @@ var Model = {
             var subsequentInput = Model.question.targetSequence;
 
             var completeSequence = initialInput.concat(subsequentInput);
-            machine.setToInitialState()
-            machine.accepts(completeSequence)
+            machine.setToInitialState();
+            machine.accepts(completeSequence);
             var targetNodes = machine.getCurrentNodeList();
 
-            var feedbackObj = {allCorrectFlag: false, initialInput, subsequentInput}
+            var feedbackObj = {allCorrectFlag: false, initialInput, subsequentInput};
 
             //Determine if target nodes are the same as selected nodes
             if(targetNodes.length !== selectedNodes.length){
