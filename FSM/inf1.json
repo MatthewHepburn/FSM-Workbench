@@ -450,7 +450,7 @@
       "allowEpsilon": "false",
       "splitSymbol": "",
       "shouldAccept": [
-        "a",
+        "abc",
         "aaabc",
         "aaaaabc",
         "aaaaaaabc"
@@ -492,7 +492,8 @@
         "attributes": {
           "alphabet": [
             "a",
-            "b"
+            "b",
+            "c"
           ],
           "allowEpsilon": false
         }
