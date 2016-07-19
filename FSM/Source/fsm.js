@@ -6,7 +6,7 @@ const Display = {
     acceptingRadius: 0.7 * 12,
     canvasVars: {
         "m1": {
-            "force":d3.forceSimulation().on("tick", function(){Display.forceTick("m1");}),
+            "layout":d3.forceSimulation().on("tick", function(){Display.forceTick("m1");}),
             "machine": undefined,
             "colours": d3.scaleOrdinal(d3.schemeCategory10),
             "toolMode": "none",
@@ -17,7 +17,7 @@ const Display = {
     },
     newCanvas: function(id, machine){
         Display.canvasVars[id] = {
-            "force": d3.layout.force().on("tick", function(){Display.forceTick(id);}),
+            "layout": d3.layout.force().on("tick", function(){Display.forceTick(id);}),
             "machine": machine,
             "colours": d3.scaleOrdinal(d3.schemeCategory10),
             "toolMode": "none",
@@ -1429,7 +1429,7 @@ const Display = {
 
     },
     update: function(canvasID){
-        var machine = this.canvasVars[canvasID].machine;
+        var machine = Display.getCanvasVars(canvasID).machine;
 
         var svg = d3.select("#"+canvasID);
 
@@ -1550,16 +1550,19 @@ const Display = {
         linkGs.exit().remove(); //Remove links whose data has been deleted
 
 
-        var force = this.canvasVars[canvasID].force;
-        force.nodes(nodeList)
-            .links(linkList)
-            .size([1000,600])
-            .linkDistance(100)
-            .chargeDistance(60)
-            .charge(-30)
-            .gravity(0.00); //gravity is attraction to the centre, not downwards.
-        force.start();
-        newNodes.call(force.drag);
+        const layout = Display.getCanvasVars(canvasID).layout;
+        layout.nodes(nodeList);
+        layout.force("link", d3.forceLink(linkList));
+            // .size([1000,600])
+            // .linkDistance(100)
+            // .chargeDistance(60)
+            // .charge(-30)
+            // .gravity(0.00); //gravity is attraction to the centre, not downwards.
+
+        newNodes.call(d3.drag()
+          .on("start", Display.dragHandlers.dragstarted)
+          .on("drag", Display.dragHandlers.dragged)
+          .on("end", Display.dragHandlers.dragended));
 
     },
     updateAllLinkLabels: function(canvasID){
@@ -1671,6 +1674,26 @@ const Display = {
         svg.selectAll(".node").each(function(node){
             d3.select(this).on("click", getOnClickFunction(node));
         });
+    },
+    dragHandlers:{
+        dragstarted: function(d){
+            if (!d3.event.active){
+                Display.getCanvasVars(d.machine.id).layout.alphaTarget(0.3).restart();
+            }
+            d.fx = d.x;
+            d.fy = d.y;
+        },
+        dragged: function(d){
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        },
+        dragended: function(d){
+            if (!d3.event.active){
+                Display.getCanvasVars(d.machine.id).layout.alphaTarget(0);
+            }
+            d.fx = null;
+            d.fy = null;
+        }
     }
 };
 
@@ -2151,3 +2174,4 @@ const jsonCopy = function(x){
 var m; //Holds the first machine. Primarily for debugging convenience.
 
 Controller.init();
+
