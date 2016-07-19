@@ -1449,13 +1449,15 @@ const Display = {
                                 .on("mousedown", function(node){EventHandler.nodeClick(node);});
 
         //Enforce physics setting on new nodes
-        var newNodeObjs = nodeGs.data();
+        const newNodeObjs = newNodes.data();
         if(Controller.getPhysicsSetting() == "off"){
-            for(var i = 0; i< newNodeObjs.length; i++){
-                newNodeObjs[i].fixed = true;
+            for(let i = 0; i< newNodeObjs.length; i++){
+                const node = newNodeObjs[i];
+                node.fixed = true;
+                node.fx = node.x;
+                node.fy = node.y;
             }
         }
-
 
         if(Controller.getColourScheme() === "monochrome"){
             Display.styleMonochrome(canvasID, newCircles);
@@ -1630,16 +1632,20 @@ const Display = {
 
     },
     updateNodePhysics:function(){
-        for(var i = 0; i < Model.machines.length; i++){
-            var machine = Model.machines[i];
-            for(var nodeID in machine.nodes){
-                var node = machine.nodes[nodeID];
+        for(let i = 0; i < Model.machines.length; i++){
+            const machine = Model.machines[i];
+            for(const nodeID in machine.nodes){
+                const node = machine.nodes[nodeID];
                 if(Controller.getPhysicsSetting() === "on"){
                     node.fixed = false;
+                    node.fx = null;
+                    node.fy = null;
                     Display.update(node.machine.id);
                 }
                 else if(Controller.getPhysicsSetting() === "off"){
                     node.fixed = true;
+                    node.fx = node.x;
+                    node.fy = node.y;
                 }
             }
         }
@@ -1693,11 +1699,10 @@ const Display = {
             node.fy = d3.event.y;
         },
         dragended: function(node){
-            if (!d3.event.active){
-                Display.getCanvasVars(node.machine.id).layout.alphaTarget(0);
+            if(!node.fixed){
+                node.fx = null;
+                node.fy = null;
             }
-            node.fx = null;
-            node.fy = null;
         }
     }
 };
