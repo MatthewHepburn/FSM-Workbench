@@ -33,7 +33,7 @@ const Display = {
                     .attr("viewBox", "0 0 500 300")
                     .attr("preserveAspectRatio","xMidYMid meet")
                     .on("contextmenu", function(){EventHandler.backgroundContextClick(machine);})
-                    .on("click", function(){EventHandler.backgroundClick(machine, true);});
+                    .on("mousedown", function(){EventHandler.backgroundClick(machine, true);});
         // resize all canvases
         Display.setSvgSizes();
 
@@ -1446,7 +1446,7 @@ const Display = {
                                 .classed("node", true)
                                 .attr("r", Display.nodeRadius)
                                 .on("contextmenu", function(node){EventHandler.nodeContextClick(node);})
-                                .on("click", function(node){EventHandler.nodeClick(node);});
+                                .on("mousedown", function(node){EventHandler.nodeClick(node);});
 
         //Enforce physics setting on new nodes
         var newNodeObjs = nodeGs.data();
@@ -1476,7 +1476,7 @@ const Display = {
 
         // Update nodes
         // Set classes
-        var circles = nodeGs.selectAll("circle")
+        var circles = svg.selectAll("circle")
             .classed("accepting", function(node){return node.isAccepting;})
             .classed("initial", function(node){return node.isInitial;});
         // Add concentric circle to accepting nodes
@@ -1527,19 +1527,19 @@ const Display = {
                .style("marker-mid", "url(#end-arrow)")
                .attr("id", function(d){return d.id;})
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
-               .on("click", function(link){EventHandler.linkClick(link);});
+               .on("mousedown", function(link){EventHandler.linkClick(link);});
 
         //Add link padding to make links easier to click. Link padding handles click events as if it were a link.
         newLinks.append("svg:path")
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
-               .on("click", function(link){EventHandler.linkClick(link);})
+               .on("mousedown", function(link){EventHandler.linkClick(link);})
                .attr("class", "link-padding")
                .attr("id", function(d){return "linkpad" + d.id;});
 
         // Add link labels
         var textElements = newLinks.append("svg:text")
             .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
-            .on("click", function(link){EventHandler.linkClick(link);})
+            .on("mousedown", function(link){EventHandler.linkClick(link);})
             .attr("class", "linklabel")
             .attr("text-anchor", "middle") // This causes text to be centred on the position of the label.
             .attr("font-size", 1.2 * Display.acceptingRadius) // Set the font height, using the radius of the inner ring of accepting nodes as a somewhat arbitrary reference point.
@@ -1552,17 +1552,22 @@ const Display = {
 
         const layout = Display.getCanvasVars(canvasID).layout;
         layout.nodes(nodeList);
-        layout.force("link", d3.forceLink(linkList));
-            // .size([1000,600])
-            // .linkDistance(100)
-            // .chargeDistance(60)
-            // .charge(-30)
-            // .gravity(0.00); //gravity is attraction to the centre, not downwards.
+        const linkForce = d3.forceLink(linkList)
+                            .distance(100);
+        const chargeForce = d3.forceManyBody()
+                              .strength(-60)
+                              .distanceMax(60)
+                              .distanceMin(0.1);
+
+        layout.force("link", linkForce);
+        layout.force("charge", chargeForce);
 
         newNodes.call(d3.drag()
           .on("start", Display.dragHandlers.dragstarted)
           .on("drag", Display.dragHandlers.dragged)
           .on("end", Display.dragHandlers.dragended));
+
+        Display.forceTick(canvasID);
 
     },
     updateAllLinkLabels: function(canvasID){
@@ -1672,27 +1677,27 @@ const Display = {
         };
         var svg = d3.select(`#${machineID}`);
         svg.selectAll(".node").each(function(node){
-            d3.select(this).on("click", getOnClickFunction(node));
+            d3.select(this).on("mousedown", getOnClickFunction(node));
         });
     },
     dragHandlers:{
-        dragstarted: function(d){
+        dragstarted: function(node){
             if (!d3.event.active){
-                Display.getCanvasVars(d.machine.id).layout.alphaTarget(0.3).restart();
+                Display.getCanvasVars(node.machine.id).layout.alphaTarget(0.3).restart();
             }
-            d.fx = d.x;
-            d.fy = d.y;
+            node.fx = node.x;
+            node.fy = node.y;
         },
-        dragged: function(d){
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
+        dragged: function(node){
+            node.fx = d3.event.x;
+            node.fy = d3.event.y;
         },
-        dragended: function(d){
+        dragended: function(node){
             if (!d3.event.active){
-                Display.getCanvasVars(d.machine.id).layout.alphaTarget(0);
+                Display.getCanvasVars(node.machine.id).layout.alphaTarget(0);
             }
-            d.fx = null;
-            d.fy = null;
+            node.fx = null;
+            node.fy = null;
         }
     }
 };
@@ -1714,7 +1719,7 @@ const EventHandler = {
             }
             if (toolMode === "nodetool" || toolMode === "acceptingtool"|| toolMode === "initialtool"){
                 //Get coordinates where node should be created:
-                var point = d3.mouse(d3.select("#" + canvasID)[0][0]);
+                var point = d3.mouse(d3.select("#" + canvasID).node());
                 Controller.createNode(machine, point[0], point[1], toolMode === "initialtool", toolMode === "acceptingtool");
             }
         }
@@ -1771,10 +1776,11 @@ const EventHandler = {
 
     },
     nodeClick: function(node){
+        console.log("FIRE")
         var canvasID = node.machine.id;
         var toolMode = Display.canvasVars[canvasID].toolMode;
         if(toolMode === "none" || toolMode === "nodetool"){
-            return;
+            return false;
         }
         if(toolMode === "linetool"){
             var linkInProgress = Display.canvasVars[canvasID].linkInProgress; // true if there is link awaiting and endpoint
@@ -1784,19 +1790,25 @@ const EventHandler = {
                 var startNode = Display.getStartNode(canvasID);
                 Controller.createLink(startNode, node);
             }
+            return true;
         }
         if(toolMode === "deletetool"){
             Controller.deleteNode(node);
+            return true;
         }
         if(toolMode === "texttool"){
             Controller.requestNodeRename(node);
+            return true;
         }
         if(toolMode === "acceptingtool"){
             Controller.toggleAccepting(node);
+            return true;
         }
         if(toolMode === "initialtool"){
             Controller.toggleInitial(node);
+            return true;
         }
+        return true;
     },
     nodeContextClick: function(node){
         d3.event.preventDefault();
@@ -2078,7 +2090,7 @@ const Controller = {
         Display.canvasVars["m1"].machine = m;
         Display.update("m1");
         var svg = d3.select("#m1")
-            .on("click", function(){EventHandler.backgroundClick(m, true);})
+            .on("mousedown", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         Controller.setUpQuestion();
         Display.setUpQuestion();
