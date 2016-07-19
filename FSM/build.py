@@ -261,38 +261,20 @@ if __name__ == "__main__":
 
     # Minify css and JS if requested:
     minifyRequested = False
+    babelRequested = False
     for arg in sys.argv:
         if arg in ["-m", "-M", "--Minify"]:
             minifyRequested = True
-            break
-    if minifyRequested:
-        os.chdir(sourceDir)
-        sourceDir = os.getcwd()
-        # Arguement to listdir is optional in python 3.2+ but used here for compatability with DICE
-        jsFiles = [ f for f in os.listdir(sourceDir) if f[-3:] == ".js"]
-        for f in jsFiles:
-            newJS = subprocess.check_output("uglifyjs " + f + " --screw-ie8 --compress", shell=True)
-            outname = os.path.join(deployDir, f)
-            outfile = open(outname, "wb")
-            outfile.write(newJS)
-            outfile.close()
-        os.chdir(sourceDir)
-        cssFiles = [ f for f in os.listdir(sourceDir) if f[-4:] == ".css"]
-        for f in cssFiles:
-            newCSS = subprocess.check_output("uglifycss " + f, shell=True)
-            outname = os.path.join(deployDir, f)
-            outfile = open(outname, "wb")
-            outfile.write(newCSS)
-            outfile.close()
-    else:
-        # Copy JS and CSS unaltered
-        os.chdir(sourceDir)
-        sourceDir = os.getcwd()
-        files = [f for f in os.listdir(sourceDir) if f[-4:] == ".css" or f[-3:] == ".js"]
-        for f in files:
-            shutil.copy(f, deployDir)
+        if arg in["-b", "-B", "--Babel"]:
+            minifyRequested = True
 
-    #Regardless of minification, copy any html files and the .htaccess file to the deploy directory:
+    # First copy JS and CSS unaltered
+    os.chdir(sourceDir)
+    files = [f for f in os.listdir(sourceDir) if f[-4:] == ".css" or f[-3:] == ".js"]
+    for f in files:
+        shutil.copy(f, deployDir)
+
+    # Copy any html files and the .htaccess file to the deploy directory:
     os.chdir(sourceDir)
     files = [f for f in os.listdir(sourceDir) if f[-5:] == ".html" or f == ".htaccess"]
     for f in files:
@@ -314,6 +296,17 @@ if __name__ == "__main__":
         if platform.system() == "Windows":
             useShell = True
         subprocess.call(["npm", "run-script", "babel"], shell=useShell)
+
+    if minifyRequested:
+        os.chdir(deployDir)
+        useShell = True
+
+        files = [f for f in os.listdir(deployDir) if f[-3:] == ".js"]
+        for f in files:
+            path = os.path.join(deployDir, f)
+            # "uglifyjs" script is defined in package.json
+            subprocess.call(["npm run-script uglifyjs -- -o '" + path +"' '" + path + "'"], shell=useShell)
+
 
     # Return to original directory.
     os.chdir(startDir)

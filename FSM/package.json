@@ -6,7 +6,7 @@
     "build": "python build.py",
     "test": "nyc --reporter=lcov --require babel-core/register mocha Tests/testModel.js",
     "babel": "babel Deploy -d Deploy",
-    "uglifyjs": "uglifyjs  --screw-ie8 --compress"
+    "uglifyjs": "uglifyjs  --screw-ie8 --compress --keep-fnames"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
