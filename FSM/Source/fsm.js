@@ -6,9 +6,9 @@ const Display = {
     acceptingRadius: 0.7 * 12,
     canvasVars: {
         "m1": {
-            "force":d3.layout.force().on("tick", function(){Display.forceTick("m1");}),
+            "force":d3.forceSimulation().on("tick", function(){Display.forceTick("m1");}),
             "machine": undefined,
-            "colours": d3.scale.category10(),
+            "colours": d3.scaleOrdinal(d3.schemeCategory10),
             "toolMode": "none",
             "linkInProgress": false, // True when the user has begun creating a link, but has not selected the second node
             "linkInProgressNode": null, // When linkInProgess is true, holds the source node of the link being created
@@ -19,7 +19,7 @@ const Display = {
         Display.canvasVars[id] = {
             "force": d3.layout.force().on("tick", function(){Display.forceTick(id);}),
             "machine": machine,
-            "colours": d3.scale.category10(),
+            "colours": d3.scaleOrdinal(d3.schemeCategory10),
             "toolMode": "none",
             "linkInProgress": false,
             "linkInProgressNode": null,
@@ -1638,7 +1638,7 @@ const Display = {
 
     },
     resetColours: function(canvasID){
-        Display.canvasVars[canvasID].colours = d3.scale.category10();
+        Display.canvasVars[canvasID].colours = d3.scaleOrdinal(d3.schemeCategory10);
     },
     styleColour:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies multicoloured styling to them

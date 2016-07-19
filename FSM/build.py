@@ -31,14 +31,16 @@ def setAddresses(toDeploy):
             "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/icons/",
-            "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/"
+            "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/",
+            "d3Address": "https://d3js.org/d3.v4.min.js"
         }
     else:
         addresses = {
             "jsAddress": "../",
             "cssAddress": "../",
             "iconAddress": "../img/icons/",
-            "imgAddress": "../img/"
+            "imgAddress": "../img/",
+            "d3Address": "https://d3js.org/d3.v4.js"
         }
 
 def setDirs():
@@ -261,12 +263,10 @@ if __name__ == "__main__":
 
     # Minify css and JS if requested:
     minifyRequested = False
-    babelRequested = False
     for arg in sys.argv:
         if arg in ["-m", "-M", "--Minify"]:
             minifyRequested = True
-        if arg in["-b", "-B", "--Babel"]:
-            minifyRequested = True
+            toBabel = True #UglifyJS requires that the code is first transpiled.
 
     # First copy JS and CSS unaltered
     os.chdir(sourceDir)
