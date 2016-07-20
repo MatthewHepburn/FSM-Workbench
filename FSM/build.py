@@ -32,7 +32,7 @@ def setAddresses(toDeploy):
             "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/icons/",
             "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/",
-            "d3Address": "https://d3js.org/d3.v4.min.js"
+            "d3Address": "https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js"
         }
     else:
         addresses = {
@@ -40,7 +40,7 @@ def setAddresses(toDeploy):
             "cssAddress": "../",
             "iconAddress": "../img/icons/",
             "imgAddress": "../img/",
-            "d3Address": "https://d3js.org/d3.v4.js"
+            "d3Address": "https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js"
         }
 
 def setDirs():
