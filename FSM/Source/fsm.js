@@ -17,7 +17,7 @@ const Display = {
     },
     newCanvas: function(id, machine){
         Display.canvasVars[id] = {
-            "layout": d3.layout.force().on("tick", function(){Display.forceTick(id);}),
+            "layout": d3.forceSimulation().on("tick", function(){Display.forceTick(id);}),
             "machine": machine,
             "colours": d3.scaleOrdinal(d3.schemeCategory10),
             "toolMode": "none",
