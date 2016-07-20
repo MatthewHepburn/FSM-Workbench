@@ -532,7 +532,7 @@ const Display = {
                     .attr("maxlength", "5")
                     .attr("name", "state name")
                     .attr("value", currentName)
-                        .node().select();
+                    .node().focus();
     },
     getLinkRenameResult: function(canvasID, formType){
         //Get the result from each rename type differently
@@ -1709,12 +1709,15 @@ const Display = {
 
 const EventHandler = {
     backgroundClick: function(machine, checkTarget){
+        if(d3.event.type === "contextmenu"|| d3.event.button === 2){
+            return;
+        }
         // Check that the target is the background - this handler will recieve all clicks on the svg
         // Or proceed anyway if checkTarget is false;
-        var canvasID = machine.id;
+        const canvasID = machine.id;
         if(!checkTarget || d3.event.target.id === canvasID){
-            Display.dismissContextMenu();
-            var toolMode = Display.canvasVars[canvasID].toolMode;
+            Display.clearMenus(machine.id);
+            const toolMode = Display.canvasVars[canvasID].toolMode;
             if(toolMode === "linetool" && Display.isLinkInProgress(canvasID)){
                 //End a link if one is in progress
                 Controller.endLink(machine.id);
@@ -1724,7 +1727,7 @@ const EventHandler = {
             }
             if (toolMode === "nodetool" || toolMode === "acceptingtool"|| toolMode === "initialtool"){
                 //Get coordinates where node should be created:
-                var point = d3.mouse(d3.select("#" + canvasID).node());
+                const point = d3.mouse(d3.select("#" + canvasID).node());
                 Controller.createNode(machine, point[0], point[1], toolMode === "initialtool", toolMode === "acceptingtool");
             }
         }
@@ -1732,7 +1735,10 @@ const EventHandler = {
     },
     backgroundContextClick: function(machine){
         // Check that the target is the background - this handler will recieve all clicks on the svg
-        var canvasID = machine.id;
+        if(d3.event.type !== "contextmenu"){
+            return;
+        }
+        const canvasID = machine.id;
         if(d3.event.target.id === canvasID){
             Display.dismissContextMenu();
             if (Display.canvasVars[machine.id].linkInProgress){
@@ -1746,8 +1752,11 @@ const EventHandler = {
         Controller.checkAnswer();
     },
     linkClick: function(link){
-        var canvasID = link.machine.id;
-        var toolMode = Display.canvasVars[canvasID].toolMode;
+        if(d3.event.type === "contextmenu" || d3.event.button === 2){
+            return;
+        }
+        const canvasID = link.machine.id;
+        const toolMode = Display.canvasVars[canvasID].toolMode;
         if(toolMode === "none"){
             return;
         }
@@ -1767,6 +1776,9 @@ const EventHandler = {
 
     },
     linkContextClick: function(link){
+        if(d3.event.type !== "contextmenu"){
+            return;
+        }
         d3.event.preventDefault();
         if(Global.contextMenuShowing){
             Display.dismissContextMenu();
@@ -1781,7 +1793,10 @@ const EventHandler = {
 
     },
     nodeClick: function(node){
-        console.log("FIRE")
+        if(d3.event.type === "contextmenu"|| d3.event.button === 2){
+            return;
+        }
+        d3.event.preventDefault();
         var canvasID = node.machine.id;
         var toolMode = Display.canvasVars[canvasID].toolMode;
         if(toolMode === "none" || toolMode === "nodetool"){
@@ -1816,6 +1831,9 @@ const EventHandler = {
         return true;
     },
     nodeContextClick: function(node){
+        if(d3.event.type !== "contextmenu"){
+            return;
+        }
         d3.event.preventDefault();
         if(Global.contextMenuShowing){
             Display.dismissContextMenu();
