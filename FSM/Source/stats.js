@@ -214,9 +214,8 @@ var data = {
             if (aSet > bSet){return 1;}
 
             //Set is equal, compare question-numbers
-            const questionNumber = "question-number"; //Done thisway as uglifgyJS rewrites data["question-number"] to data.question-number, which is not equivalent.
-            var aQN = data.json.pages[a][questionNumber] !== undefined? data.json.pages[a][questionNumber] : -1;
-            var bQN = data.json.pages[b][questionNumber] !== undefined? data.json.pages[b][questionNumber] : -1;
+            var aQN = data.json.pages[a]["question-number"] !== undefined? data.json.pages[a]["question-number"] : -1;
+            var bQN = data.json.pages[b]["question-number"] !== undefined? data.json.pages[b]["question-number"] : -1;
             if (aQN < bQN){return -1;}
             if (aQN > bQN){return 1;}
 
