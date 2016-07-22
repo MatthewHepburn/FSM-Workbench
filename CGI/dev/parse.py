@@ -5,6 +5,7 @@ import json
 import datetime
 import time
 import sys
+import pdb
 import subprocess #Required to determine directory size
 try:
     from user_agents import parse
@@ -97,15 +98,23 @@ def analyseUsage():
             continue
         u = users[userID]
         for pageID in u["totalTimeOnPage"]:
+            if pageID not in pages:
+                addPage(pageID)
             pages[pageID]["totalTime"] += u["totalTimeOnPage"][pageID]
             pages[pageID]["uniqueVisitors"] += 1
         for pageID in u["questionRatings"]:
+            if pageID not in pages:
+                addPage(pageID)
             pages[pageID]["totalRatings"] += 1
             if u["questionRatings"][pageID] == True:
                 pages[pageID]["yesRatings"] += 1
         for pageID in u["questionsAttempted"]:
+            if pageID not in pages:
+                    addPage(pageID)
             pages[pageID]["usersAttempted"] += 1
         for pageID in u["questionsCorrect"]:
+            if pageID not in pages:
+                    addPage(pageID)
             pages[pageID]["usersCorrect"] += 1
 
 
