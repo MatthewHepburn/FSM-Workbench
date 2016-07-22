@@ -1,4 +1,4 @@
-var logging = {
+const logging = {
     userID: undefined,
     loadTime: Math.floor(Date.now() / 1000),
     pageID: undefined,

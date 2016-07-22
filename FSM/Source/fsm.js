@@ -2110,7 +2110,7 @@ const Controller = {
         m = new Model.Machine("m1");
         Model.machines.push(m);
         Controller.setupMachine(m, 0);
-        Display.canvasVars["m1"].machine = m;
+        Display.canvasVars["m1"].machine = Model.machines[0];
         Display.update("m1");
         var svg = d3.select("#m1")
             .on("mousedown", function(){EventHandler.backgroundClick(m, true);})
@@ -2121,6 +2121,11 @@ const Controller = {
         if(Model.question.allowEditing){
             Display.drawControlPalette("m1");
         }
+
+        //Register a listener to send session data when the user leaves the page
+        d3.select(window).on("beforeunload", function(){
+            Logging.sendInfo();
+        });
     },
     setupMachine: function(machine, i){
         var body = document.querySelector("body");
@@ -2180,6 +2185,122 @@ const Controller = {
         if(oldMode === "linetool"){
             Controller.endLink(canvasID);
         }
+    }
+};
+
+const Logging = {
+    loadTime: Math.floor(Date.now() / 1000),
+    userID: undefined,
+    pageID: undefined,
+    generateUserID: function() {
+        //Use local storage if it is available
+        let hasStorage;
+        if(typeof(localStorage) !== "undefined") {
+            hasStorage = true;
+            if (localStorage.getItem("userID") !== null){
+                Logging.userID = localStorage.getItem("userID");
+                return;
+            }
+        } else {
+            hasStorage = false;
+        }
+        var d = new Date().getTime();
+        var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+            var r = (d + Math.random()*16)%16 | 0;
+            d = Math.floor(d/16);
+            return (c=="x" ? r : (r&0x3|0x8)).toString(16);
+        });
+        Logging.userID = uuid;
+        if (hasStorage){
+            localStorage.setItem("userID", uuid);
+        }
+    },
+    setPageID: function(){
+        Logging.pageID = document.querySelector("body").getAttribute("data-pageid");
+    },
+    // answer is an optional parameter, if not specified the current state will be sent.
+    sendAnswer: function(isCorrect, answer) {
+        var timeElapsed = Math.floor(Date.now() / 1000) - Logging.loadTime;
+        var url = window.location.href;
+        if (url.slice(0,5) == "file:"){
+            // Don't try to log if accessing locally.
+            return;
+        }
+        if (Logging.userID == undefined){
+            Logging.generateUserID();
+        }
+        if (Logging.pageID === undefined){
+            Logging.setPageID();
+        }
+        var data = {
+            "answer": answer,
+            "isCorrect": isCorrect,
+            "pageID": Logging.pageID,
+            "timeElapsed": timeElapsed,
+            "url": url,
+            "userID": Logging.userID
+        };
+        var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
+        var request = new XMLHttpRequest();
+        request.open("POST", "/cgi/s1020995/dev/answer.cgi", true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.send(string);
+    },
+    sendInfo: function() {
+        var url = window.location.href;
+        if (url.slice(0,5) == "file:"){
+            // Don't try to log if accessing locally.
+            return;
+        }
+
+        var timeOnPage = Math.floor(Date.now() / 1000) - Logging.loadTime;
+
+        if (Logging.userID == undefined){
+            Logging.generateUserID();
+        }
+        if (Logging.pageID === undefined){
+            Logging.setPageID();
+        }
+
+
+        var data = {
+            "pageID": Logging.pageID,
+            "timeOnPage": timeOnPage,
+            "url": url,
+            "userID": Logging.userID
+        };
+
+
+        var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
+        var request = new XMLHttpRequest();
+        request.open("POST", "/cgi/s1020995/dev/usage.cgi", true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.send(string);
+    },
+    sendRating: function(rating) {
+        var url = window.location.href;
+        if (url.slice(0,5) == "file:"){
+            // Don't try to log if accessing locally.
+            return;
+        }
+        if (Logging.userID == undefined){
+            Logging.generateUserID();
+        }
+        if (Logging.pageID === undefined){
+            Logging.setPageID();
+        }
+        var data = {
+            "pageID": Logging.pageID,
+            "url": url,
+            "userID": Logging.userID,
+            "rating": rating
+        };
+
+        var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
+        var request = new XMLHttpRequest();
+        request.open("POST", "/cgi/s1020995/dev/rating.cgi", true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.send(string);
     }
 };
 
