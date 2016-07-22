@@ -40,34 +40,54 @@
         ],
         "links": [
           {
-            "to": "B",
-            "from": "A"
+            "to": "A",
+            "from": "B",
+            "input": [
+              "B"
+            ]
           },
           {
-            "to": "A",
-            "from": "B"
+            "to": "B",
+            "from": "A",
+            "input": [
+              "A",
+              "B"
+            ]
           },
           {
             "to": "C",
-            "from": "B"
+            "from": "B",
+            "input": [
+              "A"
+            ]
           },
           {
             "to": "B",
-            "from": "C"
+            "from": "C",
+            "input": [
+              "A"
+            ]
           },
           {
             "to": "D",
-            "from": "C"
+            "from": "C",
+            "input": [
+              "B"
+            ]
           },
           {
             "to": "D",
-            "from": "D"
+            "from": "D",
+            "input": [
+              "A",
+              "B"
+            ]
           }
         ],
         "attributes": {
           "alphabet": [
-            "a",
-            "b"
+            "A",
+            "B"
           ],
           "allowEpsilon": false
         }
