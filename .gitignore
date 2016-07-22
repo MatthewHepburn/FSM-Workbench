@@ -5,6 +5,7 @@ stats.json
 Deploy/
 FSM/coverage
 FSM/.nyc_output
+questionlist.json
 
 # Node Files #
 ##############

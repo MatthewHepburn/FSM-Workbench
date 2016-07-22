@@ -182,6 +182,10 @@ def writeQuestionDict():
     global deployDir
 
     os.chdir(deployDir)
+    os.chdir("..") #/CAL/FSM
+    os.chdir("..") #/CAL
+    os.chdir("CGI")
+    os.chdir("dev")
     with open('questionlist.json', 'w') as outfile:
         json.dump(questionDict, outfile, indent=4, separators=(',', ': '))
 
