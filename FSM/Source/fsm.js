@@ -1905,7 +1905,13 @@ const Controller = {
         }
         var feedbackObj = Model.question.checkAnswer(input);
         Display.giveFeedback(feedbackObj);
-        // Logging.logAnswer(feedbackObj);
+        if(input === undefined){
+            const answer = Model.getMachineList();
+            Logging.sendAnswer(feedbackObj.allCorrectFlag, answer);
+        } else {
+            Logging.sendAnswer(feedbackObj.allCorrectFlag, input);
+        }
+
     },
     getQuestionInput:function(type){
         var input;
@@ -2092,6 +2098,8 @@ const Controller = {
         var feedbackObj = Model.question.checkAnswer();
         if (feedbackObj.allCorrectFlag){
             Display.giveFeedback(feedbackObj);
+            //Log correct answer
+            Logging.sendAnswer(true, {"correctInput": Model.question.currentInput});
         }
     },
     resetMachines: function(){
@@ -2124,7 +2132,7 @@ const Controller = {
 
         //Register a listener to send session data when the user leaves the page
         d3.select(window).on("beforeunload", function(){
-            Logging.sendInfo();
+            Logging.sendSessionData();
         });
     },
     setupMachine: function(machine, i){
@@ -2218,7 +2226,7 @@ const Logging = {
     setPageID: function(){
         Logging.pageID = document.querySelector("body").getAttribute("data-pageid");
     },
-    // answer is an optional parameter, if not specified the current state will be sent.
+    //Answer will be an object, varying with question type
     sendAnswer: function(isCorrect, answer) {
         var timeElapsed = Math.floor(Date.now() / 1000) - Logging.loadTime;
         var url = window.location.href;
@@ -2246,7 +2254,7 @@ const Logging = {
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
-    sendInfo: function() {
+    sendSessionData: function() {
         var url = window.location.href;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
