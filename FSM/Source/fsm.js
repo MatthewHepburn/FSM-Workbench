@@ -528,8 +528,8 @@ const Display = {
                     .classed("renameinput", true)
                     .attr("id", node.id + "-rename")
                     .attr("type", "text")
-                    .attr("size", "1")
-                    .attr("maxlength", "5")
+                    .attr("size", "2")
+                    .attr("maxlength", "10")
                     .attr("name", "state name")
                     .attr("value", currentName)
                     .node().focus();
@@ -1142,11 +1142,26 @@ const Display = {
         // Update the position of each node name
         svg.selectAll(".nodename")
             .each(function(node){
-                d3.select(this).attr("x", node.x).attr("y", node.y);
+                const coords = Display.getNodeNameCoords(node);
+                d3.select(this).attr("x", coords.x).attr("y", coords.y);
             });
     },
     getCanvasVars: function(canvasID){
         return Display.canvasVars[canvasID];
+    },
+    getNodeNameCoords: function (node){
+        // Get the coordinates of the node name label
+        // This will be the coordinates of the node for short labels, longer labels
+        // be positioned below the node
+        const name = node.name;
+        const svg = d3.select(`#${node.machine.id}`);
+        const nameLength = Display.getTextLength(svg, name, "inherit", "nodename");
+        const maxlength = node.isAccepting? 2 * Display.acceptingRadius : 2 * Display.nodeRadius;
+        if(nameLength < maxlength){
+            return {x: node.x, y:node.y};
+        } else {
+            return {x: node.x, y: node.y + (1.6 * Display.nodeRadius)};
+        }
     },
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
         // Get coordinates for the context menu so that it is not drawn off screen in form [x, y]
@@ -1466,11 +1481,12 @@ const Display = {
         }
 
         // Add a name label:
-        // TODO - allow labels too large to be placed within the node to be placed below.
         newNodes.append("svg:text")
             .classed("nodename", true)
             .attr("id", function(node){return node.id + "-label";})
             .attr("font-size", 1.2 * Display.acceptingRadius)   // Sets the font height relative to the radius of the inner ring on accepting nodes
+            .on("click", EventHandler.nodeClick)
+            .on("contextmenu", EventHandler.nodeContextClick)
             .text(function(node){return node.name;});
 
 
