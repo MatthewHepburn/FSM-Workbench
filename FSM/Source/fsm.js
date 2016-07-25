@@ -797,6 +797,48 @@ const Display = {
             }
         }
     },
+    highlightNodes: function(svg, nodeArray, hexColour, overwritePrevious){
+        //Accept either a selection of a machineID
+        if(!(svg instanceof d3.selection)){
+            svg = d3.select(`#${svg}`);
+        }
+        const nodes = svg.selectAll(".node");
+        nodes.each(function(node){
+            const elem = d3.select(this);
+            if(nodeArray.includes(node)){
+                if(elem.classed("highlight-mode-selected") && !overwritePrevious){
+                    const oldColour = d3.color(elem.style("fill"));
+                    const thisColour = d3.color(hexColour);
+                    const newColour = d3.rgb((oldColour.r + thisColour.r)/2, (oldColour.g + thisColour.g)/2, (oldColour.b + thisColour.b/2)).toString();
+                    elem.style("fill", newColour)
+                        .classed("highlight-mode-selected", true);
+                } else{
+                    elem.classed("highlight-mode-selected", true)
+                    .style("fill", hexColour);
+                }
+            } else{
+                if(!elem.classed("highlight-mode-selected") || overwritePrevious){
+                    elem.classed("highlight-mode-selected", false)
+                        .classed("highlight-mode-deselected", true)
+                        .style("fill", "#FFFFFF");
+                }
+            }
+        });
+
+    },
+    unhighlightNodes: function(svg){
+        if(!(svg instanceof d3.selection)){
+            svg = d3.select(`#${svg}`);
+        }
+        const nodes = svg.selectAll(".node");
+        nodes.each(function(){
+            const elem = d3.select(this);
+            elem.classed("highlight-mode-selected", false)
+                .classed("highlight-mode-deselected", false);
+        });
+        Display.resetNodeStyling(svg)
+
+    },
     stepTrace:function(machineID, deltaStep){
         //advances the trace by deltaStep steps. NB deltaStep can be negative => deltaStep = -1 means move back one step
         var svg = d3.select("#" + machineID);
@@ -1637,15 +1679,21 @@ const Display = {
         var svg = d3.select("#" + node.machine.id);
         svg.select("#" + node.id + "-label").text(node.name);
     },
-    updateNodeStyle: function(){
-        var circles;
-        var styleFunction = Controller.getColourScheme() === "monochrome"? Display.styleMonochrome : Display.styleColour;
-
-        for(var id in Display.canvasVars){
-            circles = d3.select(`#${id}`).selectAll(".nodeg").selectAll(".node");
-            styleFunction(id, circles);
+    resetNodeStyling: function(svg){
+        //Accept either a selection of a machineID
+        let canvasID = svg;
+        if(canvasID instanceof d3.selection){
+            canvasID = svg.attr("id");
         }
+        const circles = svg.selectAll(".nodeg").selectAll(".node");
+        const styleFunction = Controller.getColourScheme() === "monochrome"? Display.styleMonochrome : Display.styleColour;
+        styleFunction(canvasID, circles);
 
+    },
+    updateAllNodeStyle: function(){
+        for(var id in Display.canvasVars){
+            Display.resetNodeStyling(id);
+        }
     },
     updateNodePhysics:function(){
         for(let i = 0; i < Model.machines.length; i++){
@@ -1672,12 +1720,19 @@ const Display = {
     },
     styleColour:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies multicoloured styling to them
-        var colours = Display.canvasVars[canvasID].colours;
+        if(canvasID instanceof d3.selection){
+            canvasID = svg.attr("id");
+        }
+        const colours = Display.canvasVars[canvasID].colours;
         circleSelection.style("fill", d => colours(d.id))
                        .style("stroke-width", 1)
                        .style("stroke", "#000000");
     },
     styleMonochrome:function(canvasID, circleSelection){
+        //Accept either a selection or a canvasID
+        if(canvasID instanceof d3.selection){
+            canvasID = svg.attr("id");
+        }
         //Takes a selection of node circles and applies monochrome styling to them
         circleSelection.style("fill","#FFFFFF")
                        .style("stroke-width", 1)
@@ -1971,7 +2026,7 @@ const Controller = {
         var oldSettings = jsonCopy(this.settings);
         this.settings = settingsObj;
         if(oldSettings.colourScheme.value !== this.settings.colourScheme.value){
-            Display.updateNodeStyle();
+            Display.updateAllNodeStyle();
         }
         if(oldSettings.forceLayout.value !== this.settings.forceLayout.value){
             Display.updateNodePhysics();
