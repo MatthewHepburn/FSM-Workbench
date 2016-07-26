@@ -494,6 +494,10 @@ input[type=checkbox]{
    height: 80%;
 }
 
+.rate {
+  clear: both;
+}
+
 .sidebar {
   box-sizing: border-box;
   padding-left: 7px;

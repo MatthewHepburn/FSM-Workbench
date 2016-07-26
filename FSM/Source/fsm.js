@@ -1721,17 +1721,18 @@ const Display = {
     styleColour:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies multicoloured styling to them
         if(canvasID instanceof d3.selection){
-            canvasID = svg.attr("id");
+            canvasID = canvasID.attr("id");
         }
         const colours = Display.canvasVars[canvasID].colours;
         circleSelection.style("fill", d => colours(d.id))
+                       .style("fill-opacity", 0.7)
                        .style("stroke-width", 1)
                        .style("stroke", "#000000");
     },
     styleMonochrome:function(canvasID, circleSelection){
         //Accept either a selection or a canvasID
         if(canvasID instanceof d3.selection){
-            canvasID = svg.attr("id");
+            canvasID = canvasID.attr("id");
         }
         //Takes a selection of node circles and applies monochrome styling to them
         circleSelection.style("fill","#FFFFFF")
@@ -2194,6 +2195,12 @@ const Controller = {
         var svg = d3.select("#m1")
             .on("mousedown", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
+        const machineList = Controller.getQuestionMachineList();
+        if(machineList.length > 1){
+            for(let i = 1; i < machineList.length; i++){
+                Controller.addMachine(machineList[i]);
+            }
+        }
         Controller.setUpQuestion();
         Display.setUpQuestion();
         Display.drawGearIcon(svg);
@@ -2206,9 +2213,12 @@ const Controller = {
             Logging.sendSessionData();
         });
     },
+    getQuestionMachineList: function(){
+        const body = document.querySelector("body");
+        return JSON.parse(body.dataset.machinelist);
+    },
     setupMachine: function(machine, i){
-        var body = document.querySelector("body");
-        var spec = JSON.parse(body.dataset.machinelist)[i];
+        var spec = Controller.getQuestionMachineList()[i];
         machine.build(spec);
 
     },

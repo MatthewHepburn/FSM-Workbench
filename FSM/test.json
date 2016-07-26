@@ -1,0 +1,54 @@
+[
+  {
+    "data-question": {
+      "type": "dfa-convert",
+      "text": "The machine on the left is nondeterministic. Construct the equivilant DFA on the right.",
+      "allowEpsilon": "false",
+      "splitSymbol": ""
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 93,
+            "y": 123,
+            "isInit": true,
+            "name": "0"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "A",
+            "B"
+          ],
+          "allowEpsilon": false
+        }
+      },
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 93,
+            "y": 123,
+            "isInit": true,
+            "name": "0-1"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "A",
+            "B"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "test-dfa-convert",
+    "name": "test-dfa-convert",
+    "id": "9c2e07f62096451d8da3190ca81baebb"
+  }
+]

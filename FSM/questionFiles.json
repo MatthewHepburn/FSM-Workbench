@@ -4,5 +4,11 @@
   	"directory": "inf1",
     "endPageID": "c68de244c40b4bba96d94c243064c035"
 
+  },
+  {
+  	"file":"test.json",
+  	"directory": "test_question",
+    "endPageID": "958c6d03c5614f629801e02f09c51100"
+
   }
 ]
