@@ -4,11 +4,14 @@
 const Display = {
     nodeRadius: 12,
     acceptingRadius: 0.7 * 12,
+    //Use a getter as this value is needed further down.
+    get nodeColourScale(){return ["#63a0cb","#ffa657", "#6cbd6c", "#e26869", "#b495d1", "#af8981", "#eba0d4", "#a6a6a6", "#d0d165", "#5dd2dd"];},
     canvasVars: {
+        //Start with one machine initialised
         "m1": {
             "layout":d3.forceSimulation().on("tick", function(){Display.forceTick("m1");}),
             "machine": undefined,
-            "colours": d3.scaleOrdinal(d3.schemeCategory10),
+            "colours": d3.scaleOrdinal(["#63a0cb","#ffa657", "#6cbd6c", "#e26869", "#b495d1", "#af8981", "#eba0d4", "#a6a6a6", "#d0d165", "#5dd2dd"]),
             "toolMode": "none",
             "linkInProgress": false, // True when the user has begun creating a link, but has not selected the second node
             "linkInProgressNode": null, // When linkInProgess is true, holds the source node of the link being created
@@ -19,7 +22,7 @@ const Display = {
         Display.canvasVars[id] = {
             "layout": d3.forceSimulation().on("tick", function(){Display.forceTick(id);}),
             "machine": machine,
-            "colours": d3.scaleOrdinal(d3.schemeCategory10),
+            "colours": d3.scaleOrdinal(Display.nodeColourScale),
             "toolMode": "none",
             "linkInProgress": false,
             "linkInProgressNode": null,
@@ -1716,7 +1719,7 @@ const Display = {
 
     },
     resetColours: function(canvasID){
-        Display.canvasVars[canvasID].colours = d3.scaleOrdinal(d3.schemeCategory10);
+        Display.canvasVars[canvasID].colours = d3.scaleOrdinal(this.nodeColourScale);
     },
     styleColour:function(canvasID, circleSelection){
         //Takes a selection of node circles and applies multicoloured styling to them
@@ -1725,7 +1728,6 @@ const Display = {
         }
         const colours = Display.canvasVars[canvasID].colours;
         circleSelection.style("fill", d => colours(d.id))
-                       .style("fill-opacity", 0.7)
                        .style("stroke-width", 1)
                        .style("stroke", "#000000");
     },
@@ -2185,23 +2187,25 @@ const Controller = {
 
     },
     init: function(){
-        //Reference: addLink(sourceNode, targetNode, input, output, hasEpsilon)
+        //Init process is somewhat complex as parts of the page are already in the HTML for performance reasons.
         Controller.loadSettings();
         m = new Model.Machine("m1");
         Model.machines.push(m);
-        Controller.setupMachine(m, 0);
-        Display.canvasVars["m1"].machine = Model.machines[0];
-        Display.update("m1");
+        Controller.setUpQuestion();
         var svg = d3.select("#m1")
             .on("mousedown", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         const machineList = Controller.getQuestionMachineList();
         if(machineList.length > 1){
+            Display.nodeRadius = Display.nodeRadius * 1.5;
+            Display.acceptingRadius = Display.acceptingRadius * 1.5;
             for(let i = 1; i < machineList.length; i++){
                 Controller.addMachine(machineList[i]);
             }
         }
-        Controller.setUpQuestion();
+        Controller.setupMachine(m, 0);
+        Display.canvasVars["m1"].machine = Model.machines[0];
+        Display.update("m1");
         Display.setUpQuestion();
         Display.drawGearIcon(svg);
         if(Model.question.allowEditing){
