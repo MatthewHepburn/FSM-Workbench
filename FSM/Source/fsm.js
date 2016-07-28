@@ -194,7 +194,7 @@ const Display = {
         if (node1.id === node2.id){
             return {
                 x: node1.x,
-                y: node2.y - 45,
+                y: node2.y - (3.2 * Display.nodeRadius) - 3, //By eye, constant to account for text size
                 rotation: 0
             };
         }
@@ -839,7 +839,7 @@ const Display = {
             elem.classed("highlight-mode-selected", false)
                 .classed("highlight-mode-deselected", false);
         });
-        Display.resetNodeStyling(svg)
+        Display.resetNodeStyling(svg);
 
     },
     stepTrace:function(machineID, deltaStep){
@@ -1235,7 +1235,7 @@ const Display = {
             var x = link.source.x;
             var y = link.source.y;
 
-            var rad = 14;
+            var rad = Display.nodeRadius * 1.16;
             var xoffset = 5;
             var yoffset = 7;
 
@@ -1436,8 +1436,8 @@ const Display = {
 
     },
     setUpQuestion: function(){
-        var qType = Model.question.type;
-        var checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent", "select-states", "does-accept", "satisfy-definition"]; //Question types with a check button
+        const qType = Model.question.type;
+        const checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent", "select-states", "does-accept", "satisfy-definition"]; //Question types with a check button
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }
@@ -1485,6 +1485,9 @@ const Display = {
               .on("click", function(){
                   Controller.resetMachines();
               });
+        }
+        if(qType === "dfa-convert"){
+            Display.promptDfaConvert();
         }
 
     },
@@ -1682,11 +1685,14 @@ const Display = {
         var svg = d3.select("#" + node.machine.id);
         svg.select("#" + node.id + "-label").text(node.name);
     },
-    resetNodeStyling: function(svg){
+    resetNodeStyling: function(svgOrCanvasID){
         //Accept either a selection of a machineID
-        let canvasID = svg;
-        if(canvasID instanceof d3.selection){
+        let canvasID = svgOrCanvasID;
+        let svg = svgOrCanvasID;
+        if(svgOrCanvasID instanceof d3.selection){
             canvasID = svg.attr("id");
+        } else {
+            svg = d3.select("#"+canvasID);
         }
         const circles = svg.selectAll(".nodeg").selectAll(".node");
         const styleFunction = Controller.getColourScheme() === "monochrome"? Display.styleMonochrome : Display.styleColour;
@@ -1759,6 +1765,46 @@ const Display = {
         svg.selectAll(".node").each(function(node){
             d3.select(this).on("mousedown", getOnClickFunction(node));
         });
+    },
+    promptDfaConvert: function(){
+        let promptDiv = d3.select("#dfa-prompt-div");
+        //Create promptDiv if it does not exist
+        if(promptDiv.empty()){
+            promptDiv = d3.select(".question-text")
+                          .append("div")
+                            .attr("id", "dfa-prompt-div");
+            promptDiv.append("div")
+                     .attr("id", "dfa-prompt-text");
+
+            promptDiv.append("div")
+                     .attr("id", "dfa-prompt-button")
+                     .append("button")
+                        .classed("pure-button", true)
+                        .attr("type", "submit")
+                        .text("Check")
+                        .on("click", Controller.checkAnswer);
+        }
+        const promptObj = Model.question.getNextDfaPrompt();
+        //Costruct grammatical phrase for the set of m1nodes
+        const m1NodeNames = promptObj.m1Nodes.map(node => node.name).sort();
+        let m1NodesString = "";
+        if(m1NodeNames.length === 1){
+            m1NodesString = "state " + m1NodeNames[0];
+        }
+        if(m1NodeNames.length > 1){
+            m1NodesString = "states ";
+            for(let i = 0; i + 1 < m1NodeNames.length; i++){
+                m1NodesString += m1NodeNames[i] + ", ";
+            }
+            m1NodesString += "and " + m1NodeNames[m1NodeNames.length - 1];
+        }
+
+
+        let message = `On the left machine, select all states that can reached from ${m1NodesString} for input '${promptObj.symbol}'.`;
+        let promptText = promptDiv.select("#dfa-prompt-text");
+        promptText.text(message);
+
+
     },
     dragHandlers:{
         dragstarted: function(node){
@@ -1952,7 +1998,7 @@ const EventHandler = {
 
 const Controller = {
     settings:{
-        colourScheme: {description: "Colour scheme", value:"colour", options:["colour", "monochrome"]},
+        colourScheme: {description: "Colour scheme", value:"monochrome", options:["colour", "monochrome"]},
         forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
         labelRotation: {description:"Rotate transition labels", value:"long only", options:["always","long only", "never"]}
     },
@@ -2187,11 +2233,10 @@ const Controller = {
 
     },
     init: function(){
-        //Init process is somewhat complex as parts of the page are already in the HTML for performance reasons.
+        //Init process is somewhat complex as parts of the page are already in the HTML for performance / rendering reasons.
         Controller.loadSettings();
         m = new Model.Machine("m1");
         Model.machines.push(m);
-        Controller.setUpQuestion();
         var svg = d3.select("#m1")
             .on("mousedown", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
@@ -2206,6 +2251,7 @@ const Controller = {
         Controller.setupMachine(m, 0);
         Display.canvasVars["m1"].machine = Model.machines[0];
         Display.update("m1");
+        Controller.setUpQuestion();
         Display.setUpQuestion();
         Display.drawGearIcon(svg);
         if(Model.question.allowEditing){
@@ -2232,9 +2278,11 @@ const Controller = {
         if (body.dataset.question != undefined){
             var questionObj = JSON.parse(body.dataset.question);
             Model.question.setUpQuestion(questionObj);
+            return;
         }
         if(Model.question.type === "give-input"){
             Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, 0,  true);}); //true param for hideControls option
+            return;
         }
         if(Model.question.type === "select-states"){
             Model.machines.forEach(function(m){
@@ -2243,6 +2291,7 @@ const Controller = {
                 Controller.startTrace(m, initialSequence, stepsTaken, true);
                 Display.makeNodesSelectable(m);
             });
+            return;
         }
 
     },

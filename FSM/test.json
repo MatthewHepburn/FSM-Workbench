@@ -11,38 +11,107 @@
         "nodes": [
           {
             "id": "A",
-            "x": 93,
-            "y": 123,
+            "x": 85,
+            "y": 127,
             "isInit": true,
-            "name": "0"
+            "name": "Q1"
+          },
+          {
+            "id": "B",
+            "x": 161,
+            "y": 62,
+            "name": "Q3"
+          },
+          {
+            "id": "C",
+            "x": 250,
+            "y": 108,
+            "isAcc": true,
+            "name": "Q4"
+          },
+          {
+            "id": "D",
+            "x": 172,
+            "y": 177,
+            "name": "Q2"
+          },
+          {
+            "id": "E",
+            "x": 272,
+            "y": 175,
+            "isAcc": true,
+            "name": "Q5"
           }
         ],
-        "links": [],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "C",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "D",
+            "input": [
+              "a"
+            ]
+          }
+        ],
         "attributes": {
           "alphabet": [
-            "A",
-            "B"
+            "a",
+            "b"
           ],
-          "allowEpsilon": false
+          "allowEpsilon": true
         }
       },
       {
         "nodes": [
           {
             "id": "A",
-            "x": 93,
-            "y": 123,
+            "x": 100,
+            "y": 125,
             "isInit": true,
-            "name": "0-1"
+            "name": "{Q1}"
           }
         ],
         "links": [],
         "attributes": {
           "alphabet": [
-            "A",
-            "B"
+            "a",
+            "b"
           ],
-          "allowEpsilon": false
+          "allowEpsilon": true
         }
       }
     ],

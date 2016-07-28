@@ -1059,7 +1059,7 @@ const Model = {
     question: {
         type: "none",
         splitSymbol:"",
-        allowEditing: true,
+        allowEditing: false,
         setUpQuestion: function(questionObj){
             // Assign properties from the question object to this object
             for(var property in questionObj){
@@ -1072,6 +1072,19 @@ const Model = {
             }
             if(Model.question.type === "give-input"){
                 Model.question.currentInput = [];
+            }
+            if(Model.question.type === "dfa-convert"){
+                //Set up a mapping from nodes in m2 in sets of nodes in m1
+                const m1InitialNodes = Model.machines[0].getNodeList().filter(node => node.isInitial);
+                const m2InitialNodeID = Model.machines[1].getNodeList().filter(node => node.isInitial)[0].id;
+                Model.question.m2tom1 = {};
+                Model.question.m2tom1[m2InitialNodeID] = m1InitialNodes;
+
+                //Keep track of which m2Node / symbol pairs must be investiagated
+                Model.question.frontier = [];
+                Model.machines[0].alphabet.forEach(function(symbol){
+                    Model.question.frontier.push([m2InitialNodeID, symbol]);
+                });
             }
 
         },
@@ -1381,6 +1394,36 @@ const Model = {
             feedbackObj.allCorrectFlag = true;
             return feedbackObj;
 
+        },
+        getNextDfaPrompt: function(){
+            const promptObj = {
+                m1Nodes: [],
+                m2Node: undefined,
+                symbol: undefined,
+                done: undefined
+            };
+            const m2 = Model.machines[1];
+
+            //Find next entry in frontier to ask about (exclude entries result in no additions)
+            while(Model.question.frontier.length > 0){
+                //Frontier is in form: [[m2NodeID, symbol]]
+                const pair = Model.question.frontier.pop();
+                const m2Node = m2.nodes[pair[0]];
+                const symbol = pair[1];
+                const m1NodeList = Model.question.m2tom1[m2Node.id];
+
+                for(let i = 0; i < m1NodeList.length; i++){
+                    const node = m1NodeList[i];
+                    if(node.getReachableNodes(symbol).nodeIDs.length > 1){
+                        promptObj.m1Nodes = m1NodeList;
+                        promptObj.m2Node = m2Node;
+                        promptObj.symbol = symbol;
+                        promptObj.dones = false;
+                    }
+                }
+            }
+            promptObj.done = true;
+            return promptObj;
         }
     }
 };
