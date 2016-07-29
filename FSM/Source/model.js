@@ -1074,23 +1074,32 @@ const Model = {
                 Model.question.currentInput = [];
             }
             if(Model.question.type === "dfa-convert"){
+                const m1 = Model.machines[0];
+                const m2 = Model.machines[1];
+
                 //Set up a mapping from nodes in m2 in sets of nodes in m1
-                const m1InitialNodes = Model.machines[0].getNodeList().filter(node => node.isInitial);
-                const m2InitialNodeID = Model.machines[1].getNodeList().filter(node => node.isInitial)[0].id;
+                const m1InitialNodes = m1.getNodeList().filter(node => node.isInitial);
+                const m2InitialNode = m2.getNodeList().filter(node => node.isInitial)[0];
                 Model.question.m2tom1 = {};
-                Model.question.m2tom1[m2InitialNodeID] = m1InitialNodes;
+                Model.question.m2tom1[m2InitialNode.id] = m1InitialNodes;
 
                 //Keep track of which m2Node / symbol pairs must be investiagated
                 Model.question.frontier = [];
                 Model.machines[0].alphabet.forEach(function(symbol){
-                    Model.question.frontier.push([m2InitialNodeID, symbol]);
+                    Model.question.frontier.push([m2InitialNode.id, symbol]);
                 });
+
+                //Setup a mapping from nodeset names to m2Nodes (eg "{q1, q2, q3}" -> Node)
+                Model.question.nodeSetNameToM2Node = {};
+                const initialNodesSetName = "{" + m1InitialNodes.map(node => node.name).sort().reduce((x,y) => `${x}, ${y}`) + "}";
+                Model.question.nodeSetNameToM2Node[initialNodesSetName] = m2InitialNode;
             }
 
         },
         checkAnswer: function(input){
             //Input other than the machine only recquired for some question types (but always passed along anyway for simplicity)
             var checkFunctions = {
+                "dfa-convert": this.checkDfaConvert,
                 "does-accept": this.checkDoesAccept,
                 "give-equivalent": this.checkGiveEquivalent,
                 "give-input": this.checkGiveInput,
@@ -1104,6 +1113,93 @@ const Model = {
             }else{
                 return checkFunctions[this.type](input);
             }
+        },
+        checkDfaConvert: function(){
+            const promptObj = Model.question.lastPromptObj;
+            const feedbackObj = {
+                allCorrectFlag: false,
+                falsePositiveNode: undefined,
+                falseNegativeNode: undefined,
+                symbol: promptObj.symbol,
+                newNode: false,
+                sourceNode: false,
+                thisCorrect: false
+            };
+            const m1 = Model.machines[0];
+            const m2 = Model.machines[1];
+            const selectedNodes = m1.getNodeList().filter(node => node.selected);
+            const m2Node = promptObj.m2Node;
+            const symbol = promptObj.symbol;
+
+            const m1Nodes = promptObj.m1Nodes;
+            const allReachableNodes = [];
+            //Find all nodes reachable from m1Nodes for input symbol
+            m1Nodes.forEach(function(node){
+                const reachableNodes = node.getReachableNodes(symbol).nodeIDs.map(nodeID => m1.nodes[nodeID]);
+                reachableNodes.forEach(function(node){
+                    if(!allReachableNodes.includes(node)){
+                        allReachableNodes.push(node);
+                    }
+                });
+            });
+
+            //Check for false positives (nodes that are selected but are not in allReachableNodes)
+            for(let i = 0; i < selectedNodes.length; i++){
+                const node = selectedNodes[i];
+                if(!allReachableNodes.includes(node)){
+                    feedbackObj.falsePositiveNode = node;
+                    return feedbackObj;
+                }
+            }
+
+            //Check for false negatives (nodes that are not selected but are in allReachableNodes)
+            for(let i = 0; i < allReachableNodes.length; i++){
+                const node = allReachableNodes[i];
+                if(!selectedNodes.includes(node)){
+                    feedbackObj.falseNegativeNode = node;
+                    return feedbackObj;
+                }
+            }
+
+            //No false positives or negatives -> correct answer
+            //So add corresponding node to m2 (if it is not already present)
+            const nodeSetName = "{" + selectedNodes.map(node => node.name).sort().reduce((x,y) => `${x}, ${y}`) + "}";
+            let targetM2Node = Model.question.nodeSetNameToM2Node[nodeSetName];
+            if(!targetM2Node){
+                //Corresponding node not present in m2, create it.
+                const isInitial = false; //New nodes cannot be initial
+                const isAccepting = selectedNodes.map(node => node.isAccepting).reduce((x,y) => x || y); //New node is accepting if any of its consitituent nodes are.
+                const x = 0; //Node repositioning is the responsibility of Display.
+                const y = 0;
+                targetM2Node = m2.addNode(x, y, nodeSetName, isInitial, isAccepting);
+
+                feedbackObj.newNode = targetM2Node; //Tell Display which node must be positioned.
+                feedbackObj.sourceNode = m2Node;
+
+                //If creating a new node, we must update the frontier:
+                const alphabet = m2.alphabet.map(x => x).reverse(); //Create reversed copy of alphabet. Reversed so that order will be correct after push/pop.
+                alphabet.forEach(function(symbol){
+                    Model.question.frontier.push([targetM2Node.id, symbol]);
+                });
+
+                //And the mappings:
+                Model.question.m2tom1[targetM2Node.id] = selectedNodes;
+                Model.question.nodeSetNameToM2Node[nodeSetName] = targetM2Node;
+            }
+
+            // Now we must add a link to targetM2Node (or modify an existing link)
+            let link = m2Node.getLinkTo(targetM2Node);
+            if(!link){
+                link = m2.addLink(m2Node, targetM2Node, [symbol], {}, false);
+            } else {
+                link.addInput([symbol], false);
+            }
+
+            // Finally, return the feedbackObj
+            feedbackObj.thisCorrect = true;
+            return feedbackObj;
+
+
         },
         checkSatisfyDefintion: function(){
             const machine = Model.machines[0];
@@ -1414,15 +1510,18 @@ const Model = {
 
                 for(let i = 0; i < m1NodeList.length; i++){
                     const node = m1NodeList[i];
-                    if(node.getReachableNodes(symbol).nodeIDs.length > 1){
+                    if(node.getReachableNodes(symbol).nodeIDs.length > 0){
                         promptObj.m1Nodes = m1NodeList;
                         promptObj.m2Node = m2Node;
                         promptObj.symbol = symbol;
-                        promptObj.dones = false;
+                        promptObj.done = false;
+                        Model.question.lastPromptObj = promptObj;
+                        return promptObj;
                     }
                 }
             }
             promptObj.done = true;
+            Model.question.lastPromptObj = promptObj;
             return promptObj;
         }
     }

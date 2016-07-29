@@ -243,7 +243,7 @@ const Display = {
             };
         }
     },
-    getTextLength:function(svg,text, fontSize, className){
+    getTextLength: function(svg,text, fontSize, className){
         //Returns the length of some text in the units of the specified SVG when rendered as an SVG using the specifed fontSize and class.
         const textElem = svg.append("text")
                       .text(text)
@@ -289,9 +289,49 @@ const Display = {
             Display.giveFeedbackForSatisfyDefinition(feedbackObj);
             return;
         }
+        if(Model.question.type === "dfa-convert"){
+            Display.giveFeedbackForDfaConvert(feedbackObj);
+            return;
+        }
         throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
     },
-    giveFeedbackForSatisfyDefinition:function(feedbackObj){
+    giveFeedbackForDfaConvert: function(feedbackObj){
+        const feedbackSpan = d3.select("#dfa-convert-feedback");
+        if(feedbackObj.allCorrectFlag === true){
+            feedbackSpan.text("Conversion complete!");
+            return;
+        }
+        if(feedbackObj.falsePositiveNode){
+            feedbackSpan.text("X – state " + feedbackObj.falsePositiveNode.name + " is not reachable for input '" + feedbackObj.symbol + "'.");
+            return;
+        }
+        if(feedbackObj.falseNegativeNode){
+            feedbackSpan.text("X – state " + feedbackObj.falseNegativeNode.name + " is also reachable for input '" + feedbackObj.symbol + "'.");
+            return;
+        }
+
+        //Correct, reposition the new node if necessary, update the m2 canvas, and get the next prompt.
+        if(feedbackObj.newNode){
+            const newNode = feedbackObj.newNode;
+            const sourceNode = feedbackObj.sourceNode;
+            const machine = sourceNode.machine;
+
+            var xOffset = 60;
+            var maxYoffset = 30;
+
+            newNode.x = sourceNode.x + xOffset;
+            if(machine.getNodeList().filter(node => node.x === sourceNode.x + xOffset && node.y === sourceNode.y).length > 0){
+                newNode.y = sourceNode.y + (maxYoffset * 2 * (Math.random() - 0.5));
+            } else {
+                newNode.y = sourceNode.y;
+            }
+        }
+        Display.update(Model.machines[1].id);
+        Display.getCanvasVars("m2").layout.alphaTarget(0.4).restart();
+        Display.promptDfaConvert();
+
+    },
+    giveFeedbackForSatisfyDefinition: function(feedbackObj){
         var buttonDiv = d3.select(".button-div");
         if(buttonDiv.select("#adjacent-feedback").empty()){
             buttonDiv.append("div").attr("id", "adjacent-feedback");
@@ -357,7 +397,7 @@ const Display = {
         }
 
     },
-    giveFeedbackForGiveEquivalent:function(feedbackObj){
+    giveFeedbackForGiveEquivalent: function(feedbackObj){
         var buttonDiv = d3.select(".button-div");
         if(buttonDiv.select("#adjacent-feedback").empty()){
             buttonDiv.append("div").attr("id", "adjacent-feedback");
@@ -437,7 +477,7 @@ const Display = {
                 .attr("class", "gear-icon")
                 .on("click", function(){Display.drawSettingsMenu(svg);});
     },
-    drawContextMenu:function(svg,mousePosition,actions){
+    drawContextMenu: function(svg,mousePosition,actions){
         //Generic function to draw a context menu, with the labels and associated functions specified in actions in the
         //from [["label", function(){doThing;}], ["label2", function(){doOtherThing();}]]
         var fontSize = 12;
@@ -493,7 +533,7 @@ const Display = {
         }
     },
 
-    drawLinkContextMenu:function(svg,link,mousePosition){
+    drawLinkContextMenu: function(svg,link,mousePosition){
         var actions = [["Change Conditions",function(){Controller.requestLinkRename(link); Display.dismissContextMenu();}],
                        ["Delete Link", function(){Controller.deleteLink(link); Display.dismissContextMenu();}],
                        ["Reverse Link", function(){Controller.reverseLink(link); Display.dismissContextMenu();}]];
@@ -728,7 +768,7 @@ const Display = {
             .text("OK");
 
     },
-    drawTrace:function(canvasID, traceObj, hideControls){
+    drawTrace: function(canvasID, traceObj, hideControls){
         var svg = d3.select(`#${canvasID}`);
         var canvasVars = Display.getCanvasVars(canvasID);
         canvasVars.traceStep = 0;
@@ -842,7 +882,7 @@ const Display = {
         Display.resetNodeStyling(svg);
 
     },
-    stepTrace:function(machineID, deltaStep){
+    stepTrace: function(machineID, deltaStep){
         //advances the trace by deltaStep steps. NB deltaStep can be negative => deltaStep = -1 means move back one step
         var svg = d3.select("#" + machineID);
         var canvasVars = Display.getCanvasVars(machineID);
@@ -1349,7 +1389,7 @@ const Display = {
             return Display.canvasVars[canvasID].linkInProgressNode;
         }
     },
-    appendLinkLabelTspans:function(element,link){
+    appendLinkLabelTspans: function(element,link){
         //Append <tspan> to element. Allows individual input elements to be addressable, allowing them to be highlighted.
         var e = d3.select(element);
         for(var i = 0; i < link.input.length; i++){
@@ -1371,7 +1411,7 @@ const Display = {
              .attr("id",link => `${link.id}-input-eps`);
         }
     },
-    linkLabelText:function(link){
+    linkLabelText: function(link){
         //Create the label string for a link
         var labelString;
         if (link.input.length == 0) {
@@ -1420,7 +1460,7 @@ const Display = {
             canvasVars.submitRenameFunction(renameForm);
         }
     },
-    clearMenus:function(svg){
+    clearMenus: function(svg){
         //Submits rename menus, dismisses the trace, dismisses context menus
         //Accepts a d3 selection or a canvasID
         if(!(svg instanceof d3.selection)){
@@ -1533,8 +1573,9 @@ const Display = {
             .classed("nodename", true)
             .attr("id", function(node){return node.id + "-label";})
             .attr("font-size", 1.2 * Display.acceptingRadius)   // Sets the font height relative to the radius of the inner ring on accepting nodes
-            .on("click", EventHandler.nodeClick)
-            .on("contextmenu", EventHandler.nodeContextClick)
+            .on("click", function(node){d3.select("#" +node.id).on("mousedown")(node);}) //Call the event listeners on the node (could just pass events using
+                                                                                    // pointer-events: none but want name to be clickable when it is outside a node)
+            .on("contextmenu", function(node){EventHandler.nodeContextClick(node, true);})
             .text(function(node){return node.name;});
 
 
@@ -1704,7 +1745,7 @@ const Display = {
             Display.resetNodeStyling(id);
         }
     },
-    updateNodePhysics:function(){
+    updateNodePhysics: function(){
         for(let i = 0; i < Model.machines.length; i++){
             const machine = Model.machines[i];
             for(const nodeID in machine.nodes){
@@ -1727,7 +1768,7 @@ const Display = {
     resetColours: function(canvasID){
         Display.canvasVars[canvasID].colours = d3.scaleOrdinal(this.nodeColourScale);
     },
-    styleColour:function(canvasID, circleSelection){
+    styleColour: function(canvasID, circleSelection){
         //Takes a selection of node circles and applies multicoloured styling to them
         if(canvasID instanceof d3.selection){
             canvasID = canvasID.attr("id");
@@ -1737,7 +1778,7 @@ const Display = {
                        .style("stroke-width", 1)
                        .style("stroke", "#000000");
     },
-    styleMonochrome:function(canvasID, circleSelection){
+    styleMonochrome: function(canvasID, circleSelection){
         //Accept either a selection or a canvasID
         if(canvasID instanceof d3.selection){
             canvasID = canvasID.attr("id");
@@ -1762,9 +1803,12 @@ const Display = {
             };
         };
         var svg = d3.select(`#${machineID}`);
-        svg.selectAll(".node").each(function(node){
-            d3.select(this).on("mousedown", getOnClickFunction(node));
-        });
+        svg.selectAll(".node")
+           .classed("selected", false)
+           .each(function(node){
+               d3.select(this).on("mousedown", getOnClickFunction(node));
+               node.selected = false;
+           });
     },
     promptDfaConvert: function(){
         let promptDiv = d3.select("#dfa-prompt-div");
@@ -1776,13 +1820,17 @@ const Display = {
             promptDiv.append("div")
                      .attr("id", "dfa-prompt-text");
 
-            promptDiv.append("div")
-                     .attr("id", "dfa-prompt-button")
-                     .append("button")
-                        .classed("pure-button", true)
-                        .attr("type", "submit")
-                        .text("Check")
-                        .on("click", Controller.checkAnswer);
+            const buttonDiv = promptDiv.append("div")
+                                       .attr("id", "dfa-prompt-button-div");
+
+            buttonDiv.append("button")
+                     .classed("pure-button", true)
+                     .attr("type", "submit")
+                     .text("Check")
+                     .on("click", Controller.checkAnswer);
+
+            buttonDiv.append("span")
+                     .attr("id", "dfa-convert-feedback");
         }
         const promptObj = Model.question.getNextDfaPrompt();
         //Costruct grammatical phrase for the set of m1nodes
@@ -1804,7 +1852,9 @@ const Display = {
         let promptText = promptDiv.select("#dfa-prompt-text");
         promptText.text(message);
 
-
+        Display.highlightNodes(Model.machines[0].id, promptObj.m1Nodes, "#2CA02C", true);
+        Display.highlightNodes(Model.machines[1].id, [promptObj.m2Node], "#2CA02C", true);
+        Display.makeNodesSelectable(Model.machines[0].id);
     },
     dragHandlers:{
         dragstarted: function(node){
@@ -1950,8 +2000,8 @@ const EventHandler = {
         }
         return true;
     },
-    nodeContextClick: function(node){
-        if(d3.event.type !== "contextmenu"){
+    nodeContextClick: function(node, forceInvoke){
+        if(d3.event.type !== "contextmenu" && !forceInvoke){
             return;
         }
         d3.event.preventDefault();
@@ -1966,7 +2016,7 @@ const EventHandler = {
         }
 
     },
-    linkRenameFormKeypress:function(link, context, formType){
+    linkRenameFormKeypress: function(link, context, formType){
         // Event handler to prevent submission of page on return key
         // and to notify Controller instead
         if (event.keyCode != 13){
@@ -2025,6 +2075,10 @@ const Controller = {
         }
         var feedbackObj = Model.question.checkAnswer(input);
         Display.giveFeedback(feedbackObj);
+        if(Model.question.type === "dfa-convert" && feedbackObj.allCorrectFlag === false){
+            // Only submit final dfa answer, as multiple steps are necessary.
+            return;
+        }
         if(input === undefined){
             const answer = Model.getMachineList();
             Logging.sendAnswer(feedbackObj.allCorrectFlag, answer);
@@ -2033,7 +2087,7 @@ const Controller = {
         }
 
     },
-    getQuestionInput:function(type){
+    getQuestionInput: function(type){
         var input;
         if(type === "give-list"){
             // Obtain the users input as a list of unproccessed strings
@@ -2051,7 +2105,7 @@ const Controller = {
         }
         return input;
     },
-    loadSettings:function(){
+    loadSettings: function(){
         //Load settings from localStorage if it exists and has a settings entry
         if(!localStorage){
             return;
@@ -2067,7 +2121,7 @@ const Controller = {
         }
 
     },
-    getSettings:function(){
+    getSettings: function(){
         return jsonCopy(this.settings);
     },
     setSettings: function(settingsObj){
@@ -2092,21 +2146,21 @@ const Controller = {
             localStorage.setItem("settings", JSON.stringify(saveObj));
         }
     },
-    convertToDFA:function(machine){
+    convertToDFA: function(machine){
         Display.clearMenus(machine.id);
         machine.convertToDFA();
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
     },
-    minimize:function(machine){
+    minimize: function(machine){
         Display.clearMenus(machine.id);
         machine.minimize();
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
     },
-    reverseMachine:function(machine){
+    reverseMachine: function(machine){
         Display.clearMenus(machine.id);
         machine.reverse();
         Display.resetColours(machine.id);

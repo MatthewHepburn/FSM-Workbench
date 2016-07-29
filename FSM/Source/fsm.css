@@ -203,6 +203,7 @@ text.nodename {
   font-family: "Ek Mukta", sans-serif;
   dominant-baseline: central;
   alignment-baseline: central;
+  cursor: pointer;
 }
 
 .contextmenu {
