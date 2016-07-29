@@ -575,3 +575,7 @@ input[type=checkbox]{
   font-size: xx-large;
   vertical-align: middle;
 }
+
+.invisible{
+  visibility: hidden;
+}

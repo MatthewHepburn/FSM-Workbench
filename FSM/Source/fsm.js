@@ -297,16 +297,18 @@ const Display = {
     },
     giveFeedbackForDfaConvert: function(feedbackObj){
         const feedbackSpan = d3.select("#dfa-convert-feedback");
-        if(feedbackObj.allCorrectFlag === true){
-            feedbackSpan.text("Conversion complete!");
-            return;
-        }
         if(feedbackObj.falsePositiveNode){
-            feedbackSpan.text("X – state " + feedbackObj.falsePositiveNode.name + " is not reachable for input '" + feedbackObj.symbol + "'.");
+            feedbackSpan.html("X – state <b>" + feedbackObj.falsePositiveNode.name + "</b> is not reachable for input '<b>" + feedbackObj.symbol + "</b>'.");
             return;
         }
         if(feedbackObj.falseNegativeNode){
-            feedbackSpan.text("X – state " + feedbackObj.falseNegativeNode.name + " is also reachable for input '" + feedbackObj.symbol + "'.");
+            feedbackSpan.html("X – state <b>" + feedbackObj.falseNegativeNode.name + "</b> is also reachable for input '<b>" + feedbackObj.symbol + "</b>'.");
+            return;
+        }
+
+        if(feedbackObj.allCorrectFlag){
+            d3.select("#dfa-prompt-button-div").classed("invisible", true);
+            d3.select("#dfa-prompt-text").text("Conversion complete!");
             return;
         }
 
@@ -1837,20 +1839,20 @@ const Display = {
         const m1NodeNames = promptObj.m1Nodes.map(node => node.name).sort();
         let m1NodesString = "";
         if(m1NodeNames.length === 1){
-            m1NodesString = "state " + m1NodeNames[0];
+            m1NodesString = "state <b>" + m1NodeNames[0] + "</b>";
         }
         if(m1NodeNames.length > 1){
-            m1NodesString = "states ";
+            m1NodesString = "states <b>";
             for(let i = 0; i + 1 < m1NodeNames.length; i++){
                 m1NodesString += m1NodeNames[i] + ", ";
             }
-            m1NodesString += "and " + m1NodeNames[m1NodeNames.length - 1];
+            m1NodesString += "and " + m1NodeNames[m1NodeNames.length - 1] + "</b>";
         }
 
 
-        let message = `On the left machine, select all states that can reached from ${m1NodesString} for input '${promptObj.symbol}'.`;
+        let message = `On the left machine, select all states that can reached from ${m1NodesString} for input '<b>${promptObj.symbol}</b>'.`;
         let promptText = promptDiv.select("#dfa-prompt-text");
-        promptText.text(message);
+        promptText.html(message);
 
         Display.highlightNodes(Model.machines[0].id, promptObj.m1Nodes, "#2CA02C", true);
         Display.highlightNodes(Model.machines[1].id, [promptObj.m2Node], "#2CA02C", true);

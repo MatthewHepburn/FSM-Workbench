@@ -1086,7 +1086,8 @@ const Model = {
                 //Keep track of which m2Node / symbol pairs must be investiagated
                 Model.question.frontier = [];
                 Model.machines[0].alphabet.forEach(function(symbol){
-                    Model.question.frontier.push([m2InitialNode.id, symbol]);
+                    //Add pair to frontier if any of the m1Initial nodes have a reachable node
+                    Model.question.DfaAddToFrontier(m2InitialNode.id, symbol)
                 });
 
                 //Setup a mapping from nodeset names to m2Nodes (eg "{q1, q2, q3}" -> Node)
@@ -1176,15 +1177,15 @@ const Model = {
                 feedbackObj.newNode = targetM2Node; //Tell Display which node must be positioned.
                 feedbackObj.sourceNode = m2Node;
 
-                //If creating a new node, we must update the frontier:
-                const alphabet = m2.alphabet.map(x => x).reverse(); //Create reversed copy of alphabet. Reversed so that order will be correct after push/pop.
-                alphabet.forEach(function(symbol){
-                    Model.question.frontier.push([targetM2Node.id, symbol]);
-                });
-
-                //And the mappings:
+                //If creating a new node, we must update the mappings:
                 Model.question.m2tom1[targetM2Node.id] = selectedNodes;
                 Model.question.nodeSetNameToM2Node[nodeSetName] = targetM2Node;
+
+                //And the frontier
+                const alphabet = m2.alphabet.map(x => x).reverse(); //Create reversed copy of alphabet. Reversed so that order will be correct after push/pop.
+                alphabet.forEach(function(symbol){
+                    Model.question.DfaAddToFrontier(targetM2Node.id, symbol);
+                });
             }
 
             // Now we must add a link to targetM2Node (or modify an existing link)
@@ -1197,6 +1198,7 @@ const Model = {
 
             // Finally, return the feedbackObj
             feedbackObj.thisCorrect = true;
+            feedbackObj.allCorrectFlag = Model.question.frontier.length === 0; //Process finished if frontier is empty.
             return feedbackObj;
 
 
@@ -1492,37 +1494,37 @@ const Model = {
 
         },
         getNextDfaPrompt: function(){
-            const promptObj = {
-                m1Nodes: [],
-                m2Node: undefined,
-                symbol: undefined,
-                done: undefined
-            };
-            const m2 = Model.machines[1];
-
-            //Find next entry in frontier to ask about (exclude entries result in no additions)
-            while(Model.question.frontier.length > 0){
-                //Frontier is in form: [[m2NodeID, symbol]]
-                const pair = Model.question.frontier.pop();
-                const m2Node = m2.nodes[pair[0]];
-                const symbol = pair[1];
-                const m1NodeList = Model.question.m2tom1[m2Node.id];
-
-                for(let i = 0; i < m1NodeList.length; i++){
-                    const node = m1NodeList[i];
-                    if(node.getReachableNodes(symbol).nodeIDs.length > 0){
-                        promptObj.m1Nodes = m1NodeList;
-                        promptObj.m2Node = m2Node;
-                        promptObj.symbol = symbol;
-                        promptObj.done = false;
-                        Model.question.lastPromptObj = promptObj;
-                        return promptObj;
-                    }
-                }
+            if(Model.question.frontier.length === 0){
+                throw new Error("Error in Model.question.getNextDfaPrompt – frontier is empty.");
             }
-            promptObj.done = true;
+
+            const m2 = Model.machines[1];
+            const pair = Model.question.frontier.pop();
+            const m2Node = m2.nodes[pair[0]];
+            const symbol = pair[1];
+            const m1Nodes = Model.question.m2tom1[m2Node.id];
+
+            const promptObj = {
+                m1Nodes,
+                m2Node,
+                symbol
+            };
+
             Model.question.lastPromptObj = promptObj;
             return promptObj;
+        },
+        DfaAddToFrontier: function(m2NodeID, symbol){
+            const frontier = Model.question.frontier;
+            //Don't add if already in frontier:
+            if(frontier.filter(pair => pair[0] === m2NodeID && pair[1] === symbol).length > 0){
+                return;
+            }
+            //Don't add if no reachable nodes from corresponding m1nodes
+            const m1Nodes = Model.question.m2tom1[m2NodeID];
+            const hasReachableNodes = m1Nodes.map(node => node.getReachableNodes(symbol).nodeIDs).filter(nodeIDs => nodeIDs.length > 0).length > 0;
+            if(hasReachableNodes){
+                frontier.push([m2NodeID, symbol]);
+            }
         }
     }
 };
