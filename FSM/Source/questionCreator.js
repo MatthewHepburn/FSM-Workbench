@@ -7,7 +7,7 @@
 
 const edit = {
     question: {},
-    questionTypes: ["give-equivalent", "give-input", "give-list", "satisfy-list", "select-states", "does-accept", "satisfy-definition"].sort(),
+    questionTypes: ["dfa-convert", "give-equivalent", "give-input", "give-list", "satisfy-list", "select-states", "does-accept", "satisfy-definition"].sort(),
     questionSchema: {
         common:{
             text: {description: "Text of the question. HTML tags allowed.", optional: false, expectStr: true},
@@ -40,6 +40,8 @@ const edit = {
             sequences:{description: "An array of input sequences. For each he user must determine if the machine accepts them", optional: false, expectStr: false, default:'["aa", "aab"]'}
         },
         "satisfy-definition":{
+        },
+        "dfa-convert":{
 
         }
     },
@@ -92,7 +94,9 @@ const edit = {
         } else if(qType === "satisfy-definition"){
             edit.showTwoMachines("Initial machine", "Specified machine");
             edit.showGetFormalDefinition();
-        } else {
+        } else if(qType === "dfa-convert"){
+            edit.showTwoMachines("NFA", "DFA");
+        }else{
             edit.showOneMachine();
         }
 

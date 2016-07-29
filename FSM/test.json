@@ -119,5 +119,125 @@
     "filename": "test-dfa-convert",
     "name": "test-dfa-convert",
     "id": "9c2e07f62096451d8da3190ca81baebb"
+  },
+  {
+    "data-question": {
+      "type": "dfa-convert",
+      "text": "Test question",
+      "allowEpsilon": "true",
+      "splitSymbol": ""
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 104,
+            "y": 180,
+            "isInit": true,
+            "name": "Q1"
+          },
+          {
+            "id": "B",
+            "x": 195,
+            "y": 138,
+            "name": "Q2"
+          },
+          {
+            "id": "C",
+            "x": 187,
+            "y": 38,
+            "name": "Q3"
+          },
+          {
+            "id": "D",
+            "x": 283,
+            "y": 184,
+            "name": "Q4"
+          },
+          {
+            "id": "E",
+            "x": 192,
+            "y": 226,
+            "isAcc": true,
+            "name": "Q5"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "c"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "E",
+            "hasEps": true
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      },
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 100,
+            "y": 125,
+            "isInit": true,
+            "name": "{Q1}"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "test-dfa-convert-2",
+    "name": "test-dfa-convert-2",
+    "id": "8b59c1017b6c494198ec4db9c1671bb7"
   }
 ]

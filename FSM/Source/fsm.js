@@ -306,11 +306,7 @@ const Display = {
             return;
         }
 
-        if(feedbackObj.allCorrectFlag){
-            d3.select("#dfa-prompt-button-div").classed("invisible", true);
-            d3.select("#dfa-prompt-text").text("Conversion complete!");
-            return;
-        }
+        feedbackSpan.html("");
 
         //Correct, reposition the new node if necessary, update the m2 canvas, and get the next prompt.
         if(feedbackObj.newNode){
@@ -330,7 +326,15 @@ const Display = {
         }
         Display.update(Model.machines[1].id);
         Display.getCanvasVars("m2").layout.alphaTarget(0.4).restart();
-        Display.promptDfaConvert();
+
+        //Done if allCorrectFlag == true, otherwise prompt next node set.
+        if(feedbackObj.allCorrectFlag){
+            d3.select("#dfa-prompt-button-div").classed("invisible", true);
+            d3.select("#dfa-prompt-text").text("Conversion complete!");
+            return;
+        }else{
+            Display.promptDfaConvert();
+        }
 
     },
     giveFeedbackForSatisfyDefinition: function(feedbackObj){

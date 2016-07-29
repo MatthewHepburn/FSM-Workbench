@@ -932,6 +932,22 @@ const Model = {
                 return context.outgoingLinks[linkID].hasEpsilon;
             });
         };
+        this.getEpsilonReachableNodes = function(){
+            //Returns an array of nodes reachable from this node via 1 or more epsilon transitions
+            const allReachableNodes = [];
+            const frontier = [this];
+            while(frontier.length > 0){
+                const node = frontier.pop();
+                const reachableNodes = node.getEpsilonLinks().map(linkID => this.machine.links[linkID]).map(link => link.target);
+                reachableNodes.forEach(function(node){
+                    if(!allReachableNodes.includes(node)){
+                        allReachableNodes.push(node);
+                        frontier.push(node);
+                    }
+                });
+            }
+            return allReachableNodes;
+        };
         this.getReachableNodes = function(symbol){
             //Return an object containing nodeIDs of nodes reachable from this node for the given input symbol
             //and the linkIDs of links used
