@@ -6,7 +6,8 @@
     "build": "python build.py",
     "test": "nyc --reporter=lcov --require babel-core/register mocha Tests/testModel.js",
     "babel": "babel Deploy -d Deploy",
-    "uglifyjs": "uglifyjs  --screw-ie8 --compress --keep-fnames --keep-quoted-props"
+    "uglifyjs": "uglifyjs  --screw-ie8 --compress --keep-fnames --keep-quoted-props",
+    "test-selenium": "mocha Tests/testSelenium.js"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
@@ -20,6 +21,7 @@
     "istanbul": "^0.4.3",
     "jsdom": "~9.2.0",
     "mocha": "~2.5.3",
+    "selenium-webdriver": "^2.53.3",
     "uglify-js": "^2.7.0",
     "webpack": "~1.13.1"
   },
