@@ -2320,7 +2320,7 @@ const Controller = {
         if(Model.question.allowEditing){
             Model.machines.forEach(function(machine){
                 Display.drawControlPalette(machine.id);
-            })
+            });
         }
 
         //Register a listener to send session data when the user leaves the page
@@ -2343,7 +2343,6 @@ const Controller = {
         if (body.dataset.question != undefined){
             var questionObj = JSON.parse(body.dataset.question);
             Model.question.setUpQuestion(questionObj);
-            return;
         }
         if(Model.question.type === "give-input"){
             Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, 0,  true);}); //true param for hideControls option
