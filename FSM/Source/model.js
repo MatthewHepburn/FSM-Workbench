@@ -1075,7 +1075,7 @@ const Model = {
     question: {
         type: "none",
         splitSymbol:"",
-        allowEditing: false,
+        allowEditing: true,
         setUpQuestion: function(questionObj){
             // Assign properties from the question object to this object
             for(var property in questionObj){
@@ -1103,7 +1103,7 @@ const Model = {
                 Model.question.frontier = [];
                 Model.machines[0].alphabet.forEach(function(symbol){
                     //Add pair to frontier if any of the m1Initial nodes have a reachable node
-                    Model.question.DfaAddToFrontier(m2InitialNode.id, symbol)
+                    Model.question.DfaAddToFrontier(m2InitialNode.id, symbol);
                 });
 
                 //Setup a mapping from nodeset names to m2Nodes (eg "{q1, q2, q3}" -> Node)

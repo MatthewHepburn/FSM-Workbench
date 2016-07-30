@@ -2058,13 +2058,16 @@ const Controller = {
         forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
         labelRotation: {description:"Rotate transition labels", value:"long only", options:["always","long only", "never"]}
     },
-    addMachine: function(specObj){
+    addMachine: function(specObj, allowEditing){
         //Adds a machine to the model and displays it on a new canvas
         var newMachine = Model.addMachine(specObj);
         var machineID = newMachine.id;
         Display.newCanvas(machineID, newMachine);
         Display.update(machineID);
-        if(Model.question.allowEditing){
+        if (allowEditing === undefined){
+            allowEditing = Model.question.allowEditing;
+        }
+        if(allowEditing){
             Display.drawControlPalette(machineID);
         }
         return machineID;
@@ -2305,7 +2308,7 @@ const Controller = {
             Display.nodeRadius = Display.nodeRadius * 1.5;
             Display.acceptingRadius = Display.acceptingRadius * 1.5;
             for(let i = 1; i < machineList.length; i++){
-                Controller.addMachine(machineList[i]);
+                Controller.addMachine(machineList[i], false);
             }
         }
         Controller.setupMachine(m, 0);
@@ -2315,7 +2318,9 @@ const Controller = {
         Display.setUpQuestion();
         Display.drawGearIcon(svg);
         if(Model.question.allowEditing){
-            Display.drawControlPalette("m1");
+            Model.machines.forEach(function(machine){
+                Display.drawControlPalette(machine.id);
+            })
         }
 
         //Register a listener to send session data when the user leaves the page
