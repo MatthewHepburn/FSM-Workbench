@@ -1,14 +1,17 @@
-"use strict"
+"use strict";
 /*global require */
 //*global before*/
 /*global __dirname*/
+/*global process*/
 
 var expect = require("chai").expect;
 var webdriver = require("selenium-webdriver");
 var test = require("selenium-webdriver/testing");
 var FirefoxProfile = require("firefox-profile");
+var fs = require("fs");
 var by = webdriver.By;
-//var until = webdriver.until;
+var until = webdriver.until;
+
 
 
 
@@ -59,7 +62,15 @@ function getDriver(browser){
                             .withCapabilities(firefoxCapabilities)
                             .build();
     }
+    if(browser === "phantomjs"){
+        var driver =  new webdriver.Builder()
+                                   .withCapabilities(webdriver.Capabilities.phantomjs())
+                                   .build();
+        driver.manage().window().setSize(1920, 1080);
+        return driver;
+    }
 }
+
 
 var browserList = ["chrome", "firefox"];
 
@@ -83,12 +94,20 @@ test.describe("Test inf1 questions", function(){
             test.it(`should take input AAB and display a tick in ${browser}`, function(){
                 var driver = getDriver(browser);
                 driver.get(deployPath + "inf1/give-input-intro-to-fsm.html");
+
+                expectToBeTrue(driver.isElementPresent(by.xpath("/html/body/div[1]/div[2]/div[2]/button[1]")));
+                expectToBeTrue(driver.isElementPresent(by.xpath("/html/body/div[1]/div[2]/div[2]/button[2]")));
+
                 var aButton = driver.findElement(by.xpath("/html/body/div[1]/div[2]/div[2]/button[1]"));
                 var bButton = driver.findElement(by.xpath("/html/body/div[1]/div[2]/div[2]/button[2]"));
+
                 aButton.click();
                 aButton.click();
+
                 expectToBeFalse(driver.isElementPresent(by.css(".give-input-tick")));
+
                 bButton.click();
+
                 expectToBeTrue(driver.isElementPresent(by.css(".give-input-tick")));
                 driver.quit();
             });
@@ -97,23 +116,28 @@ test.describe("Test inf1 questions", function(){
     });
     test.describe(`Q${n} should not accept incorrect input`, function(){
         browserList.forEach(function(browser){
-            test.it(`should take input AAB and display a tick in ${browser}`, function(){
-                var driver = getDriver("chrome");
+            test.it(`should take input AAAA and not display a tick in ${browser}`, function(){
+                var driver = getDriver(browser);
                 driver.get(deployPath + "inf1/give-input-intro-to-fsm.html");
+
+                expectToBeTrue(driver.isElementPresent(by.xpath("/html/body/div[1]/div[2]/div[2]/button[1]")));
+                expectToBeTrue(driver.isElementPresent(by.xpath("/html/body/div[1]/div[2]/div[2]/button[2]")));
+
                 var aButton = driver.findElement(by.xpath("/html/body/div[1]/div[2]/div[2]/button[1]"));
-                var bButton = driver.findElement(by.xpath("/html/body/div[1]/div[2]/div[2]/button[2]"));
+
+                expectToBeFalse(driver.isElementPresent(by.css(".give-input-tick")));
                 aButton.click();
+                expectToBeFalse(driver.isElementPresent(by.css(".give-input-tick")));
                 aButton.click();
-                driver.isElementPresent(by.css(".give-input-tick")).then(function(isPresent){
-                    expect(isPresent).to.be.false;
-                });
-                bButton.click();
-                driver.isElementPresent(by.css(".give-input-tick")).then(function(isPresent){
-                    expect(isPresent).to.be.true;
-                });
+                expectToBeFalse(driver.isElementPresent(by.css(".give-input-tick")));
+                aButton.click();
+                expectToBeFalse(driver.isElementPresent(by.css(".give-input-tick")));
+                aButton.click();
+                expectToBeFalse(driver.isElementPresent(by.css(".give-input-tick")));
+
                 driver.quit();
             });
-        })
+        });
     });
 
     n = n + 1;

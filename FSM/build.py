@@ -40,7 +40,7 @@ def setAddresses(toDeploy):
             "cssAddress": "../",
             "iconAddress": "../img/icons/",
             "imgAddress": "../img/",
-            "d3Address": "https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js"
+            "d3Address": "../../node_modules/d3/build/d3.js"
         }
 
 def setDirs():
