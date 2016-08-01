@@ -143,6 +143,58 @@ test.describe("Test inf1 questions", function(){
     n = n + 1;
 
     test.describe(`Q${n} should accept correct input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`should accept correct input and display a tick in ${browser}`, function(){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/select-states-1.html");
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-tick")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("m1-N3-label")));
+                var correctNode = driver.findElement(by.id("m1-N3-label"));
+                correctNode.click();
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-tick")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                var checkButton = driver.findElement(by.id("check-button"));
+                checkButton.click();
+                expectToBeTrue(driver.isElementPresent(by.css(".adjacent-tick")));
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
+
+                driver.quit();
+
+            });
+        });
+
+
+    });
+
+    test.describe(`Q${n} should accept correct input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`should reject incorrect input and display a cross in ${browser}`, function(){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/select-states-1.html");
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("m1-N2-label")));
+                var correctNode = driver.findElement(by.id("m1-N2-label"));
+                correctNode.click();
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                var checkButton = driver.findElement(by.id("check-button"));
+                checkButton.click();
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-tick")));
+                expectToBeTrue(driver.isElementPresent(by.css(".adjacent-cross")));
+                driver.quit();
+
+            });
+        });
+
 
     });
 });
