@@ -63,6 +63,16 @@ div.question-text{
   font-size: x-large;
 }
 
+.table-cross-small{
+  color: red;
+  font-weight: bolder;
+}
+
+.table-tick-small{
+  color: green;
+  font-weight: bolder;
+}
+
 .give-list-label{
   width: 5.2em !important;
   font-family: 'Ek Mukta', sans-serif;
@@ -560,9 +570,10 @@ input[type=checkbox]{
   text-decoration: underline;
 }
 
-.trace-used-link{
+.link.trace-used-link{
   stroke: #3A6629 !important;
   stroke-width: 2;
+  marker-mid: url("#highlight-arrow")
 }
 
 .trace-used-link-input{

@@ -458,17 +458,19 @@ const Display = {
     giveFeedbackForSatisfyList: function(feedbackObj){
         feedbackObj.acceptList.forEach(function(isCorrect, i){
             d3.select(`#td-acc-adj-${i}`)
-              .text("")
-              .append("img")
-              .classed("x-check", true)
-              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg");
+              .html("")
+              .append("span")
+              .classed("table-cross-small", !isCorrect)
+              .classed("table-tick-small", isCorrect)
+              .text(() => isCorrect ? "✓" : "☓");
         });
         feedbackObj.rejectList.forEach(function(isCorrect, i){
             d3.select(`#td-rej-adj-${i}`)
-              .text("")
-              .append("img")
-              .classed("x-check", true)
-              .attr("src", () => isCorrect ? Global.iconAddress + "check.svg": Global.iconAddress + "x.svg");
+              .html("")
+              .append("span")
+              .classed("table-cross-small", !isCorrect)
+              .classed("table-tick-small", isCorrect)
+              .text(() => isCorrect ? "✓" : "☓");
         });
     },
     drawGearIcon: function(svg){
@@ -693,6 +695,7 @@ const Display = {
                 .attr("height", checkBoxSize)
                 .attr("width",  checkBoxSize)
                 .classed("rename-checkbox", true)
+                .attr("id", id + "-rect")
                 .on("click", toggleFunction);
 
             //Add a tick to current checkbox (this will be visible only when the checkbox is selected)
@@ -723,7 +726,8 @@ const Display = {
             .attr("x", textX)
             .attr("width", buttonWidth)
             .attr("height", buttonHeight)
-            .classed("svg-button", true);
+            .classed("svg-button", true)
+            .on("click", Display.canvasVars[link.machine.id].submitRenameFunction);
 
         menu.append("text")
             .text("OK")
@@ -732,6 +736,7 @@ const Display = {
             .attr("dominant-baseline", "central")
             .attr("x", buttonX + 0.5 * buttonWidth)
             .attr("y", buttonY + 0.5 * buttonHeight)
+            .attr("id", `${link.machine.id}-rename-submit-text`)
             .on("click", Display.canvasVars[link.machine.id].submitRenameFunction);
 
     },
@@ -831,12 +836,13 @@ const Display = {
             d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false);
         }
 
-        //Classs used links and link inputs
+        //Class used links and link inputs
         const usedLinks = traceObj.links[step];
         for(let i = 0; i < usedLinks.length; i++){
             const linkUsageObj = usedLinks[i];
             const linkID = linkUsageObj.link.id;
-            d3.select(`#${linkID}`).classed("trace-used-link", true);
+            d3.select(`#${linkID}`).classed("trace-used-link", true)
+                                   .style("marker-mid", "url(#highlight-arrow)");
             if(linkUsageObj.epsUsed){
                 //Handle case of epsilon link
                 d3.select(`#${linkID}-input-eps`).classed("trace-used-link-input", true);
@@ -906,6 +912,7 @@ const Display = {
     resetTraceStyling(svg){
         //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
         var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link", "trace-used-link-input"];
+        d3.selectAll("path.link.trace-used-link").style("marker-mid", "url('#end-arrow')"); //Reset the link midpoint arrows
         traceClasses.forEach(function(className){
             svg.selectAll("." + className).classed(className, false);
         });
@@ -1632,11 +1639,16 @@ const Display = {
         var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];});
         var linkGs = linkg.selectAll("g")
             .data(linkList, function(d){return d.id;});
-        var newLinks = linkGs.enter().append("svg:g");
+        var newLinks = linkGs.enter()
+                             .append("svg:g")
+                                .classed("linkg", true)
+                                .attr("id", link => `linkg-${link.id}`);
 
         newLinks.append("path")
                .attr("d", function(d){return Display.getLinkPathD(d);})
                .classed("link", true)
+               //See https://bugzilla.mozilla.org/show_bug.cgi?id=309612 for why marker-mid is not done using CSS
+               //TL;DR Mozilla's reading of the spec means that external css cannot refer to SVG definitions in the html.
                .style("marker-mid", "url(#end-arrow)")
                .attr("id", function(d){return d.id;})
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
