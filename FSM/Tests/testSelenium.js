@@ -112,8 +112,8 @@ test.describe("Test inf1 questions", function(){
                 driver.quit();
             });
         });
-
     });
+
     test.describe(`Q${n} should not accept incorrect input`, function(){
         browserList.forEach(function(browser){
             test.it(`should take input AAAA and not display a tick in ${browser}`, function(){
@@ -144,7 +144,7 @@ test.describe("Test inf1 questions", function(){
 
     test.describe(`Q${n} should accept correct input`, function(){
         browserList.forEach(function(browser){
-            test.it(`should accept correct input and display a tick in ${browser}`, function(){
+            test.it(`shows a tick when correct state is selected in ${browser}`, function(){
                 var driver = getDriver(browser);
                 driver.get(deployPath + "inf1/select-states-1.html");
 
@@ -163,23 +163,74 @@ test.describe("Test inf1 questions", function(){
                 expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
 
                 driver.quit();
-
             });
         });
-
-
     });
 
-    test.describe(`Q${n} should accept correct input`, function(){
+    test.describe(`Q${n} should reject incorrect input`, function(){
         browserList.forEach(function(browser){
-            test.it(`should reject incorrect input and display a cross in ${browser}`, function(){
+            test.it(`shows a cross when incorrect state is selected in ${browser}`, function(){
                 var driver = getDriver(browser);
                 driver.get(deployPath + "inf1/select-states-1.html");
 
                 expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
 
                 expectToBeTrue(driver.isElementPresent(by.id("m1-N2-label")));
+                var incorrectNode = driver.findElement(by.id("m1-N2-label"));
+                incorrectNode.click();
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                var checkButton = driver.findElement(by.id("check-button"));
+                checkButton.click();
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-tick")));
+                expectToBeTrue(driver.isElementPresent(by.css(".adjacent-cross")));
+                driver.quit();
+            });
+        });
+    });
+
+    n = n + 1;
+    test.describe(`Q${n} should accept correct input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`shows a tick when correct state is selected in ${browser}`, function(){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/select-states-2-accepting-states.html");
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-tick")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("m1-N2-label")));
                 var correctNode = driver.findElement(by.id("m1-N2-label"));
+                correctNode.click();
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-tick")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                var checkButton = driver.findElement(by.id("check-button"));
+                checkButton.click();
+                expectToBeTrue(driver.isElementPresent(by.css(".adjacent-tick")));
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
+
+                driver.quit();
+
+            });
+        });
+    });
+
+    test.describe(`Q${n} should reject incorrect input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`shows a cross when incorrect states are selected in ${browser}`, function(){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/select-states-1.html");
+
+                expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
+
+                expectToBeTrue(driver.isElementPresent(by.id("m1-N1-label")));
+                var correctNode = driver.findElement(by.id("m1-N2-label"));
+                var incorrectNode = driver.findElement(by.id("m1-N1-label"));
+                incorrectNode.click();
                 correctNode.click();
 
                 expectToBeFalse(driver.isElementPresent(by.css(".adjacent-cross")));
@@ -194,7 +245,86 @@ test.describe("Test inf1 questions", function(){
 
             });
         });
-
-
     });
+
+    n = n + 1;
+
+    test.describe(`Q${n} should accept correct input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`sets class correct on "ab" in ${browser}`, function(){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/give-list-1.html");
+
+                expectToBeTrue(driver.isElementPresent(by.id("qf1")));
+                var textField = driver.findElement(by.id("qf1"));
+                textField.sendKeys("ab").then(function(){
+                    expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                    var checkButton = driver.findElement(by.id("check-button"));
+                    checkButton.click();
+
+                    expectToBeTrue(driver.isElementPresent(by.css("#qf0.correct")));
+                    expectToBeFalse(driver.isElementPresent(by.css("#qf0.incorrect")));
+
+                    expectToBeTrue(driver.isElementPresent(by.css("#qf1.correct")));
+                    expectToBeFalse(driver.isElementPresent(by.css("#qf1.incorrect")));
+
+                    driver.quit();
+                });
+
+            });
+        });
+    });
+
+    test.describe(`Q${n} should reject incorrect input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`sets class incorrect on "bb" in ${browser}`, function(){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/give-list-1.html");
+
+                expectToBeTrue(driver.isElementPresent(by.id("qf1")));
+                var textField = driver.findElement(by.id("qf1"));
+                textField.sendKeys("bb").then(function(){
+                    expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                    var checkButton = driver.findElement(by.id("check-button"));
+                    checkButton.click();
+
+                    expectToBeTrue(driver.isElementPresent(by.css("#qf0.correct")));
+                    expectToBeFalse(driver.isElementPresent(by.css("#qf0.incorrect")));
+
+                    expectToBeFalse(driver.isElementPresent(by.css("#qf1.correct")));
+                    expectToBeTrue(driver.isElementPresent(by.css("#qf1.incorrect")));
+
+                    driver.quit();
+                });
+
+            });
+        });
+        browserList.forEach(function(browser){
+            test.it(`sets class incorrect on duplicate input in ${browser}`, function(){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/give-list-1.html");
+
+                expectToBeTrue(driver.isElementPresent(by.id("qf1")));
+                var textField = driver.findElement(by.id("qf1"));
+                textField.sendKeys("aa").then(function(){
+                    expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                    var checkButton = driver.findElement(by.id("check-button"));
+                    checkButton.click();
+
+                    expectToBeTrue(driver.isElementPresent(by.css("#qf0.correct")));
+                    expectToBeFalse(driver.isElementPresent(by.css("#qf0.incorrect")));
+
+                    expectToBeFalse(driver.isElementPresent(by.css("#qf1.correct")));
+                    expectToBeTrue(driver.isElementPresent(by.css("#qf1.incorrect")));
+
+                    driver.quit();
+                });
+
+            });
+        });
+    });
+
+
+
+
 });

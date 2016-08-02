@@ -101,7 +101,7 @@ const Model = {
             });
         };
         this.deleteAllNodes = function(){
-            for(var nodeID in this.nodes){
+            for(let nodeID in this.nodes){
                 this.deleteNode(nodeID);
             }
         };
@@ -1288,7 +1288,7 @@ const Model = {
 
             const links = spec.links;
             //Test that all links that are present should be there
-            for(const linkID in machine.links){
+            for(let linkID in machine.links){
                 const link = machine.links[linkID];
                 const from = link.source.name;
                 const to = link.target.name;

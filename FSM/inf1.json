@@ -212,18 +212,21 @@
             "id": "A",
             "x": 123,
             "y": 125,
-            "isInit": true
+            "isInit": true,
+            "name": "S0"
           },
           {
             "id": "B",
             "x": 223,
-            "y": 124
+            "y": 124,
+            "name": "S1"
           },
           {
             "id": "C",
             "x": 323,
             "y": 124,
-            "isAcc": true
+            "isAcc": true,
+            "name": "S2"
           }
         ],
         "links": [
@@ -277,24 +280,28 @@
             "id": "A",
             "x": 83,
             "y": 160,
-            "isInit": true
+            "isInit": true,
+            "name": "1"
           },
           {
             "id": "B",
             "x": 232,
-            "y": 168
+            "y": 168,
+            "name": "2"
           },
           {
             "id": "C",
             "x": 372,
             "y": 224,
-            "isAcc": true
+            "isAcc": true,
+            "name": "3"
           },
           {
             "id": "D",
             "x": 349,
             "y": 73,
-            "isAcc": true
+            "isAcc": true,
+            "name": "4"
           }
         ],
         "links": [

@@ -1120,7 +1120,7 @@ const Display = {
             };
         };
 
-        for(const s in settings){
+        for(let s in settings){
             // Add the setting description.
             g.append("text")
              .text(settings[s].description)
@@ -1177,7 +1177,7 @@ const Display = {
             .attr("font-size", fontSize)
             .classed("settings-button-text", true)
             .on("click", function(){
-                for(const s in settings){
+                for(let s in settings){
                     settings[s].value = d3.select(`#settings-${s}-option`).html();
                 }
                 Controller.setSettings(settings);
@@ -1754,7 +1754,7 @@ const Display = {
     updateNodePhysics: function(){
         for(let i = 0; i < Model.machines.length; i++){
             const machine = Model.machines[i];
-            for(const nodeID in machine.nodes){
+            for(let nodeID in machine.nodes){
                 const node = machine.nodes[nodeID];
                 if(Controller.getPhysicsSetting() === "on"){
                     node.fixed = false;
