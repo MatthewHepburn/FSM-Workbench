@@ -983,7 +983,7 @@ const Display = {
                 .on("click", tools[i][1]);
         }
     },
-    dismissTrace(svg){
+    dismissTrace: function(svg){
         svg.select(".trace-g").remove();
         svg.classed("trace", false);
         Display.resetTraceStyling(svg);
@@ -1483,7 +1483,10 @@ const Display = {
             canvasID = svg.attr("id");
         }
         Display.submitAllRename(canvasID);
-        Display.dismissTrace(svg);
+        if(Model.question.type !== "give-input"){
+            //Can't dissmiss trace on give-input questions.
+            Display.dismissTrace(svg);
+        }
         Display.dismissSettingsMenu(svg);
         Display.dismissContextMenu();
 
