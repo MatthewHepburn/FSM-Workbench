@@ -89,6 +89,7 @@ test.describe("Test selenium-webdriver", function(){
 
 test.describe("Test inf1 questions", function(){
     var n = 1;
+    //Introducing FSMs I
     test.describe(`Q${n} should accept correct input`, function(){
         browserList.forEach(function(browser){
             test.it(`should take input AAB and display a tick in ${browser}`, function(){
@@ -141,7 +142,7 @@ test.describe("Test inf1 questions", function(){
     });
 
     n = n + 1;
-
+    // Introducing FSMs II
     test.describe(`Q${n} should accept correct input`, function(){
         browserList.forEach(function(browser){
             test.it(`shows a tick when correct state is selected in ${browser}`, function(){
@@ -193,6 +194,7 @@ test.describe("Test inf1 questions", function(){
     });
 
     n = n + 1;
+    //Accepting states I
     test.describe(`Q${n} should accept correct input`, function(){
         browserList.forEach(function(browser){
             test.it(`shows a tick when correct state is selected in ${browser}`, function(){
@@ -248,7 +250,7 @@ test.describe("Test inf1 questions", function(){
     });
 
     n = n + 1;
-
+    //Accepting states II
     test.describe(`Q${n} should accept correct input`, function(){
         browserList.forEach(function(browser){
             test.it(`sets class correct on "ab" in ${browser}`, function(){
@@ -323,6 +325,350 @@ test.describe("Test inf1 questions", function(){
             });
         });
     });
+
+    n = n + 1;
+    //Introducing cycles
+    test.describe(`Q${n} should accept correct input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`sets class correct on correct answer in ${browser}`, function(done){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/give-list-cyles.html");
+
+                expectToBeTrue(driver.isElementPresent(by.id("qf1")));
+                var textField1 = driver.findElement(by.id("qf1"));
+
+                expectToBeTrue(driver.isElementPresent(by.id("qf2")));
+                var textField2 = driver.findElement(by.id("qf2"));
+
+                textField1.sendKeys("aaabb").then(function(){
+                    textField2.sendKeys("aaaaaabb").then(function(){
+                        expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                        var checkButton = driver.findElement(by.id("check-button"));
+                        checkButton.click();
+
+                        expectToBeTrue(driver.isElementPresent(by.css("#qf0.correct")));
+                        expectToBeFalse(driver.isElementPresent(by.css("#qf0.incorrect")));
+
+                        expectToBeTrue(driver.isElementPresent(by.css("#qf1.correct")));
+                        expectToBeFalse(driver.isElementPresent(by.css("#qf1.incorrect")));
+
+                        expectToBeTrue(driver.isElementPresent(by.css("#qf2.correct")));
+                        expectToBeFalse(driver.isElementPresent(by.css("#qf2.incorrect")));
+
+                        driver.quit();
+                        done();
+                    });
+                });
+
+            });
+        });
+    });
+
+    test.describe(`Q${n} should reject incorrect input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`sets class incorrect on incorrect answer in ${browser}`, function(done){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/give-list-cyles.html");
+
+                expectToBeTrue(driver.isElementPresent(by.id("qf1")));
+                var textField1 = driver.findElement(by.id("qf1"));
+
+                expectToBeTrue(driver.isElementPresent(by.id("qf2")));
+                var textField2 = driver.findElement(by.id("qf2"));
+
+                textField1.sendKeys("aabbb").then(function(){
+                    textField2.sendKeys("baaaabb").then(function(){
+                        expectToBeTrue(driver.isElementPresent(by.id("check-button")));
+                        var checkButton = driver.findElement(by.id("check-button"));
+                        checkButton.click();
+
+                        expectToBeTrue(driver.isElementPresent(by.css("#qf0.correct")));
+                        expectToBeFalse(driver.isElementPresent(by.css("#qf0.incorrect")));
+
+                        expectToBeFalse(driver.isElementPresent(by.css("#qf1.correct")));
+                        expectToBeTrue(driver.isElementPresent(by.css("#qf1.incorrect")));
+
+                        expectToBeFalse(driver.isElementPresent(by.css("#qf2.correct")));
+                        expectToBeTrue(driver.isElementPresent(by.css("#qf2.incorrect")));
+
+                        driver.quit();
+                        done();
+                    });
+                });
+
+            });
+        });
+    });
+
+    n = n + 1;
+    // Machine construction I;
+    test.describe(`Q${n} should accept a correctly constructed machine`, function(){
+        browserList.forEach(function(browser){
+            test.it(`gives correct feedback in ${browser}`, function(done){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/machine-construction-1.html");
+
+                var linkTool = driver.findElement(by.id("m1-linetool"));
+                var n1 = driver.findElement(by.id("m1-N0"));
+                var n2 = driver.findElement(by.id("m1-N1"));
+                var n3 = driver.findElement(by.id("m1-N2"));
+                var n4 = driver.findElement(by.id("m1-N3"));
+
+                //link (0,1,"a")
+                linkTool.click();
+                var buildLink1 = function(){
+                    return n1.click().then(function(){
+                        return n2.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option0-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                //link (1,0, "a")
+                var buildLink2 = function(){
+                    return n2.click().then(function(){
+                        return n1.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option0-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                //link (2,3, "b")
+                var buildLink3 = function(){
+                    return n2.click().then(function(){
+                        return n3.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option1-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                //link (3,4, "c")
+                var buildLink4 = function(){
+                    return n3.click().then(function(){
+                        return n4.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option2-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                buildLink1().then(function(){
+                    buildLink2().then(function(){
+                        buildLink3().then(function(){
+                            buildLink4().then(function(){
+                                expectToBeFalse(driver.isElementPresent(by.css(".table-tick-small")));
+                                expectToBeFalse(driver.isElementPresent(by.css(".table-cross-small")));
+
+                                var checkButton = driver.findElement(by.id("check-button"));
+                                checkButton.click().then(function(){
+                                    expectToBeTrue(driver.isElementPresent(by.css(".table-tick-small")));
+                                    expectToBeFalse(driver.isElementPresent(by.css(".table-cross-small")));
+
+                                    driver.quit();
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                });
+
+
+
+            });
+        });
+    });
+
+    test.describe(`Q${n} should reject an incorrectly constructed machine`, function(){
+        browserList.forEach(function(browser){
+            test.it(`gives correct feedback in ${browser}`, function(done){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/machine-construction-1.html");
+
+                var linkTool = driver.findElement(by.id("m1-linetool"));
+                var n1 = driver.findElement(by.id("m1-N0"));
+                var n2 = driver.findElement(by.id("m1-N1"));
+                var n3 = driver.findElement(by.id("m1-N2"));
+                var n4 = driver.findElement(by.id("m1-N3"));
+
+                //link (0,1,"a")
+                linkTool.click();
+                var buildLink1 = function(){
+                    return n1.click().then(function(){
+                        return n2.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option1-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                //link (1,0, "a")
+                var buildLink2 = function(){
+                    return n2.click().then(function(){
+                        return n1.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option0-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                //link (2,3, "b")
+                var buildLink3 = function(){
+                    return n2.click().then(function(){
+                        return n3.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option1-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                //link (3,4, "c")
+                var buildLink4 = function(){
+                    return n3.click().then(function(){
+                        return n4.click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option2-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                buildLink1().then(function(){
+                    buildLink2().then(function(){
+                        buildLink3().then(function(){
+                            buildLink4().then(function(){
+                                expectToBeFalse(driver.isElementPresent(by.css(".table-tick-small")));
+                                expectToBeFalse(driver.isElementPresent(by.css(".table-cross-small")));
+
+                                var checkButton = driver.findElement(by.id("check-button"));
+                                checkButton.click().then(function(){
+                                    expectToBeTrue(driver.isElementPresent(by.css(".table-tick-small")));
+                                    expectToBeTrue(driver.isElementPresent(by.css(".table-cross-small")));
+
+                                    driver.quit();
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                });
+
+
+
+            });
+        });
+    });
+
+    n = n + 1;
+    //Machine construction II
+    test.describe(`Q${n} should accept a correctly constructed machine`, function(){
+        browserList.forEach(function(browser){
+            test.it(`gives correct feedback in ${browser}`, function(done){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/machine-construction-2.html");
+
+                var nodeTool = driver.findElement(by.id("m1-nodetool"));
+                var linkTool = driver.findElement(by.id("m1-linetool"));
+                var acceptingTool = driver.findElement(by.id("m1-acceptingtool"));
+                var n2 = driver.findElement(by.id("m1-N1-label"));
+
+                var addNode = function(){
+                    return nodeTool.click().then(function(){
+                        return driver.findElement(by.id("m1")).click();
+                    });
+                };
+
+                var addLink1 = function(){
+                    return linkTool.click().then(function(){
+                        return n2.click().then(function(){
+                            return driver.findElement(by.id("m1-N2")).click().then(function(){
+                                return driver.findElement(by.id("m1-rename-option0-rect")).then(function(value){
+                                    value.click();
+                                    return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                        return value.click();
+                                    });
+                                });
+                            });
+                        });
+                    });
+                };
+
+                var addLink2 = function(){
+                    return driver.findElement(by.id("m1-N2")).click().then(function(){
+                        return driver.findElement(by.id("m1-N2")).click().then(function(){
+                            return driver.findElement(by.id("m1-rename-option0-rect")).then(function(value){
+                                value.click();
+                                return driver.findElement(by.id("m1-rename-submit-text")).then(function(value){
+                                    return value.click();
+                                });
+                            });
+                        });
+                    });
+                };
+
+                var makeNodeAccepting = function(){
+                    return acceptingTool.click().then(function(){
+                        return driver.findElement(by.id("m1-N2")).click();
+                    });
+                };
+
+                addNode().then(function(){
+                    addLink1().then(function(){
+                        addLink2().then(function(){
+                            makeNodeAccepting().then(function(){
+                                expectToBeFalse(driver.isElementPresent(by.css(".table-tick-small")));
+                                expectToBeFalse(driver.isElementPresent(by.css(".table-cross-small")));
+
+                                var checkButton = driver.findElement(by.id("check-button"));
+                                checkButton.click().then(function(){
+                                    expectToBeTrue(driver.isElementPresent(by.css(".table-tick-small")));
+                                    expectToBeFalse(driver.isElementPresent(by.css(".table-cross-small")));
+
+                                    driver.quit();
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+
 
 
 
