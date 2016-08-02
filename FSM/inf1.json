@@ -196,7 +196,7 @@
   {
     "data-question": {
       "type": "select-states",
-      "text": "If, starting from the initial state, an input sequence ends with the machine in an <b>accepting state</b>, the machine is said to <b>accept</b> that sequence.<br>Accepting states are shown using a double outline: <img src=\"../img/accepting.png\" height=\"50\" width=\"50\" alt=\"An example image showing an accepting state composed of two= concentric circles.\" class=\"inline-q-img\">The machine below accepts the string \"ab\". Which state does it end in?",
+      "text": "If, starting from the initial state, an input sequence ends with the machine in an <b>accepting state</b>, the machine is said to <b>accept</b> that sequence.<br>Accepting states are shown using a double outline: <img src=\"../img/accepting_bw.svg\" height=\"50\" width=\"50\" alt=\"An example image showing an accepting state composed of two= concentric circles.\" class=\"inline-q-img\">The machine below accepts the string \"ab\". Which state does it end in?",
       "allowEpsilon": "false",
       "splitSymbol": "",
       "initialSequence": [],
@@ -210,29 +210,20 @@
         "nodes": [
           {
             "id": "A",
-            "x": 148,
-            "y": 124,
-            "isInit": true,
-            "name": "S1"
+            "x": 123,
+            "y": 125,
+            "isInit": true
           },
           {
             "id": "B",
-            "x": 248,
-            "y": 124,
-            "name": "S2"
+            "x": 223,
+            "y": 124
           },
           {
             "id": "C",
-            "x": 348,
+            "x": 323,
             "y": 124,
-            "name": "S3"
-          },
-          {
-            "id": "D",
-            "x": 298,
-            "y": 211,
-            "isAcc": true,
-            "name": "S4"
+            "isAcc": true
           }
         ],
         "links": [
@@ -240,36 +231,15 @@
             "to": "B",
             "from": "A",
             "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
               "a",
               "b"
-            ]
-          },
-          {
-            "to": "C",
-            "from": "B",
-            "input": [
-              "b"
-            ]
-          },
-          {
-            "to": "C",
-            "from": "C",
-            "input": [
-              "b"
-            ]
-          },
-          {
-            "to": "D",
-            "from": "B",
-            "input": [
-              "a"
-            ]
-          },
-          {
-            "to": "D",
-            "from": "C",
-            "input": [
-              "a"
             ]
           }
         ],
@@ -278,7 +248,7 @@
             "a",
             "b"
           ],
-          "allowEpsilon": false
+          "allowEpsilon": true
         }
       }
     ],
