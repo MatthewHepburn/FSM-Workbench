@@ -547,6 +547,48 @@ describe("Model", function() {
         });
     });
 
+    describe("Test the dfa-convert question type", function(){
+        var machineLists = [[{"links": [{"input": ["a"], "to": "B", "from": "A"}, {"input": ["a"], "to": "C", "from": "B"}, {"input": ["a"], "to": "D", "from": "A"}, {"input": ["a"], "to": "C", "from": "C"}, {"input": ["b"], "to": "E", "from": "D"}, {"input": ["a"], "to": "D", "from": "D"}], "attributes": {"alphabet": ["a", "b"], "allowEpsilon": true}, "nodes": [{"name": "Q1", "x": 85, "y": 127, "isInit": true, "id": "A"}, {"name": "Q3", "x": 161, "y": 62, "id": "B"}, {"name": "Q4", "x": 250, "y": 108, "isAcc": true, "id": "C"}, {"name": "Q2", "x": 172, "y": 177, "id": "D"}, {"name": "Q5", "x": 272, "y": 175, "isAcc": true, "id": "E"}]}, {"links": [], "attributes": {"alphabet": ["a", "b"], "allowEpsilon": true}, "nodes": [{"name": "{Q1}", "x": 100, "y": 125, "isInit": true, "id": "A"}]}],
+                            [{"nodes": [{"id": "A", "isInit": true, "y": 180, "name": "Q1", "x": 104}, {"id": "B", "y": 138, "name": "Q2", "x": 195}, {"id": "C", "y": 38, "name": "Q3", "x": 187}, {"id": "D", "y": 184, "name": "Q4", "x": 283}, {"id": "E", "y": 226, "isAcc": true, "name": "Q5", "x": 192}], "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true}, "links": [{"from": "A", "to": "B", "input": ["a"]}, {"from": "B", "to": "C", "input": ["b"]}, {"from": "C", "to": "B", "input": ["b"]}, {"from": "B", "to": "D", "input": ["b"]}, {"from": "D", "to": "E", "input": ["c"]}, {"hasEps": true, "from": "E", "to": "A"}]}, {"nodes": [{"id": "A", "isInit": true, "y": 125, "name": "{Q1}", "x": 100}], "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true}, "links": []}],
+                                       [{"nodes":[{"id":"A","x":81,"y":125,"isInit":true,"name":"Q2"},{"id":"B","x":105,"y":67,"isInit":true,"name":"Q1"},{"id":"C","x":99,"y":193,"isInit":true,"name":"Q3"},{"id":"D","x":204,"y":59},{"id":"E","x":304,"y":57},{"id":"F","x":404,"y":65,"isAcc":true},{"id":"G","x":180,"y":114},{"id":"H","x":197,"y":213,"isAcc":true},{"id":"I","x":274,"y":149}],"links":[{"to":"D","from":"B","input":["a1"]},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"F","input":["a1"]},{"to":"G","from":"A","input":["a2","a3"]},{"to":"H","from":"G","input":["a3"]},{"to":"H","from":"C","input":["a2"]},{"to":"I","from":"H","input":["a2"]},{"to":"G","from":"I"}],"attributes":{"alphabet":["a1","a2","a3"],"allowEpsilon":true}},{"nodes":[{"id":"A","x":100,"y":125,"isInit":true,"name":"{Q1,Q2,Q3}"}],"links":[],"attributes":{"alphabet":["a1","a2","a3"],"allowEpsilon":true}}]];
+        machineLists.forEach(function(machineList, i){
+            it(`should produce a machine equivalent to m1 for machineList ${i + 1}`, function(){
+                model.machines = [];
+                var m1 = model.addMachine(machineList[0]);
+                var m2 = model.addMachine(machineList[1]);
+                var questionObj = {type: "dfa-convert", "allowEpsilon": "true", splitSymbol: ""};
+                model.question.setUpQuestion(questionObj);
+                var done = false;
+                //Use the prompt obj to select the appropriate nodes, until m2 is complete
+                while(!done){
+                    var promptObj = model.question.getNextDfaPrompt();
+                    var m1Nodes = promptObj.m1Nodes;
+                    var symbol = promptObj.symbol;
+                    m1.getNodeList().forEach(function(node){node.selected = false;});
+                    m1.setToState(m1Nodes);
+                    m1.followEpsilonTransitions();
+                    m1.step(symbol);
+                    m1.followEpsilonTransitions();
+                    var newStates = m1.getCurrentNodeList();
+                    newStates.forEach(function(node){node.selected = true;});
+
+                    var feedbackObj = model.question.checkAnswer();
+                    expect(feedbackObj.thisCorrect).to.be.true;
+                    expect(feedbackObj.falsePositive).to.equal(undefined);
+                    expect(feedbackObj.falseNegative).to.equal(undefined);
+                    if(model.question.frontier.length === 0){
+                        expect(feedbackObj.allCorrectFlag).to.be.true;
+                    }
+                    done = feedbackObj.allCorrectFlag;
+                }
+
+                //check that m1 is equivilant to m2
+                var isEquivalent = m1.isEquivalentTo(m2);
+                expect(isEquivalent).to.be.true;
+            });
+        });
+    });
+
     describe("Test the satisfy-definition question type", function(){
         describe("It should correctly identify a correct machine", function(){
             var questionObj, spec, feedbackObj;
