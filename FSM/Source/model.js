@@ -288,6 +288,10 @@ const Model = {
             return Object.keys(this.nodes).map(nodeID => this.nodes[nodeID]);
 
         };
+        this.getLinkList = function(){
+            //returns an array of all links in the machine
+            return Object.keys(this.links).map(linkID => this.links[linkID]);
+        };
         this.getCurrentNodeList = function(){
             //Returns an array of the nodes that the machine is currently in
             return this.currentState.map(id => this.nodes[id]);
@@ -965,6 +969,18 @@ const Model = {
             }
             return {"nodeIDs": nodeIDs, "linkIDs": linkIDs};
         };
+        this.getReachableNodesWithEpsilon = function(symbol){
+            //Return an array containing nodes reachable from this node for the given input symbol
+            //making use of epsilon transitions before and after the symbol.
+            const savedState = this.machine.currentState;
+            this.machine.setToState([this]);
+            this.machine.followEpsilonTransitions();
+            this.machine.step(symbol);
+            const reachableStates = this.machine.getCurrentNodeList();
+            this.machine.currentState = savedState;
+            return reachableStates;
+
+        };
         this.hasLinkTo = function(node){
             if (node instanceof Model.Node === false){
                 node = this.machine.nodes[node];
@@ -1152,7 +1168,7 @@ const Model = {
             const allReachableNodes = [];
             //Find all nodes reachable from m1Nodes for input symbol
             m1Nodes.forEach(function(node){
-                const reachableNodes = node.getReachableNodes(symbol).nodeIDs.map(nodeID => m1.nodes[nodeID]);
+                const reachableNodes = node.getReachableNodesWithEpsilon(symbol);
                 reachableNodes.forEach(function(node){
                     if(!allReachableNodes.includes(node)){
                         allReachableNodes.push(node);
@@ -1537,7 +1553,7 @@ const Model = {
             }
             //Don't add if no reachable nodes from corresponding m1nodes
             const m1Nodes = Model.question.m2tom1[m2NodeID];
-            const hasReachableNodes = m1Nodes.map(node => node.getReachableNodes(symbol).nodeIDs).filter(nodeIDs => nodeIDs.length > 0).length > 0;
+            const hasReachableNodes = m1Nodes.map(node => node.getReachableNodesWithEpsilon(symbol)).filter(nodeList => nodeList.length > 0).length > 0;
             if(hasReachableNodes){
                 frontier.push([m2NodeID, symbol]);
             }

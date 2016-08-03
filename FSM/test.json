@@ -239,5 +239,169 @@
     "filename": "test-dfa-convert-2",
     "name": "test-dfa-convert-2",
     "id": "8b59c1017b6c494198ec4db9c1671bb7"
+  },
+  {
+    "data-question": {
+      "type": "dfa-convert",
+      "text": "Text of the question. HTML tags allowed.",
+      "allowEpsilon": "true",
+      "splitSymbol": ""
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 81,
+            "y": 125,
+            "isInit": true,
+            "name": "Q2"
+          },
+          {
+            "id": "B",
+            "x": 105,
+            "y": 67,
+            "isInit": true,
+            "name": "Q1"
+          },
+          {
+            "id": "C",
+            "x": 99,
+            "y": 193,
+            "isInit": true,
+            "name": "Q3"
+          },
+          {
+            "id": "D",
+            "x": 204,
+            "y": 59,
+            "name": "Q4"
+          },
+          {
+            "id": "E",
+            "x": 304,
+            "y": 57,
+            "name": "Q5"
+          },
+          {
+            "id": "F",
+            "x": 404,
+            "y": 65,
+            "isAcc": true,
+            "name": "Q6"
+          },
+          {
+            "id": "G",
+            "x": 180,
+            "y": 114,
+            "name": "Q7"
+          },
+          {
+            "id": "H",
+            "x": 197,
+            "y": 213,
+            "isAcc": true,
+            "name": "Q8"
+          },
+          {
+            "id": "I",
+            "x": 274,
+            "y": 149,
+            "name": "Q9"
+          }
+        ],
+        "links": [
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "a1"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "hasEps": true
+          },
+          {
+            "to": "F",
+            "from": "E",
+            "hasEps": true
+          },
+          {
+            "to": "E",
+            "from": "F",
+            "input": [
+              "a1"
+            ]
+          },
+          {
+            "to": "G",
+            "from": "A",
+            "input": [
+              "a2",
+              "a3"
+            ]
+          },
+          {
+            "to": "H",
+            "from": "G",
+            "input": [
+              "a3"
+            ]
+          },
+          {
+            "to": "H",
+            "from": "C",
+            "input": [
+              "a2"
+            ]
+          },
+          {
+            "to": "I",
+            "from": "H",
+            "input": [
+              "a2"
+            ]
+          },
+          {
+            "to": "G",
+            "from": "I"
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a1",
+            "a2",
+            "a3"
+          ],
+          "allowEpsilon": true
+        }
+      },
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 100,
+            "y": 125,
+            "isInit": true,
+            "name": "{Q1,Q2,Q3}"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a1",
+            "a2",
+            "a3"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "filename",
+    "name": "Question Title",
+    "id": "e70379ea0a384e9a95c569dd9c41e959"
   }
 ]
