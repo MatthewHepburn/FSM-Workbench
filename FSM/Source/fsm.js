@@ -1253,8 +1253,9 @@ const Display = {
         // be positioned below the node
         const name = node.name;
         const svg = d3.select(`#${node.machine.id}`);
-        const nameLength = Display.getTextLength(svg, name, "inherit", "nodename");
-        const maxlength = node.isAccepting? 2 * Display.acceptingRadius : 2 * Display.nodeRadius;
+        const fontSize = d3.select(".nodename").attr("font-size");
+        const nameLength = Display.getTextLength(svg, name, fontSize, "nodename");
+        const maxlength = node.isAccepting? 1.8 * Display.acceptingRadius : 1.8 * Display.nodeRadius;
         if(nameLength < maxlength){
             return {x: node.x, y:node.y};
         } else {
