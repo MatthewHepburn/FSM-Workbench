@@ -2,6 +2,7 @@
 
 // 'UI' or 'Interface' might be a more accurate name? ('View' as in MVC?)
 const Display = {
+    extraNext: true, //Adding a an extra next button when a correct answer is given may help users to navigate
     nodeRadius: 12,
     acceptingRadius: 0.7 * 12,
     //Use a getter as this value is needed further down.
@@ -256,6 +257,9 @@ const Display = {
         return result;
     },
     appendNextButton: function(selection){
+        if(!selection.select(".extra-next").empty()){
+            return;
+        }
         var button = selection.append("a").text("Next").classed("pure-button", true).classed("extra-next", true);
         var nextURL = d3.select("#nav-next").attr("href");
         button.attr("href", nextURL);
@@ -329,9 +333,15 @@ const Display = {
 
         //Done if allCorrectFlag == true, otherwise prompt next node set.
         if(feedbackObj.allCorrectFlag){
-            d3.select("#dfa-prompt-button-div").classed("invisible", true);
             d3.select("#dfa-prompt-text").text("Conversion complete!");
-            return;
+            if(Display.extraNext){
+                const buttonDiv = d3.select("#dfa-prompt-button-div").html("");
+                Display.appendNextButton(buttonDiv);
+            } else {
+                d3.select("#dfa-prompt-button-div").classed("invisible", true);
+            }
+
+
         }else{
             Display.promptDfaConvert();
         }
@@ -346,7 +356,9 @@ const Display = {
         feedbackDiv.text("");
         if(feedbackObj.allCorrectFlag === true){
             feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);
-            return;
+            if(Display.extraNext ){
+                Display.appendNextButton(feedbackDiv);
+            }
         } else {
             feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
             feedbackDiv.append("span").text(feedbackObj.message).classed("adjacent-feedback-text", true);
@@ -370,8 +382,10 @@ const Display = {
                         Controller.startTrace(m, inputSequence, 0);
                     });
             }
-
-
+        }
+        if(Display.extraNext && feedbackObj.allCorrectFlag){
+            const buttonDiv = d3.select(".button-div");
+            Display.appendNextButton(buttonDiv);
         }
     },
     giveFeedbackForSelectStates: function(feedbackObj){
@@ -383,7 +397,9 @@ const Display = {
         feedbackDiv.text("");
         if(feedbackObj.allCorrectFlag === true){
             feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);
-            return;
+            if(Display.extraNext){
+                Display.appendNextButton(feedbackDiv);
+            }
         } else {
             feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
             var message = "show trace";
@@ -412,7 +428,9 @@ const Display = {
         feedbackDiv.text("");
         if(feedbackObj.allCorrectFlag === true){
             feedbackDiv.append("span").text("✓").classed("adjacent-tick", true);
-            return;
+            if(Display.extraNext){
+                Display.appendNextButton(feedbackDiv);
+            }
         } else {
             feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
             feedbackDiv.append("span").text(feedbackObj.message).classed("adjacent-feedback-text", true);
@@ -426,7 +444,9 @@ const Display = {
         }
         //Add tick
         buttonDiv.append("span").text("✓").classed("give-input-tick", true);
-        Display.appendNextButton(buttonDiv);
+        if(Display.extraNext){
+            Display.appendNextButton(buttonDiv);
+        }
     },
     giveFeedbackForGiveList: function(feedbackObj){
         for(let i = 0; i < feedbackObj.isCorrectList.length; i++){
@@ -454,6 +474,11 @@ const Display = {
             //Style the input box:
             inputBox.classed("correct", isCorrect).classed("incorrect", !isCorrect);
         }
+        //Add extra next button if all correct
+        if(Display.extraNext && feedbackObj.allCorrectFlag){
+            const buttonDiv = d3.select(".button-div");
+            Display.appendNextButton(buttonDiv);
+        }
     },
     giveFeedbackForSatisfyList: function(feedbackObj){
         feedbackObj.acceptList.forEach(function(isCorrect, i){
@@ -472,6 +497,10 @@ const Display = {
               .classed("table-tick-small", isCorrect)
               .text(() => isCorrect ? "✓" : "☓");
         });
+        if(feedbackObj.allCorrectFlag && Display.extraNext){
+            const buttonDiv = d3.select(".button-div");
+            Display.appendNextButton(buttonDiv);
+        }
     },
     drawGearIcon: function(svg){
         //Draw a gear icon in the top right corner, and register a function to draw the settings menu on click.
