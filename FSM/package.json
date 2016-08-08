@@ -7,7 +7,7 @@
     "test": "npm run test-model && npm run test-selenium",
     "babel": "babel Deploy -d Deploy",
     "uglifyjs": "uglifyjs  --screw-ie8 --compress --keep-fnames --keep-quoted-props",
-    "test-selenium": "mocha -t 7000 Tests/testSelenium.js",
+    "test-selenium": "mocha -t 15000 Tests/testSelenium.js",
     "test-model": "nyc --reporter=lcov --require babel-core/register mocha Tests/testModel.js"
   },
   "devDependencies": {

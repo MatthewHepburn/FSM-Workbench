@@ -695,7 +695,7 @@
       "shouldAccept": [
         "10p, 10p, 10p, 10p, 10p, Irn-Bru",
         "20p, 20p, Water",
-        "10p 20p 20p, Irn-Bru",
+        "10p, 20p, 20p, Irn-Bru",
         "20p, 20p, 20p, Water",
         "10p, 10p, 20p, 10p, Water"
       ],
@@ -713,18 +713,19 @@
             "x": 52,
             "y": 196,
             "isInit": true,
-            "name": "1"
+            "name": "0p"
           },
           {
             "id": "B",
             "x": 152,
             "y": 196,
-            "name": "2"
+            "name": "20p"
           },
           {
             "id": "C",
             "x": 103,
-            "y": 109
+            "y": 109,
+            "name": "10p"
           }
         ],
         "links": [

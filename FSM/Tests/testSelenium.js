@@ -11,6 +11,8 @@ var FirefoxProfile = require("firefox-profile");
 var fs = require("fs");
 var by = webdriver.By;
 var until = webdriver.until;
+var ActionSequence = webdriver.ActionSequence;
+var Key = webdriver.Key
 
 
 
@@ -35,6 +37,9 @@ ffProfile.setPreference("toolkit.telemetry.reportingpolicy.firstRun", false);
 ffProfile.encoded(function(encoded){
     firefoxCapabilities.set("firefox_profile", encoded);
 });
+
+// Can't use mouse move functionality in Firefox yet. See https://github.com/SeleniumHQ/selenium/issues/2285
+var mouseMoveInFirefox = false; // :(
 
 
 var deployPath = "file:" + __dirname.slice(0, __dirname.lastIndexOf("Tests")) + "Deploy/";
@@ -667,6 +672,216 @@ test.describe("Test inf1 questions", function(){
             });
         });
     });
+
+    n = n + 1;
+    //Using longer tokens
+    test.describe(`Q${n} should accept correct input`, function(){
+        browserList.forEach(function(browser){
+            test.it(`gives correct feedback in ${browser}`, function(done){
+                var driver = getDriver(browser);
+                driver.get(deployPath + "inf1/select-states-self-service.html");
+
+                var targetNode = driver.findElement(by.id("m1-N3"));
+                var checkButton = driver.findElement(by.id("check-button"));
+
+                targetNode.click().then(function(){
+                    expectToBeFalse(driver.isElementPresent(by.css(".adjacent-tick")));
+                    checkButton.click().then(function(){
+                        expectToBeTrue(driver.isElementPresent(by.css(".adjacent-tick")));
+                        driver.quit();
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    n = n + 1;
+    //Vending machine acceptor
+    test.describe(`Q${n} should accept a correctly constructed machine`, function(){
+        //Filter out firefox until Marionette implementation improves.
+        browserList.filter(browser => browser !== "firefox" || mouseMoveInFirefox).forEach(function(browser){
+            test.it(`gives correct feedback in ${browser}`, function(done){
+                var driver = getDriver(browser);
+
+                var pageElements = {};
+
+                // Function to add variable assignment to the queue
+                // (queued to ensure target elements exist)
+                var defineVar = function(propName, byFunction){
+                    var fn = function(){
+                        pageElements[propName] = driver.findElement(byFunction);
+                        return pageElements[propName];
+                    };
+                    queue.push(fn);
+                };
+
+                var click = function(propName){
+                    queue.push(() => pageElements[propName].click());
+
+                };
+
+                var clickAt = function(propName, x, y){
+                    //click at coordinates (x,y) on the element pageElements[propName]
+                    queue.push(() => new ActionSequence(driver).mouseMove(pageElements[propName], {x, y}).click().perform());
+                };
+
+                var sendKeys = function(keys){
+                    queue.push(() => new ActionSequence(driver).sendKeys(keys).perform());
+                };
+
+                var queue = [];
+                //Populate queue
+                queue.push(() => driver.get(deployPath + "inf1/vending-machine-1.html"));
+
+                defineVar("linkTool", by.id("m1-linetool"));
+                defineVar("nodeTool", by.id("m1-nodetool"));
+                defineVar("textTool", by.id("m1-texttool"));
+                defineVar("acceptingTool", by.id("m1-acceptingtool"));
+                defineVar("checkButton", by.id("check-button"));
+                defineVar("bg", by.id("m1"));
+                defineVar("p0", by.id("m1-N0"));
+                defineVar("p10", by.id("m1-N2"));
+                defineVar("p20", by.id("m1-N1"));
+
+                //create nodes
+                click("nodeTool");
+                clickAt("bg",300, 100);
+                defineVar("p30", by.id("m1-N3"));
+                clickAt("bg", 300, 200);
+                defineVar("p40", by.id("m1-N4"));
+                clickAt("bg", 350, 100);
+                defineVar("p50", by.id("m1-N5"));
+                clickAt("bg", 450, 100);
+                defineVar("irnBru", by.id("m1-N6"));
+                clickAt("bg", 450, 300);
+                defineVar("water", by.id("m1-N7"));
+
+                //label nodes
+                click("textTool");
+                click("p30");
+                sendKeys("30p");
+                sendKeys(Key.ENTER);
+                click("p40");
+                sendKeys("40p");
+                sendKeys(Key.ENTER);
+                click("p50");
+                sendKeys("50p+");
+                sendKeys(Key.ENTER);
+
+                //create links
+                //link from 10p to 30p for input 20p
+                click("linkTool");
+                clickAt("p10", 15, 5); //use clickAt to avoid clicking on the nodename (as Selenium doesn't like that)
+                clickAt("p30", 15, 5);
+                defineVar("linkOption20p", by.id("m1-rename-option1-rect"));
+                click("linkOption20p");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 20p to 30p for input 10p
+                clickAt("p20", 15, 5);
+                clickAt("p30", 15, 5);
+                defineVar("linkOption10p", by.id("m1-rename-option0-rect"));
+                click("linkOption10p");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 20p to 40p for input 20p
+                clickAt("p20", 15, 5);
+                clickAt("p40", 15, 5);
+                defineVar("linkOption20p", by.id("m1-rename-option1-rect"));
+                click("linkOption20p");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 30p to 40p for input 10p
+                clickAt("p30", 15, 5);
+                clickAt("p40", 15, 5);
+                defineVar("linkOption10p", by.id("m1-rename-option0-rect"));
+                click("linkOption10p");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 30p to 50p for input 20p
+                clickAt("p30", 15, 5);
+                clickAt("p50", 15, 5);
+                defineVar("linkOption20p", by.id("m1-rename-option1-rect"));
+                click("linkOption20p");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 40p to 50p for input 10p or 20p
+                clickAt("p40", 15, 5);
+                clickAt("p50", 15, 5);
+                defineVar("linkOption10p", by.id("m1-rename-option0-rect"));
+                click("linkOption10p");
+                defineVar("linkOption20p", by.id("m1-rename-option1-rect"));
+                click("linkOption20p");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 50p to 50p for input 10p or 20p
+                clickAt("p50", 15, 5);
+                clickAt("p50", 15, 5);
+                defineVar("linkOption10p", by.id("m1-rename-option0-rect"));
+                click("linkOption10p");
+                defineVar("linkOption20p", by.id("m1-rename-option1-rect"));
+                click("linkOption20p");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 50p to irnBru for input Irn-Bru
+                clickAt("p50", 15, 5);
+                clickAt("irnBru", 15, 5);
+                defineVar("linkOptionIrnBru", by.id("m1-rename-option3-rect"));
+                click("linkOptionIrnBru");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 50p to water for input Water
+                clickAt("p50", 15, 5);
+                clickAt("water", 15, 5);
+                defineVar("linkOptionWater", by.id("m1-rename-option2-rect"));
+                click("linkOptionWater");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //link from 40p to water for input Water
+                clickAt("p40", 15, 5);
+                clickAt("irnBru", 15, 5);
+                defineVar("linkOptionWater", by.id("m1-rename-option2-rect"));
+                click("linkOptionWater");
+                defineVar("submitButton", by.id("m1-rename-submit-text"));
+                click("submitButton");
+
+                //Set accepting states
+                click("acceptingTool");
+                click("irnBru");
+                click("water");
+
+                //Submit answer
+                click("checkButton");
+
+                //Add correctness test to the queue
+                queue.push(function(){
+                    expectToBeTrue(driver.isElementPresent(by.css(".table-tick-small")));
+                    expectToBeFalse(driver.isElementPresent(by.css(".table-cross-small")));
+                    driver.quit();
+                    done();
+                });
+
+
+                var last = queue.shift()();
+                while(queue.length > 0){
+
+                    var next = queue.shift();
+                    last = last.then(next());
+                }
+            });
+        });
+    });
+
 
 
 
