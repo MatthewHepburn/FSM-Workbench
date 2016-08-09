@@ -1287,6 +1287,106 @@
   },
   {
     "data-question": {
+      "type": "dfa-convert",
+      "text": "All <b>non-deterministic</b> finite state machines (NFA) can be converted into equivalent <b>deterministic</b> machines (DFA).<br>This can be done using subset construction, where the DFA is given a state for each reachable combination of states in the NFA.<br>Follow the instructions below to convert the NFA on the left.",
+      "allowEpsilon": "false",
+      "splitSymbol": ""
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 102,
+            "y": 132,
+            "isInit": true,
+            "name": "Q1"
+          },
+          {
+            "id": "B",
+            "x": 202,
+            "y": 124,
+            "name": "Q3"
+          },
+          {
+            "id": "C",
+            "x": 145,
+            "y": 42,
+            "name": "Q2"
+          },
+          {
+            "id": "D",
+            "x": 302,
+            "y": 130,
+            "isAcc": true,
+            "name": "Q4"
+          }
+        ],
+        "links": [
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      },
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 101,
+            "y": 125,
+            "isInit": true,
+            "name": "{Q1}"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "dfa-convert-1",
+    "name": "Conversion to DFA I",
+    "id": "b07d3a54edfa4287a1753564b1fca583"
+  },
+  {
+    "data-question": {
       "type": "satisfy-definition",
       "text": "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the set of initial states of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
       "allowEpsilon": "false",

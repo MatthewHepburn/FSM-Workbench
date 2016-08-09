@@ -587,6 +587,10 @@ input[type=checkbox]{
   vertical-align: middle;
 }
 
+#dfa-prompt-div{
+  margin-top: 1em;
+}
+
 .invisible{
   visibility: hidden;
 }
