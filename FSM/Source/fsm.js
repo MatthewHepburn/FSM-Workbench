@@ -5,6 +5,7 @@ const Display = {
     extraNext: true, //Adding a an extra next button when a correct answer is given may help users to navigate
     nodeRadius: 12,
     acceptingRadius: 0.7 * 12,
+    linkWidth: 1,
     //Use a getter as this value is needed further down.
     get nodeColourScale(){return ["#63a0cb","#ffa657", "#6cbd6c", "#e26869", "#b495d1", "#af8981", "#eba0d4", "#a6a6a6", "#d0d165", "#5dd2dd"];},
     canvasVars: {
@@ -1690,6 +1691,7 @@ const Display = {
                //See https://bugzilla.mozilla.org/show_bug.cgi?id=309612 for why marker-mid is not done using CSS
                //TL;DR Mozilla's reading of the spec means that external css cannot refer to SVG definitions in the html.
                .style("marker-mid", "url(#end-arrow)")
+               .style("stroke-width", Display.linkWidth)
                .attr("id", function(d){return d.id;})
                .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
                .on("mousedown", function(link){EventHandler.linkClick(link);});
@@ -2378,8 +2380,11 @@ const Controller = {
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         const machineList = Controller.getQuestionMachineList();
         if(machineList.length > 1){
+            //Embiggen some elements to make machines more readable when displayed side-by-side
             Display.nodeRadius = Display.nodeRadius * 1.5;
             Display.acceptingRadius = Display.acceptingRadius * 1.5;
+            d3.select("#end-arrow").attr("markerWidth", 8.5).attr("markerHeight", 8.5);
+            d3.select("#highlight-arrow").attr("markerWidth", 8.5).attr("markerHeight", 8.5);
             for(let i = 1; i < machineList.length; i++){
                 Controller.addMachine(machineList[i], false);
             }

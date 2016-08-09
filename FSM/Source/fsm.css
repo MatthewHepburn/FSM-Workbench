@@ -137,14 +137,14 @@ svg:not(.active):not(.ctrl) {
 
 path.link {
   fill: none;
-  stroke: #000;
+  stroke: #000000;
   cursor: default;
   transition: stroke-width 0.5s;
 }
 
 path.halflink{
   fill: none;
-  stroke: #000;
+  stroke: #000000;
   cursor: default;
   pointer-events: none
 
