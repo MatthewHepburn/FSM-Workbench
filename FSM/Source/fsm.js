@@ -1726,6 +1726,7 @@ const Display = {
 
         layout.force("link", linkForce);
         layout.force("charge", chargeForce);
+        layout.alphaTarget(0.25).restart(); //Higher alphaTarget (up to 1) increases speed / snappiness of simulation
 
         newNodes.call(d3.drag()
           .on("start", Display.dragHandlers.dragstarted)
@@ -1733,6 +1734,7 @@ const Display = {
           .on("end", Display.dragHandlers.dragended));
 
         Display.forceTick(canvasID);
+
 
     },
     updateAllLinkLabels: function(canvasID){
@@ -1917,6 +1919,9 @@ const Display = {
     },
     dragHandlers:{
         dragstarted: function(node){
+            if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
+                return;
+            }
             if (!d3.event.active){
                 Display.getCanvasVars(node.machine.id).layout.alphaTarget(0.3).restart();
             }
@@ -1924,10 +1929,16 @@ const Display = {
             node.fy = node.y;
         },
         dragged: function(node){
+            if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
+                return;
+            }
             node.fx = d3.event.x;
             node.fy = d3.event.y;
         },
         dragended: function(node){
+            if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
+                return;
+            }
             if(!node.fixed){
                 node.fx = null;
                 node.fy = null;
@@ -2567,7 +2578,7 @@ const Global = {
     // Not certain if this is a good idea - object to hold global vars
     // Some globals useful to avoid keeping duplicated code in sync - this seems like
     // a more readable way of doing that than scattering global vars throughout the codebase
-    "toolsWithDragAllowed": ["none"],
+    "toolsWithDragAllowed": ["none", "nodetool"],
     "pageLoaded": false,
     "iconAddress": document.querySelector("body").dataset.iconaddress,
     //Track state
