@@ -99,16 +99,16 @@ div.question-text{
   cursor: pointer;
 }
 
-.select-states-show-trace{
+.button-div .show-trace{
   text-decoration: underline;
   font-size: small;
-  margin-left: 0.25em !important;
+  margin-left: 0.25em;
   font-family: 'Ek Mukta', sans-serif;
-  text-align: left !important;
-  width: unset !important;
+  text-align: left;
+  width: unset;
 }
 
-.select-states-show-trace:hover{
+.button-div .show-trace:hover{
   font-weight: bold;
   cursor: pointer;
 }

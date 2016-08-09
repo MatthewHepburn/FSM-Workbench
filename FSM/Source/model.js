@@ -1397,9 +1397,9 @@ const Model = {
             if(incorrectSequence !== null){
                 let printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
-                    feedbackObj.message = `Incorrect – the machine should accept ‘${printableSequence}’`;
+                    feedbackObj.message = `Incorrect – the machine should accept ‘${printableSequence}’.`;
                 } else {
-                    feedbackObj.message = `Incorrect – the machine should accept the empty string`;
+                    feedbackObj.message = `Incorrect – the machine should accept the empty string.`;
                 }
                 feedbackObj.incorrectSequence = incorrectSequence;
                 feedbackObj.shouldAcceptIncorrect = true;
@@ -1417,9 +1417,9 @@ const Model = {
             if(incorrectSequence !== null){
                 let printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
-                    feedbackObj.message = `Incorrect – the machine should reject ‘${printableSequence}’`;
+                    feedbackObj.message = `Incorrect – the machine should reject ‘${printableSequence}’.`;
                 } else {
-                    feedbackObj.message = `Incorrect – the machine should reject the empty string`;
+                    feedbackObj.message = `Incorrect – the machine should reject the empty string.`;
                 }
                 feedbackObj.incorrectSequence = incorrectSequence;
                 feedbackObj.shouldAcceptIncorrect = false;

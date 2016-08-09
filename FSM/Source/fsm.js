@@ -403,7 +403,7 @@ const Display = {
         } else {
             feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
             var message = "show trace";
-            var traceButton = feedbackDiv.append("span").text(message).classed("select-states-show-trace", true);
+            var traceButton = feedbackDiv.append("span").text(message).classed("show-trace", true);
             traceButton.on("click", function(){
                 var fullSequence = feedbackObj.initialInput.concat(feedbackObj.subsequentInput);
                 var stepToStart = feedbackObj.initialInput.length;
@@ -415,7 +415,6 @@ const Display = {
                     Controller.setUpQuestion();
                 });
             });
-
         }
 
     },
@@ -433,7 +432,15 @@ const Display = {
             }
         } else {
             feedbackDiv.append("span").text("☓").classed("adjacent-cross", true);
-            feedbackDiv.append("span").text(feedbackObj.message).classed("adjacent-feedback-text", true);
+            feedbackDiv.append("span").text(feedbackObj.message + " ").classed("adjacent-feedback-text", true);
+            if(feedbackObj.incorrectSequence){
+                feedbackDiv.append("span")
+                    .text("Show trace.")
+                    .classed("show-trace", true)
+                    .on("click", function(){
+                        Controller.startTrace(Model.machines[0], feedbackObj.incorrectSequence, 0);
+                    });
+            }
         }
     },
     giveFeedbackForGiveInput: function(){
