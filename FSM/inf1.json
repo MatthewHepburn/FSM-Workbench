@@ -770,9 +770,9 @@
   {
     "data-question": {
       "type": "select-states",
-      "text": "f a finite state machine has more than one possible transition out of a state for a particular input symbol,<br> it is said to be <b>non-deterministic</b> or a <b>non-deterministic finite automaton (NFA)</b>.<br>The machine below could be in 3 possible states for the input \"y, y\". Select them.",
+      "text": "A finite state machine is <b>non-deterministic</b> if it has more than one possible transition out of a state for a particular input symbol.<br>When there is more than one possible path, all possible paths are considered simultaneously.<br><br>The machine below could be in 3 possible states after receiving the input \"<b>y, y</b>\". Select them.",
       "allowEpsilon": "false",
-      "splitSymbol": "",
+      "splitSymbol": ", ",
       "initialSequence": [],
       "targetSequence": [
         "y",
@@ -784,55 +784,80 @@
         "nodes": [
           {
             "id": "A",
-            "x": 161,
-            "y": 127,
+            "x": 123,
+            "y": 148,
             "isInit": true,
-            "name": "0"
+            "name": "a"
           },
           {
             "id": "B",
-            "x": 261,
-            "y": 130,
-            "name": "1"
+            "x": 223,
+            "y": 147,
+            "name": "b"
           },
           {
             "id": "C",
-            "x": 214,
-            "y": 42,
-            "name": "2"
+            "x": 289,
+            "y": 72,
+            "name": "c"
           },
           {
             "id": "D",
-            "x": 217,
-            "y": 210
+            "x": 323,
+            "y": 147,
+            "isAcc": true,
+            "name": "d"
           },
           {
             "id": "E",
-            "x": 316,
-            "y": 226,
-            "isAcc": true
+            "x": 299,
+            "y": 212,
+            "name": "e"
           }
         ],
         "links": [
           {
-            "to": "B",
-            "from": "A"
+            "to": "A",
+            "from": "A",
+            "input": [
+              "y"
+            ]
           },
           {
-            "to": "C",
-            "from": "B"
+            "to": "B",
+            "from": "A",
+            "input": [
+              "y"
+            ]
           },
           {
             "to": "A",
-            "from": "C"
+            "from": "B",
+            "input": [
+              "y"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "z"
+            ]
           },
           {
             "to": "D",
-            "from": "A"
+            "from": "B",
+            "input": [
+              "x"
+            ]
           },
           {
             "to": "E",
-            "from": "D"
+            "from": "B",
+            "input": [
+              "x",
+              "y"
+            ]
           }
         ],
         "attributes": {
@@ -846,9 +871,9 @@
       }
     ],
     "data-options": {},
-    "filename": "select-states-nfa-intro",
+    "filename": "select-states-4-nfa-intro",
     "name": "Nondeterministic transitions I",
-    "id": "710acb8c697c49038c53d8341c27fc03"
+    "id": "f58fd145585a48d695059e2348778331"
   },
   {
     "data-question": {
