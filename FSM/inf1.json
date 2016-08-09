@@ -878,7 +878,7 @@
   {
     "data-question": {
       "type": "does-accept",
-      "text": "A non-deterministic finite automaton accepts a sequence if there is <b>at <br>least one path</b> for that sequence that <b>ends in an accepting state</b>.<br><br>For the sequences below, tick those that the machine would accept.",
+      "text": "A non-deterministic finite state machine accepts a sequence if there is <b>at least one path</b> for that sequence that <b>ends in an accepting state</b>.<br>For the sequences below, tick those that the machine would accept.",
       "allowEpsilon": "false",
       "splitSymbol": "",
       "sequences": [
