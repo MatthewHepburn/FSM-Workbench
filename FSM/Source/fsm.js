@@ -1929,6 +1929,15 @@ const Display = {
             node.fy = node.y;
         },
         dragged: function(node){
+            const machineID = node.machine.id;
+            const canvasVars = Display.getCanvasVars(machineID);
+            if(canvasVars.linkInProgress){
+                //update the in-progress link while dragging
+                const halflink = d3.select(`#${machineID}-halflink`);
+                const sourceNode = canvasVars.linkInProgressNode;
+                const mousePos = d3.mouse(d3.select(`#${machineID}`).node());
+                halflink.attr("d", `M${sourceNode.x},${sourceNode.y}L${mousePos[0]},${mousePos[1]}}`);
+            }
             if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
                 return;
             }
