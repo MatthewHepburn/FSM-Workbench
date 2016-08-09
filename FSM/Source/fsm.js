@@ -1738,6 +1738,7 @@ const Display = {
         var svg = d3.select("#" + link.machine.id);
         var label = svg.select("#" + link.id + "-label").text("").node();
         Display.appendLinkLabelTspans(label, link);
+        Display.updateLinkLabelPositions(svg, true);
     },
     repositionAllLinkLabels: function(){
         for(var canvasID in Display.canvasVars){
@@ -1764,7 +1765,7 @@ const Display = {
                     .attr("x", positionObj.x)
                     .attr("y", positionObj.y)
                     .attr("transform", function(){
-                        if(Controller.getLabelRotation() === "never" || (Controller.getLabelRotation() === "long only"  && d3.select(this).html().length < 2)){
+                        if(Controller.getLabelRotation() === "never" || (Controller.getLabelRotation() === "long only"  && d3.select(this).text().length < 2)){
                             return null;
                         } else {
                             return "rotate(" + positionObj.rotation + ", " + positionObj.x +", " + positionObj.y +")";
