@@ -367,6 +367,9 @@ const edit = {
             for(let i = 0; i < link.input.length; i++){
                 spec.links.push({to, from, symbol:link.input[i]});
             }
+            if(link.hasEpsilon){
+                spec.links.push({to, from, symbol:"ε", epsilon: true});
+            }
         }
 
         return spec;

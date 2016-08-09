@@ -1179,8 +1179,7 @@
           {
             "id": "A",
             "x": 127,
-            "y": 39,
-            "name": "T"
+            "y": 39
           },
           {
             "id": "B",
@@ -1289,7 +1288,7 @@
   {
     "data-question": {
       "type": "satisfy-definition",
-      "text": "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the initial state of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
+      "text": "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the set of initial states of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
       "allowEpsilon": "false",
       "splitSymbol": "",
       "definition": {
@@ -1342,7 +1341,8 @@
             "id": "A",
             "x": 100,
             "y": 125,
-            "isInit": true
+            "isInit": true,
+            "name": "1"
           }
         ],
         "links": [],
@@ -1364,18 +1364,18 @@
   {
     "data-question": {
       "type": "satisfy-definition",
-      "text": "<p>Construct the non-deterministic FSM described below.</p><p><em>M </em>: <em>M </em>= (<em>Q</em>,<em>&nbsp;</em>Σ,<em>&nbsp;s<sub>0</sub></em>,<em>&nbsp;F</em>,<em> </em>δ<em>)</em>, where</p><em>Q</em> = {1,2,3,4,5,6,7,8}<br><em>Σ</em> = {1,2}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {8}<br><em>δ</em> = {(1,1,2),(1,1,4),(2,2,2),(2,2,3),(3,1,3),(4,1,5),(4,2,6),(5,1,5),(5,2,5),(6,1,4),(6,1,6),(6,2,7)}",
+      "text": "<em>Q</em> = {1,2,3,4,5,6,7,8}<br><em>Σ</em> = {1,2}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {8}<br><em>δ</em> = {(1,1,2),(1,1,4),(2,2,2),(2,2,3),(3,1,3),(3,ε,8),(4,1,5),(4,2,6),(5,1,5),(5,2,5),(6,1,4),(6,1,6),(6,2,7),(7,ε,8)}<br>",
       "allowEpsilon": "true",
-      "splitSymbol": " ",
+      "splitSymbol": ", ",
       "definition": {
         "states": [
           "1",
-          "2",
           "3",
+          "2",
           "4",
           "5",
-          "6",
           "7",
+          "6",
           "8"
         ],
         "alphabet": [
@@ -1415,6 +1415,12 @@
             "symbol": "1"
           },
           {
+            "to": "8",
+            "from": "3",
+            "symbol": "ε",
+            "epsilon": true
+          },
+          {
             "to": "5",
             "from": "4",
             "symbol": "1"
@@ -1448,6 +1454,12 @@
             "to": "7",
             "from": "6",
             "symbol": "2"
+          },
+          {
+            "to": "8",
+            "from": "7",
+            "symbol": "ε",
+            "epsilon": true
           }
         ]
       }
@@ -1457,52 +1469,52 @@
         "nodes": [
           {
             "id": "A",
-            "x": 86,
-            "y": 176,
+            "x": 76,
+            "y": 150,
             "isInit": true,
             "name": "1"
           },
           {
             "id": "B",
-            "x": 101,
-            "y": 71,
+            "x": 169,
+            "y": 63,
             "name": "2"
           },
           {
             "id": "C",
-            "x": 180,
-            "y": 72,
+            "x": 312,
+            "y": 65,
             "name": "3"
           },
           {
             "id": "D",
-            "x": 138,
-            "y": 243,
-            "name": "4"
+            "x": 414,
+            "y": 155,
+            "name": "8"
           },
           {
             "id": "E",
-            "x": 262,
-            "y": 247,
-            "name": "5"
+            "x": 121,
+            "y": 238,
+            "name": "4"
           },
           {
             "id": "F",
-            "x": 174,
-            "y": 165,
+            "x": 231,
+            "y": 152,
             "name": "6"
           },
           {
             "id": "G",
-            "x": 277,
-            "y": 156,
-            "name": "7"
+            "x": 240,
+            "y": 276,
+            "name": "5"
           },
           {
             "id": "H",
-            "x": 283,
-            "y": 72,
-            "name": "8"
+            "x": 358,
+            "y": 220,
+            "name": "7"
           }
         ],
         "links": [],
@@ -1518,7 +1530,7 @@
     "data-options": {},
     "filename": "satisfy-definition-2-2013-14-resit",
     "name": "Formal machine definition II",
-    "id": "c0e687af49f147d58072ea7c2d5677b6"
+    "id": "4f262a9d7e774fd7a454468d3a5e794b"
   },
   {
     "data-question": {

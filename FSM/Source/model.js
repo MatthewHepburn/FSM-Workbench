@@ -1295,10 +1295,18 @@ const Model = {
                 const link = spec.links[i];
                 const sourceNode = nodeDict[link.from];
                 const targetNode = nodeDict[link.to];
-                const reachableNodes = sourceNode.getReachableNodes(link.symbol).nodeIDs.map(nodeID => machine.nodes[nodeID]);
-                if(!reachableNodes.includes(targetNode)){
-                    feedbackObj.message = `Incorrect – there should be a link from state ‘${link.from}’ to ‘${link.to}’ for ‘${link.symbol}’.`;
-                    return feedbackObj;
+                if(link.epsilon){
+                    const epsLink = sourceNode.getLinkTo(targetNode);
+                    if(epsLink === null || !epsLink.hasEpsilon){
+                        feedbackObj.message = `Incorrect – there should be an epsilon (ε) transition from state ‘${link.from}’ to ‘${link.to}’.`;
+                        return feedbackObj;
+                    }
+                }else{
+                    const reachableNodes = sourceNode.getReachableNodes(link.symbol).nodeIDs.map(nodeID => machine.nodes[nodeID]);
+                    if(!reachableNodes.includes(targetNode)){
+                        feedbackObj.message = `Incorrect – there should be a link from state ‘${link.from}’ to ‘${link.to}’ for ‘${link.symbol}’.`;
+                        return feedbackObj;
+                    }
                 }
             }
 
@@ -1322,14 +1330,24 @@ const Model = {
                         return feedbackObj;
                     }
                 }
+                if(link.hasEpsilon){
+                    let found = false;
+                    for(let i = 0; i < links.length && !found; i++){
+                        const specLink = links[i];
+                        if(to === specLink.to && from === specLink.from && specLink.epsilon){
+                            found = true;
+                        }
+                    }
+                    if(!found){
+                        feedbackObj.message = `Incorrect – there should not be an epsilon (ε) transition from state ‘${from}’ to ‘${to}’.`;
+                        return feedbackObj;
+                    }
+                }
             }
-
             feedbackObj.allCorrectFlag = true;
             return feedbackObj;
-
-
-
         },
+
         checkDoesAccept: function(input){
             var machine = Model.machines[0];
             var sequences = Model.question.sequences.map(str => Model.parseInput(str));

@@ -702,6 +702,74 @@ describe("Model", function() {
             });
 
         });
+        describe("It should correctly accept a correct machine with epsilon transitions", function(){
+            var questionObj, spec, feedbackObj;
+
+            before(function(){
+                questionObj = {
+                    "type": "satisfy-definition",
+                    "text": "<em>Q</em> = {1,2,3,4,5,6,7,8}<br><em>Σ</em> = {1,2}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {8}<br><em>δ</em> = {(1,1,2),(1,1,4),(2,2,2),(2,2,3),(3,1,3),(3,ε,8),(4,1,5),(4,2,6),(5,1,5),(5,2,5),(6,1,4),(6,1,6),(6,2,7),(7,ε,8)}<br>",
+                    "allowEpsilon": "true",
+                    "splitSymbol": ", ",
+                    "definition": {"states": ["1","3","2","4","5","6","7","8"],
+                    "alphabet": ["1","2"],
+                    "initialStates": ["1"],
+                    "acceptingStates": ["8"],
+                    "links": [{"to": "2","from": "1","symbol": "1"},{"to": "4","from": "1","symbol": "1"},{"to": "2","from": "2","symbol": "2"},{"to": "3","from": "2","symbol": "2"},{"to": "3","from": "3","symbol": "1"},{"to": "8","from": "3","symbol": "ε","epsilon": true},{"to": "5","from": "4","symbol": "1"},{"to": "5","from": "5","symbol": "1"},{"to": "5","from": "5","symbol": "2"},{"to": "6","from": "4","symbol": "2"},{"to": "4","from": "6","symbol": "1"},{"to": "6","from": "6","symbol": "1"},{"to": "7","from": "6","symbol": "2"},{"to": "8","from": "7","symbol": "ε","epsilon": true}]
+                  }
+                };
+
+                spec = {"nodes":[{"id":"A","x":119,"y":140,"isInit":true,"name":"1"},{"id":"B","x":195,"y":76,"name":"2"},{"id":"C","x":295,"y":82,"name":"3"},{"id":"D","x":383,"y":129,"isAcc":true,"name":"8"},{"id":"E","x":163,"y":230,"name":"4"},{"id":"F","x":238,"y":164,"name":"6"},{"id":"G","x":255,"y":269,"name":"5"},{"id":"H","x":326,"y":211,"name":"7"}],"links":[{"to":"B","from":"A","input":["1"]},{"to":"E","from":"A","input":["1"]},{"to":"B","from":"B","input":["2"]},{"to":"C","from":"B","input":["2"]},{"to":"C","from":"C","input":["1"]},{"to":"D","from":"C","hasEps":true},{"to":"G","from":"E","input":["1"]},{"to":"F","from":"E","input":["2"]},{"to":"G","from":"G","input":["1","2"]},{"to":"E","from":"F","input":["1"]},{"to":"F","from":"F","input":["1"]},{"to":"H","from":"F","input":["2"]},{"to":"D","from":"H","hasEps":true}],"attributes":{"alphabet":["1","2"],"allowEpsilon":true}};
+                model.machines = [];
+                model.addMachine(spec);
+                model.question.setUpQuestion(questionObj);
+            });
+
+            it("feedback object should be ok", function(){
+                feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj).to.be.ok;
+            });
+            it("feedback object should be correct", function(){
+                expect(feedbackObj.allCorrectFlag).to.be.true;
+                expect(feedbackObj.message.length).to.equal(0);
+            });
+        });
+
+        describe("It should correctly reject an incorrect machine with a misplaced epsilon transition", function(){
+            var questionObj, spec, feedbackObj;
+
+            before(function(){
+                questionObj = {
+                    "type": "satisfy-definition",
+                    "text": "<em>Q</em> = {1,2,3,4,5,6,7,8}<br><em>Σ</em> = {1,2}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {8}<br><em>δ</em> = {(1,1,2),(1,1,4),(2,2,2),(2,2,3),(3,1,3),(3,ε,8),(4,1,5),(4,2,6),(5,1,5),(5,2,5),(6,1,4),(6,1,6),(6,2,7),(7,ε,8)}<br>",
+                    "allowEpsilon": "true",
+                    "splitSymbol": ", ",
+                    "definition": {"states": ["1","3","2","4","5","6","7","8"],
+                    "alphabet": ["1","2"],
+                    "initialStates": ["1"],
+                    "acceptingStates": ["8"],
+                    "links": [{"to": "2","from": "1","symbol": "1"},{"to": "4","from": "1","symbol": "1"},{"to": "2","from": "2","symbol": "2"},{"to": "3","from": "2","symbol": "2"},{"to": "3","from": "3","symbol": "1"},{"to": "8","from": "3","symbol": "ε","epsilon": true},{"to": "5","from": "4","symbol": "1"},{"to": "5","from": "5","symbol": "1"},{"to": "5","from": "5","symbol": "2"},{"to": "6","from": "4","symbol": "2"},{"to": "4","from": "6","symbol": "1"},{"to": "6","from": "6","symbol": "1"},{"to": "7","from": "6","symbol": "2"},{"to": "8","from": "7","symbol": "ε","epsilon": true}]
+                  }
+                };
+
+                spec = {"nodes":[{"id":"A","x":119,"y":140,"isInit":true,"name":"1"},{"id":"B","x":195,"y":76,"name":"2"},{"id":"C","x":295,"y":82,"name":"3"},{"id":"D","x":383,"y":129,"isAcc":true,"name":"8"},{"id":"E","x":163,"y":230,"name":"4"},{"id":"F","x":238,"y":164,"name":"6"},{"id":"G","x":255,"y":269,"name":"5"},{"id":"H","x":326,"y":211,"name":"7"}],"links":[{"to":"B","from":"A","input":["1"]},{"to":"E","from":"A","input":["1"]},{"to":"B","from":"B","input":["2"], "hasEps":true},{"to":"C","from":"B","input":["2"]},{"to":"C","from":"C","input":["1"]},{"to":"D","from":"C","hasEps":true},{"to":"G","from":"E","input":["1"]},{"to":"F","from":"E","input":["2"]},{"to":"G","from":"G","input":["1","2"]},{"to":"E","from":"F","input":["1"]},{"to":"F","from":"F","input":["1"]},{"to":"H","from":"F","input":["2"]},{"to":"D","from":"H","hasEps":true}],"attributes":{"alphabet":["1","2"],"allowEpsilon":true}};
+                model.machines = [];
+                model.addMachine(spec);
+                model.question.setUpQuestion(questionObj);
+            });
+
+            it("feedback object should be ok", function(){
+                feedbackObj = model.question.checkAnswer();
+                expect(feedbackObj).to.be.ok;
+            });
+            it("allCorrectFlag should be false", function(){
+                expect(feedbackObj.allCorrectFlag).to.be.false;
+            });
+            it("message should not be empty", function(){
+                expect(feedbackObj.message.length).to.not.equal(0);
+                expect(feedbackObj.message.includes("state")).to.be.true;
+            });
+        });
     });
 
     describe("Test Machine.getTrace()", function(){
