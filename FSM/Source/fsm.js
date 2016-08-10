@@ -4,7 +4,8 @@
 const Display = {
     extraNext: true, //Adding a an extra next button when a correct answer is given may help users to navigate
     nodeRadius: 12,
-    acceptingRadius: 0.7 * 12,
+    acceptingRadius: 0.7 * 12, //12 = nodeRadius
+    nodeNameFontSize: 1.2 * 0.7 * 12, //0.7 * 12 = acceptingRadius (Done this way because an object cannot refer to itself before it is created)
     linkWidth: 1,
     //Use a getter as this value is needed further down.
     get nodeColourScale(){return ["#63a0cb","#ffa657", "#6cbd6c", "#e26869", "#b495d1", "#af8981", "#eba0d4", "#a6a6a6", "#d0d165", "#5dd2dd"];},
@@ -1301,16 +1302,54 @@ const Display = {
     getNodeNameCoords: function (node){
         // Get the coordinates of the node name label
         // This will be the coordinates of the node for short labels, longer labels
-        // be positioned below the node
+        // be positioned below the node, or elsewhere if that collides with a link
         const name = node.name;
         const svg = d3.select(`#${node.machine.id}`);
-        const fontSize = d3.select(".nodename").attr("font-size");
+        const fontSize = Display.nodeNameFontSize;
         const nameLength = Display.getTextLength(svg, name, fontSize, "nodename");
         const maxlength = node.isAccepting? 1.8 * Display.acceptingRadius : 1.8 * Display.nodeRadius;
         if(nameLength < maxlength){
             return {x: node.x, y:node.y};
         } else {
-            return {x: node.x, y: node.y + (1.6 * Display.nodeRadius)};
+            //Try positioning below or above the node, then to right or left
+            const coordArray = [{x: node.x, y: node.y + (1.6 * Display.nodeRadius)},
+                                {x: node.x, y: node.y - (1.6 * Display.nodeRadius)},
+                                {x: node.x + 1.6 * Display.nodeRadius + (0.5 * nameLength), y: node.y},
+                                {x: node.x - 1.6 * Display.nodeRadius - (0.5 * nameLength), y: node.y}];
+
+            const testObjs = []; // elements to test for collisions with
+            //Add links to testObjs
+            node.machine.getLinkList().map(link => d3.selectAll(`#${link.id} path.link`)).map(function(selection){selection.each(function(){testObjs.push(this);});});
+
+            //Test coordinates for collisions with links, until a set is found with no collisions (or until the list is exhausted)
+            for(let i = 0; i < coordArray.length; i++){
+                let collisionFound = false;
+                const coordObj = coordArray[i];
+                //Construct the boundingBox of the nodename, for this coordob
+                const textBBox = {x: coordObj.x - (nameLength/2) + 2, y: coordObj.y - (fontSize/2) + 2, width: nameLength - 4, height: fontSize - 4};
+                //TODO: Find intersection with straight links by treating them as lines, (much) more precise than axis-aligned bbox for diagonal lines.
+                for(let j = 0; j < testObjs.length; j++){
+                    const testBBox = testObjs[j].getBBox();
+                    if(textBBox.x + textBBox.width < testBBox.x || testBBox.x + testBBox.width < textBBox.x){
+                        //textBBox lies outside testBBox on x axis
+                        continue;
+                    }
+                    if(textBBox.y + textBBox.height < testBBox.y || testBBox.y + testBBox.height < textBBox.y){
+                        //textBBox lies outside testBBox on y axis
+                        continue;
+                    } else {
+                        //textBBox lies within testBBox on both axes
+                        collisionFound = true;
+                        break;
+                    }
+                }
+                if(!collisionFound){
+                    //Return the first set of coordinates with no collision.
+                    return coordObj;
+                }
+            }
+            //Fallback -> return the first result even if it collides.
+            return coordArray[0];
         }
     },
     getContextMenuCoords: function(svg, mouseX, mouseY, menuWidth, menuHeight ){
@@ -1649,7 +1688,7 @@ const Display = {
         newNodes.append("svg:text")
             .classed("nodename", true)
             .attr("id", function(node){return node.id + "-label";})
-            .attr("font-size", 1.2 * Display.acceptingRadius)   // Sets the font height relative to the radius of the inner ring on accepting nodes
+            .attr("font-size", Display.nodeNameFontSize)   // Sets the font height relative to the radius of the inner ring on accepting nodes
             .on("click", function(node){d3.select("#" +node.id).on("mousedown")(node);}) //Call the event listeners on the node (could just pass events using
                                                                                     // pointer-events: none but want name to be clickable when it is outside a node)
             .on("contextmenu", function(node){EventHandler.nodeContextClick(node, true);})
