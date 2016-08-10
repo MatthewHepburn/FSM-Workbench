@@ -46,6 +46,11 @@ const Display = {
         // Add <g> elements for nodes and links
         svg.append("g").classed("links", true);
         svg.append("g").classed("nodes", true);
+
+        //Setup force:
+        Display.canvasVars[id].layout
+            .force("link", d3.forceLink(m.getLinkList()).distance(100))
+            .force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9));
     },
     deleteCanvas: function(machineID){
         d3.select("#" + machineID).remove();
@@ -342,7 +347,7 @@ const Display = {
             }
         }
         Display.update(Model.machines[1].id);
-        Display.getCanvasVars("m2").layout.alphaTarget(0.4).restart();
+        Display.reheatSimulation(Model.machines[1].id);
 
         //Done if allCorrectFlag == true, otherwise prompt next node set.
         if(feedbackObj.allCorrectFlag){
@@ -1255,7 +1260,7 @@ const Display = {
         // force is not used.
         var svg = d3.select("#"+canvasID);
         svg.selectAll(".node")
-            .attr("cx", function(d){ //prevent nodes leavinf the canvas on the x axis
+            .attr("cx", function(d){ //prevent nodes leaving the canvas on the x axis
                 var x = d.x;
                 if(x < 0){
                     return 1;
@@ -1306,6 +1311,8 @@ const Display = {
                 const coords = Display.getNodeNameCoords(node);
                 d3.select(this).attr("x", coords.x).attr("y", coords.y);
             });
+
+        console.log("tick")
     },
     getCanvasVars: function(canvasID){
         return Display.canvasVars[canvasID];
@@ -1874,17 +1881,7 @@ const Display = {
 
         const layout = Display.getCanvasVars(canvasID).layout;
         layout.nodes(nodeList);
-        const linkForce = d3.forceLink(linkList)
-                            .distance(100);
-        const chargeForce = d3.forceManyBody()
-                              .strength(-60)
-                              .distanceMax(60)
-                              .distanceMin(0.1);
-
-        layout.force("link", linkForce);
-        layout.force("charge", chargeForce);
-        layout.alphaTarget(0.25).restart(); //Higher alphaTarget (up to 1) increases speed / snappiness of simulation
-
+        layout.force("link", d3.forceLink(machine.getLinkList()).distance(100));
         newNodes.call(d3.drag()
           .on("start", Display.dragHandlers.dragstarted)
           .on("drag", Display.dragHandlers.dragged)
@@ -2098,13 +2095,18 @@ const Display = {
         Display.highlightNodes(Model.machines[1].id, [promptObj.m2Node], "#2CA02C", true);
         Display.makeNodesSelectable(Model.machines[0].id);
     },
+    reheatSimulation: function(canvasID){
+        const layout = Display.getCanvasVars(canvasID).layout;
+        layout.alpha(0.2).restart();
+
+    },
     dragHandlers:{
         dragstarted: function(node){
             if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
                 return;
             }
             if (!d3.event.active){
-                Display.getCanvasVars(node.machine.id).layout.alphaTarget(0.3).restart();
+                Display.reheatSimulation(node.machine.id);
             }
             node.fx = node.x;
             node.fy = node.y;
@@ -2124,6 +2126,7 @@ const Display = {
             }
             node.fx = d3.event.x;
             node.fy = d3.event.y;
+            Display.reheatSimulation(node.machine.id);
         },
         dragended: function(node){
             if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
@@ -2450,6 +2453,7 @@ const Controller = {
         Display.update(sourceNode.machine.id);
         Display.clearMenus(sourceNode.machine.id);
         Controller.requestLinkRename(newLink);
+        Display.reheatSimulation(sourceNode.machine.id);
 
     },
     deleteMachine: function(machineID){
@@ -2460,16 +2464,19 @@ const Controller = {
         Display.clearMenus(link.machine.id);
         link.machine.deleteLink(link);
         Display.update(link.machine.id);
+        Display.reheatSimulation(link.machine.id);
     },
     createNode: function(machine, x, y, isInitial, isAccepting){
         Display.clearMenus(machine.id);
         machine.addNode(x, y, "", isInitial, isAccepting);
         Display.update(machine.id);
+        Display.reheatSimulation(machine.id);
     },
     deleteNode: function(node){
         Display.clearMenus(node.machine.id);
         node.machine.deleteNode(node);
         Display.update(node.machine.id);
+        Display.reheatSimulation(node.machine.id);
     },
     reverseLink: function(link){
         Display.clearMenus(link.machine.id);
@@ -2565,6 +2572,7 @@ const Controller = {
             //Embiggen some elements to make machines more readable when displayed side-by-side
             Display.nodeRadius = Display.nodeRadius * 1.5;
             Display.acceptingRadius = Display.acceptingRadius * 1.5;
+            Display.nodeNameFontSize = Display.nodeNameFontSize * 1.5;
             d3.select("#end-arrow").attr("markerWidth", 8.5).attr("markerHeight", 8.5);
             d3.select("#highlight-arrow").attr("markerWidth", 8.5).attr("markerHeight", 8.5);
             for(let i = 1; i < machineList.length; i++){
@@ -2572,7 +2580,10 @@ const Controller = {
             }
         }
         Controller.setupMachine(m, 0);
-        Display.canvasVars["m1"].machine = Model.machines[0];
+        const canvasVars = Display.getCanvasVars("m1");
+        canvasVars.machine = Model.machines[0];
+        canvasVars.layout.force("link", d3.forceLink(m.getLinkList()).distance(100));
+        canvasVars.layout.force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9));
         Display.update("m1");
         Controller.setUpQuestion();
         Display.setUpQuestion();
