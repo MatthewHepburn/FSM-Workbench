@@ -335,12 +335,19 @@ const Display = {
         //Done if allCorrectFlag == true, otherwise prompt next node set.
         if(feedbackObj.allCorrectFlag){
             d3.select("#dfa-prompt-text").text("Conversion complete!");
+            //Add extra next:
             if(Display.extraNext){
                 const buttonDiv = d3.select("#dfa-prompt-button-div").html("");
                 Display.appendNextButton(buttonDiv);
             } else {
                 d3.select("#dfa-prompt-button-div").classed("invisible", true);
             }
+            //Clear highlights on both machines:
+            Model.machines.forEach(function(m){
+                Display.unhighlightNodes(m.id);
+                m.getNodeList().forEach(node => node.selected = false);
+            });
+            d3.selectAll(".node").classed("selected", false);
 
 
         }else{
