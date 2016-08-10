@@ -195,11 +195,22 @@ const Display = {
 
         // Test if the link is from one node to itself
         if (node1.id === node2.id){
-            return {
-                x: node1.x,
-                y: node2.y - (3.2 * Display.nodeRadius) - 3, //By eye, constant to account for text size
-                rotation: 0
-            };
+            //Get the link if it exists yet, to see if it is above or below the node.
+            const link = node1.getLinkTo(node2);
+            const positionAbove = { x: node1.x,
+                                    y: node2.y - (3.2 * Display.nodeRadius) - 3, //By eye, constant to account for text size
+                                    rotation: 0};
+            if(!link){
+                return positionAbove;
+            }
+            if(link.alignment === "below"){
+                return {x: node1.x,
+                        y: node1.y + (3.2 * Display.nodeRadius) + 3,
+                        rotation: 0};
+            } else{
+                return positionAbove;
+            }
+
         }
 
         // Find the point between the two nodes
@@ -1319,7 +1330,7 @@ const Display = {
 
             const testObjs = []; // elements to test for collisions with
             //Add links to testObjs
-            node.machine.getLinkList().map(link => d3.selectAll(`#${link.id} path.link`)).map(function(selection){selection.each(function(){testObjs.push(this);});});
+            Display.getAllLinkPaths(node.machine.id).forEach(path => testObjs.push(path));
 
             //Test coordinates for collisions with links, until a set is found with no collisions (or until the list is exhausted)
             for(let i = 0; i < coordArray.length; i++){
@@ -1330,15 +1341,7 @@ const Display = {
                 //TODO: Find intersection with straight links by treating them as lines, (much) more precise than axis-aligned bbox for diagonal lines.
                 for(let j = 0; j < testObjs.length; j++){
                     const testBBox = testObjs[j].getBBox();
-                    if(textBBox.x + textBBox.width < testBBox.x || testBBox.x + testBBox.width < textBBox.x){
-                        //textBBox lies outside testBBox on x axis
-                        continue;
-                    }
-                    if(textBBox.y + textBBox.height < testBBox.y || testBBox.y + testBBox.height < textBBox.y){
-                        //textBBox lies outside testBBox on y axis
-                        continue;
-                    } else {
-                        //textBBox lies within testBBox on both axes
+                    if(Display.doBoundingBoxesOverlap(textBBox, testBBox)){
                         collisionFound = true;
                         break;
                     }
@@ -1390,18 +1393,50 @@ const Display = {
             const rad = Display.nodeRadius * 1.16;
             const xoffset = 5;
             const yoffset = 7;
+            const bboxYoffset = yoffset + 5;
+            const height = (Math.sqrt(rad*rad - (xoffset*xoffset)) + rad);
 
+            //Determine whether to place the link above or below the node. Above by default,
+            //below if that would collide with a link, above if both collide.
+            let aboveBlocked = false;
+            let belowBlocked = false;
+            const links = Display.getAllLinkPaths(link.machine.id, l => l.id !== link.id); //Get the paths of all links other than this one
 
-            const x1 = x - xoffset;
-            const y1 = y - yoffset;
+            const bboxUp = {x: x - xoffset, y: y - height - bboxYoffset, width: 2 * xoffset, height};
+
+            for(let link of links){
+                const linkBBox = link.getBBox();
+                if(Display.doBoundingBoxesOverlap(linkBBox, bboxUp)){
+                    aboveBlocked = true;
+                    break;
+                }
+            }
+            //Above is blocked, see if below is free
+            if(aboveBlocked){
+                const bboxDown = {x: x - xoffset, y: y + height + bboxYoffset, width: 2 * xoffset, height};
+                for(let link of links){
+                    const linkBBox = link.getBBox();
+                    if(Display.doBoundingBoxesOverlap(linkBBox, bboxDown)){
+                        belowBlocked = true;
+                        break;
+                    }
+                }
+            }
+
+            const placeAbove = !aboveBlocked ||(aboveBlocked && belowBlocked);
+            const signMultiplier = placeAbove? -1: 1;
+            link.alignment = placeAbove? "above" : "below";
+
+            const x1 = x + (signMultiplier * xoffset);
+            const y1 = y + (signMultiplier * yoffset);
 
             //Calculate points P1, P2, P3 – the start, mid, and end points respectively.
 
             const P1 = x1 + "," + y1;
 
             const x2 = x;
-            const y2 = y1 - (Math.sqrt(rad*rad - (xoffset*xoffset)) + rad);
-            const x3 = x + xoffset;
+            const y2 = y1 + (signMultiplier * height);
+            const x3 = x - (signMultiplier * xoffset);
             const y3 = y1;
 
             const P2 = x2 + "," + y2;
@@ -1494,6 +1529,19 @@ const Display = {
 
             return ("M" + P1 + " L" + M + " L" + P2);
         }
+    },
+    getAllLinkPaths: function(machineID, filterFunction){
+        //Return an array of native (ie not d3 selections) path elements for all links in the machine
+        const paths = [];
+        const machine = Display.getCanvasVars(machineID).machine;
+        let links = [];
+        if(filterFunction !== undefined){
+            links = machine.getLinkList().filter(filterFunction);
+        } else {
+            links = machine.getLinkList();
+        }
+        links.map(link => d3.selectAll(`#${link.id} path.link`)).forEach(function(selection){selection.each(function(){paths.push(this);});});
+        return paths;
     },
     getStartNode: function(canvasID){
         if (Display.canvasVars[canvasID].linkInProgress === false){
@@ -1987,6 +2035,21 @@ const Display = {
             d3.select(`#${link.id}-path-1`).style("marker-end", urlString);
         }else{
             d3.select(`#${link.id}-path`).style("marker-mid", urlString);
+        }
+    },
+    doBoundingBoxesOverlap(bBox1, bBox2){
+        //Returns true/false
+        //BBoxes should be in form {x, y, width, height}
+        if(bBox1.x + bBox1.width < bBox2.x || bBox2.x + bBox2.width < bBox1.x){
+            //No intersection on x axix
+            return false;
+        }
+        if(bBox1.y + bBox1.height < bBox2.y || bBox2.y + bBox2.height < bBox1.y){
+            //No intersection on y axix
+            return false;
+        } else {
+            //Intersect on both axes
+            return true;
         }
     },
     promptDfaConvert: function(){
