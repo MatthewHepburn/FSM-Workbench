@@ -1387,6 +1387,149 @@
   },
   {
     "data-question": {
+      "type": "dfa-convert",
+      "text": "Follow the instructions below to construct a DFA equivalent to the NFA on the left.",
+      "allowEpsilon": "true",
+      "splitSymbol": ""
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 148,
+            "y": 103,
+            "isInit": true,
+            "name": "Q1"
+          },
+          {
+            "id": "B",
+            "x": 229,
+            "y": 44,
+            "name": "Q4"
+          },
+          {
+            "id": "C",
+            "x": 239,
+            "y": 144,
+            "isAcc": true,
+            "name": "Q5"
+          },
+          {
+            "id": "D",
+            "x": 158,
+            "y": 202,
+            "name": "Q3"
+          },
+          {
+            "id": "E",
+            "x": 67,
+            "y": 162,
+            "name": "Q2"
+          }
+        ],
+        "links": [
+          {
+            "to": "A",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "D",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "E",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "a"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      },
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 120,
+            "y": 101,
+            "isInit": true,
+            "name": "{Q1}"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "dfa-convert-2",
+    "name": "Conversion to DFA II",
+    "id": "36422a89ab2f4fa4bd466b05b7467bfe"
+  },
+  {
+    "data-question": {
       "type": "satisfy-definition",
       "text": "A formal language is used to precisely define a Finite State Machine. <br>A machine <em>M</em> consists of:<br><em>Q</em>: the set of states,<br>Σ: the alphabet of the machine - all symbols the machine can process,<br><em>s</em><sub>0</sub>: the set of initial states of the machine<br><em>F</em>: the set of the machine's accepting states.<br>δ: The set of transitions the machine allows, with each transition in the form (source state, input symbol, end state).<br><br>Construct the Finite State Machine defined by<br><br><em>Q</em> = {1,2,3,4}<br><em>Σ</em> = {a,b,c}<br><em>s<sub>0</sub></em> = {1}<br><em>F</em> = {3,4}<br><em>δ</em> = {(1,a,2),(2,b,3),(2,c,4),(3,b,2)}",
       "allowEpsilon": "false",
