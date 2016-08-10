@@ -50,7 +50,8 @@ const Display = {
         //Setup force:
         Display.canvasVars[id].layout
             .force("link", d3.forceLink(m.getLinkList()).distance(100))
-            .force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9));
+            .force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9))
+            .force("collide", d3.forceCollide(Display.nodeRadius));
     },
     deleteCanvas: function(machineID){
         d3.select("#" + machineID).remove();
@@ -334,17 +335,12 @@ const Display = {
         if(feedbackObj.newNode){
             const newNode = feedbackObj.newNode;
             const sourceNode = feedbackObj.sourceNode;
-            const machine = sourceNode.machine;
 
             var xOffset = 60;
-            var maxYoffset = 30;
+            var maxYoffset = 5;
 
             newNode.x = sourceNode.x + xOffset;
-            if(machine.getNodeList().filter(node => node.x === sourceNode.x + xOffset && node.y === sourceNode.y).length > 0){
-                newNode.y = sourceNode.y + (maxYoffset * 2 * (Math.random() - 0.5));
-            } else {
-                newNode.y = sourceNode.y;
-            }
+            newNode.y = sourceNode.y + (maxYoffset * 2 * (Math.random() - 0.5));
         }
         Display.update(Model.machines[1].id);
         Display.reheatSimulation(Model.machines[1].id);
@@ -1311,8 +1307,6 @@ const Display = {
                 const coords = Display.getNodeNameCoords(node);
                 d3.select(this).attr("x", coords.x).attr("y", coords.y);
             });
-
-        console.log("tick")
     },
     getCanvasVars: function(canvasID){
         return Display.canvasVars[canvasID];
@@ -2582,8 +2576,9 @@ const Controller = {
         Controller.setupMachine(m, 0);
         const canvasVars = Display.getCanvasVars("m1");
         canvasVars.machine = Model.machines[0];
-        canvasVars.layout.force("link", d3.forceLink(m.getLinkList()).distance(100));
-        canvasVars.layout.force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9));
+        canvasVars.layout.force("link", d3.forceLink(m.getLinkList()).distance(100))
+            .force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9))
+            .force("collide", d3.forceCollide(Display.nodeRadius));
         Display.update("m1");
         Controller.setUpQuestion();
         Display.setUpQuestion();
