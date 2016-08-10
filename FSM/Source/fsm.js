@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 // 'UI' or 'Interface' might be a more accurate name? ('View' as in MVC?)
 const Display = {
@@ -877,15 +877,15 @@ const Display = {
         const usedLinks = traceObj.links[step];
         for(let i = 0; i < usedLinks.length; i++){
             const linkUsageObj = usedLinks[i];
-            const linkID = linkUsageObj.link.id;
-            d3.select(`#${linkID}`).classed("trace-used-link", true)
-                                   .style("marker-mid", "url(#highlight-arrow)");
+            const link = linkUsageObj.link;
+            d3.select(`#${link.id}`).classed("trace-used-link", true);
+            Display.setLinkMarker(link, "url(#highlight-arrow");
             if(linkUsageObj.epsUsed){
                 //Handle case of epsilon link
-                d3.select(`#${linkID}-input-eps`).classed("trace-used-link-input", true);
+                d3.select(`#${link.id}-input-eps`).classed("trace-used-link-input", true);
             } else {
                 const inputIndex = linkUsageObj.inputIndex;
-                d3.select(`#${linkID}-input-${inputIndex}`).classed("trace-used-link-input", true);
+                d3.select(`#${link.id}-input-${inputIndex}`).classed("trace-used-link-input", true);
             }
         }
     },
@@ -949,10 +949,10 @@ const Display = {
     resetTraceStyling(svg){
         //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
         var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link", "trace-used-link-input"];
-        d3.selectAll("path.link.trace-used-link").style("marker-mid", "url('#end-arrow')"); //Reset the link midpoint arrows
         traceClasses.forEach(function(className){
             svg.selectAll("." + className).classed(className, false);
         });
+        d3.selectAll(".link-wrapper").each(link => Display.setLinkMarker(link, "url(#end-arrow)"));
     },
     appendInputText: function(svg, element, input, separator){
         //Create a text element to hold the input text
@@ -1263,12 +1263,19 @@ const Display = {
             .attr("d", function(node){return Display.getInitialArrowPath(node);});
         svg.selectAll(".link")
             .each(function(link){
-                var linkID = link.id;
-                var paddingID = "linkpad"+linkID;
-                var pathD = Display.getLinkPathD(link);
-                // Calculate d once, then apply to both the link and the link padding.
-                d3.select("#" + linkID).attr("d", pathD);
-                d3.select("#" + paddingID).attr("d", pathD);
+                const linkID = link.id;
+                const paddingID = "linkpad"+linkID;
+                const pathD = Display.getLinkPathD(link);
+                if(link.source !== link.target){
+                    //Handle reflexive links separately, as part of the effort to work around the marker-mid issue in Chrome.
+                    d3.select("#" + linkID + "-path").attr("d", pathD);
+                    d3.select("#" + paddingID).attr("d", pathD);
+                } else{
+                    d3.select("#"+ linkID + "-path-1").attr("d", pathD.part1);
+                    d3.select("#"+ linkID + "-path-2").attr("d", pathD.part2);
+                    d3.select("#" + paddingID).attr("d", pathD.padding);
+                }
+
             });
 
         // Update the rotation and position of each linklabel
@@ -1321,47 +1328,56 @@ const Display = {
     getLinkPathD: function(link){
         // Test if the link is from a node to itself:
         if (link.source.id === link.target.id){
-            // Create two segments, meeting at the top, to allow placement of arrowheads
-            // Note this is not needed for arrowheads to display in Chrome, but based on the specification this may be a bug in Chrome.
-            var x = link.source.x;
-            var y = link.source.y;
+            // Return an object containing 3 path descriptions
+            // This is done as a work around to the issue with marker-mid in Chrome
+            // (see http://stackoverflow.com/questions/37384804/on-chrome-svg-chart-arrowhead-marker-mid-is-viewed-3-times-instead-1 and
+            // http://stackoverflow.com/questions/31920448/svg-marker-mid-not-appearing-on-arc-in-firefox )
+            const pathObj = {
+                part1: undefined,
+                part2: undefined,
+                padding: undefined
+            };
 
-            var rad = Display.nodeRadius * 1.16;
-            var xoffset = 5;
-            var yoffset = 7;
+            const x = link.source.x;
+            const y = link.source.y;
 
-
-            var x1 = x - xoffset;
-            var y1 = y - yoffset;
-
-            var P1 = x1 + "," + y1;
-
-            var x2 = x;
-            var y2 = y1 - (Math.sqrt(rad*rad - (xoffset*xoffset)) + rad);
-            var x3 = x + xoffset;
-            var y3 = y1;
-
-            var P2 = x2 + "," + y2;
-            var P3 = x3 + "," + y3;
+            const rad = Display.nodeRadius * 1.16;
+            const xoffset = 5;
+            const yoffset = 7;
 
 
+            const x1 = x - xoffset;
+            const y1 = y - yoffset;
 
-            var str = "M" + P1 + " A" + rad + " " + rad + " 0 0 1 " + P2;
-            str += "  A" + rad + " " + rad + " 0 0 1 " + P3;
-            return str;
+            //Calculate points P1, P2, P3 – the start, mid, and end points respectively.
+
+            const P1 = x1 + "," + y1;
+
+            const x2 = x;
+            const y2 = y1 - (Math.sqrt(rad*rad - (xoffset*xoffset)) + rad);
+            const x3 = x + xoffset;
+            const y3 = y1;
+
+            const P2 = x2 + "," + y2;
+            const P3 = x3 + "," + y3;
+
+            pathObj.padding = `M${P1} A${rad} ${rad} 0 0 1 ${P2}  A ${rad} ${rad} 0 0 1 ${P3}`;
+            pathObj.part1 = `M${P1} A${rad} ${rad} 0 0 1 ${P2}`;
+            pathObj.part2 = `M${P2} A ${rad} ${rad} 0 0 1 ${P3}`;
+            return pathObj;
 
         }
         // Test if there is a link in the opposite direction:
-        var hasOpposite = false;
-        for (var i = 0; !hasOpposite && i < Object.keys(link.target.outgoingLinks).length; i++){
-            var linkID = Object.keys(link.target.outgoingLinks)[i];
-            var outgoingLink = link.target.outgoingLinks[linkID];
+        let hasOpposite = false;
+        for (let i = 0; !hasOpposite && i < Object.keys(link.target.outgoingLinks).length; i++){
+            const linkID = Object.keys(link.target.outgoingLinks)[i];
+            const outgoingLink = link.target.outgoingLinks[linkID];
             if (outgoingLink.target.id === link.source.id){
                 hasOpposite = true;
             }
         }
 
-        var deltaX = link.target.x - link.source.x,
+        let deltaX = link.target.x - link.source.x,
             deltaY = link.target.y - link.source.y,
             dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
@@ -1370,10 +1386,10 @@ const Display = {
             unitY = deltaY / dist;
 
 
-        x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
-        x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
-        y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
-        y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
+        let x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
+        let x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
+        let y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
+        let y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
 
         if (hasOpposite){
             //Use a bezier curve
@@ -1410,9 +1426,9 @@ const Display = {
             var m1y = c1y + 0.5 * vy;
 
             // Define strings to use to define the path
-            P1 = x1 + "," + y1;
+            const P1 = x1 + "," + y1;
             var M1 = m1x + "," + m1y;
-            P2 = x2 + "," + y2;
+            const P2 = x2 + "," + y2;
             var C1 = c1x + "," + c1y;
             var C2 = c2x + "," + c2y;
 
@@ -1426,9 +1442,9 @@ const Display = {
             var midx = x1 + vx;
             var midy = y1 + vy;
 
-            P1 = x1 + "," + y1;
+            const P1 = x1 + "," + y1;
             var M = midx + "," + midy;
-            P2 = x2 + "," + y2;
+            const P2 = x2 + "," + y2;
 
             return ("M" + P1 + " L" + M + " L" + P2);
         }
@@ -1678,30 +1694,75 @@ const Display = {
         // Draw new links
         var linkg = svg.select(".links");
         var linkList = Object.keys(machine.links).map(function(linkID){return machine.links[linkID];});
-        var linkGs = linkg.selectAll("g")
-            .data(linkList, function(d){return d.id;});
+        var linkGs = linkg.selectAll(".linkg")
+            .data(linkList, d => d.id);
         var newLinks = linkGs.enter()
                              .append("svg:g")
                                 .classed("linkg", true)
                                 .attr("id", link => `linkg-${link.id}`);
 
-        newLinks.append("path")
-               .attr("d", function(d){return Display.getLinkPathD(d);})
-               .classed("link", true)
-               //See https://bugzilla.mozilla.org/show_bug.cgi?id=309612 for why marker-mid is not done using CSS
-               //TL;DR Mozilla's reading of the spec means that external css cannot refer to SVG definitions in the html.
-               .style("marker-mid", "url(#end-arrow)")
-               .style("stroke-width", Display.linkWidth)
-               .attr("id", function(d){return d.id;})
-               .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
-               .on("mousedown", function(link){EventHandler.linkClick(link);});
+        newLinks.each(function(link){
+            const g = d3.select(this);
+            if(link.source === link.target){
+                // Handle reflexive links differently, to deal with the marker-mid inconsistency between FF and Chrome.
+                const pathObj = Display.getLinkPathD(link);
+                const linkWrapper = g.append("g")
+                                     .classed("link", true)
+                                     .classed("link-wrapper", true)
+                                     .attr("id", link.id)
+                                     .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+                                     .on("mousedown", function(link){EventHandler.linkClick(link);});
 
-        //Add link padding to make links easier to click. Link padding handles click events as if it were a link.
-        newLinks.append("svg:path")
-               .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
-               .on("mousedown", function(link){EventHandler.linkClick(link);})
-               .attr("class", "link-padding")
-               .attr("id", function(d){return "linkpad" + d.id;});
+                linkWrapper.append("path")
+                 .classed("link", true)
+                 .attr("d", pathObj.part1)
+                 .attr("id", link.id + "-path-1")
+                 .classed("link-pt1", true)
+                 .style("stroke-width", Display.linkWidth)
+                 .style("marker-end", "url(#end-arrow)");
+
+                linkWrapper.append("path")
+                 .classed("link", true)
+                 .attr("d", pathObj.part2)
+                 .attr("id", link.id + "-path-2")
+                 .classed("link-pt2", true)
+                 .style("stroke-width", Display.linkWidth);
+
+                linkWrapper.append("svg:path")
+                    .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+                    .on("mousedown", function(link){EventHandler.linkClick(link);})
+                    .attr("class", "link-padding")
+                    .attr("id", function(d){return "linkpad" + d.id;});
+
+            }else{
+                const linkWrapper = g.append("g")
+                                     .classed("link", true)
+                                     .classed("link-wrapper", true)
+                                     .attr("id", link.id)
+                                     .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+                                     .on("mousedown", function(link){EventHandler.linkClick(link);});
+
+
+                linkWrapper.append("path")
+                   .attr("d", function(d){return Display.getLinkPathD(d);})
+                   .classed("link", true)
+                   //See https://bugzilla.mozilla.org/show_bug.cgi?id=309612 for why marker-mid is not done using CSS
+                   //TL;DR Mozilla's reading of the spec means that external css cannot refer to SVG definitions in the html.
+                   .style("marker-mid", "url(#end-arrow)")
+                   .style("stroke-width", Display.linkWidth)
+                   .attr("id", function(d){return d.id + "-path";})
+                   .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+                   .on("mousedown", function(link){EventHandler.linkClick(link);});
+
+                //Add link padding to make links easier to click. Link padding handles click events as if it were a link.
+                linkWrapper.append("svg:path")
+                    .on("contextmenu", function(link){EventHandler.linkContextClick(link);})
+                    .on("mousedown", function(link){EventHandler.linkClick(link);})
+                    .attr("class", "link-padding")
+                    .attr("id", function(d){return "linkpad" + d.id;});
+
+            }
+        });
 
         // Add link labels
         var textElements = newLinks.append("svg:text")
@@ -1873,6 +1934,15 @@ const Display = {
                node.selected = false;
            });
     },
+    setLinkMarker(link, urlString){
+        //Expect urlString to be in form "url(#end-arrow)"
+        const isReflexive = link.source === link.target;
+        if(isReflexive){
+            d3.select(`#${link.id}-path-1`).style("marker-end", urlString);
+        }else{
+            d3.select(`#${link.id}-path`).style("marker-mid", urlString);
+        }
+    },
     promptDfaConvert: function(){
         let promptDiv = d3.select("#dfa-prompt-div");
         //Create promptDiv if it does not exist
@@ -1938,7 +2008,7 @@ const Display = {
                 const halflink = d3.select(`#${machineID}-halflink`);
                 const sourceNode = canvasVars.linkInProgressNode;
                 const mousePos = d3.mouse(d3.select(`#${machineID}`).node());
-                halflink.attr("d", `M${sourceNode.x},${sourceNode.y}L${mousePos[0]},${mousePos[1]}}`);
+                halflink.attr("d", `M${sourceNode.x},${sourceNode.y}L${mousePos[0]},${mousePos[1]}`);
             }
             if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
                 return;
@@ -2324,6 +2394,9 @@ const Controller = {
     },
 
     startTrace: function(machine, sequence, position, hideControls){
+        position = position === undefined? 0 : position;
+        hideControls = hideControls === undefined? false : hideControls;
+
         Display.clearMenus(machine.id);
         var traceObj = machine.getTrace(sequence);
         Display.drawTrace(machine.id, traceObj, hideControls);

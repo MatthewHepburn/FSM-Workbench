@@ -570,10 +570,9 @@ input[type=checkbox]{
   text-decoration: underline;
 }
 
-.link.trace-used-link{
+.trace-used-link .link{
   stroke: #3A6629 !important;
   stroke-width: 2;
-  marker-mid: url("#highlight-arrow")
 }
 
 .trace-used-link-input{
