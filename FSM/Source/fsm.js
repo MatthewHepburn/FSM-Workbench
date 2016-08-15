@@ -1935,8 +1935,11 @@ const Display = {
 
     },
     updateNodeName: function(node){
-        var svg = d3.select("#" + node.machine.id);
-        svg.select("#" + node.id + "-label").text(node.name);
+        const svg = d3.select("#" + node.machine.id);
+        const coords = Display.getNodeNameCoords(node);
+        const label = svg.select("#" + node.id + "-label").text(node.name);
+        label.attr("x", coords.x)
+             .attr("y", coords.y);
     },
     resetNodeStyling: function(svgOrCanvasID){
         //Accept either a selection of a machineID
