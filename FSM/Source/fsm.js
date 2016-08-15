@@ -1258,25 +1258,29 @@ const Display = {
         // force is not used.
         var svg = d3.select("#"+canvasID);
         svg.selectAll(".node")
-            .attr("cx", function(d){ //prevent nodes leaving the canvas on the x axis
-                var x = d.x;
-                if(x < 0){
-                    return 1;
+            .attr("cx", function(node){ //prevent nodes leaving the canvas on the x axis
+                const rad = Display.nodeRadius;
+                if(node.x < rad){
+                    node.x = rad;
+                    return node.x;
                 }
-                if(x > svg.attr("width")){
-                    return svg.attr("width") -1;
+                if(node.x + rad > svg.attr("width")){
+                    node.x = svg.attr("width") - rad;
+                    return node.x;
                 }
-                return x;
+                return node.x;
             })
-            .attr("cy", function(d){ //prevent nodes leavinf the canvas on the y axis
-                var y = d.y;
-                if(y < 0){
-                    return 1;
+            .attr("cy", function(node){ //prevent nodes leavinf the canvas on the y axis
+                const rad = Display.nodeRadius;
+                if(node.y < rad){
+                    node.y = rad;
+                    return node.y;
                 }
-                if(y > svg.attr("height")){
-                    return svg.attr("height") -1;
+                if(node.y + rad > svg.attr("height")){
+                    node.y = svg.attr("height") - rad;
+                    return node.y;
                 }
-                return y;
+                return node.y;
             });
         svg.selectAll(".accepting-ring")
             .attr("cx", function(d){return d.x;})
@@ -2588,14 +2592,14 @@ const Controller = {
         const machineList = Controller.getQuestionMachineList();
         if(machineList.length > 1){
             //Embiggen some elements to make machines more readable when displayed side-by-side
-            Display.nodeRadius = Display.nodeRadius * 1.5;
-            Display.acceptingRadius = Display.acceptingRadius * 1.5;
-            Display.nodeNameFontSize = Display.nodeNameFontSize * 1.5;
-            d3.select("#end-arrow").attr("markerWidth", 8.5).attr("markerHeight", 8.5);
-            d3.select("#highlight-arrow").attr("markerWidth", 8.5).attr("markerHeight", 8.5);
             for(let i = 1; i < machineList.length; i++){
                 Controller.addMachine(machineList[i], false);
             }
+            //Zoom in to make the machines easier to see.
+            d3.selectAll("svg")
+                .attr("viewBox", "0 0 375 300")
+                .attr("width", 375)
+                .attr("height", 300);
         }
         Controller.setupMachine(m, 0);
         const canvasVars = Display.getCanvasVars("m1");
