@@ -2307,6 +2307,14 @@ const EventHandler = {
             Controller.submitNodeRename(node, d3.select(context).select("input").node().value);
         }
     },
+    questionFormKeypress: function(){
+        //Prevent page submission on return key.
+        if(event.keyCode == 13){
+            event.preventDefault();
+            Controller.checkAnswer();
+        }
+
+    },
     toolSelect: function(canvasID, newMode){
         var oldMode = Display.canvasVars[canvasID].toolMode;
 
@@ -2628,6 +2636,10 @@ const Controller = {
         }
         if(Model.question.type === "give-input"){
             Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, 0,  true);}); //true param for hideControls option
+            return;
+        }
+        if(Model.question.type === "give-list"){
+            d3.select(".qformblock").on("keypress", EventHandler.questionFormKeypress);
             return;
         }
         if(Model.question.type === "select-states"){

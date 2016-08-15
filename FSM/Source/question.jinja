@@ -48,7 +48,7 @@
           {%- for len in lengths -%}
             <div class="pure-control-group">
               <label class="give-list-label" for="qf{{ loop.index0 }}">{{ len }} symbols</label>
-              <input type="text" class="qform" ,="" id="qf{{ loop.index0 }}" value="{{ prefill[loop.index0] }}">
+              <input type="text" class="qform" autocomplete="off" id="qf{{ loop.index0 }}" value="{{ prefill[loop.index0] }}">
               <label for="qf{{ loop.index0 }}" class="give-list-show-trace" id="give-list-show-trace-{{ loop.index0 }}">trace</label>
               <label for="qf{{ loop.index0 }}" class="give-list-feedback" id="give-list-feedback-{{ loop.index0 }}"> </label>
             </div>
