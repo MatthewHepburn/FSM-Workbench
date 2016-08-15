@@ -899,7 +899,7 @@ const Display = {
             const linkUsageObj = usedLinks[i];
             const link = linkUsageObj.link;
             d3.select(`#${link.id}`).classed("trace-used-link", true);
-            Display.setLinkMarker(link, "url(#highlight-arrow");
+            Display.setLinkMarker(link, "url(#highlight-arrow)");
             if(linkUsageObj.epsUsed){
                 //Handle case of epsilon link
                 d3.select(`#${link.id}-input-eps`).classed("trace-used-link-input", true);
