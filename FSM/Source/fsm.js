@@ -854,8 +854,10 @@ const Display = {
 
         //Add the trace controls to that g
         if(!hideControls){
-            // This option is used in the give-input question type.
+            // This option is used in the give-input and select-states question types.
             Display.appendTraceControls(svg, traceG, canvasID);
+            // Scroll down to ensure that the controls are visible.
+            Display.scrollToTraceControls(canvasID);
         }
 
 
@@ -1008,7 +1010,7 @@ const Display = {
         var strokeWidth = 1;
         var margin = 5;
 
-        var g = element.append("g").classed("tracecontrols", true);
+        var g = element.append("g").classed("tracecontrols", true).attr("id", `${canvasID}-trace-controls`);
         // Tool names and functions to call on click.
         var tools = [["rewind", function(){Display.drawTraceStep(canvasID, 0);}],
                      ["back", function(){Display.stepTrace(canvasID, -1);}],
@@ -1632,8 +1634,8 @@ const Display = {
             canvasID = svg.attr("id");
         }
         Display.submitAllRename(canvasID);
-        if(Model.question.type !== "give-input"){
-            //Can't dissmiss trace on give-input questions.
+        if(!["select-states", "give-input"].includes(Model.question.type)){
+            //Can't dissmiss trace on give-input or select-states questions.
             Display.dismissTrace(svg);
         }
         Display.dismissSettingsMenu(svg);
@@ -1677,6 +1679,7 @@ const Display = {
                   var inputSequence = Model.parseInput(inputString);
                   var machine = Model.machines[0];
                   Controller.startTrace(machine, inputSequence, 0);
+                  d3.event.preventDefault();
               });
         }
         if(qType === "give-input"){
@@ -2093,6 +2096,12 @@ const Display = {
         const layout = Display.getCanvasVars(canvasID).layout;
         layout.alpha(0.2).restart();
 
+    },
+    scrollToTraceControls: function(canvasID){
+        const xScroll= 0;
+        const controlYPos = d3.select(`#${canvasID}-trace-controls`).node().getBoundingClientRect().bottom + window.scrollY; //Position of bottom of controls relative to page.
+        const yScoll = controlYPos - window.innerHeight + 5;
+        window.scrollTo(xScroll, yScoll);
     },
     dragHandlers:{
         dragstarted: function(node){
