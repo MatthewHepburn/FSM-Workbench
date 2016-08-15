@@ -1741,9 +1741,13 @@ const Display = {
             .classed("nodename", true)
             .attr("id", function(node){return node.id + "-label";})
             .attr("font-size", Display.nodeNameFontSize)   // Sets the font height relative to the radius of the inner ring on accepting nodes
-            .on("click", function(node){d3.select("#" +node.id).on("mousedown")(node);}) //Call the event listeners on the node (could just pass events using
-                                                                                    // pointer-events: none but want name to be clickable when it is outside a node)
-            .on("contextmenu", function(node){EventHandler.nodeContextClick(node, true);})
+            .on("mousedown", function(node){
+                // Call the event listeners on the node (could just pass events using
+                // pointer-events: none but want name to be clickable when it is outside a node)
+                const onClickFunction = d3.select(`#${node.id}`).on("mousedown");
+                onClickFunction.apply(this, [node]);
+            })
+            .on("contextmenu", function(node){EventHandler.nodeContextClick(node, true);}) //use this simpler method as no other right-click handlers are ever added.
             .text(function(node){return node.name;});
 
 
