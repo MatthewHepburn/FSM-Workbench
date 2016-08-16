@@ -300,13 +300,18 @@ const edit = {
         var specObj = Model.machines[0].getSpec();
         // Tell the controller to create a new machine - this will create an SVG element as well as a Machine object
         var machineID = Controller.addMachine(specObj);
+        //Resize the viewports
+        d3.selectAll("svg")
+            .attr("viewBox", "0 0 375 300")
+            .attr("width", 375);
 
         //add labels
         if(d3.select("#m1-label").empty()){
             d3.select("#m1").append("text")
               .text(labelLeft)
               .attr("id", "m1-label")
-              .attr("x", 350)
+              .attr("text-anchor", "end")
+              .attr("x", 360)
               .attr("y", 25);
         } else {
             d3.select("#m1-label").text(labelLeft);
@@ -315,7 +320,8 @@ const edit = {
             d3.select(`#${machineID}`).append("text")
               .text(labelRight)
               .attr("id", "m2-label")
-              .attr("x", 350)
+              .attr("text-anchor", "end")
+              .attr("x", 360)
               .attr("y", 25);
         }
     },
@@ -328,6 +334,9 @@ const edit = {
             return;
         }
         Controller.deleteMachine("m2");
+        d3.select("#m1")
+            .attr("viewBox", "0 0 500 300")
+            .attr("width", 500);
 
     },
 

@@ -37,7 +37,7 @@ const Display = {
                     .attr("width", 500)
                     .attr("height", 300)
                     .attr("viewBox", "0 0 500 300")
-                    .attr("preserveAspectRatio","xMidYMid meet")
+                    .attr("preserveAspectRatio","xMinYMin meet")
                     .on("contextmenu", function(){EventHandler.backgroundContextClick(machine);})
                     .on("mousedown", function(){EventHandler.backgroundClick(machine, true);});
         // resize all canvases
