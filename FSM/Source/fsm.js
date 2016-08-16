@@ -636,16 +636,17 @@ const Display = {
             .attr("class", "rename")
             .append("xhtml:body")
                 .append("form")
-                .on("keypress", function(){EventHandler.nodeRenameFormKeypress(node, this);})
+                    .on("keypress", function(){EventHandler.nodeRenameFormKeypress(node, this);})
                     .append("input")
-                    .classed("renameinput", true)
-                    .attr("id", node.id + "-rename")
-                    .attr("type", "text")
-                    .attr("size", "2")
-                    .attr("maxlength", "10")
-                    .attr("name", "state name")
-                    .attr("value", currentName)
-                    .node().focus();
+                        .classed("renameinput", true)
+                        .attr("id", node.id + "-rename")
+                        .attr("type", "text")
+                        .attr("size", "2")
+                        .attr("maxlength", "10")
+                        .attr("autocomplete", "off")
+                        .attr("name", "state name")
+                        .attr("value", currentName)
+                        .node().focus();
     },
     getLinkRenameResult: function(canvasID, formType){
         //Get the result from each rename type differently
@@ -2380,25 +2381,25 @@ const EventHandler = {
     linkRenameFormKeypress: function(link, context, formType){
         // Event handler to prevent submission of page on return key
         // and to notify Controller instead
-        if (event.keyCode != 13){
+        if (d3.event.keyCode != 13){
             return true;
         }
-        event.preventDefault();
+        d3.event.preventDefault();
         Controller.submitLinkRename(link, context, formType);
 
     },
     nodeRenameFormKeypress: function(node, context){
         // Event handler to prevent submission of page on return key
         // and to notify Controller instead
-        if(event.keyCode == 13){
-            event.preventDefault();
+        if(d3.event.keyCode == 13){
+            d3.event.preventDefault();
             Controller.submitNodeRename(node, d3.select(context).select("input").node().value);
         }
     },
     questionFormKeypress: function(){
         //Prevent page submission on return key.
-        if(event.keyCode == 13){
-            event.preventDefault();
+        if(d3.event.keyCode == 13){
+            d3.event.preventDefault();
             Controller.checkAnswer();
         }
 
