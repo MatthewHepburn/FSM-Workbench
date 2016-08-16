@@ -163,6 +163,8 @@ const Display = {
             halfLink.attr("d",d);
         });
 
+        d3.select(`#${node.id}`).classed("link-in-progress", true);
+
     },
     endLink: function(canvasID){
         var canvasVars = Display.canvasVars[canvasID];
@@ -170,7 +172,10 @@ const Display = {
             return;
         }
         d3.select("#" + canvasID + "-halflink").remove(); // Remove element
-        d3.select("#" + canvasID).on("mousemove", null); // Remove event listener
+        d3.select("#" + canvasID)
+            .on("mousemove", null) // Remove event listener
+            .selectAll(".link-in-progress")
+                .classed("link-in-progress", false);
         canvasVars.linkInProgress = false;
         canvasVars.linkInProgressNode = null;
     },
@@ -2007,7 +2012,6 @@ const Display = {
         }
         const colours = Display.canvasVars[canvasID].colours;
         circleSelection.style("fill", d => colours(d.id))
-                       .style("stroke-width", 1)
                        .style("stroke", "#000000");
     },
     styleMonochrome: function(canvasID, circleSelection){
@@ -2017,7 +2021,6 @@ const Display = {
         }
         //Takes a selection of node circles and applies monochrome styling to them
         circleSelection.style("fill","#FFFFFF")
-                       .style("stroke-width", 1)
                        .style("stroke", "#000000");
     },
     makeNodesSelectable: function(machine){
@@ -2331,7 +2334,7 @@ const EventHandler = {
             return false;
         }
         if(toolMode === "linetool"){
-            var linkInProgress = Display.canvasVars[canvasID].linkInProgress; // true if there is link awaiting and endpoint
+            var linkInProgress = Display.canvasVars[canvasID].linkInProgress; // true if there is link awaiting an endpoint
             if(!linkInProgress){
                 Controller.beginLink(node);
             } else {

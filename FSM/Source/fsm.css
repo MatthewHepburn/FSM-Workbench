@@ -192,6 +192,11 @@ circle.node {
   cursor: pointer;
 }
 
+circle.node.link-in-progress {
+  stroke-width: 2.5px;
+  stroke-dasharray: 3,1;
+}
+
 .accepting-ring{
   stroke: black !important;
   fill-opacity: 0;
