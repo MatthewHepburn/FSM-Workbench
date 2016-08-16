@@ -23,6 +23,20 @@ input.qform{
   margin-bottom: 4px;
 }
 
+input{
+  border: #cccccc;
+  border-radius: 4px;
+  border-style: solid;
+  border-width: thin;
+  background-color: white;
+  margin:2px;
+  outline-style: none;
+}
+
+input:focus{
+  border-color: lightblue;
+}
+
 .rename span{
   display: block;
   font-family: 'Ek Mukta', sans-serif;
