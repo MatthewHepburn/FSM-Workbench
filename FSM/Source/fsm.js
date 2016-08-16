@@ -1335,20 +1335,29 @@ const Display = {
                                 {x: node.x + 1.6 * Display.nodeRadius + (0.5 * nameLength), y: node.y},
                                 {x: node.x - 1.6 * Display.nodeRadius - (0.5 * nameLength), y: node.y}];
 
-            const testObjs = []; // elements to test for collisions with
-            //Add links to testObjs
-            Display.getAllLinkPaths(node.machine.id).forEach(path => testObjs.push(path));
+            const testElems = []; // elements to test for collisions with using bounding boxes
+            const testLinks = []; // Links to test for collisions with
+            //Add links to testLinks
+            node.machine.getLinkList().forEach(link => testLinks.push(link));
 
             //Test coordinates for collisions with links, until a set is found with no collisions (or until the list is exhausted)
             for(let i = 0; i < coordArray.length; i++){
                 let collisionFound = false;
                 const coordObj = coordArray[i];
                 //Construct the boundingBox of the nodename, for this coordob
-                const textBBox = {x: coordObj.x - (nameLength/2) + 2, y: coordObj.y - (fontSize/2) + 2, width: nameLength - 4, height: fontSize - 4};
-                //TODO: Find intersection with straight links by treating them as lines, (much) more precise than axis-aligned bbox for diagonal lines.
-                for(let j = 0; j < testObjs.length; j++){
-                    const testBBox = testObjs[j].getBBox();
+                const textBBox = {x: coordObj.x - (nameLength/2) + 2, y: coordObj.y - (fontSize/2), width: nameLength - 4, height: fontSize};
+                // Test for intersection using the boundingbox of testElems
+                for(let j = 0; j < testElems.length; j++){
+                    const testBBox = testElems[j].getBBox();
                     if(Display.doBoundingBoxesOverlap(textBBox, testBBox)){
+                        collisionFound = true;
+                        break;
+                    }
+                }
+                //Then test against links, treating them as lines (much more precise than bounding box approach for diagonal lines)
+                for(let j = 0; j < testLinks.length && !collisionFound; j++){
+                    const testLink = testLinks[j];
+                    if(Display.doesLinkIntersectBoundingBox(testLink, textBBox)){
                         collisionFound = true;
                         break;
                     }
@@ -2041,6 +2050,78 @@ const Display = {
         }else{
             d3.select(`#${link.id}-path`).style("marker-mid", urlString);
         }
+    },
+    doesLinkIntersectBoundingBox(link, bBox){
+        if(link.isReflexive()){
+            //Test reflexive links using boundingboxes
+            const linkBBox = d3.select(`#${link.id}`).node().getBBox();
+            return Display.doBoundingBoxesOverlap(bBox, linkBBox);
+        }
+        const isBezier = link.target.hasLinkTo(link.source);
+
+
+        // Define a function to test line segments for overlap with a bounding box.
+        // As described here: http://stackoverflow.com/a/293052
+        const doesLineSegmentOverlapBbox =function (p1, p2, bBox){
+
+            const bboxPoints = [{x:bBox.x, y: bBox.y}, {x:bBox.x, y:bBox.y + bBox.height},
+                                {x:bBox.x + bBox.width, y:bBox.y}, {x:bBox.x + bBox.width, y:bBox.y + bBox.height}];
+
+            // Test if all corners of the boundingbox are on the same side of the line segment – if that is the case there is no overlap.
+            const aboveOrBelow = function(point){
+                const indicator = (p2.y - p1.y) * point.x + (p1.x - p2.x) * point.y + (p2.x * p1.y - p1.x * p2.y);
+                if(indicator >= 0){ //Ignore case where point lies on line.
+                    return "above";
+                } else {
+                    return "below";
+                }
+            };
+
+            // Cannot intersect if all bBox corners are on same side of the line segment.
+            const cannotIntersect = bboxPoints.map(aboveOrBelow).every(function(d, i, arr){return d === arr[0];});
+            if(cannotIntersect){
+                return false;
+            }
+            if(p1.x > bBox.x + bBox.width && p2.x > bBox.x + bBox.width){
+                // both points are to right of bBox
+                return false;
+            }
+            if(p1.x < bBox.x && p2.x < bBox.x){
+                // both points are to left of bBox
+                return false;
+            }
+            if(p1.y < bBox.y && p2.y < bBox.y){
+                // both points are above the bBox
+                return false;
+            }
+            if(p1.y > bBox.y + bBox.height && p2.y > bBox.y + bBox.height){
+                // both points are below the bBox
+                return false;
+            }
+            return true;
+        };
+
+        let lines;
+        const path = d3.select(`#${link.id}-path`).node();
+        const pathLength = path.getTotalLength();
+        const sourcePoint = path.getPointAtLength(0);
+        const targetPoint = path.getPointAtLength(pathLength);
+        if(isBezier){
+            //Approximate bezier as two straight lines
+            const midPoint = path.getPointAtLength(pathLength/2);
+            lines = [{p1: sourcePoint, p2: midPoint}, {p1: midPoint, p2: targetPoint}];
+        } else {
+            lines = [{p1: sourcePoint,  p2: targetPoint}];
+        }
+
+        for(let l of lines){
+            if(doesLineSegmentOverlapBbox(l.p1, l.p2, bBox)){
+                return true;
+            }
+        }
+        return false;
+
+
     },
     doBoundingBoxesOverlap(bBox1, bBox2){
         //Returns true/false
