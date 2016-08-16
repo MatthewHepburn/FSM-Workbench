@@ -18,7 +18,8 @@ const Display = {
             "toolMode": "none",
             "linkInProgress": false, // True when the user has begun creating a link, but has not selected the second node
             "linkInProgressNode": null, // When linkInProgess is true, holds the source node of the link being created
-            "submitRenameFunction": null // When there is rename menu, this holds the function to call to submit it
+            "submitRenameFunction": null, // When there is rename menu, this holds the function to call to submit it
+            "_textLengthMemo": {"_cacheSize": 0} // Used to memoise the results of Display.getTextLength;
         }
     },
     newCanvas: function(id, machine){
@@ -29,7 +30,8 @@ const Display = {
             "toolMode": "none",
             "linkInProgress": false,
             "linkInProgressNode": null,
-            "submitRenameFunction": null
+            "submitRenameFunction": null,
+            "_textLengthMemo": {"_cacheSize": 0} // Used to memoise the results of Display.getTextLength
         };
         // Add a new svg element
         var svg = d3.select(".maindiv").append("svg")
@@ -270,6 +272,19 @@ const Display = {
     },
     getTextLength: function(svg,text, fontSize, className){
         //Returns the length of some text in the units of the specified SVG when rendered as an SVG using the specifed fontSize and class.
+        //The result is memoised, as creating elements is very expensive and this value is needed many times for the same input.
+        const canvasVars = Display.getCanvasVars(svg.attr("id"));
+        let memory = canvasVars._textLengthMemo;
+        if(memory[className]){
+            if(memory[className][fontSize]){
+                if(memory[className][fontSize][text]){
+                    //Result already stored, return it
+                    return memory[className][fontSize][text];
+                }
+            }
+        }
+
+        //Result not stored, compute it.
         const textElem = svg.append("text")
                       .text(text)
                       .classed(className, true)
@@ -278,6 +293,24 @@ const Display = {
         const boundingBox = textElem.node().getBBox();
         const result = boundingBox.width;
         textElem.remove();
+
+        //Protect against an infinitely growing cache
+        if(memory._cacheSize > 500){
+            //Clear when size exceeds 500 elements
+            canvasVars._textLengthMemo = {"_cacheSize": 0};
+            memory = canvasVars._textLengthMemo;
+        }
+
+        //Store result
+        if(!memory[className]){
+            memory[className] = {fontSize: {}};
+        }
+        if(!memory[className][fontSize]){
+            memory[className][fontSize] = {};
+        }
+        memory[className][fontSize][text] = result;
+        memory._cacheSize = memory._cacheSize + 1;
+
         return result;
     },
     appendNextButton: function(selection){
