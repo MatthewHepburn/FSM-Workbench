@@ -646,18 +646,44 @@ const Display = {
     },
 
     drawLinkContextMenu: function(svg,link,mousePosition){
-        var actions = [["Change Conditions",function(){Controller.requestLinkRename(link); Display.dismissContextMenu();}],
-                       ["Delete Link", function(){Controller.deleteLink(link); Display.dismissContextMenu();}],
-                       ["Reverse Link", function(){Controller.reverseLink(link); Display.dismissContextMenu();}]];
+        const menuItems = {
+            changeConditions: {text: "Change Conditions", fn: function(){Controller.requestLinkRename(link);}},
+            deleteLink: {text: "Delete Link", fn: function(){Controller.deleteLink(link);}},
+            reverseLink: {text: "Reverse Link", fn: function(){Controller.reverseLink(link);}}
+        };
+        const getAction = function(name){
+            return [menuItems[name].text, function(){
+                //Call the function specific to this action
+                menuItems[name].fn();
+                //Call functions common to all entries
+                Display.dismissContextMenu();
+                Logging.incrementSessionCounter(`context-click-link-${name}`);
+                Logging.incrementSessionCounter(`context-click-link-allItems`);
+            }];
+        };
+        const actions = Object.keys(menuItems).map(getAction);
 
         Display.drawContextMenu(svg,mousePosition,actions);
 
     },
     drawNodeContextMenu: function(svg, node, mousePosition){
-        var actions = [["Toggle Initial", function(){Controller.toggleInitial(node); Display.dismissContextMenu();}],
-                       ["Toggle Accepting", function(){Controller.toggleAccepting(node); Display.dismissContextMenu();}],
-                       ["Rename State", function(){Controller.requestNodeRename(node); Display.dismissContextMenu();}],
-                       ["Delete State", function(){Controller.deleteNode(node); Display.dismissContextMenu();}]];
+        const menuItems = {
+            toggleInitial: {text: "Toggle Initial", fn: function(){Controller.toggleInitial(node);}},
+            toggleAccepting: {text: "Toggle Accepting", fn: function(){Controller.toggleAccepting(node);}},
+            renameState: {text: "Rename State", fn: function(){Controller.requestNodeRename(node);}},
+            deleteState: {text: "DeleteState", fn: function(){Controller.deleteNode(node);}}
+        };
+        const getAction = function(name){
+            return [menuItems[name].text, function(){
+                //Call the function specific to this action
+                menuItems[name].fn();
+                //Call functions common to all entries
+                Display.dismissContextMenu();
+                Logging.incrementSessionCounter(`context-click-node-${name}`);
+                Logging.incrementSessionCounter(`context-click-node-allItems`);
+            }];
+        };
+        const actions = Object.keys(menuItems).map(getAction);
 
         Display.drawContextMenu(svg,mousePosition,actions);
     },
@@ -2864,7 +2890,7 @@ const Logging = {
     loadTime: Math.floor(Date.now() / 1000),
     userID: undefined,
     pageID: undefined,
-    sessionData: {}
+    sessionData: {},
     generateUserID: function() {
         //Use local storage if it is available
         let hasStorage;
@@ -2922,19 +2948,19 @@ const Logging = {
     setSessionVar: function(varName, value){
         //Used to add a variable to the session data that is sent on page close.
         this.sessionData[varName] = value;
-    }
+    },
     incrementSessionCounter: function(counterName){
         if(!this.sessionData[counterName]){
             this.sessionData[counterName] = 0;
         }
         this.sessionData[counterName] = this.sessionData[counterName] + 1;
-    }
+    },
     pushToSessionArray: function(arrayName, value){
         if(!this.sessionData[arrayName]){
             this.sessionData[arrayName] = [];
         }
         this.sessionData[arrayName].push(value);
-    }
+    },
     sendSessionData: function() {
         var url = window.location.href;
         if (url.slice(0,5) == "file:"){
@@ -2957,7 +2983,7 @@ const Logging = {
             "timeOnPage": timeOnPage,
             "url": url,
             "userID": Logging.userID,
-            sessionData: this.sessionData;
+            sessionData: this.sessionData
         };
 
 
