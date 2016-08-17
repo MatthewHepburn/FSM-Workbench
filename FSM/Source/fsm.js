@@ -1391,7 +1391,7 @@ const Display = {
                 let collisionFound = false;
                 const coordObj = coordArray[i];
                 //Construct the boundingBox of the nodename, for this coordob
-                const textBBox = {x: coordObj.x - (nameLength/2) + 2, y: coordObj.y - (fontSize/2), width: nameLength - 4, height: fontSize};
+                const textBBox = {x: coordObj.x - (nameLength/2), y: coordObj.y - (fontSize/2), width: nameLength, height: fontSize};
                 // Test for intersection using the boundingbox of testElems
                 for(let j = 0; j < testElems.length; j++){
                     const testBBox = testElems[j].getBBox();
@@ -1463,8 +1463,11 @@ const Display = {
             //below if that would collide with a link, above if both collide.
             let aboveBlocked = false;
             let belowBlocked = false;
-            const links = link.machine.getLinkList().filter(l => l !== link); //Get all links other than this link.
+            const links = link.machine.getLinkList().filter(l => !l.isReflexive()); // Get all links other than this link and reflexive links.
+                                                                                    // Skip reflexive links as we don't want to have mutual dependendence between reflexive links.
+                                                                                    // This is a simple display algorithm, we don't want to deal with CSPs.
             const bboxUp = {x: x - bboxXoffset, y: y - height - bboxYoffset, width: 2 * bboxXoffset, height};
+            let bboxDown; // Calculate later, as most of the time not needed.
 
             for(let testLink of links){
                 if(Display.doesLinkIntersectBoundingBox(testLink, bboxUp)){
@@ -1474,7 +1477,7 @@ const Display = {
             }
             //Above is blocked, see if below is free
             if(aboveBlocked){
-                const bboxDown = {x: x - bboxXoffset, y: y + height + bboxYoffset, width: 2 * bboxXoffset, height};
+                bboxDown = {x: x - bboxXoffset, y: y + bboxYoffset, width: 2 * bboxXoffset, height};
                 for(let testLink of links){
                     if(Display.doesLinkIntersectBoundingBox(testLink, bboxDown)){
                         belowBlocked = true;
@@ -1486,6 +1489,10 @@ const Display = {
             const placeAbove = !aboveBlocked ||(aboveBlocked && belowBlocked);
             const signMultiplier = placeAbove? -1: 1;
             link.alignment = placeAbove? "above" : "below";
+
+            // Store the bounding box used in the Link object – it is needed for collision tests against node labels
+            // and calculating it from the DOM is very expensive.
+            link.boundingBox = placeAbove? bboxUp : bboxDown;
 
             const x1 = x + (signMultiplier * xoffset);
             const y1 = y + (signMultiplier * yoffset);
@@ -2121,15 +2128,16 @@ const Display = {
     },
     doesLinkIntersectBoundingBox(link, bBox){
         if(link.isReflexive()){
-            //Test reflexive links using boundingboxes
-            const linkElem = d3.select(`#${link.id}`).node();
-            if(!linkElem){
-                //Catch case were link has not been drawn yet
+            // Test reflexive links using boundingboxes
+            // Retrieve bounding box stored in the link (done this way as getting bbox from DOM is very expensive).
+            const linkBBox = link.boundingBox;
+            if(!linkBBox){
+                // Catch case where no bounding box defined yet.
                 return false;
+            } else {
+                return Display.doBoundingBoxesOverlap(bBox, linkBBox);
             }
-            //Could optimise by calculating the bounding box directly.
-            const linkBBox = linkElem.getBBox();
-            return Display.doBoundingBoxesOverlap(bBox, linkBBox);
+
         }
         const isBezier = link.target.hasLinkTo(link.source);
 
