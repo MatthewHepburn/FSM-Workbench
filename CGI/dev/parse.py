@@ -347,6 +347,9 @@ def readUsage(filename):
                 if usage["userID"] in ignoredIDs:
                     continue
 
+                if "sessionData" not in usage:
+                    usage["sessionData"] = {}
+
                 # Ensure that the time is not too far in the future or past
                 timeRecorded = int(usage["timeEpoch"])
                 assert cutoffTime < timeRecorded and timeRecorded < currentTime, "Time out of range in " + line
@@ -382,6 +385,21 @@ def readUsage(filename):
                         users[userID]["browser"] = str(parse(agentString))
                     else:
                         users[userID]["browser"] = str(agentString)
+
+                # Handle data from sessionData:
+                if "sessionData" not in users[userID]:
+                    users[userID]["sessionData"] = {}
+
+                counters = ["context-click-node-toggleInitial", "context-click-node-allItems", "context-click-node-toggleAccepting",
+                            "context-click-node-renameState", "context-click-node-deleteState", "context-click-link-changeConditions",
+                            "context-click-link-allItems", "context-click-link-deleteLink", "context-click-link-reverseLink"];
+                for counterName in counters:
+                    if counterName in usage["sessionData"]:
+                        counterValue = int(usage["sessionData"][counterName])
+                        if counterName not in users[userID]["sessionData"]:
+                            users[userID]["sessionData"][counterName] = counterValue
+                        else:
+                            users[userID]["sessionData"][counterName] += counterValue
                 # Record data in pages:
                 if pageID not in pages:
                     addPage(pageID)
