@@ -1,3 +1,4 @@
+#coding: utf-8
 import os
 import pprint
 import re
@@ -47,6 +48,9 @@ def addIfNotPresent(list, item):
 
 def addPage(pageID):
     global pages
+    if pageID not in pageDict:
+        # Ignore pages not in pageDict – they no longer exist.
+        return
     if isQuestion(pageID):
         pages[pageID] = {
             "correctAnswers": 0,
@@ -86,6 +90,9 @@ def isQuestion(pageID):
 def analyseUsage():
     # First, set to zero all stats that are calculated here:
     for pageID in pages:
+        if pageID not in pageDict:
+            # pageID may not by in pageDict if the page has been removed.
+            continue
         pages[pageID]["uniqueVisitors"] = 0
         pages[pageID]["totalTime"] = 0
         if pages[pageID]["isQuestion"]:
@@ -98,21 +105,29 @@ def analyseUsage():
             continue
         u = users[userID]
         for pageID in u["totalTimeOnPage"]:
+            if pageID not in pageDict:
+                continue
             if pageID not in pages:
                 addPage(pageID)
             pages[pageID]["totalTime"] += u["totalTimeOnPage"][pageID]
             pages[pageID]["uniqueVisitors"] += 1
         for pageID in u["questionRatings"]:
+            if pageID not in pageDict:
+                continue
             if pageID not in pages:
                 addPage(pageID)
             pages[pageID]["totalRatings"] += 1
             if u["questionRatings"][pageID] == True:
                 pages[pageID]["yesRatings"] += 1
         for pageID in u["questionsAttempted"]:
+            if pageID not in pageDict:
+                continue
             if pageID not in pages:
                     addPage(pageID)
             pages[pageID]["usersAttempted"] += 1
         for pageID in u["questionsCorrect"]:
+            if pageID not in pageDict:
+                continue
             if pageID not in pages:
                     addPage(pageID)
             pages[pageID]["usersCorrect"] += 1
