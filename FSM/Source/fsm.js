@@ -54,7 +54,7 @@ const Display = {
         //Setup force:
         Display.canvasVars[id].layout
             .force("link", d3.forceLink(m.getLinkList()).distance(100))
-            .force("charge", d3.forceManyBody().strength(-60).distanceMax(120).distanceMin(0.1).theta(0.9))
+            .force("charge", d3.forceManyBody().strength(-60).distanceMax(80).distanceMin(0.1).theta(0.9))
             .force("collide", d3.forceCollide(Display.nodeRadius));
     },
     deleteCanvas: function(machineID){
@@ -2773,8 +2773,8 @@ const Controller = {
         canvasVars.machine = Model.machines[0];
         canvasVars.layout
             .force("link", d3.forceLink(m.getLinkList()).distance(100))
-            .force("charge", d3.forceManyBody().strength(-60).distanceMax(120).distanceMin(0.1).theta(0.9))
-            .force("collide", d3.forceCollide(Display.nodeRadius))
+            .force("charge", d3.forceManyBody().strength(-60).distanceMax(80).distanceMin(0.1).theta(0.9))
+            .force("collide", d3.forceCollide(Display.nodeRadius));
         Display.update("m1");
         Controller.setUpQuestion();
         Display.setUpQuestion();
