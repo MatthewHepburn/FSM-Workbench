@@ -283,16 +283,23 @@ const Display = {
                 }
             }
         }
-
         //Result not stored, compute it.
-        const textElem = svg.append("text")
-                      .text(text)
-                      .classed(className, true)
-                      .attr("font-size", fontSize);
+        let result;
+        if(text.length === 0){
+            result = 0;
+        } else {
+            const textElem = svg.append("text")
+                          .text(text)
+                          .classed(className, true)
+                          .attr("font-size", fontSize);
 
-        const boundingBox = textElem.node().getBBox();
-        const result = boundingBox.width;
-        textElem.remove();
+            const boundingBox = textElem.node().getBBox();
+            result = boundingBox.width;
+            textElem.remove();
+        }
+
+
+
 
         //Protect against an infinitely growing cache
         if(memory._cacheSize > 500){
@@ -1446,8 +1453,9 @@ const Display = {
             const y = link.source.y;
 
             const rad = Display.nodeRadius * 1.16;
-            const xoffset = 5;
+            const xoffset = 5; //How far the left/right of centre the path starts
             const yoffset = 7;
+            const bboxXoffset = rad * 0.8; // How far left/right of centre the bounding box extends. (constant to tweak eagerness to switch – using full bounding box is too agressive.)
             const bboxYoffset = yoffset + 5;
             const height = (Math.sqrt(rad*rad - (xoffset*xoffset)) + rad);
 
@@ -1455,23 +1463,20 @@ const Display = {
             //below if that would collide with a link, above if both collide.
             let aboveBlocked = false;
             let belowBlocked = false;
-            const links = Display.getAllLinkPaths(link.machine.id, l => l.id !== link.id); //Get the paths of all links other than this one
+            const links = link.machine.getLinkList().filter(l => l !== link); //Get all links other than this link.
+            const bboxUp = {x: x - bboxXoffset, y: y - height - bboxYoffset, width: 2 * bboxXoffset, height};
 
-            const bboxUp = {x: x - xoffset, y: y - height - bboxYoffset, width: 2 * xoffset, height};
-
-            for(let link of links){
-                const linkBBox = link.getBBox();
-                if(Display.doBoundingBoxesOverlap(linkBBox, bboxUp)){
+            for(let testLink of links){
+                if(Display.doesLinkIntersectBoundingBox(testLink, bboxUp)){
                     aboveBlocked = true;
                     break;
                 }
             }
             //Above is blocked, see if below is free
             if(aboveBlocked){
-                const bboxDown = {x: x - xoffset, y: y + height + bboxYoffset, width: 2 * xoffset, height};
-                for(let link of links){
-                    const linkBBox = link.getBBox();
-                    if(Display.doBoundingBoxesOverlap(linkBBox, bboxDown)){
+                const bboxDown = {x: x - bboxXoffset, y: y + height + bboxYoffset, width: 2 * bboxXoffset, height};
+                for(let testLink of links){
+                    if(Display.doesLinkIntersectBoundingBox(testLink, bboxDown)){
                         belowBlocked = true;
                         break;
                     }
@@ -1529,61 +1534,87 @@ const Display = {
 
         if (hasOpposite){
             //Use a bezier curve
-            // Calculate vector from P1 to P2
-            var vx = x2 - x1;
-            var vy = y2 - y1;
+            const points = Display.getBezierPoints(link);
 
-            // Find suitable control points by rotating v left 90deg, normalising and scaling
-            var vlx = -1 * vy;
-            var vly = 1 * vx;
-
-            var normal_vlx = vlx/Math.sqrt(vlx*vlx + vly*vly);
-            var normal_vly = vly/Math.sqrt(vlx*vlx + vly*vly);
-
-            var scaled_vlx = 10 * normal_vlx;
-            var scaled_vly = 10 * normal_vly;
-
-            //offset the start and end points along vl
-            x1 += 3 * normal_vlx;
-            y1 += 3 * normal_vly;
-            x2 += 3 * normal_vlx;
-            y2 += 3 * normal_vly;
-
-
-            // Can now define the control points by adding vl to P1 and P2
-            var c1x = x1 + scaled_vlx;
-            var c1y = y1 + scaled_vly;
-
-            var c2x = x2 + scaled_vlx;
-            var c2y = y2 + scaled_vly;
-
-            // We need an explicit midpoint to allow a direction arrow to be placed
-            var m1x = c1x + 0.5 * vx;
-            var m1y = c1y + 0.5 * vy;
-
-            // Define strings to use to define the path
-            const P1 = x1 + "," + y1;
-            var M1 = m1x + "," + m1y;
-            const P2 = x2 + "," + y2;
-            var C1 = c1x + "," + c1y;
-            var C2 = c2x + "," + c2y;
+            //Define strings to use to define the path
+            const P1 = points.P1.x + "," + points.P1.y;
+            const M1 = points.M1.x + "," + points.M1.y;
+            const P2 = points.P2.x + "," + points.P2.y;
+            const C1 = points.C1.x + "," + points.C1.y;
+            const C2 = points.C2.x + "," + points.C2.y;
 
             return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
+
         } else {
             // define vector v from P1 to halfway to P2
-            vx = 0.5 * (x2 - x1);
-            vy = 0.5 * (y2 - y1);
+            const vx = 0.5 * (x2 - x1);
+            const vy = 0.5 * (y2 - y1);
 
             // midpoint is then:
-            var midx = x1 + vx;
-            var midy = y1 + vy;
+            const midx = x1 + vx;
+            const midy = y1 + vy;
 
             const P1 = x1 + "," + y1;
-            var M = midx + "," + midy;
+            const M = midx + "," + midy;
             const P2 = x2 + "," + y2;
 
             return ("M" + P1 + " L" + M + " L" + P2);
         }
+    },
+    getBezierPoints: function(link){
+        // Return the points needed to draw the bezier curve for this link
+        // in form {P1:{x,y}, P2:{x,y}, C1:{x,y}, C2:{x,y}, M1:{c,y}}
+        // where P1, P2 are the start and end points,
+        // C1, C2 are the control points
+        // and M1 is the midpoint.
+
+        const deltaX = link.target.x - link.source.x,
+            deltaY = link.target.y - link.source.y,
+            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+         // Define unit vector from source to target:
+        const unitX = deltaX / dist,
+            unitY = deltaY / dist;
+
+
+        let x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
+        let x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
+        let y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
+        let y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
+
+        // Calculate vector from P1 to P2
+        const vx = x2 - x1;
+        const vy = y2 - y1;
+
+        // Find suitable control points by rotating v left 90deg, normalising and scaling
+        const vlx = -1 * vy;
+        const vly = 1 * vx;
+
+        const normal_vlx = vlx/Math.sqrt(vlx*vlx + vly*vly);
+        const normal_vly = vly/Math.sqrt(vlx*vlx + vly*vly);
+
+        const scaled_vlx = 10 * normal_vlx;
+        const scaled_vly = 10 * normal_vly;
+
+        //offset the start and end points along vl
+        x1 += 3 * normal_vlx;
+        y1 += 3 * normal_vly;
+        x2 += 3 * normal_vlx;
+        y2 += 3 * normal_vly;
+
+
+        // Can now define the control points by adding vl to P1 and P2
+        const c1x = x1 + scaled_vlx;
+        const c1y = y1 + scaled_vly;
+
+        const c2x = x2 + scaled_vlx;
+        const c2y = y2 + scaled_vly;
+
+        // We need an explicit midpoint to allow a direction arrow to be placed
+        const m1x = c1x + 0.5 * vx;
+        const m1y = c1y + 0.5 * vy;
+
+        return {P1: {x: x1, y: y1}, P2: {x: x2, y: y2}, M1:{x: m1x, y: m1y}, C1: {x: c1x, y: c1y}, C2: {x: c2x, y: c2y}};
     },
     getAllLinkPaths: function(machineID, filterFunction){
         //Return an array of native (ie not d3 selections) path elements for all links in the machine
@@ -2091,7 +2122,13 @@ const Display = {
     doesLinkIntersectBoundingBox(link, bBox){
         if(link.isReflexive()){
             //Test reflexive links using boundingboxes
-            const linkBBox = d3.select(`#${link.id}`).node().getBBox();
+            const linkElem = d3.select(`#${link.id}`).node();
+            if(!linkElem){
+                //Catch case were link has not been drawn yet
+                return false;
+            }
+            //Could optimise by calculating the bounding box directly.
+            const linkBBox = linkElem.getBBox();
             return Display.doBoundingBoxesOverlap(bBox, linkBBox);
         }
         const isBezier = link.target.hasLinkTo(link.source);
@@ -2139,13 +2176,13 @@ const Display = {
         };
 
         let lines;
-        const path = d3.select(`#${link.id}-path`).node();
-        const pathLength = path.getTotalLength();
-        const sourcePoint = path.getPointAtLength(0);
-        const targetPoint = path.getPointAtLength(pathLength);
+
+        const sourcePoint = {x: link.source.x, y: link.source.y};
+        const targetPoint = {x: link.target.x, y: link.target.y};
         if(isBezier){
             //Approximate bezier as two straight lines
-            const midPoint = path.getPointAtLength(pathLength/2);
+            const points = Display.getBezierPoints(link);
+            const midPoint = points.M1;
             lines = [{p1: sourcePoint, p2: midPoint}, {p1: midPoint, p2: targetPoint}];
         } else {
             lines = [{p1: sourcePoint,  p2: targetPoint}];
