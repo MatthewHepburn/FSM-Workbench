@@ -2864,6 +2864,7 @@ const Logging = {
     loadTime: Math.floor(Date.now() / 1000),
     userID: undefined,
     pageID: undefined,
+    sessionData: {}
     generateUserID: function() {
         //Use local storage if it is available
         let hasStorage;
@@ -2918,6 +2919,22 @@ const Logging = {
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
+    setSessionVar: function(varName, value){
+        //Used to add a variable to the session data that is sent on page close.
+        this.sessionData[varName] = value;
+    }
+    incrementSessionCounter: function(counterName){
+        if(!this.sessionData[counterName]){
+            this.sessionData[counterName] = 0;
+        }
+        this.sessionData[counterName] = this.sessionData[counterName] + 1;
+    }
+    pushToSessionArray: function(arrayName, value){
+        if(!this.sessionData[arrayName]){
+            this.sessionData[arrayName] = [];
+        }
+        this.sessionData[arrayName].push(value);
+    }
     sendSessionData: function() {
         var url = window.location.href;
         if (url.slice(0,5) == "file:"){
@@ -2939,7 +2956,8 @@ const Logging = {
             "pageID": Logging.pageID,
             "timeOnPage": timeOnPage,
             "url": url,
-            "userID": Logging.userID
+            "userID": Logging.userID,
+            sessionData: this.sessionData;
         };
 
 
