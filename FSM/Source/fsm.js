@@ -34,11 +34,13 @@ const Display = {
             "_textLengthMemo": {"_cacheSize": 0} // Used to memoise the results of Display.getTextLength
         };
         // Add a new svg element
+        let width = 375; //May want to specify these as arguements?
+        let height = 300;
         var svg = d3.select(".maindiv").append("svg")
                     .attr("id", id)
-                    .attr("width", 500)
-                    .attr("height", 300)
-                    .attr("viewBox", "0 0 500 300")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .attr("viewBox", `0 0 ${width} ${height}`)
                     .attr("preserveAspectRatio","xMinYMin meet")
                     .on("contextmenu", function(){EventHandler.backgroundContextClick(machine);})
                     .on("mousedown", function(){EventHandler.backgroundClick(machine, true);});
@@ -52,7 +54,7 @@ const Display = {
         //Setup force:
         Display.canvasVars[id].layout
             .force("link", d3.forceLink(m.getLinkList()).distance(100))
-            .force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9))
+            .force("charge", d3.forceManyBody().strength(-60).distanceMax(120).distanceMin(0.1).theta(0.9))
             .force("collide", d3.forceCollide(Display.nodeRadius));
     },
     deleteCanvas: function(machineID){
@@ -2753,23 +2755,26 @@ const Controller = {
             .on("mousedown", function(){EventHandler.backgroundClick(m, true);})
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         const machineList = Controller.getQuestionMachineList();
+        let width = 500;
+        let height = 300;
         if(machineList.length > 1){
-            //Embiggen some elements to make machines more readable when displayed side-by-side
             for(let i = 1; i < machineList.length; i++){
                 Controller.addMachine(machineList[i], false);
             }
             //Zoom in to make the machines easier to see.
+            width = 375;
             d3.selectAll("svg")
-                .attr("viewBox", "0 0 375 300")
-                .attr("width", 375)
-                .attr("height", 300);
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .attr("width", width)
+                .attr("height", height);
         }
         Controller.setupMachine(m, 0);
         const canvasVars = Display.getCanvasVars("m1");
         canvasVars.machine = Model.machines[0];
-        canvasVars.layout.force("link", d3.forceLink(m.getLinkList()).distance(100))
-            .force("charge", d3.forceManyBody().strength(-60).distanceMax(60).distanceMin(0.1).theta(0.9))
-            .force("collide", d3.forceCollide(Display.nodeRadius));
+        canvasVars.layout
+            .force("link", d3.forceLink(m.getLinkList()).distance(100))
+            .force("charge", d3.forceManyBody().strength(-60).distanceMax(120).distanceMin(0.1).theta(0.9))
+            .force("collide", d3.forceCollide(Display.nodeRadius))
         Display.update("m1");
         Controller.setUpQuestion();
         Display.setUpQuestion();

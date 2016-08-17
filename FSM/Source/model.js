@@ -1117,7 +1117,7 @@ const Model = {
 
                 //Keep track of which m2Node / symbol pairs must be investiagated
                 Model.question.frontier = [];
-                Model.machines[0].alphabet.forEach(function(symbol){
+                Model.machines[0].alphabet.reverse().forEach(function(symbol){
                     //Add pair to frontier if any of the m1Initial nodes have a reachable node
                     Model.question.DfaAddToFrontier(m2InitialNode.id, symbol);
                 });
