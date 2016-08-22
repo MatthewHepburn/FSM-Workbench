@@ -221,7 +221,7 @@ const Model = {
         };
         this.getSpec = function(){
             //Returns an object that describes the current machine in the form accepted by Machine.build
-            var spec = {"nodes": [], "links": [], "attributes":{
+            const spec = {"nodes": [], "links": [], "attributes":{
                 "alphabet": this.alphabet,
                 "allowEpsilon": this.allowEpsilon,
                 "isTransducer": this.isTransducer
@@ -256,7 +256,7 @@ const Model = {
                 var intLink = this.links[linkKeys[i]];
                 var extLink = {"to": nodeIDDict[intLink.target.id], "from": nodeIDDict[intLink.source.id]};
                 // Only include non-default properties for brevity:
-                if(intLink.input.length > 0){ // Because JS comparisons are strange: [] === [] -> false
+                if(intLink.input.length > 0){
                     extLink.input = intLink.input;
                 }
                 if(Object.keys(intLink.output).length > 0){ // intLink.output != {}
@@ -1082,6 +1082,16 @@ const Model = {
                 return index;
             }
         };
+
+        this.setOutput = function(outputObj, epsilonOutput){
+            this.output = outputObj;
+            // If a symbol has output, it must be in the input array
+            this.addInput(Object.keys(outputObj))
+            if(epsilonOutput){
+                this.hasEpsilon = true;
+            }
+            this.epsilonOutput = epsilonOutput;
+        }
 
         this.isReflexive = function(){
             return this.source.id === this.target.id;

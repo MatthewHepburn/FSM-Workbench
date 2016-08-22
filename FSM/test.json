@@ -1,6 +1,106 @@
 [
   {
     "data-question": {
+      "type": "give-input",
+      "text": "Test",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "target": "output",
+      "outputSequence": [
+        "f",
+        "s",
+        "m"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 99,
+            "y": 125,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 199,
+            "y": 120
+          },
+          {
+            "id": "C",
+            "x": 289,
+            "y": 77
+          },
+          {
+            "id": "D",
+            "x": 282,
+            "y": 175
+          },
+          {
+            "id": "E",
+            "x": 373,
+            "y": 132,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ],
+            "output":{
+              "a": "F"
+            }
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "isTransducer": true,
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "test-transducer",
+    "name": "test transducer",
+    "id": "f7284882173e41cd9be66960d1be262d"
+  },
+  {
+    "data-question": {
       "type": "dfa-convert",
       "text": "The machine on the left is nondeterministic. Construct the equivilant DFA on the right.",
       "allowEpsilon": "false",

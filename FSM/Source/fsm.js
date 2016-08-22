@@ -1675,10 +1675,25 @@ const Display = {
         //Append <tspan> to element. Allows individual input elements to be addressable, allowing them to be highlighted.
         var e = d3.select(element);
         for(var i = 0; i < link.input.length; i++){
-            //TODO implement case for transducers
             e.append("tspan")
-             .text(link.input[i])
-             .attr("id", link => `${link.id}-input-${i}`);
+            .text(function(){
+                const inputSymbol = link.input[i];
+                if(!link.machine.isTransducer){
+                    return inputSymbol;
+                } else {
+                    // Handle case where machine is a transducer
+                    const outputSymbol = link.output[inputSymbol];
+                    if(outputSymbol === undefined){
+                        // No output defined for this symbol
+                        return inputSymbol;
+                    } else {
+                        // return string in form a:OUT
+                        return `${link.input[i]}:${link.output[link.input[i]]}`;
+                    }
+
+                }
+            })
+            .attr("id", link => `${link.id}-input-${i}`);
 
             //Add separator
             if(i < link.input.length - 1 || link.hasEpsilon){
@@ -2018,6 +2033,7 @@ const Display = {
     },
     updateLinkLabel: function(link){
         var svg = d3.select("#" + link.machine.id);
+        // Clear label and then add a new one (updates are infrequent so not a significant performance concern).
         var label = svg.select("#" + link.id + "-label").text("").node();
         Display.appendLinkLabelTspans(label, link);
         Display.updateLinkLabelPositions(svg, true);
