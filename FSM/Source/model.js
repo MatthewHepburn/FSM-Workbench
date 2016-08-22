@@ -37,8 +37,9 @@ const Model = {
         this.nodes = {};
         this.links = {};
         this.alphabet = [];
+        this.outputAlphabet = [];
         this.allowEpsilon = true;
-        this.isTransducer = false;
+        this.isMealy = false;
         this.currentState = [];
 
         //Track links used on last step
@@ -111,7 +112,13 @@ const Model = {
             this.links = {};
             this.alphabet = spec.attributes.alphabet;
             this.allowEpsilon = spec.attributes.allowEpsilon;
-            this.isTransducer = spec.attributes.isTransducer;
+            this.isMealy = spec.attributes.isMealy;
+            if(spec.attributes.outputAlphabet){
+                this.outputAlphabet = spec.attributes.outputAlphabet;
+            } else {
+                this.outputAlphabet = [];
+            }
+
             var nodes = spec.nodes;
             var nodeIDDict = {}; //Used to map IDs in the spec to machine IDs
             for (var i = 0; i < nodes.length; i++){
@@ -224,7 +231,7 @@ const Model = {
             const spec = {"nodes": [], "links": [], "attributes":{
                 "alphabet": this.alphabet,
                 "allowEpsilon": this.allowEpsilon,
-                "isTransducer": this.isTransducer
+                "isMealy": this.isMealy
             }};
             var nodeKeys = Object.keys(this.nodes);
             var nodeIDDict = {}; //Used to map from the internal IDs to the externalIDs
@@ -380,7 +387,19 @@ const Model = {
             this.alphabet = alphabetArray;
             //Now enforce this alphabet by removing illegal symbols
             this.enforceAlphabet();
+        };
 
+        this.setOutputAlphabet = function(outputAlphabetArray){
+            this.outputAlphabet = outputAlphabetArray;
+            this.enforceAlphabet();
+        };
+
+        this.setMealy = function(isMealy){
+            this.isMealy = isMealy;
+            if(!isMealy){
+                this.outputAlphabet = [];
+                this.enforceAlphabet();
+            }
         };
 
         this.enforceAlphabet = function(){
@@ -1071,6 +1090,15 @@ const Model = {
             var allowEpsilon = this.machine.allowEpsilon;
             this.input = this.input.filter(x => alphabet.indexOf(x) !== -1);
             this.hasEpsilon = this.hasEpsilon && allowEpsilon;
+            //Enforce restrictions on outputs also:
+            if(!this.machine.isMealy){
+                this.output = {};
+            } else {
+                //Ensure that all keys (inputs) in this.outputs are allowed
+                Object.keys(this.output).filter(symbol => !alphabet.includes(symbol)).forEach(invalidSymbol => delete this.output[invalidSymbol]);
+                //Ensure that all values (outputs) in this.outputs are allowed
+                Object.keys(this.output).filter(symbol => !this.machine.outputAlphabet.includes[this.output[symbol]]).forEach(invalidSymbol => delete this.output[invalidSymbol]);
+            }
         };
 
         this.inputIndexOf = function(symbol){

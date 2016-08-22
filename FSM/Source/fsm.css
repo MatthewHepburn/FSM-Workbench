@@ -612,3 +612,7 @@ input[type=checkbox]{
 .invisible{
   visibility: hidden;
 }
+
+.centre-align{
+  text-anchor: middle;
+}

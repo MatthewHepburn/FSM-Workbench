@@ -15,6 +15,7 @@ const edit = {
             questionTitle:{description: "The title of this question", optional: true, expectStr: true, default: "Question Title"},
             alphabet: {description: 'A list of the symbols that the machine operates on. Eg ["a","b"]', optional:false, default:'["a","b"]', expectStr:false},
             allowEpsilon: {description: "Does the machine permit epsilon transitions?", optional:false, default:true, isBoolean:true, expectStr:false},
+            isMealyMachine: {description: "Does the machine have output as well as input?", default:false, isBoolean:true, expectStr:false},
             splitSymbol: {description: "The symbol used to split input into discrete tokens. Leave blank to split on the empty string (ie treat each character as a separate token) or enter ',' for comma separated tokens or ' ' for space separated tokens.", optional:true, default:"", expectStr:true}
 
         },
@@ -30,7 +31,6 @@ const edit = {
         "give-input":{
             target: {description: "The success condition for the question. 'accept' means the user must enter an accepted sequence, 'output' means the user must enter a sequence that produces a particular output.", optional:false, default: "accept", expectStr:true, options:["accept", "none", "output"]},
             outputSequence: {description: "The sequence to output if the target is 'output'. In form ['a', 'b', 'b'].", optional:true, default:"[]", expectStr: false}
-
         },
         "select-states":{
             initialSequence: {description: "The input sequence given to the machine prior to the user's interaction", default:'["a"]', expectStr:false},
@@ -65,6 +65,10 @@ const edit = {
         var epsQ = edit.questionSchema.common.allowEpsilon;
         edit.askQuestionOption("allowEpsilon", epsQ);
         d3.select("#allowEpsilon").on("change", edit.setAlphabet);
+
+        const mealyQ = edit.questionSchema.common.isMealyMachine;
+        edit.askQuestionOption("isMealyMachine", mealyQ);
+        d3.select("#isMealyMachine").on("change", edit.mealyChange);
 
         var splitQ = edit.questionSchema.common.splitSymbol;
         edit.askQuestionOption("splitSymbol", splitQ);
@@ -101,7 +105,10 @@ const edit = {
         }
 
     },
-    askQuestionOption:function(name, obj){
+    askQuestionOption:function(name, obj, insertAfter){
+        //insertAfter is an optional arguement, if given the option will
+        //be added after the option with that id
+        //eg insertAfter = "alphabet"
         var description = obj.description;
         var defaultValue = obj.default;
         var isOptional = obj.optional === true;
@@ -114,17 +121,23 @@ const edit = {
             options = obj.options;
         }
         //description,defaultValue, isOptional, isBoolean, isDropdown
-        var div = d3.select(".questiondata")
-                    .append("div")
-                        .attr("id", `${name}-outer-div`)
-                        .classed("option-holder", true)
-                            .append("div")
-                            .classed("form-item", true)
-                            .classed("pure-form", true)
-                            .attr("id", `${name}-div`)
-                            .text(`${name} : `);
+        let outerDiv;
+        if(insertAfter){
+            outerDiv = d3.select(".questiondata")
+                    .insert("div", `#${insertAfter}-outer-div + *`);
+        } else {
+            outerDiv = d3.select(".questiondata")
+                    .append("div");
+        }
+        const innerDiv = outerDiv.attr("id", `${name}-outer-div`)
+                                 .classed("option-holder", true)
+                                     .append("div")
+                                         .classed("form-item", true)
+                                         .classed("pure-form", true)
+                                         .attr("id", `${name}-div`)
+                                         .text(`${name} : `);
         if (isDropdown){
-            var select = div.append("select")
+            var select = innerDiv.append("select")
                             .attr("id", name);
 
             options.forEach(function(optStr){
@@ -140,14 +153,14 @@ const edit = {
         }
         else{
             if (!isOptional){
-                div.text(name + "* : ");
+                innerDiv.text(name + "* : ");
             }
-            div.append("input")
+            innerDiv.append("input")
                .attr("type", "text")
                .attr("id", name)
                .attr("value", defaultValue);
         }
-        var help = div.append("a")
+        var help = innerDiv.append("a")
                       .attr("id", "desc"+name)
                       .classed("help", true)
                       .classed("pure-button", true)
@@ -280,6 +293,23 @@ const edit = {
         request.send(string);
     },
 
+    mealyChange: function(){
+        const isMealy =  JSON.parse(document.querySelector("#isMealyMachine").value);
+        Model.machines.forEach(m => m.setMealy(isMealy));
+        const existingOutputAlphabet = d3.select("#outputAlphabet");
+        if(isMealy && existingOutputAlphabet.empty()){
+            //Add outputAlphabet field
+            edit.askQuestionOption("outputAlphabet", {expectStr: false, optional:true ,default:'["A", "B"]', description:"The set of symbols that the machine can output."}, "isMealyMachine");
+            d3.select("#outputAlphabet").on("change", edit.setOutputAlphabet);
+        }
+        if(!isMealy){
+            d3.select("#outputAlphabet-outer-div").remove();
+        }
+    },
+    setOutputAlphabet: function(){
+        const outputAlphabet = JSON.parse(d3.select("#outputAlphabet").node().value);
+        Model.machines.forEach(m => Controller.setOutputAlphabet(m, outputAlphabet))
+    },
     setAlphabet:function(){
         var alphabet = JSON.parse(document.querySelector("#alphabet").value);
         var allowEpsilon = JSON.parse(document.querySelector("#allowEpsilon").value);

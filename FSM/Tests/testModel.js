@@ -58,7 +58,7 @@ describe("Model", function() {
             // Simple machine consisting of a single accepting node.
         var spec = {"nodes": [{"id":"A", "x": 100, "y": 50, "isAcc": true, "isInit": true}],
                          "links": [],
-                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": false, "isTransducer": false}
+                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": false, "isMealy": false}
                         };
 
 
@@ -89,9 +89,9 @@ describe("Model", function() {
             var CopyLinksLength = Object.keys(machineCopy.links).length;
             expect(machineLinksLength).to.equal(CopyLinksLength);
 
-            expect(machine.isTransducer).to.equal(machine.isTransducer);
-            expect(machine.alphabet).to.equal(machine.alphabet);
-            expect(machine.allowEpsilon).to.equal(machine.allowEpsilon);
+            expect(machineCopy.isMealy).to.equal(machine.isMealy);
+            expect(machineCopy.alphabet).to.equal(machine.alphabet);
+            expect(machineCopy.allowEpsilon).to.equal(machine.allowEpsilon);
         });
 
 
@@ -101,7 +101,7 @@ describe("Model", function() {
         // Three nodes, one of which is accepting.
         var spec = {"nodes": [{"id":"A", "x": 100, "y": 50, "isInit": true}, {"id": "B", "x": 200, "y": 60}, {"id": "C", "x": 300, "y": 60, "isAcc": true}],
                      "links": [{"to": "B", "from": "A", "input": ["a", "b"]}, {"to": "A", "from": "A", "input": ["a"]}, {"to": "C", "from": "B", "input": ["c"]}],
-                      "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isTransducer": false}
+                      "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isMealy": false}
                     };
 
         var initialMachinesLength = model.machines.length;
@@ -134,9 +134,9 @@ describe("Model", function() {
             var CopyLinksLength = Object.keys(machineCopy.links).length;
             expect(machineLinksLength).to.equal(CopyLinksLength);
 
-            expect(machine.isTransducer).to.equal(machine.isTransducer);
-            expect(machine.alphabet).to.equal(machine.alphabet);
-            expect(machine.allowEpsilon).to.equal(machine.allowEpsilon);
+            expect(machineCopy.isMealy).to.equal(machine.isMealy);
+            expect(machineCopy.alphabet).to.equal(machine.alphabet);
+            expect(machineCopy.allowEpsilon).to.equal(machine.allowEpsilon);
         });
     });
 
@@ -148,7 +148,7 @@ describe("Model", function() {
             // Machine which accepts the empty string via multiple epsilon steps.
             spec = {"nodes": [{"id":"A", "x": 100, "y": 50, "isInit": true, "name":"foo"}, {"id": "B", "x": 200, "y": 60}, {"id": "C", "x": 300, "y": 60,"name":"bar"},  {"id": "D", "x": 400, "y": 60, "isAcc": true}],
                          "links": [{"to": "B", "from": "A", "hasEps": true}, {"to": "C", "from": "B", "hasEps": true}, {"to": "D", "from": "C", "input": ["b"], "hasEps":true}],
-                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isTransducer": false}
+                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isMealy": false}
                     };
             initialMachinesLength = model.machines.length;
             machine = model.addMachine(spec);
@@ -184,9 +184,9 @@ describe("Model", function() {
             var CopyLinksLength = Object.keys(machineCopy.links).length;
             expect(machineLinksLength).to.equal(CopyLinksLength);
 
-            expect(machine.isTransducer).to.equal(machine.isTransducer);
-            expect(machine.alphabet).to.equal(machine.alphabet);
-            expect(machine.allowEpsilon).to.equal(machine.allowEpsilon);
+            expect(machineCopy.isMealy).to.equal(machine.isMealy);
+            expect(machineCopy.alphabet).to.equal(machine.alphabet);
+            expect(machineCopy.allowEpsilon).to.equal(machine.allowEpsilon);
         });
     });
 
@@ -197,7 +197,7 @@ describe("Model", function() {
         before(function(){
             spec = {"nodes": [],
                                  "links": [],
-                                  "attributes": {"alphabet": [], "allowEpsilon": true, "isTransducer": false}
+                                  "attributes": {"alphabet": [], "allowEpsilon": true, "isMealy": false}
                                 };
             machine = model.addMachine(spec);
             machine.setAlphabet(["a","b","c"]);
@@ -320,21 +320,21 @@ describe("Model", function() {
         it("should correctly handle the case where there is one machine", function(){
             var spec1 = {"nodes": [{"id":"A", "x": 100, "y": 50, "isInit": true}, {"id": "B", "x": 200, "y": 60}, {"id": "C", "x": 300, "y": 60, "isAcc": true}],
                          "links": [{"to": "B", "from": "A", "input": ["a", "b"]}, {"to": "A", "from": "A", "input": ["a"]}, {"to": "C", "from": "B", "input": ["c"]}],
-                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isTransducer": false}
+                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": true, "isMealy": false}
                         };
             model.addMachine(spec1);
             var list = model.getMachineList();
             expect(list).to.be.ok;
             expect(list.length).to.equal(1);
             expect(list[0].attributes.allowEpsilon).to.be.true;
-            expect(list[0].attributes.isTransducer).to.be.false;
+            expect(list[0].attributes.isMealy).to.be.false;
         });
 
 
         it("should correctly handle the case where there are two machines", function(){
             var spec2 = {"nodes": [{"id":"A", "x": 100, "y": 50, "isAcc": true, "isInit": true}],
                          "links": [],
-                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": false, "isTransducer": false}
+                          "attributes": {"alphabet": ["a", "b", "c"], "allowEpsilon": false, "isMealy": false}
                         };
 
             model.addMachine(spec2);
@@ -342,9 +342,9 @@ describe("Model", function() {
             expect(list).to.be.ok;
             expect(list.length).to.equal(2);
             expect(list[0].attributes.allowEpsilon).to.be.true;
-            expect(list[0].attributes.isTransducer).to.be.false;
+            expect(list[0].attributes.isMealy).to.be.false;
             expect(list[1].attributes.allowEpsilon).to.be.false;
-            expect(list[1].attributes.isTransducer).to.be.false;
+            expect(list[1].attributes.isMealy).to.be.false;
         });
     });
 
@@ -360,7 +360,7 @@ describe("Model", function() {
                         };
             spec = {nodes: [{id:"A", x:0, y:50, isInit:true},{id:"B", x:50, y:50},{id:"C", x:50, y:100},{id:"D", x:200, y:50, isAcc:true}],
                     links: [{from:"A", to:"B", input:["c"]},{from:"B", to:"C", input:["d"]}, {from:"C", to:"B", input:["e"]},{from:"B", to:"D", input:["f"]}],
-                    attributes:{alphabet:["c","d","e","f"], isTransducer: false, allowEpsilon:false}
+                    attributes:{alphabet:["c","d","e","f"], isMealy: false, allowEpsilon:false}
                    };
             model.addMachine(spec);
             model.question.setUpQuestion(questionObj);
@@ -437,7 +437,7 @@ describe("Model", function() {
             before(function(){
                 spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
                         "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"C","from":"B","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
-                        "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
+                        "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isMealy":false}
                     };
                 model.addMachine(spec);
                 feedbackObj = model.question.checkAnswer();
@@ -456,7 +456,7 @@ describe("Model", function() {
                 model.machines = [];
                 spec = {"nodes":[{"id":"A","x":61,"y":215,"isInit":true,"isAcc": true,"name":"0"},{"id":"B","x":150,"y":260,"name":"10"},{"id":"C","x":145,"y":160,"name":"20"},{"id":"D","x":318,"y":152,"isAcc":true,"name":"50+"},{"id":"E","x":234,"y":206,"name":"30"},{"id":"F","x":229,"y":106,"name":"40"}],
                         "links":[{"to":"B","from":"A","input":["10p"]},{"to":"C","from":"A","input":["20p"]},{"to":"C","from":"B","input":["10p"]},{"to":"D","from":"D","input":["10p","20p"]},{"to":"E","from":"C","input":["10p"]},{"to":"E","from":"B","input":["20p"]},{"to":"D","from":"E","input":["20p"]},{"to":"F","from":"E","input":["10p"]},{"to":"F","from":"C","input":["20p"]},{"to":"D","from":"F","input":["10p"]}],
-                        "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isTransducer":false}
+                        "attributes":{"alphabet":["10p","20p"],"allowEpsilon":false,"isMealy":false}
                     };
                 model.addMachine(spec);
             });
@@ -475,7 +475,7 @@ describe("Model", function() {
 
         });
         describe("test for machine equal to a*a(b|c)a*", function(){
-            var targetMachineSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var targetMachineSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
             var targetMachine = new model.Machine("tgt");
             targetMachine.build(targetMachineSpec);
             var questionObj = {type:"give-equivalent",
@@ -486,7 +486,7 @@ describe("Model", function() {
                 model.question.setUpQuestion(questionObj);
             });
             it("should reject incorrect input 1", function(){
-                var incorrectSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169,"isAcc":true},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                var incorrectSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169,"isAcc":true},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
                 var machine = model.addMachine(incorrectSpec);
                 var feedbackObj = model.question.checkAnswer();
                 expect(feedbackObj.allCorrectFlag).to.be.false;
@@ -500,7 +500,7 @@ describe("Model", function() {
                 }
             });
             it("should reject incorrect input 2", function(){
-                var incorrectSpec = {"nodes":[{"id":"A","x":92,"y":120,"isInit":true,"name":"0"},{"id":"B","x":192,"y":123,"name":"1"},{"id":"C","x":292,"y":125,"isAcc":true,"name":"2"},{"id":"D","x":392,"y":128,"isAcc":true,"name":"3"}],"links":[{"to":"B","from":"A","input":["a","b"]},{"to":"C","from":"B","input":["a"]},{"to":"A","from":"B","input":["b"]},{"to":"B","from":"C","input":["b"]},{"to":"D","from":"C","input":["b"]},{"to":"D","from":"D","input":["a","b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+                var incorrectSpec = {"nodes":[{"id":"A","x":92,"y":120,"isInit":true,"name":"0"},{"id":"B","x":192,"y":123,"name":"1"},{"id":"C","x":292,"y":125,"isAcc":true,"name":"2"},{"id":"D","x":392,"y":128,"isAcc":true,"name":"3"}],"links":[{"to":"B","from":"A","input":["a","b"]},{"to":"C","from":"B","input":["a"]},{"to":"A","from":"B","input":["b"]},{"to":"B","from":"C","input":["b"]},{"to":"D","from":"C","input":["b"]},{"to":"D","from":"D","input":["a","b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isMealy":false}};
                 model.deleteMachine(model.machines[0].id);
                 var machine = model.addMachine(incorrectSpec);
                 var feedbackObj = model.question.checkAnswer();
@@ -515,7 +515,7 @@ describe("Model", function() {
                 }
             });
             it("should reject a machine with no accepting states", function(){
-                var noAccSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169,"isAcc":false},{"id":"C","x":272,"y":164,"isAcc":false}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                var noAccSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169,"isAcc":false},{"id":"C","x":272,"y":164,"isAcc":false}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
                 model.deleteMachine(model.machines[0].id);
                 model.addMachine(noAccSpec);
                 var feedbackObj = model.question.checkAnswer();
@@ -523,7 +523,7 @@ describe("Model", function() {
                 expect(feedbackObj.message.length > 0).to.be.true;
             });
             it("should reject a machine with no initial states", function(){
-                var noInitSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":false},{"id":"B","x":172,"y":169,"isAcc":true},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                var noInitSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":false},{"id":"B","x":172,"y":169,"isAcc":true},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
                 model.deleteMachine(model.machines[0].id);
                 model.addMachine(noInitSpec);
                 var feedbackObj = model.question.checkAnswer();
@@ -531,14 +531,14 @@ describe("Model", function() {
                 expect(feedbackObj.message.length > 0).to.be.true;
             });
             it("should accept a machine identical to the spec", function(){
-                var identicalSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                var identicalSpec = {"nodes":[{"id":"A","x":72,"y":168,"isInit":true},{"id":"B","x":172,"y":169},{"id":"C","x":272,"y":164,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
                 model.deleteMachine(model.machines[0].id);
                 model.addMachine(identicalSpec);
                 var feedbackObj = model.question.checkAnswer();
                 expect(feedbackObj.allCorrectFlag).to.be.true;
             });
             it("should accept a machine equivalent to the spec", function(){
-                var equivalentSpec = {"nodes":[{"id":"A","x":75,"y":168,"isInit":true},{"id":"B","x":175,"y":163},{"id":"C","x":275,"y":164,"isAcc":true},{"id":"D","x":255,"y":103,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["c"]},{"to":"C","from":"C","input":["a"]},{"to":"D","from":"B","input":["b"]},{"to":"D","from":"D","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+                var equivalentSpec = {"nodes":[{"id":"A","x":75,"y":168,"isInit":true},{"id":"B","x":175,"y":163},{"id":"C","x":275,"y":164,"isAcc":true},{"id":"D","x":255,"y":103,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["c"]},{"to":"C","from":"C","input":["a"]},{"to":"D","from":"B","input":["b"]},{"to":"D","from":"D","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
                 model.deleteMachine(model.machines[0].id);
                 model.addMachine(equivalentSpec);
                 var feedbackObj = model.question.checkAnswer();
@@ -778,7 +778,7 @@ describe("Model", function() {
             before(function(){
                 var spec = {"nodes":[{"id":"A","x":91,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],
                             "links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],
-                            "attributes":{"alphabet":["a","b"],"allowEpsilon":false,"isTransducer":false}};
+                            "attributes":{"alphabet":["a","b"],"allowEpsilon":false,"isMealy":false}};
                 machine = model.addMachine(spec);
             });
             it("traceObj should be ok", function(){
@@ -828,7 +828,7 @@ describe("Model", function() {
 
 
         describe("test machine 1:", function(){
-            var spec = {"nodes":[{"id":"A","x":104,"y":108,"isInit":true},{"id":"B","x":187,"y":164},{"id":"C","x":277,"y":121,"isAcc":true},{"id":"D","x":194,"y":65}],"links":[{"to":"B","from":"A","input":["c"]},{"to":"C","from":"B","input":["c"],"hasEps":true},{"to":"D","from":"A","input":["a"]},{"to":"C","from":"D","input":["b"]},{"to":"A","from":"D","hasEps":true},{"to":"D","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var spec = {"nodes":[{"id":"A","x":104,"y":108,"isInit":true},{"id":"B","x":187,"y":164},{"id":"C","x":277,"y":121,"isAcc":true},{"id":"D","x":194,"y":65}],"links":[{"to":"B","from":"A","input":["c"]},{"to":"C","from":"B","input":["c"],"hasEps":true},{"to":"D","from":"A","input":["a"]},{"to":"C","from":"D","input":["b"]},{"to":"A","from":"D","hasEps":true},{"to":"D","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
             var machine = model.addMachine(spec);
             var shouldAccept = ["ab", "abab", "cc", "c", "ccab", "ccacc", "ccac", "abacab"].map(str => model.parseInput(str, ""));
             var shouldReject = ["b", "a", "cb", "caa"].map(str => model.parseInput(str, ""));
@@ -868,7 +868,7 @@ describe("Model", function() {
         });
 
         describe("test machine 2:", function(){
-            var spec = {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isTransducer":false}};
+            var spec = {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isMealy":false}};
             var machine = model.addMachine(spec);
             var splitSymbol = " ";
             var shouldAccept = ["s1 s1 s2 s3 s1", "s3", "s2", ""];
@@ -900,7 +900,7 @@ describe("Model", function() {
             model.machines = [];
         });
         describe("test machine 1", function(){
-            var spec = {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isTransducer":false}};
+            var spec = {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isMealy":false}};
             var machine = model.addMachine(spec);
             var splitSymbol = " ";
             var shouldAccept = ["s1 s1 s2 s3 s1", "s3", "s2", "", "s1 s2 s1"];
@@ -928,8 +928,8 @@ describe("Model", function() {
         });
         describe("check that minimized machines are equivalent", function(){
             var specs = [{"nodes":[{"id":"A","x":81,"y":125,"isInit":true,"name":"Q2"},{"id":"B","x":105,"y":67,"isInit":true,"name":"Q1"},{"id":"C","x":99,"y":193,"isInit":true,"name":"Q3"},{"id":"D","x":204,"y":59,"name":"Q4"},{"id":"E","x":304,"y":57,"name":"Q5"},{"id":"F","x":404,"y":65,"isAcc":true,"name":"Q6"},{"id":"G","x":180,"y":114,"name":"Q7"},{"id":"H","x":197,"y":213,"isAcc":true,"name":"Q8"},{"id":"I","x":274,"y":149,"name":"Q9"}],"links":[{"to":"D","from":"B","input":["a1"]},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"F","input":["a1"]},{"to":"G","from":"A","input":["a2","a3"]},{"to":"H","from":"G","input":["a3"]},{"to":"H","from":"C","input":["a2"]},{"to":"I","from":"H","input":["a2"]},{"to":"G","from":"I"}],"attributes":{"alphabet":["a1","a2","a3"],"allowEpsilon":true}},
-                         {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isTransducer":false}},
-                         {"nodes":[{"id":"A","x":114,"y":74,"isInit":true},{"id":"B","x":287,"y":231,"isInit":true},{"id":"C","x":316,"y":136,"isInit":true},{"id":"D","x":191,"y":206},{"id":"E","x":96,"y":173,"isAcc":true},{"id":"F","x":274,"y":45},{"id":"G","x":205,"y":117}],"links":[{"to":"E","from":"A","input":["a"]},{"to":"D","from":"E","input":["b"]},{"to":"B","from":"D","hasEps":true},{"to":"C","from":"B","input":["b"]},{"to":"F","from":"C","input":["a"]},{"to":"F","from":"F","input":["a"]},{"to":"G","from":"F","hasEps":true},{"to":"A","from":"G","input":["a"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}}];
+                         {"nodes":[{"id":"A","x":57,"y":140,"isAcc":true,"isInit":true,"name":"b"},{"id":"B","x":83,"y":73,"isInit":true,"name":"a"},{"id":"C","x":81,"y":204,"isInit":true,"name":"c"},{"id":"D","x":157,"y":140,"name":"t1"},{"id":"E","x":257,"y":135,"name":"t2"},{"id":"F","x":357,"y":143,"name":"q"},{"id":"G","x":428,"y":73,"isAcc":true,"name":"q`"},{"id":"H","x":449,"y":182,"isAcc":true,"name":"q``"}],"links":[{"to":"D","from":"C","hasEps":true},{"to":"D","from":"A","input":["s1"]},{"to":"D","from":"B","hasEps":true},{"to":"E","from":"D","hasEps":true},{"to":"F","from":"E","hasEps":true},{"to":"E","from":"E","input":["s1","s2","s3"]},{"to":"G","from":"F","input":["s1"]},{"to":"H","from":"F","input":["s2","s3"]}],"attributes":{"alphabet":["s1","s2","s3"],"allowEpsilon":true,"isMealy":false}},
+                         {"nodes":[{"id":"A","x":114,"y":74,"isInit":true},{"id":"B","x":287,"y":231,"isInit":true},{"id":"C","x":316,"y":136,"isInit":true},{"id":"D","x":191,"y":206},{"id":"E","x":96,"y":173,"isAcc":true},{"id":"F","x":274,"y":45},{"id":"G","x":205,"y":117}],"links":[{"to":"E","from":"A","input":["a"]},{"to":"D","from":"E","input":["b"]},{"to":"B","from":"D","hasEps":true},{"to":"C","from":"B","input":["b"]},{"to":"F","from":"C","input":["a"]},{"to":"F","from":"F","input":["a"]},{"to":"G","from":"F","hasEps":true},{"to":"A","from":"G","input":["a"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isMealy":false}}];
             specs.forEach(function(spec, i){
                 it(`machine ${i+1} should be equivilant to itself after minimization`, function(){
                     var machineOrig = model.addMachine(spec);
@@ -945,7 +945,7 @@ describe("Model", function() {
             model.machines = [];
         });
         describe("simple example", function(){
-            var spec = {"nodes":[{"id":"A","x":148,"y":119,"isInit":true},{"id":"B","x":248,"y":125,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"A","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+            var spec = {"nodes":[{"id":"A","x":148,"y":119,"isInit":true},{"id":"B","x":248,"y":125,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"A","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isMealy":false}};
             var machine = model.addMachine(spec);
             var splitSymbol = "";
             var shouldAccept = ["a", "aba", "ababa"];
@@ -989,8 +989,8 @@ describe("Model", function() {
             model.machines = [];
         });
         describe("simple example", function(){
-            var spec1 = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["c"]},{"to":"B","from":"B","input":["a","b"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
-            var spec2 = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]},{"to":"B","from":"B","input":["a","c"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var spec1 = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["c"]},{"to":"B","from":"B","input":["a","b"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
+            var spec2 = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]},{"to":"B","from":"B","input":["a","c"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
             var m1 = model.addMachine(spec1);
             var m2 = model.addMachine(spec2);
             it("m1 should accept 'aabbc' and m2 should not", function(){
@@ -1019,8 +1019,8 @@ describe("Model", function() {
             const m1 = new model.Machine("a*b*");
             const m2 = new model.Machine("ab");
 
-            const m1Spec = {"nodes":[{"id":"A","x":95,"y":131,"isAcc":true,"isInit":true},{"id":"B","x":195,"y":130,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["b"]},{"to":"B","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
-            const m2Spec = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+            const m1Spec = {"nodes":[{"id":"A","x":95,"y":131,"isAcc":true,"isInit":true},{"id":"B","x":195,"y":130,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["b"]},{"to":"B","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isMealy":false}};
+            const m2Spec = {"nodes":[{"id":"A","x":90,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isMealy":false}};
 
             m1.build(m1Spec);
             m2.build(m2Spec);
@@ -1076,8 +1076,8 @@ describe("Model", function() {
             const m1 = new model.Machine("m1"); //(a*b*)*|(ba)
             const m2 = new model.Machine("m2"); //(ab)|(ba*)
 
-            const m1Spec = {"nodes":[{"id":"A","x":126,"y":77,"isInit":true},{"id":"B","x":226,"y":83},{"id":"C","x":325,"y":76,"isAcc":true},{"id":"D","x":92,"y":157,"isAcc":true,"isInit":true},{"id":"E","x":192,"y":162,"isAcc":true}],"links":[{"to":"B","from":"A","input":["b"]},{"to":"C","from":"B","input":["a"]},{"to":"D","from":"D","input":["a"]},{"to":"E","from":"D","input":["b"]},{"to":"E","from":"E","input":["b"]},{"to":"D","from":"E","input":["a"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
-            const m2Spec = {"nodes":[{"id":"A","x":104,"y":92,"isInit":true},{"id":"B","x":204,"y":92},{"id":"C","x":304,"y":95,"isAcc":true},{"id":"D","x":166,"y":170,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]},{"to":"D","from":"A","input":["b"]},{"to":"D","from":"D","input":["a"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}};
+            const m1Spec = {"nodes":[{"id":"A","x":126,"y":77,"isInit":true},{"id":"B","x":226,"y":83},{"id":"C","x":325,"y":76,"isAcc":true},{"id":"D","x":92,"y":157,"isAcc":true,"isInit":true},{"id":"E","x":192,"y":162,"isAcc":true}],"links":[{"to":"B","from":"A","input":["b"]},{"to":"C","from":"B","input":["a"]},{"to":"D","from":"D","input":["a"]},{"to":"E","from":"D","input":["b"]},{"to":"E","from":"E","input":["b"]},{"to":"D","from":"E","input":["a"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isMealy":false}};
+            const m2Spec = {"nodes":[{"id":"A","x":104,"y":92,"isInit":true},{"id":"B","x":204,"y":92},{"id":"C","x":304,"y":95,"isAcc":true},{"id":"D","x":166,"y":170,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]},{"to":"D","from":"A","input":["b"]},{"to":"D","from":"D","input":["a"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isMealy":false}};
 
             m1.build(m1Spec);
             m2.build(m2Spec);
@@ -1131,8 +1131,8 @@ describe("Model", function() {
             const m1 = new model.Machine("m1"); // ac*
             const m2 = new model.Machine("m2"); // a*c*b
 
-            const m1Spec = {"nodes":[{"id":"A","x":101,"y":121,"isInit":true},{"id":"B","x":201,"y":125,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"B","from":"B","input":["c"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
-            const m2Spec = {"nodes":[{"id":"A","x":93,"y":159,"isInit":true},{"id":"B","x":161,"y":86,"isAcc":true},{"id":"C","x":190,"y":181,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["c"]},{"to":"C","from":"A","input":["b"]},{"to":"B","from":"B","input":["c"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            const m1Spec = {"nodes":[{"id":"A","x":101,"y":121,"isInit":true},{"id":"B","x":201,"y":125,"isAcc":true}],"links":[{"to":"B","from":"A","input":["a"]},{"to":"B","from":"B","input":["c"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
+            const m2Spec = {"nodes":[{"id":"A","x":93,"y":159,"isInit":true},{"id":"B","x":161,"y":86,"isAcc":true},{"id":"C","x":190,"y":181,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["c"]},{"to":"C","from":"A","input":["b"]},{"to":"B","from":"B","input":["c"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
 
             m1.build(m1Spec);
             m2.build(m2Spec);
@@ -1185,7 +1185,7 @@ describe("Model", function() {
 
     describe("Test Machine.completelySpecify", function(){
         describe("'Ignore' mode", function(){
-            var spec = {"nodes":[{"id":"A","x":157,"y":173,"isInit":true},{"id":"B","x":256,"y":157},{"id":"C","x":168,"y":73,"isAcc":true},{"id":"D","x":356,"y":152}],"links":[{"to":"B","from":"A","input":["open"]},{"to":"C","from":"A","input":["lock"]},{"to":"A","from":"C","input":["unlock"]},{"to":"D","from":"B","input":["lock"]},{"to":"B","from":"D","input":["unlock"]},{"to":"A","from":"B","input":["close"]}],"attributes":{"alphabet":["open","close","lock","unlock"],"allowEpsilon":true,"isTransducer":false}};
+            var spec = {"nodes":[{"id":"A","x":157,"y":173,"isInit":true},{"id":"B","x":256,"y":157},{"id":"C","x":168,"y":73,"isAcc":true},{"id":"D","x":356,"y":152}],"links":[{"to":"B","from":"A","input":["open"]},{"to":"C","from":"A","input":["lock"]},{"to":"A","from":"C","input":["unlock"]},{"to":"D","from":"B","input":["lock"]},{"to":"B","from":"D","input":["unlock"]},{"to":"A","from":"B","input":["close"]}],"attributes":{"alphabet":["open","close","lock","unlock"],"allowEpsilon":true,"isMealy":false}};
             var originalMachine = new model.Machine("orig");
             originalMachine.build(spec);
             var completeMachine = new model.Machine("comp");
@@ -1220,7 +1220,7 @@ describe("Model", function() {
         describe("machine 1", function(){
             var origMachine, mergeMachine;
             before(function(){
-                var spec = {"nodes":[{"id":"A","x":95,"y":110,"isInit":true,"name":"A"},{"id":"B","x":190,"y":140,"name":"B"},{"id":"C","x":285,"y":107,"isAcc":true,"name":"C"},{"id":"D","x":189,"y":77,"name":"D"}],"links":[{"to":"B","from":"A","input":["a1"]},{"to":"C","from":"B","input":["a2"]},{"to":"D","from":"A","input":["a2"]},{"to":"C","from":"D","input":["a2"]}],"attributes":{"alphabet":["a1","a2"],"allowEpsilon":true,"isTransducer":false}};
+                var spec = {"nodes":[{"id":"A","x":95,"y":110,"isInit":true,"name":"A"},{"id":"B","x":190,"y":140,"name":"B"},{"id":"C","x":285,"y":107,"isAcc":true,"name":"C"},{"id":"D","x":189,"y":77,"name":"D"}],"links":[{"to":"B","from":"A","input":["a1"]},{"to":"C","from":"B","input":["a2"]},{"to":"D","from":"A","input":["a2"]},{"to":"C","from":"D","input":["a2"]}],"attributes":{"alphabet":["a1","a2"],"allowEpsilon":true,"isMealy":false}};
                 origMachine = new model.Machine("t1");
                 mergeMachine = new model.Machine("t2");
                 origMachine.build(spec);
@@ -1251,7 +1251,7 @@ describe("Model", function() {
         describe("machine 2", function(){
             var origMachine, mergeMachine;
             before(function(){
-                var spec = {"nodes":[{"id":"A","x":74,"y":88,"isInit":true,"name":"i1"},{"id":"B","x":74,"y":169,"isInit":true,"name":"i2"},{"id":"C","x":166,"y":128,"name":"C"},{"id":"D","x":257,"y":88,"isAcc":true,"name":"a1"},{"id":"E","x":263,"y":152,"isAcc":true,"name":"a2"}],"links":[{"to":"C","from":"A","input":["1"],"hasEps":true},{"to":"C","from":"B","input":["2"],"hasEps":true},{"to":"D","from":"C","input":["1","2","3"]},{"to":"E","from":"C","hasEps":true}],"attributes":{"alphabet":["1","2","3"],"allowEpsilon":true,"isTransducer":false}};
+                var spec = {"nodes":[{"id":"A","x":74,"y":88,"isInit":true,"name":"i1"},{"id":"B","x":74,"y":169,"isInit":true,"name":"i2"},{"id":"C","x":166,"y":128,"name":"C"},{"id":"D","x":257,"y":88,"isAcc":true,"name":"a1"},{"id":"E","x":263,"y":152,"isAcc":true,"name":"a2"}],"links":[{"to":"C","from":"A","input":["1"],"hasEps":true},{"to":"C","from":"B","input":["2"],"hasEps":true},{"to":"D","from":"C","input":["1","2","3"]},{"to":"E","from":"C","hasEps":true}],"attributes":{"alphabet":["1","2","3"],"allowEpsilon":true,"isMealy":false}};
                 origMachine = new model.Machine("t1");
                 mergeMachine = new model.Machine("t2");
                 origMachine.build(spec);
@@ -1288,7 +1288,7 @@ describe("Model", function() {
     describe("Test Machine.getAcceptedSequence", function(){
         describe("-machine 1-", function(){
             var machine = new model.Machine("t1");
-            machine.build({"nodes":[{"id":"A","x":94,"y":162,"isInit":true},{"id":"B","x":170,"y":227},{"id":"C","x":160,"y":87},{"id":"D","x":236,"y":152,"isAcc":true}],"links":[{"to":"B","from":"D","input":["b","c"]},{"to":"D","from":"D","input":["a"]},{"to":"D","from":"C","input":["b","c"]},{"to":"C","from":"C","input":["a"]},{"to":"B","from":"B","input":["a","b","c"]},{"to":"B","from":"A","input":["b","c"]},{"to":"C","from":"A","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}});
+            machine.build({"nodes":[{"id":"A","x":94,"y":162,"isInit":true},{"id":"B","x":170,"y":227},{"id":"C","x":160,"y":87},{"id":"D","x":236,"y":152,"isAcc":true}],"links":[{"to":"B","from":"D","input":["b","c"]},{"to":"D","from":"D","input":["a"]},{"to":"D","from":"C","input":["b","c"]},{"to":"C","from":"C","input":["a"]},{"to":"B","from":"B","input":["a","b","c"]},{"to":"B","from":"A","input":["b","c"]},{"to":"C","from":"A","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}});
             var sequence;
             it("should return a sequence of length 2", function(){
                 sequence = machine.getAcceptedSequence();
@@ -1300,7 +1300,7 @@ describe("Model", function() {
             });
         });
         describe("-machine 2-", function(){
-            var spec = {"nodes":[{"id":"A","x":53,"y":134,"isInit":true},{"id":"B","x":136,"y":78},{"id":"C","x":148,"y":165},{"id":"D","x":248,"y":161},{"id":"E","x":236,"y":73},{"id":"F","x":322,"y":124,"isAcc":true}],"links":[{"to":"B","from":"A","hasEps":true},{"to":"C","from":"A","hasEps":true},{"to":"D","from":"C","input":["a"]},{"to":"D","from":"D","input":["b"]},{"to":"E","from":"B","input":["c"]},{"to":"F","from":"E","hasEps":true}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var spec = {"nodes":[{"id":"A","x":53,"y":134,"isInit":true},{"id":"B","x":136,"y":78},{"id":"C","x":148,"y":165},{"id":"D","x":248,"y":161},{"id":"E","x":236,"y":73},{"id":"F","x":322,"y":124,"isAcc":true}],"links":[{"to":"B","from":"A","hasEps":true},{"to":"C","from":"A","hasEps":true},{"to":"D","from":"C","input":["a"]},{"to":"D","from":"D","input":["b"]},{"to":"E","from":"B","input":["c"]},{"to":"F","from":"E","hasEps":true}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
             var machine = new model.Machine("t1");
             machine.build(spec);
             var sequence;
@@ -1322,7 +1322,7 @@ describe("Model", function() {
         describe("Strings that a machine accepts should be rejected by that machine's complement", function(){
             var m1 = new model.Machine("t1");
             var m2 = new model.Machine("t2");
-            var spec = {"nodes":[{"id":"A","x":61,"y":78,"isInit":true},{"id":"B","x":160,"y":74,"isAcc":true},{"id":"C","x":260,"y":79,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isTransducer":false}};
+            var spec = {"nodes":[{"id":"A","x":61,"y":78,"isInit":true},{"id":"B","x":160,"y":74,"isAcc":true},{"id":"C","x":260,"y":79,"isAcc":true}],"links":[{"to":"A","from":"A","input":["a"]},{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b","c"]},{"to":"C","from":"C","input":["a"]}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true,"isMealy":false}};
 
             //Strings that m1 should accept
             var accList = ["ab", "a", "aa", "aaab", "aaacaa"];

@@ -1,6 +1,83 @@
 [
   {
     "data-question": {
+      "type": "satisfy-list",
+      "text": "Text of the question. HTML tags allowed.",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "shouldAccept": [
+        "a",
+        "aab"
+      ],
+      "shouldReject": [
+        "b",
+        "bba"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 123,
+            "y": 132,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 203,
+            "y": 72
+          },
+          {
+            "id": "C",
+            "x": 215,
+            "y": 171
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ],
+            "output": {
+              "a": "A"
+            }
+          },
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "outputAlphabet": ["A", "B", "C", "TEST"],
+          "allowEpsilon": false,
+          "isMealy": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "mealytest",
+    "name": "Question Title",
+    "id": "a3669bb765114e7d86da954c5db31656"
+  },
+  {
+    "data-question": {
       "type": "give-input",
       "text": "Test",
       "allowEpsilon": "true",
@@ -50,7 +127,7 @@
             "input": [
               "a"
             ],
-            "output":{
+            "output": {
               "a": "F"
             }
           },
@@ -89,8 +166,7 @@
             "a",
             "b"
           ],
-          "isTransducer": true,
-          "allowEpsilon": true
+          "isMealy": true
         }
       }
     ],

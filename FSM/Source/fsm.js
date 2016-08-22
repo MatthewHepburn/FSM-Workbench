@@ -727,42 +727,65 @@ const Display = {
     getLinkRenameResultConstrainedSVG: function(canvasID){
         // Return user input from the Constrained SVG link rename form.
         // Returns an input object of form {input: ["a", "b", "longsymbol"], hasEpsilon:false}
-        var input = {input:[], hasEpsilon:false};
+        var linkData = {input:[], hasEpsilon:false, output:{}};
         var svg = d3.select(`#${canvasID}`);
         var checkedSymbols = svg.select(".rename-menu-holder").selectAll(".checked").data();
         for(var i = 0; i< checkedSymbols.length; i++){
-            if(checkedSymbols[i] === "ε"){
-                input.hasEpsilon = true;
+            const symbol = checkedSymbols[i];
+            if(symbol === "ε"){
+                linkData.hasEpsilon = true;
             }
             else{
-                input.input.push(checkedSymbols[i]);
+                linkData.input.push(symbol);
+            }
+            //See if output is also specified
+            if(!d3.select(`#${canvasID}-output-for-${symbol}`).empty()){
+                const outputSymbol = d3.select(`#${canvasID}-output-for-${symbol}`).text();
+                if (outputSymbol.length > 0){
+                    linkData.output[symbol] = outputSymbol;
+                }
             }
         }
-        return input;
+        return linkData;
 
     },
     drawSVGConstrainedLinkRenameForm: function(svg, link, mousePosition){
-        var alphabet = jsonCopy(link.machine.alphabet); //Do not want to modify alphabet
-        var fontSize = 12;
-        var checkBoxSize = 0.9 * fontSize;
-        var textClass = "context-menu-text";
-        var yStep = 1.5 * fontSize;
+        const alphabet = jsonCopy(link.machine.alphabet); //Do not want to modify alphabet
+        const outputAlphabet = link.machine.outputAlphabet;
+        const fontSize = 12;
+        const checkBoxSize = 0.9 * fontSize;
+        const textClass = "context-menu-text";
+        const yStep = 1.5 * fontSize;
 
         // Add epsilon if needed
         if (link.machine.allowEpsilon){
             alphabet.push("ε");
         }
 
+        //Need to know if the machine is a transducer, so that we can add options for output
+        const isMealy = link.machine.isMealy;
+
         // Find width of menu based on rendered text length. Need to do this dynamically as rendered length varies by browser.
         // First, find the longest string:
         var returnLonger = (x,y) => x.length > y.length ? x : y;
-        var longestSymbol = alphabet.reduce(returnLonger, "");
+        var longestInputSymbol = alphabet.reduce(returnLonger, "");
 
         // Then find its length:
-        var longestSymbolLength = Display.getTextLength(svg, longestSymbol, fontSize, textClass);
+        var longestInputSymbolLength = Display.getTextLength(svg, longestInputSymbol, fontSize, textClass);
 
-        var menuWidth = longestSymbolLength + 27 + checkBoxSize;
-        var menuHeight = (alphabet.length + 1.5) * yStep ;
+        let menuWidth, menuHeight, longestOutputSymbolLength;
+
+        if(isMealy){
+            const longestOutputSymbol = outputAlphabet.reduce(returnLonger, "");
+            longestOutputSymbolLength = Display.getTextLength(svg, longestOutputSymbol, fontSize, textClass);
+            menuWidth = longestInputSymbolLength + 27 + checkBoxSize + 10 + longestOutputSymbolLength;
+            menuHeight = (alphabet.length + 1.5) * yStep;
+
+        } else {
+            menuWidth = longestInputSymbolLength + 27 + checkBoxSize;
+            menuHeight = (alphabet.length + 1.5) * yStep;
+        }
+
 
         // Position based on the mouse postion (could also be done based on the position of the link label)
         var menuCoords = Display.getContextMenuCoords(svg, mousePosition[0], mousePosition[1], menuWidth, menuHeight);
@@ -771,7 +794,7 @@ const Display = {
                     .classed("rename", true);
 
         // Use to prevent context menu clicks
-        var preventDefault = () => d3.event.preventDefault();
+        var preventDefault = d3.event.preventDefault;
 
         var textX = menuCoords[0] + 5;
         var textY = menuCoords[1] + fontSize;
@@ -789,9 +812,16 @@ const Display = {
 
         // Do it this way to avoid all toggle functions toggling the final id
         var getToggleFunction = function(id){
-            return function(){
-                var checkmark = d3.select("#" + id);
-                checkmark.classed("checked", !checkmark.classed("checked"));
+            return function(value){
+                const checkmark = d3.select("#" + id);
+                let newValue;
+                if(value === undefined){
+                    //Toggle if no value is specifed
+                    newValue = ! checkmark.classed("checked");
+                } else{
+                    newValue = value;
+                }
+                checkmark.classed("checked", newValue);
             };
         };
 
@@ -805,7 +835,7 @@ const Display = {
                 checked = true;
             }
 
-            var toggleFunction = getToggleFunction(id);
+            const toggleFunction = getToggleFunction(id);
 
             //Add text for current symbol
             menu.append("text")
@@ -816,8 +846,8 @@ const Display = {
                 .classed(textClass, true)
                 .on("contextmenu", preventDefault);
 
-            var checkboxX = textX + longestSymbolLength + 10;
-            var checkboxY = textY - (checkBoxSize/fontSize) * fontSize + 0.1 * fontSize;
+            const checkboxX = textX + longestInputSymbolLength + 10;
+            const checkboxY = textY - (checkBoxSize/fontSize) * fontSize + 0.1 * fontSize;
 
             //Add checkbox for current symbol
             menu.append("rect")
@@ -838,13 +868,56 @@ const Display = {
                 .data([symbol]) //pass in a list here, otherwise d3 will treat the string as a list of chars and assign only the first character.
                 .enter();
 
+            //Add an output entry for Mealy machines
+            if(isMealy){
+                const outputBoxX = checkboxX + checkBoxSize + 15;
+                const outputBoxY = checkboxY;
+                const outputBoxWidth = 4 + longestOutputSymbolLength;
+                const outputTextX = outputBoxX + 2 + longestOutputSymbolLength/2;
+                const outputTextY = textY;
+                const options = [""].concat(outputAlphabet);
+                //When a nonempty output is selected, ensure that the input is ticked.
+                const onSelectFunction = function(value){
+                    if(value.length > 0){
+                        toggleFunction(true);
+                    }
+                };
+
+                const currentOutput = link.output[symbol]? link.output[symbol] : ""; //empty string if undefined.
+
+                //Add a box to show that this is a dropdown menu
+                const rect = menu.append("rect")
+                                .attr("fill", "#FFFFFF")
+                                .attr("stroke", "#444444")
+                                .attr("x", outputBoxX)
+                                .attr("y", outputBoxY)
+                                .attr("height", checkBoxSize)
+                                .attr("width", outputBoxWidth);
+
+
+                //Add the currently selected output
+                const text = menu.append("text")
+                                .text(currentOutput)
+                                .attr("id", `${link.machine.id}-output-for-${symbol}`)
+                                .classed("option", true)
+                                .classed("centre-align", true)
+                                .style("pointer-events", "none")
+                                .attr("x", outputTextX)
+                                .attr("y", outputTextY)
+                                .attr("font-size", fontSize);
+
+                rect.on("click", Display.getDropdownOnClickFunction(svg, menu, text, symbol, options, 12, outputBoxX, outputBoxY, outputBoxWidth, onSelectFunction));
+
+            }
+
             textY += yStep;
+
         }
 
         var buttonWidth = 1.7 * Display.getTextLength(svg, fontSize, "OK", "button-text");
         var buttonHeight = 1.5 * fontSize;
         var buttonY = textY - 0.5 * yStep;
-        var buttonX = textX;
+        var buttonX = menuCoords[0] + menuWidth - buttonWidth - 4;
 
 
         // Set the submit function
@@ -854,7 +927,7 @@ const Display = {
         // Finally, add the "OK" button
         menu.append("rect")
             .attr("y", buttonY)
-            .attr("x", textX)
+            .attr("x", buttonX)
             .attr("width", buttonWidth)
             .attr("height", buttonHeight)
             .classed("svg-button", true)
@@ -869,45 +942,6 @@ const Display = {
             .attr("y", buttonY + 0.5 * buttonHeight)
             .attr("id", `${link.machine.id}-rename-submit-text`)
             .on("click", Display.canvasVars[link.machine.id].submitRenameFunction);
-
-    },
-    drawConstrainedLinkRenameForm: function(canvasID, link){
-        var svg = d3.select("#" + canvasID);
-        var alphabet = jsonCopy(link.machine.alphabet);
-        if (link.machine.allowEpsilon){
-            alphabet.push("ε");
-        }
-        // Derive the position of the form from the location of the link label
-        var labelPos = Display.getLinkLabelPosition(link.source, link.target);
-        var formX = labelPos.x - 40;
-        var formY = labelPos.y + 15;
-
-        var form = svg.append("foreignObject")
-                      .attr("width", 100)
-                      .attr("height", 35 + 22 * alphabet.length)
-                      .attr("x", formX - 40)
-                      .attr("y", formY)
-                      .attr("class", "rename")
-                          .append("xhtml:body")
-                              .append("form")
-                              .classed("renameinput", true)
-                              .classed("checkboxrename", true);
-        alphabet.forEach(function(symbol){
-            var span = form.append("span");
-            var elem = span.insert("input", ":first-child")
-                           .attr("type", "checkbox")
-                           .attr("name", "input")
-                           .attr("value", symbol)
-                           .classed("rename-checkbox", true);
-            span.html(span.html() + " " + symbol); // Inelegent. Beware of resetting listeners
-            if(link.input.indexOf(symbol) !== -1){
-                elem.attr("checked", "checked");
-            }
-        });
-
-        form.append("a")
-            .classed("pure-button", true)
-            .text("OK");
 
     },
     drawTrace: function(canvasID, traceObj, hideControls){
@@ -1209,56 +1243,7 @@ const Display = {
         let textY = y + (4 * fontSize);
         const longestOption = 4 +  Display.getTextLength(svg,"monochrome", fontSize, "settings-menu");
 
-        const getOnClickFunction = function(currentTextSelection,settingsKey,x, y){
-            return function(){
-                //this function should be called to create the dropdown part of the dropdown menu
 
-                //if menu already open, dismiss and return
-                var existingMenu = d3.select(`#dropdown-${settingsKey}`);
-                if (!existingMenu.empty()){
-                    existingMenu.remove();
-                    return;
-                }
-
-                var drop = g.append("g").attr("id",`dropdown-${settingsKey}`);
-
-                var options = settings[settingsKey].options;
-
-                //Add a white background under menu
-                drop.append("rect")
-                        .attr("y", y)
-                        .attr("x", x)
-                        .attr("width", longestOption + 2 * optionBorder)
-                        .attr("height", (fontSize + optionBorder)  * options.length + (2*optionBorder))
-                        .attr("fill", "#FFFFFF")
-                        .attr("stroke", "#444444");
-
-                for(let i = 0; i < options.length; i++){
-                    //Add a background to allow highlighting on mouseover
-                    drop.append("rect")
-                        .attr("x", x)
-                        .classed("dropdown-option-background", true)
-                        .attr("y", y + i * (1.5 * optionBorder + fontSize) + 1)
-                        .attr("width", longestOption + 2 * optionBorder)
-                        .attr("height", fontSize + optionBorder * 1.5)
-                        .attr("fill", "#FFFFFF")
-                        .attr("fill-opacity", 0)
-                        .attr("stroke-opacity", 0)
-                        .data([options[i]])
-                        .on("click", function(){
-                            currentTextSelection.text(d3.select(this).data()[0]);
-                            d3.select(`#dropdown-${settingsKey}`).remove();
-                        });
-                    //Add the text for each option
-                    drop.append("text")
-                        .classed("dropdown-option", true)
-                        .attr("y", y + ((i +1)) * (optionBorder + fontSize))
-                        .attr("x", x + optionBorder)
-                        .attr("font-size", fontSize)
-                        .text(options[i]);
-                }
-            };
-        };
 
         for(let s in settings){
             // Add the setting description.
@@ -1280,15 +1265,16 @@ const Display = {
             // Add a box around the text to show that it is a dropdown menu
             var boxX = x + menuWidth - longestOption - xBorder - optionBorder;
             var boxY = textY - fontSize;
+            const boxWidth = longestOption + 2 * optionBorder;
             g.append("rect")
              .attr("x", boxX)
              .attr("y", textY - fontSize)
-             .attr("width", longestOption + 2 * optionBorder)
+             .attr("width", boxWidth)
              .attr("height", fontSize + 2 * optionBorder)
              .attr("fill", "#FFFFFF")
              .attr("fill-opacity", 0)
              .attr("stroke", "#444444")
-             .on("click", getOnClickFunction(optionText, s, boxX, boxY + fontSize + 2 * optionBorder));
+             .on("click", Display.getDropdownOnClickFunction(svg, g, optionText, s, settings[s].options, 10,  boxX, boxY + fontSize + 2 * optionBorder, boxWidth));
 
             textY = textY  + 2 * fontSize;
         }
@@ -1678,10 +1664,10 @@ const Display = {
             e.append("tspan")
             .text(function(){
                 const inputSymbol = link.input[i];
-                if(!link.machine.isTransducer){
+                if(!link.machine.isMealy){
                     return inputSymbol;
                 } else {
-                    // Handle case where machine is a transducer
+                    // Handle case where machine is a Mealy machine
                     const outputSymbol = link.output[inputSymbol];
                     if(outputSymbol === undefined){
                         // No output defined for this symbol
@@ -1717,7 +1703,7 @@ const Display = {
             labelString = "";
             for (var i = 0; i < link.input.length; i++) {
                 var inchar = link.input[i];
-                if (link.machine.isTransducer){
+                if (link.machine.isMealy){
                     var outchar = "";
                     for (var j = 0; j < link.output.length; j++){
                         if (link.output[j][0] == inchar){
@@ -2022,8 +2008,6 @@ const Display = {
           .on("end", Display.dragHandlers.dragended));
 
         Display.forceTick(canvasID);
-
-
     },
     updateAllLinkLabels: function(canvasID){
         var linkList = Object.keys(Display.canvasVars[canvasID].machine.links);
@@ -2320,6 +2304,66 @@ const Display = {
         const controlYPos = d3.select(`#${canvasID}-trace-controls`).node().getBoundingClientRect().bottom + window.scrollY; //Position of bottom of controls relative to page.
         const yScoll = controlYPos - window.innerHeight + 5;
         window.scrollTo(xScroll, yScoll);
+    },
+    getDropdownOnClickFunction: function(svg, element, currentTextSelection,menuID,options,fontSize, x, y, width, onSelectFunction){
+        return function(){
+            //this function should be called to create the dropdown part of the dropdown menu
+
+            //if menu already open, dismiss and return
+            var existingMenu = d3.select(`#dropdown-${menuID}`);
+            if (!existingMenu.empty()){
+                existingMenu.remove();
+                return;
+            }
+            //Dismiss any other dropdowns open
+            svg.selectAll(".dropdown-menu").remove();
+
+            const drop = element.append("g")
+                                .attr("id",`dropdown-${menuID}`)
+                                .classed("dropdown-menu", true);
+            const optionBorder = 2;
+
+            //Add a white background under menu
+            drop.append("rect")
+                    .attr("y", y)
+                    .attr("x", x)
+                    .attr("width", width)
+                    .attr("height", (fontSize + optionBorder)  * options.length + (2*optionBorder))
+                    .attr("fill", "#FFFFFF")
+                    .attr("stroke", "#444444");
+
+            for(let i = 0; i < options.length; i++){
+                //Add a background to allow highlighting on mouseover
+                drop.append("rect")
+                    .attr("x", x)
+                    .classed("dropdown-option-background", true)
+                    .attr("y", y + i * (1.5 * optionBorder + fontSize) + 1)
+                    .attr("width", width)
+                    .attr("height", fontSize + optionBorder * 1.5)
+                    .attr("fill", "#FFFFFF")
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0)
+                    .data([options[i]])
+                    .on("click", function(){
+                        const value = d3.select(this).data()[0];
+                        //Set the current text to be the new value
+                        currentTextSelection.text(value);
+                        //Execute the onSelection function if one was passed
+                        if(onSelectFunction){
+                            onSelectFunction(value);
+                        }
+                        d3.select(`#dropdown-${menuID}`).remove();
+                    });
+                //Add the text for each option
+                drop.append("text")
+                    .classed("dropdown-option", true)
+                    .classed("centre-align", true)
+                    .attr("y", y + ((i +1)) * (optionBorder + fontSize))
+                    .attr("x", x + width/2)
+                    .attr("font-size", fontSize)
+                    .text(options[i]);
+            }
+        };
     },
     dragHandlers:{
         dragstarted: function(node){
@@ -2737,7 +2781,12 @@ const Controller = {
         machine.setAlphabet(alphabetArray, allowEpsilon);
         Display.updateAllLinkLabels(machine.id);
     },
+    setOutputAlphabet: function(machine, outputAlphabet){
+        Display.clearMenus(machine.id);
+        machine.setOutputAlphabet(outputAlphabet);
+        Display.updateAllLinkLabels(machine.id);
 
+    },
     startTrace: function(machine, sequence, position, hideControls){
         position = position === undefined? 0 : position;
         hideControls = hideControls === undefined? false : hideControls;
@@ -2872,6 +2921,9 @@ const Controller = {
         var input = inputObj.input;
         var hasEpsilon = inputObj.hasEpsilon;
         link.setInput(input, hasEpsilon);
+        if(link.machine.isMealy){
+            link.setOutput(inputObj.output);
+        }
         Display.updateLinkLabel(link);
         Display.dismissRenameMenu(link.machine.id);
         Display.clearMenus(canvasID);
