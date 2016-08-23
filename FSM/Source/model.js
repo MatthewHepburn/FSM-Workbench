@@ -40,6 +40,7 @@ const Model = {
         this.outputAlphabet = [];
         this.allowEpsilon = true;
         this.isMealy = false;
+        this.currentOutput = [];
         this.currentState = [];
 
         //Track links used on last step
@@ -175,7 +176,7 @@ const Model = {
 
             if(this.isMealy){
                 if(!this.isDeterministic()){
-                    throw new Error("Mealy machines must be deterministic")
+                    throw new Error("Mealy machines must be deterministic");
                 }
                 traceObj.output = [[]];
             }
@@ -225,24 +226,8 @@ const Model = {
                 traceObj.links.push(linksUsedThisStep);
 
                 if(this.isMealy){
-                    if(!this.nonEpsLinksUsed.length > 0){
-                        //No links were followed
-                        const lastOutput = traceObj.output[i].map(x => x); //copy
-                        traceObj.output.push(lastOutput);
-                    } else{
-                        //Link was followed, check if output was produced
-                        const linkUsed = this.links[this.nonEpsLinksUsed[0]];
-                        if(linkUsed.output[inputSymbol]){
-                            const outputSymbol = linkUsed.output[inputSymbol];
-                            const newOutputSequence = traceObj.output[i].concat([outputSymbol]);
-                            traceObj.output.push(newOutputSequence);
-                        } else{
-                            //No output for this step
-                            const lastOutput = traceObj.output[i].map(x => x); //copy
-                            traceObj.output.push(lastOutput);
-                        }
-                    }
-
+                    const currentOutput = this.currentOutput.map(x => x); //copy
+                    traceObj.output.push(currentOutput);
                 }
 
                 i = i + 1;
@@ -310,6 +295,7 @@ const Model = {
             this.currentState = Object.keys(this.nodes).filter(function(nodeID){
                 return context.nodes[nodeID].isInitial;
             });
+            this.currentOutput = [];
             this.followEpsilonTransitions();
         };
         this.setToState = function(nodeList){
@@ -374,6 +360,14 @@ const Model = {
                 var newReachableNodeIDs = reachableNodeObj.nodeIDs.filter( nodeID => newNodes.indexOf(nodeID) === -1);
                 newNodes = newNodes.concat(newReachableNodeIDs);
                 linksUsed = linksUsed.concat(reachableNodeObj.linkIDs);
+            }
+            if(this.isMealy && linksUsed.length === 1){
+                const outputSymbol = this.links[linksUsed[0]].output[symbol];
+                if(outputSymbol){
+                    //Push the output symbol if one is defined.
+                    this.currentOutput.push(outputSymbol);
+                }
+
             }
             this.currentState = newNodes;
             this.linksUsed = linksUsed;
@@ -1520,11 +1514,22 @@ const Model = {
         },
         checkGiveInput: function(){
             var feedbackObj = {allCorrectFlag: false};
-            if (Model.question.target === "none"){
+            if(Model.question.target === "none"){
                 return feedbackObj;
             }
-            if (Model.question.target === "accept"){
+            if(Model.question.target === "accept"){
                 feedbackObj.allCorrectFlag = Model.machines.filter(m => m.isInAcceptingState()).length === Model.machines.length; //All machines should be in an accepting state.
+                return feedbackObj;
+            }
+            if(Model.question.target === "output"){
+                const currentOutput = Model.machines[0].currentOutput;
+                const targetOutput = Model.question.outputSequence;
+                if(currentOutput.length !== targetOutput.length){
+                    feedbackObj.allCorrectFlag = false;
+                    return feedbackObj;
+                }
+                const isCorrect = currentOutput.filter((symbol, i) => symbol !== targetOutput[i]).length === 0;
+                feedbackObj.allCorrectFlag = isCorrect;
                 return feedbackObj;
             }
         },

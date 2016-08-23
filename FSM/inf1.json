@@ -2297,5 +2297,138 @@
     "filename": "give-equivalent-abb",
     "name": "Regular expressions - abb(abb)*",
     "id": "c542b17ff0054febbab7543b44f636c8"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "<b>Transducers</b> are Finite State Machines which have <b>output</b>. <br>The machine below has an input alphabet of {a, b} and an output alphabet of {F, M, S}. <br>Give it an input such that its output is the string \"FSM\".",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "target": "output",
+      "outputSequence": [
+        "F",
+        "S",
+        "M"
+      ]
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 105,
+            "y": 175,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 205,
+            "y": 175
+          },
+          {
+            "id": "C",
+            "x": 291,
+            "y": 125
+          },
+          {
+            "id": "D",
+            "x": 295,
+            "y": 218
+          },
+          {
+            "id": "E",
+            "x": 381,
+            "y": 168,
+            "isAcc": true
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "b"
+            ],
+            "output": {
+              "b": "F"
+            }
+          },
+          {
+            "to": "A",
+            "from": "A",
+            "input": [
+              "a"
+            ],
+            "output": {
+              "a": "M"
+            }
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ],
+            "output": {
+              "a": "S"
+            }
+          },
+          {
+            "to": "C",
+            "from": "C",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "a"
+            ],
+            "output": {
+              "a": "M"
+            }
+          },
+          {
+            "to": "E",
+            "from": "C",
+            "input": [
+              "b"
+            ],
+            "output": {
+              "b": "M"
+            }
+          },
+          {
+            "to": "E",
+            "from": "E",
+            "input": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": false,
+          "isMealy": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "intro-to-transducers.html",
+    "name": "Introducing transducers",
+    "id": "8f345a9adf1e47a8a517e4a25a42dbf3"
   }
 ]

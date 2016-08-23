@@ -1129,7 +1129,7 @@ const Display = {
         const svgHeight = svg.attr("height");
         const textY = 0.14 * svgHeight;
         const textWidth = textElement.node().getBBox().width;
-        const textX = svgWidth/2 - textWidth/2;
+        let textX = svgWidth/2 - textWidth/2;
 
         //prevent text disappearing off left side:
         if (textX < 0.04 * svgWidth){
@@ -1182,7 +1182,7 @@ const Display = {
         var svgHeight = svg.attr("height");
         var textY = 0.07 * svgHeight;
         var textWidth = textElement.node().getBBox().width;
-        var textX = svgWidth/2 - textWidth/2;
+        let textX = svgWidth/2 - textWidth/2;
 
         //prevent text disappearing off left side:
         if (textX < 0.04 * svgWidth){
