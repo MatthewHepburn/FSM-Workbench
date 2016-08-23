@@ -1,37 +1,40 @@
 [
   {
     "data-question": {
-      "type": "satisfy-list",
-      "text": "Text of the question. HTML tags allowed.",
+      "type": "minimize-table",
+      "text": "minimize test.",
       "allowEpsilon": "false",
       "splitSymbol": "",
-      "shouldAccept": [
-        "a",
-        "aab"
-      ],
-      "shouldReject": [
-        "b",
-        "bba"
-      ]
+      "useShortNames": "true"
     },
     "data-machinelist": [
       {
         "nodes": [
           {
             "id": "A",
-            "x": 123,
-            "y": 132,
-            "isInit": true
+            "x": 158,
+            "y": 128,
+            "isInit": true,
+            "name": "Q0"
           },
           {
             "id": "B",
-            "x": 203,
-            "y": 72
+            "x": 231,
+            "y": 198,
+            "name": "Q2"
           },
           {
             "id": "C",
-            "x": 215,
-            "y": 171
+            "x": 226,
+            "y": 55,
+            "name": "Q1"
+          },
+          {
+            "id": "D",
+            "x": 299,
+            "y": 124,
+            "isAcc": true,
+            "name": "Q3"
           }
         ],
         "links": [
@@ -40,10 +43,15 @@
             "from": "A",
             "input": [
               "a"
-            ],
-            "output": {
-              "a": "A"
-            }
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "a",
+              "b"
+            ]
           },
           {
             "to": "C",
@@ -53,10 +61,19 @@
             ]
           },
           {
-            "to": "C",
-            "from": "B",
+            "to": "D",
+            "from": "C",
             "input": [
-              "a"
+              "a",
+              "b"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "D",
+            "input": [
+              "a",
+              "b"
             ]
           }
         ],
@@ -65,16 +82,14 @@
             "a",
             "b"
           ],
-          "outputAlphabet": ["A", "B", "C", "TEST"],
-          "allowEpsilon": false,
-          "isMealy": true
+          "allowEpsilon": false
         }
       }
     ],
     "data-options": {},
-    "filename": "mealytest",
-    "name": "Question Title",
-    "id": "a3669bb765114e7d86da954c5db31656"
+    "filename": "minimize-test",
+    "name": "Minimize test",
+    "id": "8665bb8341774d1e99a6ef3f89c91128"
   },
   {
     "data-question": {

@@ -1909,6 +1909,9 @@ const Display = {
         if(qType === "dfa-convert"){
             Display.promptDfaConvert();
         }
+        if(qType === "minimize-table"){
+            Display.drawMinimizationTable();
+        }
 
     },
     update: function(canvasID){
@@ -2340,6 +2343,65 @@ const Display = {
             //Intersect on both axes
             return true;
         }
+    },
+    drawMinimizationTable: function(){
+        //Clear any existing entries
+        //TODO - preserve distinguishable checks unless reseting.
+        d3.selectAll(".minimize-table tbody tr").remove();
+        const machine = Model.machines[0];
+        const nodes = machine.getNodeList();
+
+        //Create a list of all pairs of nodes
+        const nodePairs = [];
+        for(let i = 0; i < nodes.length -1; i++){
+            const node1 = nodes[i];
+            for(let j = i + 1; j< nodes.length; j++){
+                const node2 = nodes[j];
+                nodePairs.push([node1, node2]);
+            }
+        }
+        //Sort the pairs based on the first and then second node name.
+        nodePairs.sort(function(pair1, pair2){
+            if(pair1[0].name < pair2[0].name){
+                return -1;
+            }
+            if(pair1[0].name > pair2[0].name){
+                return 1;
+            }
+            if(pair1[1].name < pair2[1].name){
+                return -1;
+            }
+            return 1;
+        });
+
+        const tbody = d3.select(".minimize-table tbody");
+
+        //Add a row for each pair
+        nodePairs.forEach(function(pair){
+            const tr = tbody.append("tr");
+            const pairLabel = tr.append("td")
+                                .classed("state-pair", true)
+                                .text(pair[0].name + ", " + pair[1].name)
+                                .on("mouseover", function(){
+                                    Display.highlightNodes(pair);
+                                })
+
+            const checkbox = tr.append("td")
+                                .append("input")
+                                    .classed("distinguishable", true)
+                                    .attr("type", "checkbox");
+
+            const merge = tr.append("td")
+                            .classed("merge-button", true)
+                            .text("merge");
+
+            checkbox.on("change", function(){
+                merge.classed("invisible", this.checked);
+            });
+
+
+        });
+
     },
     promptDfaConvert: function(){
         let promptDiv = d3.select("#dfa-prompt-div");

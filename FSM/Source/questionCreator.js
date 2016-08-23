@@ -7,7 +7,7 @@
 
 const edit = {
     question: {},
-    questionTypes: ["dfa-convert", "give-equivalent", "give-input", "give-list", "satisfy-list", "select-states", "does-accept", "satisfy-definition"].sort(),
+    questionTypes: ["dfa-convert", "give-equivalent", "give-input", "give-list", "satisfy-list", "select-states", "does-accept", "satisfy-definition", "minimize-table"].sort(),
     questionSchema: {
         common:{
             text: {description: "Text of the question. HTML tags allowed.", optional: false, expectStr: true},
@@ -42,7 +42,9 @@ const edit = {
         "satisfy-definition":{
         },
         "dfa-convert":{
-
+        },
+        "minimize-table":{
+            useShortNames: {description:"If true, then combining states Q1 and Q2 will result in a state named Q12. If false it would be state {Q1, Q2}", expectStr:true, default:true, isBoolean:true}
         }
     },
     createQuestionPrompt:function() {

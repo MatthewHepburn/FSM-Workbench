@@ -155,7 +155,7 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
 
 
         # Omit check button for some question types.
-        if variables["questionType"] in ["none", "give-input", "dfa-convert"]:
+        if variables["questionType"] in ["none", "give-input", "dfa-convert", "minimize-table"]:
             variables["hasCheck"] = False
         else:
             variables["hasCheck"] = True

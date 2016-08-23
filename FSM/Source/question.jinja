@@ -95,6 +95,22 @@
 
       {%- endif -%}
 
+      {%- if questionType == "minimize-table" -%}
+      <div class="minimize-table">
+        <table>
+          <thead>
+            <tr><th id="pair-header">State pair</th><th id="distinguisable-header">Distinguisable?</th><th id="merge-header"> </th>
+          </thead>
+          <tbody id='minimize-table-body'></tbody>
+        </table>
+        <div class = "message-div"></div>
+        <div class="button-div">
+           <button id="check-button" class="pure-button" type="submit">Check</button>
+           <button class="reset-button pure-button">Reset</button>
+        </div>
+      </div>
+      {%- endif -%}
+
     </div>
     <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
       <g class="links"></g>

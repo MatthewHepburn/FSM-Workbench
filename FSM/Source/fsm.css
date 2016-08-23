@@ -145,6 +145,20 @@ div.question-text{
   display: table;
 }
 
+.minimize-table table{
+  border-collapse: collapse;
+  border-style: solid;
+  border-width: thin;
+  border-color: #444444
+}
+
+.minimize-table th{
+  font-weight: normal;
+  border-style: solid;
+  border-width: thin;
+  border-color: #444444
+}
+
 svg:not(.active):not(.ctrl) {
   cursor: crosshair;
 }
