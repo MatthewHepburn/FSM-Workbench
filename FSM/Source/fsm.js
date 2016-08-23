@@ -2375,6 +2375,7 @@ const Display = {
         });
 
         const tbody = d3.select(".minimize-table tbody");
+        const svg = d3.select("#m1");
 
         //Add a row for each pair
         nodePairs.forEach(function(pair){
@@ -2383,17 +2384,22 @@ const Display = {
                                 .classed("state-pair", true)
                                 .text(pair[0].name + ", " + pair[1].name)
                                 .on("mouseover", function(){
-                                    Display.highlightNodes(pair);
+                                    Display.highlightNodes(svg, pair, "green", true);
                                 })
+                                .on("mouseleave", function(){
+                                    Display.unhighlightNodes(svg);
+                                });
 
             const checkbox = tr.append("td")
+                                .classed("distinguishable", true)
                                 .append("input")
-                                    .classed("distinguishable", true)
                                     .attr("type", "checkbox");
 
             const merge = tr.append("td")
                             .classed("merge-button", true)
-                            .text("merge");
+                            .append("p")
+                                .classed("merge-button", true)
+                                .text("merge");
 
             checkbox.on("change", function(){
                 merge.classed("invisible", this.checked);

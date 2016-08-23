@@ -1,3 +1,11 @@
+.invisible{
+  visibility: hidden;
+}
+
+.centre-align{
+  text-anchor: middle;
+}
+
 svg {
   margin-top: 20px;
   margin-right: 10px;
@@ -147,17 +155,51 @@ div.question-text{
 
 .minimize-table table{
   border-collapse: collapse;
-  border-style: solid;
-  border-width: thin;
-  border-color: #444444
+  table-layout: fixed;
 }
 
 .minimize-table th{
   font-weight: normal;
   border-style: solid;
   border-width: thin;
-  border-color: #444444
+  border-color: #444444;
+  height: 1.4em;
+  padding: 0.3em;
 }
+
+#merge-header{
+  border-style: none;
+}
+
+.merge-button{
+  text-decoration: underline;
+  font-size: small;
+  margin-left: 0.75em;
+  font-family: 'Ek Mukta', sans-serif;
+  text-align: left;
+  width: unset;
+}
+
+.merge-button:hover{
+  font-weight: bold;
+  cursor: pointer;
+}
+
+td.distinguishable {
+    border: #444444;
+    border-style: solid;
+    border-width: thin;
+    text-align: center;
+    height: 1.4em;
+}
+
+td.state-pair {
+    border: #444444;
+    border-style: solid;
+    border-width: thin;
+    text-align: center;
+}
+
 
 svg:not(.active):not(.ctrl) {
   cursor: crosshair;
@@ -637,10 +679,3 @@ input[type=checkbox]{
   margin-top: 1em;
 }
 
-.invisible{
-  visibility: hidden;
-}
-
-.centre-align{
-  text-anchor: middle;
-}
