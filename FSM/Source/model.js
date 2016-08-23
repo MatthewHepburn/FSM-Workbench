@@ -173,13 +173,20 @@ const Model = {
             traceObj.inputSeparator = JSON.parse(JSON.stringify(Model.question.splitSymbol));
             traceObj.machineID = this.id;
 
+            if(this.isMealy){
+                if(!this.isDeterministic()){
+                    throw new Error("Mealy machines must be deterministic")
+                }
+                traceObj.output = [[]];
+            }
+
             var linksUsedThisStep = [];
             var machine = this;
             var inputSymbol = undefined;
 
             //Used to create an object for traceObj.links that also includes the transition used;
-            var getLinkUsedObj = function(linkID){
-                var link = machine.links[linkID];
+            const getLinkUsedObj = function(linkID){
+                const link = machine.links[linkID];
                 return {
                     "link": link,
                     "epsUsed": false,
@@ -188,15 +195,15 @@ const Model = {
             };
 
             //Used for epsilon links
-            var getEpsLinkUsedObj = function(linkID){
-                var link = machine.links[linkID];
+            const getEpsLinkUsedObj = function(linkID){
+                const link = machine.links[linkID];
                 return {
                     "link": link,
                     "epsUsed": true
                 };
             };
 
-            var getNode = function(nodeID){
+            const getNode = function(nodeID){
                 return machine.nodes[nodeID];
             };
 
@@ -204,7 +211,7 @@ const Model = {
             traceObj.states.push(this.currentState.map(getNode));
             traceObj.links.push(this.epsilonLinksUsed.map(getEpsLinkUsedObj));
 
-            var i = 0;
+            let i = 0;
             while(i < sequence.length && this.currentState.length > 0){
                 //Advance machine
                 inputSymbol = sequence[i];
@@ -216,6 +223,27 @@ const Model = {
                 linksUsedThisStep = linksUsedThisStep.concat(this.epsilonLinksUsed.map(getEpsLinkUsedObj));
                 linksUsedThisStep = linksUsedThisStep.concat(this.nonEpsLinksUsed.map(getLinkUsedObj));
                 traceObj.links.push(linksUsedThisStep);
+
+                if(this.isMealy){
+                    if(!this.nonEpsLinksUsed.length > 0){
+                        //No links were followed
+                        const lastOutput = traceObj.output[i].map(x => x); //copy
+                        traceObj.output.push(lastOutput);
+                    } else{
+                        //Link was followed, check if output was produced
+                        const linkUsed = this.links[this.nonEpsLinksUsed[0]];
+                        if(linkUsed.output[inputSymbol]){
+                            const outputSymbol = linkUsed.output[inputSymbol];
+                            const newOutputSequence = traceObj.output[i].concat([outputSymbol]);
+                            traceObj.output.push(newOutputSequence);
+                        } else{
+                            //No output for this step
+                            const lastOutput = traceObj.output[i].map(x => x); //copy
+                            traceObj.output.push(lastOutput);
+                        }
+                    }
+
+                }
 
                 i = i + 1;
             }
@@ -924,6 +952,29 @@ const Model = {
             return links;
 
         };
+
+        this.isDeterministic = function(){
+            const nodes = this.getNodeList();
+            //For each node in the machine
+            for(let n of nodes){
+                //Ensure that there there is at most one outgoing link for each symbol
+                const symbolsSeen = [];
+                const outgoingLinks = n.getOutgoingLinks();
+                for(let l of outgoingLinks){
+                    if(l.hasEpsilon){
+                        return false;
+                    }
+                    for(let symbol of l.input){
+                        if(symbolsSeen.includes(symbol)){
+                            return false;
+                        } else {
+                            symbolsSeen.push(symbol);
+                        }
+                    }
+                }
+            }
+            return true;
+        };
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
@@ -1094,8 +1145,10 @@ const Model = {
             if(!this.machine.isMealy){
                 this.output = {};
             } else {
-                //Ensure that all keys (inputs) in this.outputs are allowed
+                //Ensure that all keys (inputs) in this.output are allowed
                 Object.keys(this.output).filter(symbol => !alphabet.includes(symbol)).forEach(invalidSymbol => delete this.output[invalidSymbol]);
+                //Ensure that all keys (inputs) in this.output are in this.input
+                Object.keys(this.output).filter(symbol => !this.input.includes(symbol)).forEach(invalidSymbol => delete this.output[invalidSymbol]);
                 //Ensure that all values (outputs) in this.outputs are allowed
                 Object.keys(this.output).filter(symbol => !this.machine.outputAlphabet.includes[this.output[symbol]]).forEach(invalidSymbol => delete this.output[invalidSymbol]);
             }

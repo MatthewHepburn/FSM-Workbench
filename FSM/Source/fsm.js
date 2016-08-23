@@ -945,8 +945,9 @@ const Display = {
 
     },
     drawTrace: function(canvasID, traceObj, hideControls){
-        var svg = d3.select(`#${canvasID}`);
-        var canvasVars = Display.getCanvasVars(canvasID);
+        const svg = d3.select(`#${canvasID}`);
+        const canvasVars = Display.getCanvasVars(canvasID);
+        const isTransducer = traceObj.output !== undefined;
         canvasVars.traceStep = 0;
         canvasVars.traceObj = traceObj;
 
@@ -957,7 +958,7 @@ const Display = {
         svg.classed("trace", true);
 
         //create a g to hold all trace objects
-        var traceG = svg.append("g")
+        const traceG = svg.append("g")
                         .classed("trace-g", true);
 
         //Add the trace controls to that g
@@ -970,7 +971,12 @@ const Display = {
 
 
         //Draw the input text
-        Display.appendInputText(svg, traceG, traceObj.input, traceObj.inputSeparator);
+        Display.appendInputText(svg, traceG, traceObj.input, traceObj.inputSeparator, isTransducer);
+
+        if(isTransducer){
+            const lastOutput = traceObj.output[traceObj.output.length -1];
+            Display.appendOutputText(svg, traceG, lastOutput, traceObj.inputSeparator, true);
+        }
 
         //Initialise trace
         Display.drawTraceStep(svg, 0, canvasID);
@@ -979,6 +985,7 @@ const Display = {
         const canvasVars = Display.getCanvasVars(canvasID);
         canvasVars.traceStep = step;
         const traceObj = canvasVars.traceObj;
+        const isTransducer = traceObj.output !== undefined;
 
         //reset all trace styling
         Display.resetTraceStyling(svg);
@@ -992,6 +999,23 @@ const Display = {
             svg.select(`#${canvasID}-trace-input-${i}`).classed("trace-consumed", true);
             svg.select(`#${canvasID}-trace-input-separator-${i}`).classed("trace-consumed", true);
         }
+
+        //Handle output from transducers
+        if(isTransducer){
+            const nSymbolsEmitted = traceObj.output[step].length;
+            const totalSymbols = traceObj.output[traceObj.output.length - 1].length;
+            //Class emitted symbols
+            for(let i = 0; i < nSymbolsEmitted; i++){
+                svg.select(`#${canvasID}-trace-output-${i}`).classed("trace-emitted", true);
+                svg.select(`#${canvasID}-trace-output-separator-${i}`).classed("trace-emitted", true);
+            }
+            //Class symbols not yet emitted
+            for(let i = nSymbolsEmitted; i < totalSymbols; i++){
+                svg.select(`#${canvasID}-trace-output-${i}`).classed("trace-not-emitted", true);
+                svg.select(`#${canvasID}-trace-output-separator-${i}`).classed("trace-not-emitted", true);
+            }
+        }
+
 
         //Class all nodes as not current
         svg.selectAll(".node").classed("trace-not-current", true);
@@ -1078,16 +1102,70 @@ const Display = {
     },
     resetTraceStyling(svg){
         //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
-        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link", "trace-used-link-input"];
+        var traceClasses = ["trace-next", "trace-consumed", "trace-current", "trace-not-current", "trace-used-link", "trace-used-link-input", "trace-emitted", "trace-not-emitted"];
         traceClasses.forEach(function(className){
             svg.selectAll("." + className).classed(className, false);
         });
         d3.selectAll(".link-wrapper").each(link => Display.setLinkMarker(link, "url(#end-arrow)"));
     },
-    appendInputText: function(svg, element, input, separator){
+    appendOutputText: function(svg, element, output, separator, showLabel){
+        //Create a text element to hold the output text
+        const g = element.append("g").classed("trace-output", true);
+        const textElement = g.append("text");
+        const canvasID = svg.attr("id");
+
+        //Add the output text as tspans
+        for(var i = 0; i < output.length; i++){
+            textElement.append("tspan").text(output[i]).attr("id", `${canvasID}-trace-output-${i}`).classed("output", true);
+            //Add separator if not last element
+            if(i < output.length + 1){
+                textElement.append("tspan").text(separator + "   ").attr("id",`${canvasID}-trace-input-separator-${i}`).attr("xml:space", "preserve").classed("input-separator", true);
+            }
+
+        }
+
+        //Position text element
+        const svgWidth = svg.attr("width");
+        const svgHeight = svg.attr("height");
+        const textY = 0.14 * svgHeight;
+        const textWidth = textElement.node().getBBox().width;
+        const textX = svgWidth/2 - textWidth/2;
+
+        //prevent text disappearing off left side:
+        if (textX < 0.04 * svgWidth){
+            textX = 0.04 * svgWidth;
+        }
+
+        if(showLabel){
+            //Move text if it is too close to left side
+            if(textX < 0.1 * svgWidth){
+                textX = 0.1 * svgWidth;
+            }
+            //Align label to input label if it is present and further left.
+            let labelX = textX - 0.02 * svgWidth;
+            const inputLabel = d3.select(`#${canvasID}-trace-label-input`);
+            if(!inputLabel.empty()){
+                const inputLabelX = inputLabel.attr("x");
+                labelX = Math.min(labelX, inputLabelX);
+            }
+
+            g.append("text")
+                .text("Output:")
+                .attr("x", labelX)
+                .attr("y", textY)
+                .attr("id", `${canvasID}-trace-label-output`)
+                .classed("trace-label", true);
+        }
+
+        textElement.attr("y", textY);
+        textElement.attr("x", textX);
+
+    },
+    appendInputText: function(svg, element, input, separator, showLabel){
         //Create a text element to hold the input text
-        var textElement = element.append("g").classed("trace-input", true).append("text");
-        var canvasID = svg.attr("id");
+        const g = element.append("g").classed("trace-input", true);
+        const textElement = g.append("text");
+        const canvasID = svg.attr("id");
 
         //Add the input text as tspans
         for(var i = 0; i < input.length; i++){
@@ -1105,10 +1183,25 @@ const Display = {
         var textY = 0.07 * svgHeight;
         var textWidth = textElement.node().getBBox().width;
         var textX = svgWidth/2 - textWidth/2;
+
         //prevent text disappearing off left side:
-        if (textX < 0.02 * svgWidth){
-            textX = 0.02 * svgWidth;
+        if (textX < 0.04 * svgWidth){
+            textX = 0.04 * svgWidth;
         }
+
+        if(showLabel){
+            //Move text if it is too close to left side
+            if(textX < 0.1 * svgWidth){
+                textX = 0.1 * svgWidth;
+            }
+            g.append("text")
+                .text("Input:")
+                .attr("x", textX - 0.02 * svgWidth)
+                .attr("y", textY)
+                .classed("trace-label", true)
+                .attr("id", `${canvasID}-trace-label-input`);
+        }
+
         textElement.attr("y", textY);
         textElement.attr("x", textX);
     },

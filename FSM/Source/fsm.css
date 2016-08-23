@@ -554,6 +554,20 @@ input[type=checkbox]{
   text-decoration: none;
 }
 
+.trace-label{
+  text-anchor: end;
+  font-size: 0.6em;
+  fill: #A7A7A7;
+}
+
+.trace-emitted{
+  fill: black;
+}
+
+.trace-not-emitted{
+  visibility: hidden;
+}
+
 .trace-not-current{
   fill: #FFFFFF !important;
 }
