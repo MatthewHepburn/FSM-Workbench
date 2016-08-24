@@ -2413,18 +2413,19 @@ const Display = {
 
         //Add a row for each pair
         nodePairs.forEach(function(pair){
-            //Add a row to the table for this pair
+            //Add a row to the table for this pair.On mouseover, the nodes will be highlighted.
             const tr = tbody.append("tr");
-            //Add a label for the pair name. On mouseover, the nodes will be highlighted.
+            tr.on("mouseover", function(){
+                Display.highlightNodes(svg, [pair.node1, pair.node2], "green", true);
+            })
+            .on("mouseleave", function(){
+                Display.unhighlightNodes(svg);
+            });
+
+            //Add a label for the pair name.
             tr.append("td")
                 .classed("state-pair", true)
-                .text(pair.name)
-                .on("mouseover", function(){
-                    Display.highlightNodes(svg, [pair.node1, pair.node2], "green", true);
-                })
-                .on("mouseleave", function(){
-                    Display.unhighlightNodes(svg);
-                });
+                .text(pair.name);
 
             const checkbox = tr.append("td")
                                 .classed("distinguishable", true)
@@ -2446,6 +2447,10 @@ const Display = {
             });
 
             merge.on("click", function(){
+                if(Global.mergeInProgress){
+                    return
+                }
+                Global.mergeInProgress = true;
                 const n1 = pair.node1;
                 const n2 = pair.node2;
 
@@ -2514,6 +2519,7 @@ const Display = {
                             //Then actually merge the nodes.
                             Controller.mergeNodes(pair.node1, pair.node2, true);
                             Display.drawMinimizationTable();
+                            Global.mergeInProgress = false;
                             if(Controller.settings.forceLayout.value === "on"){
                                 //Unfix nodes if phyics is on
                                 n1.x = n1.fx;
@@ -2532,14 +2538,8 @@ const Display = {
 
                 //Call the timeout function
                 getTimeoutFunction(0)();
-
-
-
             });
-
-
         });
-
     },
     promptDfaConvert: function(){
         let promptDiv = d3.select("#dfa-prompt-div");
