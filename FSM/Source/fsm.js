@@ -1911,6 +1911,15 @@ const Display = {
         }
         if(qType === "minimize-table"){
             Display.drawMinimizationTable();
+            //Setup resest button
+            d3.select(".reset-button").on("click", function(){
+                Model.question.resetMachine();
+                Display.resetNodeStyling(Model.machines[0].id);
+                d3.selectAll(".nodeg").remove();
+                d3.selectAll(".linkg").remove();
+                Display.update(Model.machines[0].id);
+                Display.drawMinimizationTable(true);
+            });
         }
 
     },
@@ -2344,31 +2353,56 @@ const Display = {
             return true;
         }
     },
-    drawMinimizationTable: function(){
+    drawMinimizationTable: function(resestCheckboxes){
         //Clear any existing entries
-        //TODO - preserve distinguishable checks unless reseting.
-        d3.selectAll(".minimize-table tbody tr").remove();
+        const firstDraw = d3.selectAll(".minimize-table tbody tr").empty()? true : false;
+        d3.selectAll(".minimize-table tbody tr");
         const machine = Model.machines[0];
         const nodes = machine.getNodeList();
 
         //Create a list of all pairs of nodes
         const nodePairs = [];
         for(let i = 0; i < nodes.length -1; i++){
-            const node1 = nodes[i];
             for(let j = i + 1; j< nodes.length; j++){
-                const node2 = nodes[j];
-                nodePairs.push([node1, node2]);
+                //Present pair in alphabtical order
+                let nodesPair;
+                if(nodes[i].name < nodes[j].name){
+                    nodesPair = [nodes[i], nodes[j]];
+                } else {
+                    nodesPair = [nodes[j], nodes[i]];
+                }
+                //Construct pair object
+                const pairObject = {
+                    node1: nodesPair[0],
+                    node2: nodesPair[1],
+                    name: nodesPair[0].name + ", " + nodesPair[1].name,
+                    id: `pair-${nodesPair[0].id}-${nodesPair[1].id}`
+                };
+                //Record the current value of the checkbox if this is not the first draw:
+                if(firstDraw || resestCheckboxes){
+                    pairObject.checked = false;
+                } else{
+                    if(d3.select("#" + pairObject.id).empty()){
+                        pairObject.checked = false;
+                    } else {
+                        pairObject.checked = d3.select("#" + pairObject.id).node().checked;
+                    }
+                }
+                nodePairs.push(pairObject);
             }
         }
+        //Now that we have recorded which entries were checked, we can clear the table.
+        d3.selectAll(".minimize-table tbody tr").remove();
+
         //Sort the pairs based on the first and then second node name.
         nodePairs.sort(function(pair1, pair2){
-            if(pair1[0].name < pair2[0].name){
+            if(pair1.node1.name < pair2.node1.name){
                 return -1;
             }
-            if(pair1[0].name > pair2[0].name){
+            if(pair1.node1.name > pair2.node1.name){
                 return 1;
             }
-            if(pair1[1].name < pair2[1].name){
+            if(pair1.node2.name < pair2.node2.name){
                 return -1;
             }
             return 1;
@@ -2379,30 +2413,128 @@ const Display = {
 
         //Add a row for each pair
         nodePairs.forEach(function(pair){
+            //Add a row to the table for this pair
             const tr = tbody.append("tr");
-            const pairLabel = tr.append("td")
-                                .classed("state-pair", true)
-                                .text(pair[0].name + ", " + pair[1].name)
-                                .on("mouseover", function(){
-                                    Display.highlightNodes(svg, pair, "green", true);
-                                })
-                                .on("mouseleave", function(){
-                                    Display.unhighlightNodes(svg);
-                                });
+            //Add a label for the pair name. On mouseover, the nodes will be highlighted.
+            tr.append("td")
+                .classed("state-pair", true)
+                .text(pair.name)
+                .on("mouseover", function(){
+                    Display.highlightNodes(svg, [pair.node1, pair.node2], "green", true);
+                })
+                .on("mouseleave", function(){
+                    Display.unhighlightNodes(svg);
+                });
 
             const checkbox = tr.append("td")
                                 .classed("distinguishable", true)
                                 .append("input")
-                                    .attr("type", "checkbox");
+                                    .attr("type", "checkbox")
+                                    .attr("id", pair.id);
+
+            checkbox.node().checked = pair.checked;
 
             const merge = tr.append("td")
                             .classed("merge-button", true)
                             .append("p")
                                 .classed("merge-button", true)
+                                .classed("invisible", pair.checked)
                                 .text("merge");
 
             checkbox.on("change", function(){
                 merge.classed("invisible", this.checked);
+            });
+
+            merge.on("click", function(){
+                const n1 = pair.node1;
+                const n2 = pair.node2;
+
+                //Animate the mergining of the two nodes
+
+                //Target position is midway between the nodes
+                const target = {
+                    x: (n1.x + n2.x)/2,
+                    y: (n1.y + n2.y)/2
+                };
+
+                //Start postions
+                const n1Initial = {
+                    x: n1.x,
+                    y: n1.y
+                };
+
+                const n2Initial = {
+                    x: n2.x,
+                    y: n2.y
+                };
+
+                const getn1Pos = function(t){
+                    //calculate vector from initial position to target
+                    const vx = target.x - n1Initial.x;
+                    const vy = target.y - n1Initial.y;
+                    //Add the v * t, so that at t = 1 the position is the target
+                    return {x: n1Initial.x + (t * vx), y: n1Initial.y + (t * vy)};
+                };
+
+                const getn2Pos = function(t){
+                    //calculate vector from initial position to target
+                    const vx = target.x - n2Initial.x;
+                    const vy = target.y - n2Initial.y;
+                    return {x: n2Initial.x + (t * vx), y: n2Initial.y + (t * vy)};
+                };
+
+                const easeFunction = d3.easeCubic;
+
+                const animFunction = function(t){
+                    //This function adjusts the position of the nodes
+                    //at t = 1, the nodes will be at the target position.
+                    t = easeFunction(t);
+                    const n1Pos = getn1Pos(t);
+                    const n2Pos = getn2Pos(t);
+                    n1.fx = n1Pos.x;
+                    n1.fy = n1Pos.y;
+                    n2.fx = n2Pos.x;
+                    n2.fy = n2Pos.y;
+                };
+
+                //Duration of the animation in ms
+                const duration = 1500;
+                //Number of steps to use (more == smoother)
+                const steps = 120;
+
+
+                const getTimeoutFunction = function(t){
+                    return function(){
+                        animFunction(t);
+                        Display.reheatSimulation("m1");
+                        if(t < 0.75){
+                            //Keep setting new timeouts until t >= 0.75
+                            window.setTimeout(getTimeoutFunction(t + 1/steps), duration/steps);
+                        }else{
+                            //Then actually merge the nodes.
+                            Controller.mergeNodes(pair.node1, pair.node2, true);
+                            Display.drawMinimizationTable();
+                            if(Controller.settings.forceLayout.value === "on"){
+                                //Unfix nodes if phyics is on
+                                n1.x = n1.fx;
+                                n1.fx = undefined;
+                                n1.y = n1.fy;
+                                n1.fy = undefined;
+
+                                n2.x = n2.fx;
+                                n2.fx = undefined;
+                                n2.y = n2.fy;
+                                n2.fy = undefined;
+                            }
+                        }
+                    };
+                };
+
+                //Call the timeout function
+                getTimeoutFunction(0)();
+
+
+
             });
 
 
@@ -2911,6 +3043,15 @@ const Controller = {
         node.machine.deleteNode(node);
         Display.update(node.machine.id);
         Display.reheatSimulation(node.machine.id);
+    },
+    mergeNodes: function(node1, node2, useShortNames){
+        if(node1.machine.id !== node2.machine.id){
+            throw new Error("Cannot merge nodes that are in different machines.");
+        }
+        Display.clearMenus(node1.machine.id);
+        node1.machine.mergeNodes(node1, node2, useShortNames);
+        Display.update(node1.machine.id);
+        Display.reheatSimulation(node1.machine.id);
     },
     reverseLink: function(link){
         Display.clearMenus(link.machine.id);

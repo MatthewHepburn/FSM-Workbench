@@ -95,24 +95,9 @@
 
       {%- endif -%}
 
-      {%- if questionType == "minimize-table" -%}
-      <div class="minimize-table">
-        <table>
-          <thead>
-            <tr><th id="pair-header">State pair</th><th id="distinguishable-header">Distinguishable?</th><th id="merge-header"> </th>
-          </thead>
-          <tbody id='minimize-table-body'></tbody>
-        </table>
-        <div class = "message-div"></div>
-        <div class="button-div">
-           <button id="check-button" class="pure-button" type="submit">Check</button>
-           <button class="reset-button pure-button">Reset</button>
-        </div>
-      </div>
-      {%- endif -%}
-
     </div>
-    <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
+    <div id="machine-div">
+    <svg id="m1" width="{{ svgWidth }}" height="{{ svgHeight }}" viewBox="0 0 {{svgWidth}} {{svgHeight}}" preserveAspectRatio="xMinYMin meet" class={{svgClasses}}>
       <g class="links"></g>
       <g class="nodes"></g>
       <defs>
@@ -120,6 +105,22 @@
         <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10L0,-10" fill="green"></path></marker>
       </defs>
     </svg>
+    {%- if questionType == "minimize-table" -%}
+      <div class="minimize-table">
+        <table>
+          <thead>
+            <tr><th id="pair-header">State pair</th><th id="distinguishable-header">Distinguishable?</th><th id="merge-header"> </th>
+          </thead>
+          <tbody id='minimize-table-body'></tbody>
+        </table>
+        <div class = "message-div">&nbsp</div>
+        <div class="button-div">
+           <button id="check-button" class="pure-button" type="submit">Check</button>
+           <button class="reset-button pure-button">Reset</button>
+        </div>
+      </div>
+    {%- endif -%}
+    </div>
     </div>
   {% if showSidebar %}
   <div class="sidebar">

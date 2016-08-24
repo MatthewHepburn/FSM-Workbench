@@ -5,33 +5,33 @@
       "text": "minimize test.",
       "allowEpsilon": "false",
       "splitSymbol": "",
-      "useShortNames": "true"
+      "useShortNames": true
     },
     "data-machinelist": [
       {
         "nodes": [
           {
             "id": "A",
-            "x": 158,
+            "x": 108,
             "y": 128,
             "isInit": true,
             "name": "Q0"
           },
           {
             "id": "B",
-            "x": 231,
+            "x": 181,
             "y": 198,
             "name": "Q2"
           },
           {
             "id": "C",
-            "x": 226,
+            "x": 176,
             "y": 55,
             "name": "Q1"
           },
           {
             "id": "D",
-            "x": 299,
+            "x": 249,
             "y": 124,
             "isAcc": true,
             "name": "Q3"

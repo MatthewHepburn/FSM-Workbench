@@ -114,6 +114,7 @@ const Model = {
             this.alphabet = spec.attributes.alphabet;
             this.allowEpsilon = spec.attributes.allowEpsilon;
             this.isMealy = spec.attributes.isMealy;
+            this.lastNodeID = -1;
             if(spec.attributes.outputAlphabet){
                 this.outputAlphabet = spec.attributes.outputAlphabet;
             } else {
@@ -431,16 +432,28 @@ const Model = {
             }
         };
 
-        this.mergeNodes = function(s1, s2){
+        this.mergeNodes = function(s1, s2, useShortNames){
             //Takes two states in the machine and combines them
 
             this.enforceAlphabet(); //Overkill?
+            if(!useShortNames){
+                useShortNames = false;
+            }
 
-            const name = `{${s1.name}, ${s2.name}}`;
+            let name;
+            if(useShortNames){
+                //For short names, assume that nodes are named in form Q1, Q2 or similar and combine as Q1 + Q2 = Q12
+                const digits = s1.name.split("").concat(s2.name.split("")).filter(x => ["0","1","2","3","4","5","6","7","8","9"].includes(x)).sort().reduce((x,y) => x + y, "");
+                const prefix = s1.name.split(/\d/)[0];
+                name = prefix + digits;
+
+            } else{
+                name = `{${s1.name}, ${s2.name}}`;
+            }
             const inboundLinks = this.getLinksTo(s1).concat(this.getLinksTo(s2));
             const outgoingLinks = s1.getOutgoingLinks().concat(s2.getOutgoingLinks());
-            const isInitial = s1.isInitial && s2.isInitial;
-            const isAccepting = s1.isAccepting && s2.isAccepting;
+            const isInitial = s1.isInitial || s2.isInitial;
+            const isAccepting = s1.isAccepting || s2.isAccepting;
 
             const x = (s1.x + s2.x)/2;
             const y = (s1.y + s2.y)/2;
@@ -1161,12 +1174,12 @@ const Model = {
         this.setOutput = function(outputObj, epsilonOutput){
             this.output = outputObj;
             // If a symbol has output, it must be in the input array
-            this.addInput(Object.keys(outputObj))
+            this.addInput(Object.keys(outputObj));
             if(epsilonOutput){
                 this.hasEpsilon = true;
             }
             this.epsilonOutput = epsilonOutput;
-        }
+        };
 
         this.isReflexive = function(){
             return this.source.id === this.target.id;
@@ -1182,7 +1195,7 @@ const Model = {
             for(var property in questionObj){
                 this[property] = questionObj[property];
             }
-            if(["give-list", "select-states", "does-accept", "give-input", "dfa-convert"].indexOf(Model.question.type) == -1){
+            if(["give-list", "select-states", "does-accept", "give-input", "dfa-convert", "minimize-table"].indexOf(Model.question.type) == -1){
                 this.allowEditing = true;
             } else {
                 this.allowEditing = false;
@@ -1211,6 +1224,10 @@ const Model = {
                 Model.question.nodeSetNameToM2Node = {};
                 const initialNodesSetName = "{" + m1InitialNodes.map(node => node.name).sort().reduce((x,y) => `${x}, ${y}`) + "}";
                 Model.question.nodeSetNameToM2Node[initialNodesSetName] = m2InitialNode;
+            }
+            if(Model.question.type === "minimize-table"){
+                //Save the machine spec, so that the machine can be reset later
+                Model.question.machineSpec = Model.machines[0].getSpec();
             }
 
         },
@@ -1638,6 +1655,9 @@ const Model = {
             feedbackObj.allCorrectFlag = true;
             return feedbackObj;
 
+        },
+        resetMachine(){
+            Model.machines[0].build(Model.question.machineSpec);
         },
         getNextDfaPrompt: function(){
             if(Model.question.frontier.length === 0){

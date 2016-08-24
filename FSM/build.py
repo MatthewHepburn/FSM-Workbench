@@ -153,6 +153,13 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
         if variables["questionType"] == "give-input":
             variables["inputAlphabet"] = question["data-machinelist"][0]["attributes"]["alphabet"]
 
+        variables["svgHeight"] = 300;
+        if variables["questionType"] == "minimize-table":
+            variables["svgWidth"] = 400;
+            variables["svgClasses"] = "shrink"
+        else:
+            variables["svgWidth"] = 500;
+            variables["svgClasses"] = ""
 
         # Omit check button for some question types.
         if variables["questionType"] in ["none", "give-input", "dfa-convert", "minimize-table"]:

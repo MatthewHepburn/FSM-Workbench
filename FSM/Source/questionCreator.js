@@ -44,7 +44,7 @@ const edit = {
         "dfa-convert":{
         },
         "minimize-table":{
-            useShortNames: {description:"If true, then combining states Q1 and Q2 will result in a state named Q12. If false it would be state {Q1, Q2}", expectStr:true, default:true, isBoolean:true}
+            useShortNames: {description:"If true, then combining states Q1 and Q2 will result in a state named Q12. If false it would be state {Q1, Q2}", expectStr:false, default:true, isBoolean:true}
         }
     },
     createQuestionPrompt:function() {
