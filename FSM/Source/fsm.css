@@ -179,6 +179,10 @@ div.minimize-table{
   padding: 0.3em;
 }
 
+.message-div{
+  margin: 0.3em;
+}
+
 #merge-header{
   border-style: none;
 }

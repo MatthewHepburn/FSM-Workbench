@@ -773,11 +773,18 @@ const Model = {
             if(this.isCompletelySpecified()){
                 return;
             }
-
+            let blackholeNode;
             if(type === "blackhole"){
-                //Add a new node to be the black-hole state
-                var blackholeName = "🚮"; //Try also 🗑
-                var blackholeNode = this.addNode(150, 150, blackholeName, false, false);
+                //See if a blackhole node exists (ie one with no transitions except to itself, that is not accepting)
+                const blackholeCandidates = this.getNodeList().filter(n => !n.isAccepting).filter(n => n.getOutgoingLinks().filter(l => l.target !== n).length === 0);
+                if(blackholeCandidates.length > 0){
+                    blackholeNode = blackholeCandidates[0];
+                } else{
+                    //Add a new node to be the black-hole state
+                    const blackholeName = "🚮"; //Try also 🗑
+                    blackholeNode = this.addNode(150, 150, blackholeName, false, false);
+                }
+
             }
 
             var nodes = this.getNodeList();
@@ -1239,6 +1246,7 @@ const Model = {
                 "give-equivalent": this.checkGiveEquivalent,
                 "give-input": this.checkGiveInput,
                 "give-list": this.checkGiveList,
+                "minimize-table": this.checkMinimizeTable,
                 "satisfy-definition": this.checkSatisfyDefintion,
                 "satisfy-list": this.checkSatisfyList,
                 "select-states": this.checkSelectStates
@@ -1334,9 +1342,59 @@ const Model = {
             feedbackObj.thisCorrect = true;
             feedbackObj.allCorrectFlag = Model.question.frontier.length === 0; //Process finished if frontier is empty.
             return feedbackObj;
+        },
+
+        checkMinimizeTable: function(){
+            const minimalMachine = new Model.Machine("orig");
+            minimalMachine.build(Model.question.machineSpec);
+            minimalMachine.minimize();
+            const machine = Model.machines[0];
+            const feedbackObj = {allCorrectFlag: false, message:"", incorrectSequence:undefined, shouldAcceptIncorrect: undefined};
+
+            //machine must be equivalent to the original so use the giveEquivalent check to do some of the work:
+            Model.question.targetMachineSpec = Model.question.machineSpec;
+            const equivFeedback = Model.question.checkGiveEquivalent();
+            if(!equivFeedback.allCorrectFlag){
+                if(equivFeedback.incorrectSequence){
+                    const printableSequence = equivFeedback.incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
+                    if(equivFeedback.shouldAcceptIncorrect){
+                        feedbackObj.message = `Incorrect – the original machine accepted ‘${printableSequence}’ but this machine does not.`;
+                    }else{
+                        feedbackObj.message = `Incorrect – the original machine rejected ‘${printableSequence}’ but this machine does not.`;
+                    }
+                    return feedbackObj;
+                } else{
+                    feedbackObj.message = equivFeedback.message;
+                    return feedbackObj;
+                }
+            }
+
+            //Machine is equivalent, now we must check if it is minimal
+            //Minimize the original machine, completely specify it, and count the number of nodes
+            minimalMachine.completelySpecify("blackhole"); //Make the blackhole state explicit so that we can count it
+            const nNodesMinimal = minimalMachine.getNodeList().length;
+
+            //Compare the number of nodes in the minimal machine to the number in the user's machine, after it has also been completely specified.
+            const machineCopy = new Model.Machine("cpy");
+            machineCopy.build(machine.getSpec()); //Construct a copy of the users machine, as we do not want to modify the original
+            machineCopy.completelySpecify("blackhole");
+            const nNodesUser = machineCopy.getNodeList().length;
+            if(nNodesUser === nNodesMinimal){
+                //Correct number of nodes -> machine is minimized.
+                feedbackObj.allCorrectFlag = true;
+                return feedbackObj;
+            }
+            if(nNodesUser < nNodesMinimal){
+                //This shouldn't happen!
+                throw new Error("The minimized machine has fewer nodes than expected. Something has gone wrong!");
+            }
+            //Here we know that the user machine can be minimized further
+            feedbackObj.message = "Incomplete – the machine can be minimized further";
+            return feedbackObj;
 
 
         },
+
         checkSatisfyDefintion: function(){
             const machine = Model.machines[0];
             const spec = Model.question.definition;

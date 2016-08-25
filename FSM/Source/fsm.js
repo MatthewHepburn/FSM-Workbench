@@ -331,39 +331,24 @@ const Display = {
         button.attr("href", nextURL);
     },
     giveFeedback: function(feedbackObj){
-        if(Model.question.type === "satisfy-list"){
-            Display.giveFeedbackForSatisfyList(feedbackObj);
-            return;
+        const feedbackFunctions = {
+            "dfa-convert": Display.giveFeedbackForDfaConvert,
+            "give-list": Display.giveFeedbackForGiveList,
+            "give-input": Display.giveFeedbackForGiveInput,
+            "give-equivalent": Display.giveFeedbackForGiveEquivalent,
+            "select-states": Display.giveFeedbackForSelectStates,
+            "does-accept": Display.giveFeedbackForDoesAccept,
+            "minimize-table": Display.giveFeedbackForMinimizeTable,
+            "satisfy-definition": Display.giveFeedbackForSatisfyDefinition,
+            "satisfy-list": Display.giveFeedbackForSatisfyList
+        };
+        const feedbackFunction = feedbackFunctions[Model.question.type];
+        if(feedbackFunction){
+            feedbackFunction(feedbackObj)
+        } else{
+            throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
         }
-        if(Model.question.type === "give-list"){
-            Display.giveFeedbackForGiveList(feedbackObj);
-            return;
-        }
-        if(Model.question.type === "give-input"){
-            Display.giveFeedbackForGiveInput(feedbackObj);
-            return;
-        }
-        if(Model.question.type === "give-equivalent"){
-            Display.giveFeedbackForGiveEquivalent(feedbackObj);
-            return;
-        }
-        if(Model.question.type === "select-states"){
-            Display.giveFeedbackForSelectStates(feedbackObj);
-            return;
-        }
-        if(Model.question.type === "does-accept"){
-            Display.giveFeedbackForDoesAccept(feedbackObj);
-            return;
-        }
-        if(Model.question.type === "satisfy-definition"){
-            Display.giveFeedbackForSatisfyDefinition(feedbackObj);
-            return;
-        }
-        if(Model.question.type === "dfa-convert"){
-            Display.giveFeedbackForDfaConvert(feedbackObj);
-            return;
-        }
-        throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
+
     },
     giveFeedbackForDfaConvert: function(feedbackObj){
         const feedbackSpan = d3.select("#dfa-convert-feedback");
@@ -412,6 +397,31 @@ const Display = {
 
         }else{
             Display.promptDfaConvert();
+        }
+
+    },
+    giveFeedbackForMinimizeTable: function(feedbackObj){
+        const messageDiv = d3.select(".message-div");
+        //Clear any previous feedback;
+        messageDiv.html("");
+        //Add a tick/cross
+        if(feedbackObj.allCorrectFlag){
+            messageDiv.append("span").text("✓").classed("adjacent-tick", true);
+        }else{
+            messageDiv.append("span").text("☓").classed("adjacent-cross", true);
+        }
+        //Add the feedback message
+        let message;
+        if(feedbackObj.message.length > 0){
+            message = feedbackObj.message;
+        } else {
+            message = "\xa0"; //nonbreaking space.
+        }
+        messageDiv.append("span").text(message);
+        //Add extra next button
+        if(Display.extraNext){
+            const buttonDiv = d3.select(".button-div");
+            Display.appendNextButton(buttonDiv);
         }
 
     },
@@ -1856,7 +1866,7 @@ const Display = {
     },
     setUpQuestion: function(){
         const qType = Model.question.type;
-        const checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent", "select-states", "does-accept", "satisfy-definition"]; //Question types with a check button
+        const checkButtonTypes = ["give-list", "satisfy-list", "give-equivalent", "select-states", "does-accept", "satisfy-definition", "minimize-table"]; //Question types with a check button
         if(checkButtonTypes.indexOf(qType) !== -1){
             d3.select("#check-button").on("click", EventHandler.checkButtonClick);
         }
@@ -1915,6 +1925,7 @@ const Display = {
             d3.select(".reset-button").on("click", function(){
                 Model.question.resetMachine();
                 Display.resetNodeStyling(Model.machines[0].id);
+                d3.select(".message-div").html("").text("\xa0");
                 d3.selectAll(".nodeg").remove();
                 d3.selectAll(".linkg").remove();
                 Display.update(Model.machines[0].id);
@@ -2448,7 +2459,7 @@ const Display = {
 
             merge.on("click", function(){
                 if(Global.mergeInProgress){
-                    return
+                    return;
                 }
                 Global.mergeInProgress = true;
                 const n1 = pair.node1;
