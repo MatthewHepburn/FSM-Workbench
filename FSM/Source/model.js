@@ -1356,11 +1356,16 @@ const Model = {
             const equivFeedback = Model.question.checkGiveEquivalent();
             if(!equivFeedback.allCorrectFlag){
                 if(equivFeedback.incorrectSequence){
-                    const printableSequence = equivFeedback.incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
+                    let printableSequence = equivFeedback.incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
+                    if(printableSequence.length === 0){
+                        printableSequence = "the empty string";
+                    } else{
+                        printableSequence = "'" + printableSequence + "'";
+                    }
                     if(equivFeedback.shouldAcceptIncorrect){
-                        feedbackObj.message = `Incorrect – the original machine accepted ‘${printableSequence}’ but this machine does not.`;
+                        feedbackObj.message = `Incorrect – the original machine accepted ${printableSequence} but this machine does not.`;
                     }else{
-                        feedbackObj.message = `Incorrect – the original machine rejected ‘${printableSequence}’ but this machine does not.`;
+                        feedbackObj.message = `Incorrect – the original machine rejected ${printableSequence} but this machine does not.`;
                     }
                     return feedbackObj;
                 } else{
