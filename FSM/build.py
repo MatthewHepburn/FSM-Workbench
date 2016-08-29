@@ -94,12 +94,10 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
     # Change to /Deploy directory
     os.chdir(deployDir)
     # Create a directory dirName if it doesn't exist:
-    if os.path.exists(dirName):
-        os.chdir(dirName)
-    else:
+    if not os.path.exists(dirName):
         os.makedirs(dirName)
-        os.chdir(dirName)
 
+    questionDir = os.path.join(deployDir, dirName)
     thisQuestionDict = buildQuestionDict(data, dirName)
     questionDict.update(thisQuestionDict)
     thisQuestionList = getQuestionList(thisQuestionDict)
@@ -171,11 +169,11 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
         else:
             variables["hasCheck"] = True
 
-        outputTemplate(question_template, variables, question["filename"])
+        outputTemplate(question_template, variables, questionDir, question["filename"])
 
     # Output end.html
     variables = {"lastq": lastQuestion + ".html", "pageID": endPageID}
-    outputTemplate(end_template, variables, "end")
+    outputTemplate(end_template, variables, questionDir, "end")
 
 def writeQuestionDict():
     global questionDict
@@ -204,8 +202,8 @@ def padList(inList, targetLength, symbol):
         return returnList
     return returnList + ([symbol] * nToAdd);
 
-def outputTemplate(template, variables, filename):
-    filePath = os.path.join(deployDir, filename + ".html")
+def outputTemplate(template, variables, path, filename):
+    filePath = os.path.join(path, filename + ".html")
     outputText = template.render(variables)
     f = open(filePath, "w")
     if sys.version_info[0] > 2:
@@ -268,12 +266,12 @@ if __name__ == "__main__":
     # Output index.html
     variables = {"ex1": "inf1/give-input-intro-to-fsm.html",
                  "pp1": "inf1-revision/2014-Dec-5-a.html"}
-    outputTemplate(index_template, variables, "index")
+    outputTemplate(index_template, variables, deployDir, "index")
 
     # Output other templated files
     variables = {"addresses": addresses}
-    outputTemplate(create_template, variables, "create")
-    outputTemplate(question_creator_template, variables, "questionCreator")
+    outputTemplate(create_template, variables, deployDir, "create")
+    outputTemplate(question_creator_template, variables, deployDir, "questionCreator")
 
     # Return to previous directory.
     os.chdir(startDir)
