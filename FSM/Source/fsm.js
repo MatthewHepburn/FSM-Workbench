@@ -36,7 +36,7 @@ const Display = {
         // Add a new svg element
         let width = 375; //May want to specify these as arguements?
         let height = 300;
-        var svg = d3.select(".maindiv").append("svg")
+        var svg = d3.select("#machine-div").append("svg")
                     .attr("id", id)
                     .attr("width", width)
                     .attr("height", height)
