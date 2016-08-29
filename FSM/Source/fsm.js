@@ -3189,10 +3189,8 @@ const Controller = {
             });
         }
 
-        //Register a listener to send session data when the user leaves the page
-        d3.select(window).on("beforeunload", function(){
-            Logging.sendSessionData();
-        });
+
+        Logging.init();
     },
     getQuestionMachineList: function(){
         const body = document.querySelector("body");
@@ -3269,20 +3267,17 @@ const Controller = {
 
 const Logging = {
     loadTime: Math.floor(Date.now() / 1000),
-    userID: undefined,
-    pageID: undefined,
-    sessionData: {},
-    generateUserID: function() {
+    hasLocalStorage: typeof(localStorage) !== "undefined",
+    get userID(){
+        if(Logging._userID){
+            return Logging._userID;
+        }
         //Use local storage if it is available
-        let hasStorage;
-        if(typeof(localStorage) !== "undefined") {
-            hasStorage = true;
+        if(Logging.hasLocalStorage) {
             if (localStorage.getItem("userID") !== null){
                 Logging.userID = localStorage.getItem("userID");
                 return;
             }
-        } else {
-            hasStorage = false;
         }
         var d = new Date().getTime();
         var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
@@ -3290,27 +3285,67 @@ const Logging = {
             d = Math.floor(d/16);
             return (c=="x" ? r : (r&0x3|0x8)).toString(16);
         });
-        Logging.userID = uuid;
-        if (hasStorage){
+        //store the value for easy access later;
+        Logging._userID = uuid;
+        if (Logging.hasLocalStorage){
             localStorage.setItem("userID", uuid);
         }
+        return uuid;
     },
-    setPageID: function(){
-        Logging.pageID = document.querySelector("body").getAttribute("data-pageid");
+    get pageID(){
+        if(!Logging._pageID){
+            Logging._pageID = document.querySelector("body").getAttribute("data-pageid");
+        }
+        return Logging._pageID;
+    },
+
+    sessionData: {},
+    getQuestionsCorrect: function(){
+        //Return an object giving the number of questions the user has answered correctly, as well as the total number of questions.
+        //Note that this figure is calculated based on the questions in the sidebar, so that if a question has been removed but it is still
+        //in localStorage, it will not be counted.
+        if(!Logging.hasLocalStorage || d3.select(".sidebar").empty()){
+            return null;
+        }
+        const correctObj = {
+            totalQuestions: d3.selectAll(".sidebar-otherq").size() + 1, //plus 1 to account for this question
+            questionsCorrect: undefined
+        };
+        if(localStorage.getItem("fsmQuestions") === null){
+            return null;
+        }
+
+        const questionsObj = JSON.parse(localStorage.getItem("fsmQuestions"));
+        correctObj.questionsCorrect = Object.keys(questionsObj).filter(id => questionsObj[id].correct).filter(id => !d3.select("#qid-" + id).empty()).length;
+        return correctObj;
+    },
+    recordQuestionCorrect: function(){
+        //Note in local storage that this question has been answered correctly
+        if(!Logging.hasLocalStorage){
+            return; //Do nothing if no local storage (could try cookies but not likely to be worthwhile)
+        }
+        let questionObj;
+        if(localStorage.getItem("fsmQuestions") === null){
+            // Note that localStorage can only be used to store strings.
+            // We will use a stringified JSON object.
+            localStorage.setItem("fsmQuestions", "{}");
+            questionObj = {};
+        } else{
+            questionObj = JSON.parse(localStorage.getItem("fsmQuestions"));
+        }
+        questionObj[Logging.pageID] = {correct: true};
+        localStorage.setItem("fsmQuestions", JSON.stringify(questionObj));
     },
     //Answer will be an object, varying with question type
     sendAnswer: function(isCorrect, answer) {
+        if(isCorrect){
+            Logging.recordQuestionCorrect();
+        }
         var timeElapsed = Math.floor(Date.now() / 1000) - Logging.loadTime;
         var url = window.location.href;
         if (url.slice(0,5) == "file:"){
             // Don't try to log if accessing locally.
             return;
-        }
-        if (Logging.userID == undefined){
-            Logging.generateUserID();
-        }
-        if (Logging.pageID === undefined){
-            Logging.setPageID();
         }
         var data = {
             "answer": answer,
@@ -3351,14 +3386,6 @@ const Logging = {
 
         var timeOnPage = Math.floor(Date.now() / 1000) - Logging.loadTime;
 
-        if (Logging.userID == undefined){
-            Logging.generateUserID();
-        }
-        if (Logging.pageID === undefined){
-            Logging.setPageID();
-        }
-
-
         var data = {
             "pageID": Logging.pageID,
             "timeOnPage": timeOnPage,
@@ -3380,12 +3407,7 @@ const Logging = {
             // Don't try to log if accessing locally.
             return;
         }
-        if (Logging.userID == undefined){
-            Logging.generateUserID();
-        }
-        if (Logging.pageID === undefined){
-            Logging.setPageID();
-        }
+
         var data = {
             "pageID": Logging.pageID,
             "url": url,
@@ -3398,6 +3420,31 @@ const Logging = {
         request.open("POST", "/cgi/s1020995/dev/rating.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
+    },
+    markCorrectQuestions: function(){
+        //In the sidebar, class all questions which have been answered correctly as correct.
+        if(d3.select(".sidebar").empty()){
+            return;
+        }
+        if(localStorage.getItem("fsmQuestions") === null){
+            return;
+        }
+        const questionObj = JSON.parse(localStorage.getItem("fsmQuestions"));
+        //get the ids of the questions to class;
+        const correctIDs = Object.keys(questionObj).filter(id => questionObj[id].correct).map(id => "qid-" + id);
+        correctIDs.forEach(function(id){
+            const questionLink = d3.select("#" + id);
+            if(!questionLink.empty()){
+                questionLink.classed("correct", true);
+            }
+        });
+    },
+    init: function(){
+        //Register a listener to send session data when the user leaves the page
+        d3.select(window).on("beforeunload", function(){
+            Logging.sendSessionData();
+        });
+        Logging.markCorrectQuestions();
     }
 };
 

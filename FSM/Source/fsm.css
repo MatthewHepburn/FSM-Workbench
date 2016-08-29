@@ -621,7 +621,7 @@ input[type=checkbox]{
   margin-bottom: 5%;
 }
 
-.sidebar a:visited{
+.sidebar a.correct{
   color: #585858;
   text-decoration: none;
 }

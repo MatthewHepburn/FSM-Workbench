@@ -2,6 +2,112 @@
   {
     "data-question": {
       "type": "minimize-table",
+      "text": "The machine below accepts the language defined by the regular expression <b>(aa)*aab</b>. Minimize it.",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "useShortNames": true
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 41,
+            "y": 201,
+            "isInit": true,
+            "name": "Q0"
+          },
+          {
+            "id": "B",
+            "x": 39,
+            "y": 101,
+            "name": "Q1"
+          },
+          {
+            "id": "C",
+            "x": 141,
+            "y": 200,
+            "name": "Q2"
+          },
+          {
+            "id": "D",
+            "x": 241,
+            "y": 202,
+            "name": "Q3"
+          },
+          {
+            "id": "E",
+            "x": 341,
+            "y": 199,
+            "name": "Q4"
+          },
+          {
+            "id": "F",
+            "x": 335,
+            "y": 99,
+            "isAcc": true,
+            "name": "Q5"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "A",
+            "hasEps": true
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "F",
+            "from": "E",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {},
+    "filename": "minimization-2",
+    "name": "Minimization II",
+    "id": "9c4d4a2cf3d9405c9fe99f2ac7e5aecc"
+  },
+  {
+    "data-question": {
+      "type": "minimize-table",
       "text": "It can be useful to reduce a FSM to its <b>minimal</b> form, where the machine contains the minimum number of states necessary to accept its language.<br>Using the <b>implication chart</b> method, reduce the machine below to its minimal form.<br><br>For each pair of states, determine if the states are <b>distinguishable</b>. States are distinguishable if there exists an input sequence that is accepted from one state but not from the other.<br>If a pair are indistinguishable, combine them until only distinguishable states remain.",
       "allowEpsilon": "false",
       "splitSymbol": "",
