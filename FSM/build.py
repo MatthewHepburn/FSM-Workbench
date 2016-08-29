@@ -13,8 +13,8 @@ import platform
 addresses = {}
 sourceDir = ""
 deployDir = ""
-startDir = os.getcwd()
-
+startDir = os.path.split(os.path.realpath(__file__))[0] #Don't use os.getcwd() as script may be invoked from a different directory.
+                                                        #This gets the path where this file is located (should be "../CAL/FSM")
 # Keep a dict of questions, with their guid as key
 questionDict = {}
 
@@ -27,6 +27,7 @@ def setAddresses(toDeploy):
     # Different addresses are set if the files are being built for deployment
     global addresses
     if toDeploy:
+        #If deploying, point to web addresses
         addresses = {
             "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
@@ -36,13 +37,14 @@ def setAddresses(toDeploy):
             "pureCSSAddress": "http://yui.yahooapis.com/pure/0.6.0/pure-min.css"
         }
     else:
+        #If not deploying, point to local resources.
         addresses = {
-            "jsAddress": "../",
-            "cssAddress": "../",
-            "iconAddress": "../img/icons/",
-            "imgAddress": "../img/",
-            "d3Address": "../../node_modules/d3/build/d3.js",
-            "pureCSSAddress": "../../node_modules/purecss/build/pure.css",
+            "jsAddress": deployDir + os.sep,
+            "cssAddress": deployDir + os.sep,
+            "iconAddress": os.path.join(deployDir, "img", "icons"),
+            "imgAddress": os.path.join(deployDir, "img"),
+            "d3Address": os.path.join(startDir, "node_modules", "d3", "build", "d3.js"),
+            "pureCSSAddress": os.path.join(startDir, "node_modules", "purecss", "build", "pure.css")
         }
 
 def setDirs():
@@ -169,22 +171,11 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
         else:
             variables["hasCheck"] = True
 
-        outputText = question_template.render(variables)
-        filename = question["filename"] + ".html"
-        f = open(filename, "w")
-        if sys.version_info[0] > 2:
-            f.write(outputText)
-        else:
-            f.write(outputText.encode("UTF-8"))
-        f.close()
+        outputTemplate(question_template, variables, question["filename"])
 
     # Output end.html
     variables = {"lastq": lastQuestion + ".html", "pageID": endPageID}
-    outputText = end_template.render(variables)
-    f = open("end.html", "w")
-    f.write(outputText)
-    f.close()
-    print("end.html")
+    outputTemplate(end_template, variables, "end")
 
 def writeQuestionDict():
     global questionDict
@@ -213,6 +204,17 @@ def padList(inList, targetLength, symbol):
         return returnList
     return returnList + ([symbol] * nToAdd);
 
+def outputTemplate(template, variables, filename):
+    filePath = os.path.join(deployDir, filename + ".html")
+    outputText = template.render(variables)
+    f = open(filePath, "w")
+    if sys.version_info[0] > 2:
+        f.write(outputText)
+    else:
+        f.write(outputText.encode("UTF-8"))
+    f.close()
+    print(filename + ".html")
+
 
 
 if __name__ == "__main__":
@@ -231,11 +233,12 @@ if __name__ == "__main__":
         if arg in ["-b", "-b", "--babel", "--Babel"]:
             toBabel = True
             break
-    # Set the address global
-    setAddresses(toDeploy)
 
     # Set up the local directory globals
     setDirs()
+
+    # Set the address global
+    setAddresses(toDeploy)
 
     # Create the deploy directory if it doesn't already exist:
     if not os.path.isdir(deployDir):
@@ -252,6 +255,8 @@ if __name__ == "__main__":
     templatesDir = sourceDir  # TODO work out what this does/if it does anything
     question_template = templateEnv.get_template("question.jinja")
     index_template = templateEnv.get_template("index.jinja")
+    create_template = templateEnv.get_template("create.jinja")
+    question_creator_template = templateEnv.get_template("questionCreator.jinja")
     end_template = templateEnv.get_template("end.jinja")
 
     for questionSet in data:
@@ -263,13 +268,12 @@ if __name__ == "__main__":
     # Output index.html
     variables = {"ex1": "inf1/give-input-intro-to-fsm.html",
                  "pp1": "inf1-revision/2014-Dec-5-a.html"}
-    outputText = index_template.render(variables)
-    f = open("index.html", "w")
-    f.write(outputText)
-    f.close()
-    print("index.html")
+    outputTemplate(index_template, variables, "index")
 
-
+    # Output other templated files
+    variables = {"addresses": addresses}
+    outputTemplate(create_template, variables, "create")
+    outputTemplate(question_creator_template, variables, "questionCreator")
 
     # Return to previous directory.
     os.chdir(startDir)
