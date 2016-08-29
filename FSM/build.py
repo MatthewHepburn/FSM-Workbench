@@ -32,7 +32,8 @@ def setAddresses(toDeploy):
             "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/icons/",
             "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/",
-            "d3Address": "https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js"
+            "d3Address": "https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js",
+            "pureCSSAddress": "http://yui.yahooapis.com/pure/0.6.0/pure-min.css"
         }
     else:
         addresses = {
@@ -40,7 +41,8 @@ def setAddresses(toDeploy):
             "cssAddress": "../",
             "iconAddress": "../img/icons/",
             "imgAddress": "../img/",
-            "d3Address": "../../node_modules/d3/build/d3.js"
+            "d3Address": "../../node_modules/d3/build/d3.js",
+            "pureCSSAddress": "../../node_modules/purecss/build/pure.css",
         }
 
 def setDirs():
