@@ -695,3 +695,15 @@ input[type=checkbox]{
   margin-top: 1em;
 }
 
+.progress-inner{
+  height: 1em;
+  background-color: green;
+}
+
+.progress-outer{
+  width: 70%;
+  border-style: solid;
+  border-width: thin;
+  border-color: black;
+  margin-bottom: 0.5em;
+}

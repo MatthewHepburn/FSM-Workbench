@@ -3,6 +3,7 @@
 // 'UI' or 'Interface' might be a more accurate name? ('View' as in MVC?)
 const Display = {
     extraNext: true, //Adding a an extra next button when a correct answer is given may help users to navigate
+    showProgressBar: true, //show a progress bar in question sets.
     nodeRadius: 12,
     acceptingRadius: 0.7 * 12, //12 = nodeRadius
     nodeNameFontSize: 1.2 * 0.7 * 12, //0.7 * 12 = acceptingRadius (Done this way because an object cannot refer to itself before it is created)
@@ -2609,6 +2610,26 @@ const Display = {
         const yScoll = controlYPos - window.innerHeight + 5;
         window.scrollTo(xScroll, yScoll);
     },
+    drawProgressBar: function(statsObj){
+        const sidebar = d3.select(".sidebar");
+        if(sidebar.empty() || !statsObj){
+            return;
+        }
+        const percentFull = (100 * statsObj.questionsCorrect / statsObj.totalQuestions) | 0;
+        if(!sidebar.select(".progress-inner").empty()){
+            //If a progress bar is already present, update it instead of drawing a new one.
+            sidebar.select(".progress-inner").style("width", percentFull + "%");
+        } else{
+            //There is a progress tag but we don't use it as the implementation is too inconsistent and styling it is not generally supported.
+            //So instead we draw a bar using two divs.
+            const div = sidebar.insert("div", ":first-child");
+            const barHolder = div.append("div")
+                                .classed("progress-outer", true);
+            barHolder.append("div")
+                .classed("progress-inner", true)
+                .style("width", percentFull + "%");
+        }
+    },
     getDropdownOnClickFunction: function(svg, element, currentTextSelection,menuID,options,fontSize, x, y, width, onSelectFunction){
         return function(){
             //this function should be called to create the dropdown part of the dropdown menu
@@ -3188,8 +3209,12 @@ const Controller = {
                 Display.drawControlPalette(machine.id);
             });
         }
-
-
+        if(Model.question.type !== "none" && Display.showProgressBar && !d3.select(".sidebar").empty()){
+            const statsObj = Logging.getQuestionsCorrect();
+            if(statsObj){
+                Display.drawProgressBar(statsObj);
+            }
+        }
         Logging.init();
     },
     getQuestionMachineList: function(){
@@ -3303,7 +3328,7 @@ const Logging = {
     getQuestionsCorrect: function(){
         //Return an object giving the number of questions the user has answered correctly, as well as the total number of questions.
         //Note that this figure is calculated based on the questions in the sidebar, so that if a question has been removed but it is still
-        //in localStorage, it will not be counted.
+        //in localStorage, it will not be counted. This also stops questions from separate question sets from counting.
         if(!Logging.hasLocalStorage || d3.select(".sidebar").empty()){
             return null;
         }
@@ -3335,6 +3360,9 @@ const Logging = {
         }
         questionObj[Logging.pageID] = {correct: true};
         localStorage.setItem("fsmQuestions", JSON.stringify(questionObj));
+        if(Display.showProgressBar){
+            Display.drawProgressBar(Logging.getQuestionsCorrect());
+        }
     },
     //Answer will be an object, varying with question type
     sendAnswer: function(isCorrect, answer) {
