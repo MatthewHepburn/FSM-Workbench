@@ -647,9 +647,11 @@ const Model = {
             nodes.forEach(node => node.isAccepting = !node.isAccepting);
         };
 
-        this.getUnionWith = function(machine){
-            //Returns a machine that accepts L = L(this) ∩ L(machine)
-            //Create copies to avoid altering original machines
+
+        this.getIntersectionWith = function(machine){
+            // Returns a machine that accepts L = L(this) ∩ L(machine)
+            // Ie the intersection machine accepts a sequence iff both of the original machines accept it.
+            // Create copies to avoid altering original machines
             var m1 = new Model.Machine("temp1");
             m1.build(this.getSpec());
             var m2 = new Model.Machine("temp2");
@@ -661,10 +663,10 @@ const Model = {
             m2.completelySpecify("blackhole");
 
 
-            var unionMachine = new Model.Machine("u1");
+            var intersectionMachine = new Model.Machine("u1");
 
             var alphabet = m1.alphabet.filter(symbol => m2.alphabet.indexOf(symbol) !== -1);
-            unionMachine.setAlphabet(alphabet);
+            intersectionMachine.setAlphabet(alphabet);
 
             var m1Initial = m1.getNodeList().find(node => node.isInitial);
             var m2Initial = m2.getNodeList().find(node => node.isInitial);
@@ -690,7 +692,7 @@ const Model = {
                 var isAccepting = n1.isAccepting && n2.isAccepting;
                 var isInitial = n1.isInitial && n2.isInitial;
 
-                addedNodes[pairID] = unionMachine.addNode(0, 0, "", isInitial, isAccepting);
+                addedNodes[pairID] = intersectionMachine.addNode(0, 0, "", isInitial, isAccepting);
 
                 alphabet.forEach(function(symbol){
                     //For the pair of nodes, get the state that they will move to for this symbol
@@ -722,11 +724,11 @@ const Model = {
                     //No link present, create it
                     var hasEpsilon = false;
                     var output = {};
-                    unionMachine.addLink(sourceNode, targetNode, input, output, hasEpsilon);
+                    intersectionMachine.addLink(sourceNode, targetNode, input, output, hasEpsilon);
                 }
             }
 
-            return unionMachine;
+            return intersectionMachine;
 
         };
 
@@ -1556,9 +1558,9 @@ const Model = {
             inputComplement.complement();
 
             //This machine accepts sequences that the input machine rejects but the target machine accepts:
-            const unionInputComplementWithTarget = inputComplement.getUnionWith(targetMachine);
+            const notInputAndTargetMachine = inputComplement.getIntersectionWith(targetMachine);
 
-            let incorrectSequence = unionInputComplementWithTarget.getAcceptedSequence();
+            let incorrectSequence = notInputAndTargetMachine.getAcceptedSequence();
             if(incorrectSequence !== null){
                 let printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){
@@ -1576,9 +1578,9 @@ const Model = {
             targetComplement.complement();
 
             //This machine accepts sequences that the input machine accepts but the target machine rejects:
-            const unionInputWithTargetComplement = inputMachine.getUnionWith(targetComplement);
+            const inputAndNotTargetMachine = inputMachine.getIntersectionWith(targetComplement);
 
-            incorrectSequence = unionInputWithTargetComplement.getAcceptedSequence();
+            incorrectSequence = inputAndNotTargetMachine.getAcceptedSequence();
             if(incorrectSequence !== null){
                 let printableSequence = incorrectSequence.reduce((x,y) => x + Model.question.splitSymbol + y, "");
                 if(incorrectSequence.length > 0){

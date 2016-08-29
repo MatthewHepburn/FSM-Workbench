@@ -1014,8 +1014,8 @@ describe("Model", function() {
         });
     });
 
-    describe("test machine.getUnionWith()", function(){
-        describe("union of a*b* with ab:", function(){
+    describe("test machine.getIntersectionWith()", function(){
+        describe("intersection of a*b* with ab:", function(){
             const m1 = new model.Machine("a*b*");
             const m2 = new model.Machine("ab");
 
@@ -1053,18 +1053,18 @@ describe("Model", function() {
                 });
             });
 
-            it("union should accept only ab", function(){
-                var union = m1.getUnionWith(m2);
+            it("intersection should accept only ab", function(){
+                const intersection = m1.getIntersectionWith(m2);
                 var acceptList = ["ab"];
                 var rejectList = ["ba", "abbba", "bbba", "ababababa", "", "a", "b", "aab", "aaa", "bbb", "abbbb"];
                 var splitSymbol = "";
                 acceptList.map(x => model.parseInput(x, splitSymbol));
                 rejectList.map(x => model.parseInput(x, splitSymbol));
                 acceptList.forEach(function(sequence){
-                    expect(union.accepts(sequence)).to.be.true;
+                    expect(intersection.accepts(sequence)).to.be.true;
                 });
                 rejectList.forEach(function(sequence){
-                    expect(union.accepts(sequence)).to.be.false;
+                    expect(intersection.accepts(sequence)).to.be.false;
                 });
 
             });
@@ -1072,7 +1072,7 @@ describe("Model", function() {
 
         });
 
-        describe("union of (a*b*)*|(ba) with (ab)|(ba*):", function(){
+        describe("intersection of (a*b*)*|(ba) with (ab)|(ba*):", function(){
             const m1 = new model.Machine("m1"); //(a*b*)*|(ba)
             const m2 = new model.Machine("m2"); //(ab)|(ba*)
 
@@ -1110,16 +1110,16 @@ describe("Model", function() {
                 });
             });
 
-            it("union should accept only sequences accepted by both m1 and m2", function(){
-                const union = m1.getUnionWith(m2);
+            it("intersection should accept only sequences accepted by both m1 and m2", function(){
+                const intersection = m1.getIntersectionWith(m2);
                 const list = ["", "a", "b", "aab", "aaa", "bbb", "abbbb", "ab", "ababababbbbbaaa", "bbbbb", "ba", "ab", "ba", "baaa", "b", "baa", "abb", "a", "bab", "baab", "aba"];
                 const splitSymbol = "";
                 list.map(x => model.parseInput(x, splitSymbol));
                 list.forEach(function(sequence){
                     if(m1.accepts(sequence) && m2.accepts(sequence)){
-                        expect(union.accepts(sequence)).to.be.true;
+                        expect(intersection.accepts(sequence)).to.be.true;
                     } else {
-                        expect(union.accepts(sequence)).to.be.false;
+                        expect(intersection.accepts(sequence)).to.be.false;
                     }
                 });
 
@@ -1127,7 +1127,7 @@ describe("Model", function() {
 
         });
 
-        describe("union of ac* with a*c*b:", function(){
+        describe("intersection of ac* with a*c*b:", function(){
             const m1 = new model.Machine("m1"); // ac*
             const m2 = new model.Machine("m2"); // a*c*b
 
@@ -1165,16 +1165,16 @@ describe("Model", function() {
                 });
             });
 
-            it("union should accept only sequences accepted by both m1 and m2", function(){
-                const union = m1.getUnionWith(m2);
+            it("intersection should accept only sequences accepted by both m1 and m2", function(){
+                const intersection = m1.getIntersectionWith(m2);
                 const list = ["", "a", "aaccb", "ab", "abba", "ac", "acab", "acb", "acba", "acc", "accc", "acccc", "accccccccccc", "accccccccccccccccccccccccccccccccccccccccccccccca", "b", "ba", "bacca", "c", "ca", "cb"];
                 const splitSymbol = "";
                 list.map(x => model.parseInput(x, splitSymbol));
                 list.forEach(function(sequence){
                     if(m1.accepts(sequence) && m2.accepts(sequence)){
-                        expect(union.accepts(sequence)).to.be.true;
+                        expect(intersection.accepts(sequence)).to.be.true;
                     } else {
-                        expect(union.accepts(sequence)).to.be.false;
+                        expect(intersection.accepts(sequence)).to.be.false;
                     }
                 });
 
