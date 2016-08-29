@@ -41,8 +41,8 @@ def setAddresses(toDeploy):
         addresses = {
             "jsAddress": deployDir + os.sep,
             "cssAddress": deployDir + os.sep,
-            "iconAddress": os.path.join(deployDir, "img", "icons"),
-            "imgAddress": os.path.join(deployDir, "img"),
+            "iconAddress": os.path.join(deployDir, "img", "icons") + os.sep,
+            "imgAddress": os.path.join(deployDir, "img") + os.sep,
             "d3Address": os.path.join(startDir, "node_modules", "d3", "build", "d3.js"),
             "pureCSSAddress": os.path.join(startDir, "node_modules", "purecss", "build", "pure.css")
         }
