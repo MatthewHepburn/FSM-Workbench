@@ -3,7 +3,7 @@
 // 'UI' or 'Interface' might be a more accurate name? ('View' as in MVC?)
 const Display = {
     extraNext: true, //Adding a an extra next button when a correct answer is given may help users to navigate
-    showProgressBar: true, //show a progress bar in question sets.
+    showProgressBar: false, //show a progress bar in question sets. (currently overwritten by test001)
     nodeRadius: 12,
     acceptingRadius: 0.7 * 12, //12 = nodeRadius
     nodeNameFontSize: 1.2 * 0.7 * 12, //0.7 * 12 = acceptingRadius (Done this way because an object cannot refer to itself before it is created)
@@ -3209,13 +3209,14 @@ const Controller = {
                 Display.drawControlPalette(machine.id);
             });
         }
+        Logging.init(); //Sets up logging system, assigns to test group.
         if(Model.question.type !== "none" && Display.showProgressBar && !d3.select(".sidebar").empty()){
             const statsObj = Logging.getQuestionsCorrect();
             if(statsObj){
                 Display.drawProgressBar(statsObj);
             }
         }
-        Logging.init();
+
     },
     getQuestionMachineList: function(){
         const body = document.querySelector("body");
@@ -3300,8 +3301,8 @@ const Logging = {
         //Use local storage if it is available
         if(Logging.hasLocalStorage) {
             if (localStorage.getItem("userID") !== null){
-                Logging.userID = localStorage.getItem("userID");
-                return;
+                Logging._userID = localStorage.getItem("userID");
+                return Logging._userID;
             }
         }
         var d = new Date().getTime();
@@ -3332,17 +3333,21 @@ const Logging = {
         if(!Logging.hasLocalStorage || d3.select(".sidebar").empty()){
             return null;
         }
-        const correctObj = {
+        const statsObj = {
             totalQuestions: d3.selectAll(".sidebar-otherq").size() + 1, //plus 1 to account for this question
             questionsCorrect: undefined
         };
         if(localStorage.getItem("fsmQuestions") === null){
-            return null;
+            // Assume that this means that no questions have been answered correctly
+            // Could also mean that localStorage exists and is full.
+            statsObj.questionsCorrect = 0;
+            return statsObj;
         }
 
-        const questionsObj = JSON.parse(localStorage.getItem("fsmQuestions"));
-        correctObj.questionsCorrect = Object.keys(questionsObj).filter(id => questionsObj[id].correct).filter(id => !d3.select("#qid-" + id).empty()).length;
-        return correctObj;
+        const savedStatsObj = JSON.parse(localStorage.getItem("fsmQuestions"));
+        //Count the number of question ids marked as correct that are present in the sidebar.
+        statsObj.questionsCorrect = Object.keys(savedStatsObj).filter(id => savedStatsObj[id].correct).filter(id => !d3.select("#qid-" + id).empty()).length;
+        return statsObj;
     },
     recordQuestionCorrect: function(){
         //Note in local storage that this question has been answered correctly
@@ -3467,12 +3472,45 @@ const Logging = {
             }
         });
     },
+    setUpTestGroups: function(){
+        //Assigns the user to a group for AB testing, setting variables as necessary and storing the group in localStorage
+        //test001 is a test of the progress bar.
+        let test001Group;
+        if(!Logging.hasLocalStorage){
+            // If local storage is unavailable, assign the user to group 'x'
+            // They will be excluded from the experiment as they cannot be consistently assigned to 'a' or 'b'
+            // using this method of testing.
+            test001Group = "x";
+        }else{
+            if(["a","b"].includes(localStorage.getItem("fsmTest001"))){
+                test001Group = localStorage.getItem("fsmTest001");
+            } else {
+                //Assign to a or b as not already assigned
+                test001Group = Math.random() < 0.5 ? "a" : "b";
+            }
+            localStorage.setItem("fsmTest001", test001Group);
+        }
+        Logging.setSessionVar("test001Group", test001Group);
+        if(test001Group === "a"){
+            // group 'a' gets the progress bar
+            Display.showProgressBar = true;
+        } else {
+            // group 'b' and 'x' do not get the progress bar
+            Display.showProgressBar = false;
+        }
+
+
+
+
+    },
     init: function(){
         //Register a listener to send session data when the user leaves the page
         d3.select(window).on("beforeunload", function(){
             Logging.sendSessionData();
         });
+        Logging.setUpTestGroups();
         Logging.markCorrectQuestions();
+
     }
 };
 
