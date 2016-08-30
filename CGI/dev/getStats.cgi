@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import cgi
 import os
 import cgitb
@@ -23,12 +23,12 @@ try:
 	modifedTime = int(os.path.getmtime(datafile))
 except OSError:
 	# If file doesn't exist, create it.
-	subprocess.call(["python", "parse.py"])
+	subprocess.call(["python3", "parse.py"])
 	modifedTime = int(os.path.getmtime(datafile))
 currentTime = int(time.time())
 if currentTime - modifedTime > 60 * 5: # 5 minutes
 	# Recreate stats.json
-	subprocess.call(["python", "parse.py"])
+	subprocess.call(["python3", "parse.py"])
 # Output the file.
 f = open(datafile, "r")
 print(f.read())

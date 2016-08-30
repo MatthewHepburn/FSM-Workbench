@@ -20,8 +20,9 @@ pages = {}
 questions = {}
 users = {}
 pageDict = {}
+testData = {}
 cutoffTime = 1439447160 # Ignore entries before this timestamp
-maxTimeOnPage = 7200
+maxTimeOnPage = 1800 #30 minutes
 
 logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
@@ -38,6 +39,7 @@ def main():
     analyseUsage()
     writeFullJSON()
     addPageData()
+    analyseTestData()
     writePublicJSON()
     archiveLogs()
 
@@ -131,6 +133,28 @@ def analyseUsage():
             if pageID not in pages:
                     addPage(pageID)
             pages[pageID]["usersCorrect"] += 1
+
+def analyseTestData():
+    # Analyse test001 - the test of the progress bar
+    # for groups 'a' and 'b', determine the mean number of questions correctly answered
+    global testData
+    testData["test001"] = {
+        "aUsers": 0,
+        "bUsers": 0,
+        "aQuestionsCorrect": 0,
+        "bQuestionsCorrect": 0
+    }
+    for userID in users:
+        user = users[userID]
+        try:
+            group = user["testGroups"]["test001"]
+            if group not in ["a", "b"]:
+                continue;
+            testData["test001"][group + "Users"] += 1
+            testData["test001"][group + "QuestionsCorrect"] += len(user["questionsCorrect"])
+        except KeyError:
+            pass
+
 
 
 
@@ -256,7 +280,8 @@ def addUser(userID):
             "questionRatings": {},
             "questionsAttempted": [],
             "questionsCorrect": [],
-            "totalTimeOnPage": {}
+            "totalTimeOnPage": {},
+            "testGroups": {}
         }
 
 
@@ -400,6 +425,24 @@ def readUsage(filename):
                             users[userID]["sessionData"][counterName] = counterValue
                         else:
                             users[userID]["sessionData"][counterName] += counterValue
+
+                tests = ["test001"]
+                for testName in tests:
+                    if testName + "Group" in usage["sessionData"]:
+                        # If the users is a assigned to a group, this will overwrite any previous value
+                        testGroup = usage["sessionData"][testName + "Group"]
+                    else:
+                        # However, if no value is set just continue, do not unset the previous value.
+                        # NB this will happen for data from pages that are not aware of this particular test
+                        # E.G. the index may not report test groups that are assigned by a question, even after the
+                        # test group has been set.
+                        continue
+                    if not testGroup in ["a", "b"]:
+                        testGroup = "x"
+                    if not "testGroups" in users[userID]:
+                        users[userID]["testGroups"] = {}
+                    users[userID]["testGroups"][testName] = testGroup
+
                 # Record data in pages:
                 if pageID not in pages:
                     addPage(pageID)
@@ -449,16 +492,15 @@ def getVisitors(userIDList):
 def getLogSize():
     # Return a string representing the size of the log directory
     os.chdir(startDir)
-    # This is a nicer way to do this, but won't work until DICE upgrages to python version >= 2.7
-    if False and hasattr(subprocess, "check_output"):
+    if hasattr(subprocess, "check_output"):
         output = subprocess.check_output(["du", "-sb"])
-        bytes = int(output.split("\t")[0])
+        bytes = int(output.decode().split("\t")[0])
     else:
-        # So fall back to this
+        # So fall back to this if python version < 2.7
         from subprocess import PIPE,Popen
         p = Popen(['du', '-sb'], stdout=PIPE)
         output = p.communicate()[0]
-        bytes = int(output.split("\t")[0])
+        bytes = int(output.decode().split("\t")[0])
 
     KiB = bytes/1024.0
     if KiB < 1024:
@@ -477,7 +519,7 @@ def writePublicJSON():
     now = datetime.datetime.now()
     timeStamp = now.strftime('%Y-%m-%d %H:%M:%S')
     logSize = getLogSize()
-    out = {"pages":pages, "dates":dates, "meta":{"timeStamp":timeStamp, "logSize": logSize}}
+    out = {"pages":pages, "dates":dates, "tests": testData, "meta":{"timeStamp":timeStamp, "logSize": logSize}}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 
