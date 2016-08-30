@@ -181,7 +181,7 @@ def readPrevStats():
                 users = data["users"]
             if "dates" in data:
                 dates = data["dates"]
-            if "urls" in data:
+            if "pages" in data:
                 pages = data["pages"]
     except (ValueError, IOError):
         dates = {}
