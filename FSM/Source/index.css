@@ -8,8 +8,19 @@ body {
 	font-family: 'Ek Mukta', sans-serif;
 	margin-top: 20px;
 	margin-bottom: 10px;
+	line-height: 1.7;
 }
 
 .screenshots img {
-	width: 250px;
+	width: 200px;
+}
+
+.topstart{
+	margin-top: 30px;
+	font-size: large;
+}
+
+h2 {
+	font-size: 1.3em;
+	margin-bottom: 0px;
 }
