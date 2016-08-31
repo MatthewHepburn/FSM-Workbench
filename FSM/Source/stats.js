@@ -254,6 +254,7 @@ var display = {
         var xMargin = 4;
         d3.select("#canvas")
             .html("");
+        d3.selectAll(".removable").remove();
         var dateData = data.getDateData();
         var barHeight = 30;
         var axisWidth = 20;
@@ -294,9 +295,8 @@ var display = {
                 }
             });
 
-        var xAxis = d3.svg.axis()
-                        .scale(scale)
-                        .orient("bottom");
+        const xAxis = d3.axisBottom(scale);
+
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate("+ xMargin + "," + (height - axisWidth) + ")")
@@ -317,6 +317,7 @@ var display = {
         var xMargin = 4;
         d3.select("#canvas")
             .html("");
+        d3.selectAll(".removable").remove();
         var pageData = data.getPageVisitData();
         var barHeight = 30;
         var axisWidth = 20;
@@ -324,7 +325,7 @@ var display = {
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
-        var scale = d3.scale.linear()
+        var scale = d3.scaleLinear()
                     .domain([0, max])
                     .range([0, display.width - 200]);
 
@@ -357,9 +358,8 @@ var display = {
                 }
             });
 
-        var xAxis = d3.svg.axis()
-                        .scale(scale)
-                        .orient("bottom");
+        const xAxis = d3.axisBottom(scale);
+
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate("+ xMargin + "," + (height - axisWidth) + ")")
@@ -381,6 +381,7 @@ var display = {
         var xMargin = 4;
         d3.select("#canvas")
             .html("");
+        d3.selectAll(".removable").remove();
         var pageData = data.getPageAnswersData();
         var barHeight = 30;
         var axisWidth = 20;
@@ -388,7 +389,7 @@ var display = {
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
-        var scale = d3.scale.linear()
+        var scale = d3.scaleLinear()
                     .domain([0, max])
                     .range([0, display.width - 200]);
 
@@ -416,9 +417,8 @@ var display = {
             .classed("right-label", true)
             .text(function(d) { return d.name; });
 
-        var xAxis = d3.svg.axis()
-                        .scale(scale)
-                        .orient("bottom");
+        const xAxis = d3.axisBottom(scale);
+
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate("+ xMargin + "," + (height - axisWidth) + ")")
@@ -439,6 +439,7 @@ var display = {
         var xMargin = 4;
         d3.select("#canvas")
             .html("");
+        d3.selectAll(".removable").remove();
         var pageData = data.getPageRatingData();
         var barHeight = 30;
         var axisWidth = 20;
@@ -446,7 +447,7 @@ var display = {
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
-        var scale = d3.scale.linear()
+        var scale = d3.scaleLinear()
                     .domain([0, max])
                     .range([0, display.width - 200]);
 
@@ -472,9 +473,8 @@ var display = {
             .classed("right-label", true)
             .text(function(d) { return d.name; });
 
-        var xAxis = d3.svg.axis()
-                        .scale(scale)
-                        .orient("bottom");
+        const xAxis = d3.axisBottom(scale);
+
         if (max < 5){
             xAxis.tickValues([1,2,3,4,5])
                 .tickFormat(d3.format(",.0f"));
@@ -500,6 +500,7 @@ var display = {
         var xMargin = 4;
         d3.select("#canvas")
             .html("");
+        d3.selectAll(".removable").remove();
         var pageData = data.getPageAnswersData();
         var barHeight = 30;
         var axisWidth = 20;
@@ -507,7 +508,7 @@ var display = {
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
-        var scale = d3.scale.linear()
+        var scale = d3.scaleLinear()
                     .domain([0, max])
                     .range([0, display.width - 200]);
 
@@ -533,9 +534,8 @@ var display = {
             .classed("right-label", true)
             .text(function(d) { return d.name; });
 
-        var xAxis = d3.svg.axis()
-                        .scale(scale)
-                        .orient("bottom");
+        var xAxis = d3.axisBottom(scale);
+
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate("+ xMargin + "," + (height - axisWidth) + ")")
@@ -548,20 +548,47 @@ var display = {
     },
     drawTest001BarChart: function(){
         const testData = data.json.tests.test001;
-        //Calculate the mean number of questions correct for each test group.
-        const aMean = testData.aUsers > 0 ? testData.aQuestionsCorrect / testData.aUsers : 0;
-        const bMean = testData.bUsers > 0 ? testData.bQuestionsCorrect / testData.bUsers : 0;
-
 
         const chartObj = {
             chartTitle: "Test001 (in progress)",
             barLabels: ["A", "B"],
-            barValuesFull: [aMean, bMean],
+            barValuesFull: [testData.aMean, testData.bMean],
             xAxisLabel: "Test group",
             yAxisLabel: "Mean number of questions answered correctly"
         };
 
         display.drawVerticalBarChart(chartObj);
+
+        //Add a table giving additional data about this test.
+        const resultsTable = d3.select("body")
+                               .insert("table", "#title + *")
+                               .classed("removable", true);
+
+        //Add a header to the table
+        const tableHeader = resultsTable.append("thead").append("tr");
+        ["Group", "Number of Users",
+         "Mean questions answered correctly", "Standard deviation"].forEach(d => tableHeader.append("td").text(d));
+
+        //Add the data
+        const tBody = resultsTable.append("tbody");
+        ["a", "b"].forEach(function(group){
+            const row = tBody.append("tr");
+            row.append("td").text(group.toUpperCase());
+            row.append("td").text(testData[group+"Users"]);
+            row.append("td").text(testData[group+"Mean"]);
+            row.append("td").text(testData[group+"SD"]);
+        });
+
+        //style the table
+        resultsTable
+            .style("margin", "40px")
+            .selectAll("td")
+                .style("border-style", "solid")
+                .style("border-color", "black")
+                .style("border-width", "thin")
+                .style("text-align", "center")
+                .style("padding", "0px 7px 0px 7px");
+
     },
     drawVerticalBarChart: function(chartObj) {
         // Expect chartObj to include properties (* denotes optional):
@@ -573,6 +600,7 @@ var display = {
         chart.html("")
             .attr("width", display.width)
             .attr("height", display.height);
+        d3.select("#x-axis-title").html("").text("");
 
 
         // Draw title
@@ -580,8 +608,7 @@ var display = {
             .text(chartObj.chartTitle)
             .attr("style", "width: " + (display.width) + "px;");
 
-        // Update x-axis
-        d3.select("#x-axis-title").html("").text(chartObj.xAxisLabel);
+
 
         // Calculate highest y value
         const maxVal = chartObj.barValuesFull.reduce((x,y)=>Math.max(x, y));
@@ -590,8 +617,8 @@ var display = {
         const nValues = chartObj.barValuesFull.length;
         const xMargin = 100 / (nValues + 1);
         const barWidth = (display.width - 200) / nValues;
-        const x0 = 40;
-        const y0 = display.height - 50; //y of bottom of chart
+        const x0 = 80;
+        const y0 = display.height - 80; //y of bottom of chart
         const yTop = 10; //y of top of axis. NB yTop is lower than y0
 
 
@@ -618,13 +645,25 @@ var display = {
                         .classed("bar", true);
 
         //Add the yAxis
-        const yAxis = d3.axisLeft(scale);
+        const yAxisGenerator = d3.axisLeft(scale);
         const xGap = 10; //Gap between xAxis and first bar
+        const labelX = - 50;
+        const labelY = (yTop + y0) / 2;
 
         chart.append("g")
             .attr("transform", `translate(${x0-xGap},0)`)
             .attr("class", "y axis")
-            .call(yAxis);
+            .call(yAxisGenerator)
+            .append("text") //Add the axis label
+                .text(chartObj.yAxisLabel)
+                .attr("transform", `rotate(270, ${labelX}, ${labelY})`)
+                .style("fill", "#000000")
+                .attr("x", labelX)
+                .attr("y", labelY)
+                .style("text-anchor", "middle")
+                .style("dominant-baseline", "central")
+                .style("font", "sans-serif")
+                .style("font-size", 18);
 
         //Add the xAxis
         const xAxisWidth = xGap + nValues * barWidth + (nValues -1) * xMargin;
@@ -635,15 +674,33 @@ var display = {
 
         const xAxisScale = d3.scaleOrdinal()
                              .domain(xAxisLabels)
-                             .range(xAxisRange)
+                             .range(xAxisRange);
 
-        const xAxis = d3.axisBottom(xAxisScale)
-                        // .ticks()
-        chart.insert("g", ":first-child")
-            .attr("transform", `translate(0, ${y0})`)
-            .classed("x", true)
-            .classed("axis", true)
-            .call(xAxis);
+        const xAxisGenerator = d3.axisBottom(xAxisScale);
+
+
+        const xAxis = chart.insert("g", ":first-child")
+                            .attr("transform", `translate(0, ${y0})`)
+                            .classed("x", true)
+                            .classed("axis", true)
+                            .call(xAxisGenerator);
+
+        //Tweak the ticks on the x-axis
+        const xAxisTickFontSize = 50 / (nValues - 1);
+        xAxis.selectAll(".tick text")
+             .style("font-size", xAxisTickFontSize)
+             .style("text-anchor", "middle");
+
+
+        xAxis.append("text") //add the axis label)
+            .text(chartObj.xAxisLabel)
+            .style("fill", "#000000")
+            .attr("x", (xAxisWidth / 2) + x0 )
+            .attr("y", xAxisTickFontSize + 10)
+            .style("text-anchor", "middle")
+            .style("dominant-baseline", "central")
+            .style("font", "sans-serif")
+            .style("font-size", 18);
     },
     writeLogSize:function(){
         var div = document.querySelector("#logsize");
@@ -663,8 +720,7 @@ var control = {
         }
         data.setLists();
         data.sortLists();
-        // display.drawDateBarChart();
-        display.drawTest001BarChart();
+        display.drawDateBarChart();
         display.writeTimeStamp();
         display.writeLogSize();
     }

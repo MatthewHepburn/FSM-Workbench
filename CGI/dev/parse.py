@@ -141,8 +141,13 @@ def analyseTestData():
     testData["test001"] = {
         "aUsers": 0,
         "bUsers": 0,
-        "aQuestionsCorrect": 0,
-        "bQuestionsCorrect": 0
+    }
+    # Temporary data store that holds the number of questions correct for each user, split into groups a and b
+    data = {
+        "a": [],
+        "b": [],
+        "aTotal": 0,
+        "bTotal": 0
     }
     for userID in users:
         user = users[userID]
@@ -151,9 +156,30 @@ def analyseTestData():
             if group not in ["a", "b"]:
                 continue;
             testData["test001"][group + "Users"] += 1
-            testData["test001"][group + "QuestionsCorrect"] += len(user["questionsCorrect"])
+            data[group].append(len(user["questionsCorrect"]))
+            data[group + "Total"] += len(user["questionsCorrect"])
         except KeyError:
             pass
+
+    # Calculate the means and standard deviations
+    for group in ["a", "b"]:
+        varianceSum = 0
+        total = data[group + "Total"]
+        n = testData["test001"][group + "Users"]
+        if n > 0:
+            mean = total / n
+        else:
+            mean = 0
+        testData["test001"][group + "Mean"] = mean;
+        dataArray = data[group]
+        if n < 2:
+            sd = 0
+        else:
+            for value in dataArray:
+                varianceSum += (value - mean) * (value - mean)
+            sd = math.sqrt(varianceSum / (n - 1));
+        testData["test001"][group+"SD"] = sd
+
 
 
 
