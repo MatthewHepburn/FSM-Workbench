@@ -261,7 +261,7 @@ var display = {
         var chart = d3.select("#canvas");
         chart
             .attr("height", height);
-        var scale = d3.scale.linear()
+        var scale = d3.scaleLinear()
                     .domain([0, max])
                     .range([0, display.width - 200]);
 
@@ -546,6 +546,105 @@ var display = {
             .attr("style", "width: " + (display.width - 200) + "px;");
         d3.selectAll(".y .axis");
     },
+    drawTest001BarChart: function(){
+        const testData = data.json.tests.test001;
+        //Calculate the mean number of questions correct for each test group.
+        const aMean = testData.aUsers > 0 ? testData.aQuestionsCorrect / testData.aUsers : 0;
+        const bMean = testData.bUsers > 0 ? testData.bQuestionsCorrect / testData.bUsers : 0;
+
+
+        const chartObj = {
+            chartTitle: "Test001 (in progress)",
+            barLabels: ["A", "B"],
+            barValuesFull: [aMean, bMean],
+            xAxisLabel: "Test group",
+            yAxisLabel: "Mean number of questions answered correctly"
+        };
+
+        display.drawVerticalBarChart(chartObj);
+    },
+    drawVerticalBarChart: function(chartObj) {
+        // Expect chartObj to include properties (* denotes optional):
+        // chartTitle, barLabels, barValuesFull, barValuesSplit*,  xAxisLabel, yAxisLabel,
+
+        //Clear existing chart;
+        d3.selectAll(".removable").remove();
+        const chart = d3.select("#canvas");
+        chart.html("")
+            .attr("width", display.width)
+            .attr("height", display.height);
+
+
+        // Draw title
+        d3.select("#title")
+            .text(chartObj.chartTitle)
+            .attr("style", "width: " + (display.width) + "px;");
+
+        // Update x-axis
+        d3.select("#x-axis-title").html("").text(chartObj.xAxisLabel);
+
+        // Calculate highest y value
+        const maxVal = chartObj.barValuesFull.reduce((x,y)=>Math.max(x, y));
+
+        // Define constants
+        const nValues = chartObj.barValuesFull.length;
+        const xMargin = 100 / (nValues + 1);
+        const barWidth = (display.width - 200) / nValues;
+        const x0 = 40;
+        const y0 = display.height - 50; //y of bottom of chart
+        const yTop = 10; //y of top of axis. NB yTop is lower than y0
+
+
+
+        const scale = d3.scaleLinear()
+                        .clamp(true)
+                        .nice()
+                        .domain([0, maxVal])
+                        .range([y0, yTop]);
+
+
+        //Adds the bars
+        const barCentreXs = []; //Track the centre of each bar to draw labels
+        d3.select("#canvas").selectAll("g")
+            .data(chartObj.barValuesFull)
+            .enter()
+                .append("g")
+                    .append("rect")
+                        .attr("x", (d, i) => x0 + i * (barWidth + xMargin))
+                        .attr("y", d => scale(d))
+                        .attr("width", barWidth)
+                        .attr("height", d => y0 - scale(d))
+                        .each(function(){barCentreXs.push(Number(d3.select(this).attr("x")) + barWidth/2);}) //record x-coord of centre
+                        .classed("bar", true);
+
+        //Add the yAxis
+        const yAxis = d3.axisLeft(scale);
+        const xGap = 10; //Gap between xAxis and first bar
+
+        chart.append("g")
+            .attr("transform", `translate(${x0-xGap},0)`)
+            .attr("class", "y axis")
+            .call(yAxis);
+
+        //Add the xAxis
+        const xAxisWidth = xGap + nValues * barWidth + (nValues -1) * xMargin;
+        const xAxisStart = x0 - xGap; // x coordinate for the start of the axis
+        const xAxisEnd = xAxisWidth + (x0 - xGap); //x coordinate for the end of the axis
+        const xAxisLabels = [""].concat(chartObj.barLabels).concat([""]);
+        const xAxisRange = [xAxisStart].concat(barCentreXs).concat([xAxisEnd]);
+
+        const xAxisScale = d3.scaleOrdinal()
+                             .domain(xAxisLabels)
+                             .range(xAxisRange)
+
+        const xAxis = d3.axisBottom(xAxisScale)
+                        // .ticks()
+        chart.insert("g", ":first-child")
+            .attr("transform", `translate(0, ${y0})`)
+            .classed("x", true)
+            .classed("axis", true)
+            .call(xAxis);
+    },
     writeLogSize:function(){
         var div = document.querySelector("#logsize");
         div.innerHTML = ("Log size: ") + data.json.meta.logSize;
@@ -564,7 +663,8 @@ var control = {
         }
         data.setLists();
         data.sortLists();
-        display.drawDateBarChart();
+        // display.drawDateBarChart();
+        display.drawTest001BarChart();
         display.writeTimeStamp();
         display.writeLogSize();
     }

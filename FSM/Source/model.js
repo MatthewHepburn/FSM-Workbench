@@ -1,7 +1,7 @@
 "use strict";
 
 // This holds the domain model and the functions needed to interact with it. It should not interact with the DOM and
-// it should not recquire d3.
+// it should not require d3.
 const Model = {
     machines: [], // This may be better as an object, with machine IDs as keys.
     addMachine: function(specificationObj){
