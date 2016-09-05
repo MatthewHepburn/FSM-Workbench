@@ -992,7 +992,7 @@ const Display = {
         //Initialise trace
         Display.drawTraceStep(svg, 0, canvasID);
     },
-    drawTraceStep(svg, step, canvasID){
+    drawTraceStep(svg, step, canvasID, animate){
         const canvasVars = Display.getCanvasVars(canvasID);
         canvasVars.traceStep = step;
         const traceObj = canvasVars.traceObj;
@@ -1031,28 +1031,167 @@ const Display = {
         //Class all nodes as not current
         svg.selectAll(".node").classed("trace-not-current", true);
 
-        //Class current states
-        const currentNodes = traceObj.states[step];
-        for(let i = 0; i < currentNodes.length; i++){
-            const nodeID = currentNodes[i].id;
-            d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false);
+
+        //Enclose the final steps in a function so that it can be called after animation if necessary
+        const applyFinalStyle = function(){
+            //Class current states
+            const currentNodes = traceObj.states[step];
+            for(let i = 0; i < currentNodes.length; i++){
+                const nodeID = currentNodes[i].id;
+                d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false);
+            }
+
+            //Class used links and link inputs
+            const usedLinks = traceObj.links[step];
+            for(let i = 0; i < usedLinks.length; i++){
+                const linkUsageObj = usedLinks[i];
+                const link = linkUsageObj.link;
+                d3.select(`#${link.id}`).classed("trace-used-link", true);
+                Display.setLinkMarker(link, "url(#highlight-arrow)");
+                if(linkUsageObj.epsUsed){
+                    //Handle case of epsilon link
+                    d3.select(`#${link.id}-input-eps`).classed("trace-used-link-input", true);
+                } else {
+                    const inputIndex = linkUsageObj.inputIndex;
+                    d3.select(`#${link.id}-input-${inputIndex}`).classed("trace-used-link-input", true);
+                }
+            }
+        };
+
+        if(!animate){
+            //Finish here if no animation is needed
+            applyFinalStyle();
+            return;
         }
 
-        //Class used links and link inputs
+        //Animate the transition
         const usedLinks = traceObj.links[step];
-        for(let i = 0; i < usedLinks.length; i++){
-            const linkUsageObj = usedLinks[i];
-            const link = linkUsageObj.link;
-            d3.select(`#${link.id}`).classed("trace-used-link", true);
-            Display.setLinkMarker(link, "url(#highlight-arrow)");
-            if(linkUsageObj.epsUsed){
-                //Handle case of epsilon link
-                d3.select(`#${link.id}-input-eps`).classed("trace-used-link-input", true);
-            } else {
-                const inputIndex = linkUsageObj.inputIndex;
-                d3.select(`#${link.id}-input-${inputIndex}`).classed("trace-used-link-input", true);
+        //Add a temporary path to each link group
+        usedLinks.forEach(function(linkUsageObj){
+            const linkG = d3.select(`#linkg-${linkUsageObj.link.id}`);
+            const animPath = linkG.append("path")
+                                .classed("trace-animation", true)
+                                .style("marker-end", "url(#highlight-arrow)");
+
+            linkUsageObj.animPath = animPath; //Save path to usageObj
+
+
+        });
+        let startTime;
+        const duration = 600; //ms
+        // let endTime;
+        // let callBackID;
+
+        //TODO handle chains of epsilon links
+
+        const drawFrame = function(timeStamp){
+            //Takes a DOMHighResTimeStamp, provided by window.requestAnimationFrame
+            if(!startTime){
+                startTime = timeStamp;
+                // endTime = startTime + duration;
             }
+            const tRaw = (timeStamp - startTime) / duration; // 0 <= t <= 1
+            const t = d3.easePolyIn(tRaw, 1.1); //Apply easing function to make animation look more natural.
+
+            if(1 <= t){
+                //End animation. Remove temporary elements and apply final style.
+                d3.selectAll(".trace-animation").remove();
+                applyFinalStyle();
+                return;
+            }
+
+            usedLinks.forEach(function(linkUsageObj){
+                Display.animateLink(linkUsageObj.link, t);
+
+            });
+            window.requestAnimationFrame(drawFrame);
+        };
+
+        window.requestAnimationFrame(drawFrame);
+
+
+    },
+
+    //link - Link object to be animated
+    //t - time value in range [0,1]
+    animateLink: function(link, t){
+        let animPath = d3.select("#anim-" + link.id);
+        if(animPath.empty()){
+            animPath = d3.select(`#linkg-${link.id}`)
+                        .append("path")
+                                .attr("id", "anim-" + link.id)
+                                .classed("trace-animation", true)
+                                .style("marker-end", "url(#highlight-arrow)");
         }
+        if(link.isReflexive()){
+            //Link is reflexive
+            return;
+        }
+        if(link.hasOpposite()){
+            // Link is Bezier
+            // SVG does not allow only drawing part of a bezier, so use an arc instead:
+            const bezPoints = Display.getBezierPoints(link);
+            const pathStart = new Victor.fromObject(bezPoints.P1);
+            const pathMid = new Victor.fromObject(bezPoints.M1);
+            const pathEnd = new Victor.fromObject(bezPoints.P2);
+            //Calculate arc radii. rx is distance from sourceNode to targetNode, ry is the maximum perpendicular distance to the bezier curve
+            const rx = pathEnd.clone().subtract(pathStart).length() / 2;
+            const centre = pathStart.clone().add(pathEnd).multiplyScalar(0.5);
+            const ry = pathMid.clone().subtract(centre).length();
+            //Calculate radius rotations:
+            const pathStartToEnd = pathEnd.clone().subtract(pathStart);
+            const xRotationRad = Math.atan2(pathStartToEnd.y, pathStartToEnd.x);
+            const xRotationDeg = xRotationRad * 180 / Math.PI; //convert to degrees
+
+            //Calculate the point on the arc at t
+            const angle = (1 - t) * Math.PI; // in range [0, π], with angle = π at t = 0.
+            const xUnit = pathEnd.clone().subtract(pathStart).normalize(); //x unit vector (in svg coordinates)
+            const yUnit = pathMid.clone().subtract(centre).normalize();
+            const posAtT = centre.clone().add(xUnit.multiplyScalar(rx * Math.cos(angle)).add(yUnit.multiplyScalar(ry * Math.sin(angle))));
+
+
+            const pathD = `M${pathStart.x},${pathStart.y} A ${rx} ${ry} ${xRotationDeg} 0 0 ${posAtT.x},${posAtT.y}`;
+            animPath.attr("d", pathD);
+
+
+
+
+            // const bezPoints = Display.getBezierPoints(link);
+            // //bezPoints in form: {P1:{x,y}, P2:{x,y}, C1:{x,y}, C2:{x,y}, M1:{x,y}}
+            // const p1 = new Victor.fromObject(bezPoints.P1);
+            // // const p2 = new Victor.fromObject(bezPoints.P2);
+            // const c1 = new Victor.fromObject(bezPoints.C1);
+            // const c2 = new Victor.fromObject(bezPoints.C2);
+            // const m1 = new Victor.fromObject(bezPoints.M1);
+
+            // let pAtT;
+            // let pathStr;
+            // if(t < 0.5){
+            //     t = t * 2;
+            //     pAtT = p1.clone().multiplyScalar((1-t) * (1-t)).add(c1.clone().multiplyScalar(2 * t - 2*t*t)).add(m1.clone().multiplyScalar(t * t));
+            //     pathStr = `M${p1.x},${p1.y} Q${c1.x},${c1.y} ${pAtT.x},${pAtT.y}`;
+            // } else {
+            //     t = 2 * (t - 0.5);
+            //     pAtT = p1.clone().multiplyScalar((1-t) * (1-t)).add(c1.clone().multiplyScalar(2 * t - 2*t*t)).add(c2.clone().multiplyScalar(t * t));
+            //     pathStr = `M${p1.x},${p1.y} Q${c1.x},${c1.y} ${m1.x},${m1.y} Q${c2.x},${c2.y} ${pAtT.x},${pAtT.y}`;
+            // }
+            // animPath.attr("d", pathStr);
+
+            return;
+        }
+        //Link is straight path
+        const sourceNode = new Victor(link.source.x, link.source.y);
+        const targetNode = new Victor(link.target.x, link.target.y);
+        //Nb anim path dones not start at sourceNode, but at at the edge of the source node radius.
+        //however the path does end at targetNode as it looks more natural for the arrow to enter the target node.
+        const unitSourceToTarget = targetNode.clone().subtract(sourceNode).normalize();
+
+        const pathStart = sourceNode.clone().add(unitSourceToTarget.clone().multiplyScalar(Display.nodeRadius));
+        const pathEnd = targetNode;
+        const pathStartToEnd = pathEnd.clone().subtract(pathStart);
+        const endAtT = pathStart.clone().add(pathStartToEnd.clone().multiplyScalar(t));
+
+        animPath.attr("d", `M${pathStart.x},${pathStart.y} L${endAtT.x},${endAtT.y}`);
     },
     highlightNodes: function(svg, nodeArray, hexColour, overwritePrevious){
         //Accept either a selection of a machineID
@@ -1098,18 +1237,22 @@ const Display = {
     },
     stepTrace: function(machineID, deltaStep){
         //advances the trace by deltaStep steps. NB deltaStep can be negative => deltaStep = -1 means move back one step
-        var svg = d3.select("#" + machineID);
-        var canvasVars = Display.getCanvasVars(machineID);
-        var currentStep = canvasVars.traceStep;
-        var traceObj = canvasVars.traceObj;
-        var newStep = currentStep + deltaStep;
+        const svg = d3.select("#" + machineID);
+        const canvasVars = Display.getCanvasVars(machineID);
+        const currentStep = canvasVars.traceStep;
+        const traceObj = canvasVars.traceObj;
+        const newStep = currentStep + deltaStep;
 
         //Ensure new step is in allowed range
         if(newStep < 0 || newStep >=traceObj.states.length){
             return;
         }
 
-        Display.drawTraceStep(svg, newStep, machineID);
+        //Animate transition only if deltaStep == 1 AND animation is enabled in the settings
+        const settings = Controller.getSettings();
+        const showAnimation = settings.traceAnimation.value === "on" && deltaStep === 1;
+
+        Display.drawTraceStep(svg, newStep, machineID, showAnimation);
     },
     resetTraceStyling(svg){
         //Resets the trace-specific stying on all elements - i.e. removes node/link highlights and input text styling
@@ -1634,14 +1777,7 @@ const Display = {
 
         }
         // Test if there is a link in the opposite direction:
-        let hasOpposite = false;
-        for (let i = 0; !hasOpposite && i < Object.keys(link.target.outgoingLinks).length; i++){
-            const linkID = Object.keys(link.target.outgoingLinks)[i];
-            const outgoingLink = link.target.outgoingLinks[linkID];
-            if (outgoingLink.target.id === link.source.id){
-                hasOpposite = true;
-            }
-        }
+        const hasOpposite = link.hasOpposite();
 
         let deltaX = link.target.x - link.source.x,
             deltaY = link.target.y - link.source.y,
@@ -1688,7 +1824,7 @@ const Display = {
     },
     getBezierPoints: function(link){
         // Return the points needed to draw the bezier curve for this link
-        // in form {P1:{x,y}, P2:{x,y}, C1:{x,y}, C2:{x,y}, M1:{c,y}}
+        // in form {P1:{x,y}, P2:{x,y}, C1:{x,y}, C2:{x,y}, M1:{x,y}}
         // where P1, P2 are the start and end points,
         // C1, C2 are the control points
         // and M1 is the midpoint.
@@ -2911,7 +3047,8 @@ const Controller = {
     settings:{
         colourScheme: {description: "Colour scheme", value:"monochrome", options:["colour", "monochrome"]},
         forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
-        labelRotation: {description:"Rotate transition labels", value:"long only", options:["always","long only", "never"]}
+        labelRotation: {description:"Rotate transition labels", value:"long only", options:["always","long only", "never"]},
+        traceAnimation: {description: "Animate trace", value:"on", options:["on", "off"]}
     },
     addMachine: function(specObj, allowEditing){
         //Adds a machine to the model and displays it on a new canvas
@@ -3536,6 +3673,7 @@ const jsonCopy = function(x){
 //Declare global readonly variables for ESLint
 /*global d3*/
 /*global Model*/
+/*global Victor*/
 
 var m; //Holds the first machine. Primarily for debugging convenience.
 

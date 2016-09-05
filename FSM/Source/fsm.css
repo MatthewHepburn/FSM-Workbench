@@ -1,4 +1,4 @@
-.invisible{
+f.invisible{
   visibility: hidden;
 }
 
@@ -532,6 +532,12 @@ input[type=checkbox]{
 .trace-link:hover {
   text-decoration: underline;
   color: rgb(30,30,80);
+}
+
+.trace-animation{
+  stroke: green;
+  stroke-width: 4px;
+  fill-opacity: 0;
 }
 
 .qselect {

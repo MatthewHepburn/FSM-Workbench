@@ -1170,6 +1170,15 @@ const Model = {
             }
         };
 
+        this.hasOpposite = function(){
+            // True if there is a link in the opposite direction (for any input)
+            // False if link is reflexive
+            if(this.isReflexive()){
+                return false;
+            }
+            return this.target.hasLinkTo(this.source);
+        };
+
         this.inputIndexOf = function(symbol){
             //Given an input symbol, return the index of that symbol in this.input
             var index = this.input.indexOf(symbol);
