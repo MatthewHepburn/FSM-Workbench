@@ -1,5 +1,5 @@
 Redirect permanent "/s1020995/fsm.html" "/s1020995/stable/index.html"
-Redirect "/s1020995/index.html" "/s1020995/stable/index.html"
+Redirect "/s1020995/index.html" "/s1020995/dev/index.html"
 Redirect "/s1020995/atm.html" "/s1020995/stable/atm.html"
 
 <ifModule mod_expires.c>
