@@ -1829,53 +1829,34 @@ const Display = {
         // C1, C2 are the control points
         // and M1 is the midpoint.
 
-        const deltaX = link.target.x - link.source.x,
-            deltaY = link.target.y - link.source.y,
-            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const source = new Victor(link.source.x, link.source.y);
+        const target = new Victor(link.target.x, link.target.y);
 
-         // Define unit vector from source to target:
-        const unitX = deltaX / dist,
-            unitY = deltaY / dist;
+        const sourceToTarget = target.clone().subtract(source);
 
+        //Define unit vectors
+        const unitX = sourceToTarget.clone().normalize(); //Take xaxis as running from source to target
+        const unitY = unitX.clone().rotateDeg(90);
 
-        let x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
-        let x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
-        let y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
-        let y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
+        // Define a vector at an angle to unitX of the same length as the node radius
+        // This will be used to place the start and end points on the radius of the node
+        const radiusAngle = 20;
+        const radiusPositive = unitX.clone().rotateDeg(radiusAngle).multiplyScalar(Display.nodeRadius);
+        const radiusNegative = radiusPositive.clone().multiplyScalarX(-1);
 
-        // Calculate vector from P1 to P2
-        const vx = x2 - x1;
-        const vy = y2 - y1;
-
-        // Find suitable control points by rotating v left 90deg, normalising and scaling
-        const vlx = -1 * vy;
-        const vly = 1 * vx;
-
-        const normal_vlx = vlx/Math.sqrt(vlx*vlx + vly*vly);
-        const normal_vly = vly/Math.sqrt(vlx*vlx + vly*vly);
-
-        const scaled_vlx = 10 * normal_vlx;
-        const scaled_vly = 10 * normal_vly;
-
-        //offset the start and end points along vl
-        x1 += 3 * normal_vlx;
-        y1 += 3 * normal_vly;
-        x2 += 3 * normal_vlx;
-        y2 += 3 * normal_vly;
+        const p1 = source.clone().add(radiusPositive);
+        const p2 = target.clone().add(radiusNegative);
 
 
-        // Can now define the control points by adding vl to P1 and P2
-        const c1x = x1 + scaled_vlx;
-        const c1y = y1 + scaled_vly;
-
-        const c2x = x2 + scaled_vlx;
-        const c2y = y2 + scaled_vly;
+        // Control points are directly above p1 and p2
+        const heightVector = unitY.clone().multiplyScalar(9);
+        const c1 = p1.clone().add(heightVector);
+        const c2 = p2.clone().add(heightVector);
 
         // We need an explicit midpoint to allow a direction arrow to be placed
-        const m1x = c1x + 0.5 * vx;
-        const m1y = c1y + 0.5 * vy;
+        const m = p1.clone().add(p2).multiplyScalar(0.5).add(heightVector);
 
-        return {P1: {x: x1, y: y1}, P2: {x: x2, y: y2}, M1:{x: m1x, y: m1y}, C1: {x: c1x, y: c1y}, C2: {x: c2x, y: c2y}};
+        return {P1: p1, P2: p2, M1: m, C1: c1, C2: c2};
     },
     getAllLinkPaths: function(machineID, filterFunction){
         //Return an array of native (ie not d3 selections) path elements for all links in the machine
