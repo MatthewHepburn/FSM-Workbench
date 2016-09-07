@@ -1124,7 +1124,51 @@ const Display = {
                                 .style("marker-end", "url(#highlight-arrow)");
         }
         if(link.isReflexive()){
-            //Link is reflexive
+            // Derive a path for animation from the link padding, as this is not split in two,
+            // unlike the link itself
+            const padding = d3.select(`#linkpad${link.id}`);
+            const paddingPathD = padding.attr("d");
+            //Extract the start point, the end point and the radius
+            //Path should be in form M{startX},{startY} A{xradius} {yradius} {x-axis-rotation} {large-arc-flag} {sweep-flag} {endX} {endY}
+            const components = paddingPathD.split(/[MA, ]/).filter(elem => elem.length > 0).map(Number); //Extract just the numerical components
+
+            const startPos = new Victor(components[0], components[1]);
+
+            const xRadius = components[2];
+            const yRadius = components[3];
+
+            const xAxisRotation = components[4];
+            let largeArc = components[5];
+            const sweep = components[6];
+
+            const endPos = new Victor(components[7], components[8]);
+
+            //Now, calculate the postion on the arc at t
+            //Use generic SVG methods (could likely optimise by using what we know about the path)
+            const totalLength = padding.node().getTotalLength();
+            const tLength = t * totalLength;
+            const tPoint = padding.node().getPointAtLength(tLength);
+
+            //Finally, we must set the largeArc flag correctly
+            //ie to 1 if the arc covers more than 180deg
+            //We can do this by comparing the current arc length to the cicumference if the arc is circular (as ellipse perimeter is more difficult to calculate).
+            if(xRadius !== yRadius){
+                //Implement this case later if it is ever needed
+                throw new Error("Animation of reflexive links with non-circular arcs has not been implemented");
+            } else{
+                const circumference = 2 * Math.PI * xRadius;
+                if (tLength / circumference > 0.5){
+                    largeArc = 1;
+                } else{
+                    largeArc = 0;
+                }
+            }
+
+            const newD = `M${startPos.x},${startPos.y} A${xRadius} ${yRadius} ${xAxisRotation} ${largeArc} ${sweep} ${tPoint.x} ${tPoint.y}`;
+            console.log(newD);
+            animPath.attr("d", newD);
+
+
             return;
         }
         if(link.hasOpposite()){
@@ -1156,30 +1200,6 @@ const Display = {
 
             const pathD = `M${pathStart.x},${pathStart.y} A ${rx} ${ry} ${xRotationDeg} 0 0 ${posAtT.x},${posAtT.y}`;
             animPath.attr("d", pathD);
-
-
-
-
-            // const bezPoints = Display.getBezierPoints(link);
-            // //bezPoints in form: {P1:{x,y}, P2:{x,y}, C1:{x,y}, C2:{x,y}, M1:{x,y}}
-            // const p1 = new Victor.fromObject(bezPoints.P1);
-            // // const p2 = new Victor.fromObject(bezPoints.P2);
-            // const c1 = new Victor.fromObject(bezPoints.C1);
-            // const c2 = new Victor.fromObject(bezPoints.C2);
-            // const m1 = new Victor.fromObject(bezPoints.M1);
-
-            // let pAtT;
-            // let pathStr;
-            // if(t < 0.5){
-            //     t = t * 2;
-            //     pAtT = p1.clone().multiplyScalar((1-t) * (1-t)).add(c1.clone().multiplyScalar(2 * t - 2*t*t)).add(m1.clone().multiplyScalar(t * t));
-            //     pathStr = `M${p1.x},${p1.y} Q${c1.x},${c1.y} ${pAtT.x},${pAtT.y}`;
-            // } else {
-            //     t = 2 * (t - 0.5);
-            //     pAtT = p1.clone().multiplyScalar((1-t) * (1-t)).add(c1.clone().multiplyScalar(2 * t - 2*t*t)).add(c2.clone().multiplyScalar(t * t));
-            //     pathStr = `M${p1.x},${p1.y} Q${c1.x},${c1.y} ${m1.x},${m1.y} Q${c2.x},${c2.y} ${pAtT.x},${pAtT.y}`;
-            // }
-            // animPath.attr("d", pathStr);
 
             return;
         }
@@ -1774,7 +1794,8 @@ const Display = {
             const P2 = x2 + "," + y2;
             const P3 = x3 + "," + y3;
 
-            pathObj.padding = `M${P1} A${rad} ${rad} 0 0 1 ${P2}  A ${rad} ${rad} 0 0 1 ${P3}`;
+            //Arc flags are A radius-x radius-y x-axis-rotation large-arc-flag sweep-flag x y
+            pathObj.padding = `M${P1} A${rad} ${rad} 0 1 1 ${P3}`;
             pathObj.part1 = `M${P1} A${rad} ${rad} 0 0 1 ${P2}`;
             pathObj.part2 = `M${P2} A ${rad} ${rad} 0 0 1 ${P3}`;
             return pathObj;
