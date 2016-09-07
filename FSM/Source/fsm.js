@@ -1143,6 +1143,10 @@ const Display = {
             const xRotationRad = Math.atan2(pathStartToEnd.y, pathStartToEnd.x);
             const xRotationDeg = xRotationRad * 180 / Math.PI; //convert to degrees
 
+            //Scale t, as the very start and very end of the arc look odd animated
+            const scale = d3.scaleLinear().domain([0,1]).range([0.2, 0.95]);
+            t = scale(t);
+
             //Calculate the point on the arc at t
             const angle = (1 - t) * Math.PI; // in range [0, π], with angle = π at t = 0.
             const xUnit = pathEnd.clone().subtract(pathStart).normalize(); //x unit vector (in svg coordinates)
@@ -1842,7 +1846,7 @@ const Display = {
         // This will be used to place the start and end points on the radius of the node
         const radiusAngle = 20;
         const radiusPositive = unitX.clone().rotateDeg(radiusAngle).multiplyScalar(Display.nodeRadius);
-        const radiusNegative = radiusPositive.clone().multiplyScalarX(-1);
+        const radiusNegative = radiusPositive.clone().rotateDeg(180 - (2*radiusAngle));
 
         const p1 = source.clone().add(radiusPositive);
         const p2 = target.clone().add(radiusNegative);
