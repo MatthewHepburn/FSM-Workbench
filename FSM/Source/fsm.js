@@ -1083,7 +1083,7 @@ const Display = {
 
         });
         let startTime;
-        const duration = 600; //ms
+        const duration = 400; //ms
 
         //Register a function to cancel this animation (e.g if the next animation is activated)
         canvasVars.cancelTraceAnimation = function(){
@@ -3290,10 +3290,15 @@ const Controller = {
         //Add the input to the model
         Model.question.currentInput.push(symbol);
         Model.machines.forEach(function(m){
-            //Draw a trace for each machine and then advance it to the latest stage
+            //Draw a trace for each machine and then advance it to the second latest stage
             Controller.startTrace(m, Model.question.currentInput,0, true); //true param for hideControls option
             var traceObj = Display.getCanvasVars(m.id).traceObj;
-            Display.stepTrace(m.id, traceObj.states.length-1);
+            if(traceObj.states.length > 1){
+                Display.stepTrace(m.id, traceObj.states.length-2,false);
+            }
+            //Then step to the latest stage with animation:
+            Display.stepTrace(m.id, 1, true);
+
         });
         //Query the model for correctness
         var feedbackObj = Model.question.checkAnswer();
