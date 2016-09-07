@@ -1783,20 +1783,6 @@ const Display = {
         // Test if there is a link in the opposite direction:
         const hasOpposite = link.hasOpposite();
 
-        let deltaX = link.target.x - link.source.x,
-            deltaY = link.target.y - link.source.y,
-            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        // Define unit vector from source to target:
-        var unitX = deltaX / dist,
-            unitY = deltaY / dist;
-
-
-        let x1 = link.source.x + (unitX * 0.8 * Display.nodeRadius);
-        let x2 = link.target.x - (unitX * 0.8 * Display.nodeRadius);
-        let y1 = link.source.y + (unitY * 0.4 * Display.nodeRadius);
-        let y2 = link.target.y - (unitY * 0.4 * Display.nodeRadius);
-
         if (hasOpposite){
             //Use a bezier curve
             const points = Display.getBezierPoints(link);
@@ -1811,17 +1797,23 @@ const Display = {
             return ("M" + P1 + " Q" + C1 + " " + M1 + " Q" + C2 + " " + P2);
 
         } else {
-            // define vector v from P1 to halfway to P2
-            const vx = 0.5 * (x2 - x1);
-            const vy = 0.5 * (y2 - y1);
+            const source = new Victor(link.source.x, link.source.y);
+            const target = new Victor(link.target.x, link.target.y);
 
-            // midpoint is then:
-            const midx = x1 + vx;
-            const midy = y1 + vy;
+            // Define unit vector from source to target:
+            const sourceToTarget = target.clone().subtract(source);
+            const unitX = sourceToTarget.clone().normalize();
 
-            const P1 = x1 + "," + y1;
-            const M = midx + "," + midy;
-            const P2 = x2 + "," + y2;
+            //Define p1 and p2 at the edge of their nodes
+            const p1 = source.clone().add(unitX.clone().multiplyScalar(Display.nodeRadius));
+            const p2 = target.clone().add(unitX.clone().multiplyScalar(-1 * Display.nodeRadius));
+
+            //Define midpoint halfway between the nodes:
+            const m = source.clone().add(sourceToTarget.clone().multiplyScalar(0.5));
+
+            const P1 = p1.x + "," + p1.y;
+            const M = m.x + "," + m.y;
+            const P2 = p2.x + "," + p2.y;
 
             return ("M" + P1 + " L" + M + " L" + P2);
         }
