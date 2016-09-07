@@ -998,6 +998,11 @@ const Display = {
         const traceObj = canvasVars.traceObj;
         const isTransducer = traceObj.output !== undefined;
 
+        //Cancel any animation in progress
+        if(canvasVars.cancelTraceAnimation){
+            canvasVars.cancelTraceAnimation();
+        }
+
         //reset all trace styling
         Display.resetTraceStyling(svg);
 
@@ -1079,8 +1084,17 @@ const Display = {
         });
         let startTime;
         const duration = 600; //ms
-        // let endTime;
-        // let callBackID;
+
+        //Register a function to cancel this animation (e.g if the next animation is activated)
+        canvasVars.cancelTraceAnimation = function(){
+            if(canvasVars.traceAnimCallbackID){
+                window.cancelAnimationFrame(canvasVars.traceAnimCallbackID);
+                canvasVars.traceAnimCallbackID = null;
+            }
+            d3.selectAll(".trace-animation").remove();
+            applyFinalStyle();
+            canvasVars.cancelTraceAnimation = null;
+        };
 
         //TODO handle chains of epsilon links
 
@@ -1097,6 +1111,7 @@ const Display = {
                 //End animation. Remove temporary elements and apply final style.
                 d3.selectAll(".trace-animation").remove();
                 applyFinalStyle();
+                canvasVars.traceAnimCallbackID = null;
                 return;
             }
 
@@ -1104,10 +1119,10 @@ const Display = {
                 Display.animateLink(linkUsageObj.link, t);
 
             });
-            window.requestAnimationFrame(drawFrame);
+            canvasVars.traceAnimCallbackID = window.requestAnimationFrame(drawFrame);
         };
 
-        window.requestAnimationFrame(drawFrame);
+        canvasVars.traceAnimCallbackID = window.requestAnimationFrame(drawFrame);
 
 
     },
@@ -1141,8 +1156,6 @@ const Display = {
             let largeArc = components[5];
             const sweep = components[6];
 
-            const endPos = new Victor(components[7], components[8]);
-
             //Now, calculate the postion on the arc at t
             //Use generic SVG methods (could likely optimise by using what we know about the path)
             const totalLength = padding.node().getTotalLength();
@@ -1157,17 +1170,11 @@ const Display = {
                 throw new Error("Animation of reflexive links with non-circular arcs has not been implemented");
             } else{
                 const circumference = 2 * Math.PI * xRadius;
-                if (tLength / circumference > 0.5){
-                    largeArc = 1;
-                } else{
-                    largeArc = 0;
-                }
+                largeArc = tLength /circumference > 0.5 ? 1 : 0;
             }
 
             const newD = `M${startPos.x},${startPos.y} A${xRadius} ${yRadius} ${xAxisRotation} ${largeArc} ${sweep} ${tPoint.x} ${tPoint.y}`;
-            console.log(newD);
             animPath.attr("d", newD);
-
 
             return;
         }
