@@ -1371,7 +1371,7 @@ const Display = {
 
         var g = element.append("g").classed("tracecontrols", true).attr("id", `${canvasID}-trace-controls`);
         // Tool names and functions to call on click.
-        var tools = [["rewind", function(){Display.drawTraceStep(canvasID, 0);}],
+        var tools = [["rewind", function(){Display.drawTraceStep(svg, 0, canvasID, false);}],
                      ["back", function(){Display.stepTrace(canvasID, -1);}],
                      ["forward", function(){Display.stepTrace(canvasID, 1);}],
                      ["stop", function(){Display.dismissTrace(svg);}]];
