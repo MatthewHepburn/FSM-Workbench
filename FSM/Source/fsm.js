@@ -1266,7 +1266,7 @@ const Display = {
         Display.resetNodeStyling(svg);
 
     },
-    stepTrace: function(machineID, deltaStep){
+    stepTrace: function(machineID, deltaStep, allowAnimation){
         //advances the trace by deltaStep steps. NB deltaStep can be negative => deltaStep = -1 means move back one step
         const svg = d3.select("#" + machineID);
         const canvasVars = Display.getCanvasVars(machineID);
@@ -1281,7 +1281,7 @@ const Display = {
 
         //Animate transition only if deltaStep == 1 AND animation is enabled in the settings
         const settings = Controller.getSettings();
-        const showAnimation = settings.traceAnimation.value === "on" && deltaStep === 1;
+        const showAnimation = allowAnimation && settings.traceAnimation.value === "on" && deltaStep === 1;
 
         Display.drawTraceStep(svg, newStep, machineID, showAnimation);
     },
@@ -1399,8 +1399,8 @@ const Display = {
         var g = element.append("g").classed("tracecontrols", true).attr("id", `${canvasID}-trace-controls`);
         // Tool names and functions to call on click.
         var tools = [["rewind", function(){Display.drawTraceStep(svg, 0, canvasID, false);}],
-                     ["back", function(){Display.stepTrace(canvasID, -1);}],
-                     ["forward", function(){Display.stepTrace(canvasID, 1);}],
+                     ["back", function(){Display.stepTrace(canvasID, -1, true);}],
+                     ["forward", function(){Display.stepTrace(canvasID, 1, true);}],
                      ["stop", function(){Display.dismissTrace(svg);}]];
         var width = svg.attr("width");
         var height = svg.attr("height");
@@ -3271,7 +3271,7 @@ const Controller = {
         var traceObj = machine.getTrace(sequence);
         Display.drawTrace(machine.id, traceObj, hideControls);
         if(position !== 0){
-            Display.stepTrace(machine.id, position);
+            Display.stepTrace(machine.id, position, false);
         }
     },
 
