@@ -23,7 +23,7 @@ def log(cgiFields, logfilename):
     date = str(datetime.date.today())
     try:
         remoteIp = os.environ["REMOTE_ADDR"]
-        ipComponents remoteIp.split["."][:-1] #Discard last octet
+        ipComponents = remoteIp.split(".")[:-1] #Discard last octet
         remoteIp = ""
         for n in ipComponents:
             remoteIp = remoteIp + n + "."
