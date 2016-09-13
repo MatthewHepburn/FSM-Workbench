@@ -27,7 +27,7 @@ maxTimeOnPage = 1800 #30 minutes
 logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
 crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console", "Google PP Default"]
-ignoredIDs = ["DEBUG"] #UserIDs to ignore - eg to exclude developer actions from stats
+ignoredIDs = ["DEBUG", "dev"] #UserIDs to ignore - eg to exclude developer actions from stats
 startDir = os.getcwd()
 
 

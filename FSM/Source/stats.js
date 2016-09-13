@@ -2,12 +2,8 @@ var data = {
     isLoaded: false,
     getData:function(){
         var xhr = new XMLHttpRequest();
-        if (document.querySelector("body").dataset.dataaddress){
-            var url = document.querySelector("body").dataset.dataaddress;
-        } else{
-            url = "http://homepages.inf.ed.ac.uk/cgi/s1020995/dev/getStats.cgi";
-        }
-        xhr.open("get", url, true);
+        const dataURL = d3.select("body").attr("data-analytics-path") + "/getStats.cgi";
+        xhr.open("get", dataURL, true);
         xhr.responseType = "json";
         xhr.onload = function(){
             data.json = xhr.response;

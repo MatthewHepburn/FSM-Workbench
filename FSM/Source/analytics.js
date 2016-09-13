@@ -2,6 +2,7 @@ const logging = {
     userID: undefined,
     loadTime: Math.floor(Date.now() / 1000),
     pageID: undefined,
+    analyticsPath: document.querySelector("body").getAttribute("data-analytics-path"),
     generateUserID: function() {
         //Use local storage if it is available
         var hasStorage;
@@ -53,7 +54,7 @@ const logging = {
         };
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
-        request.open("POST", "/cgi/s1020995/dev/usage.cgi", true);
+        request.open("POST", logging.analyticsPath + "/usage.cgi", true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     }

@@ -3441,6 +3441,7 @@ const Controller = {
 const Logging = {
     loadTime: Math.floor(Date.now() / 1000),
     hasLocalStorage: typeof(localStorage) !== "undefined",
+    analyticsPath: d3.select("body").attr("data-analytics-path"),
     get userID(){
         if(Logging._userID){
             return Logging._userID;
@@ -3537,7 +3538,7 @@ const Logging = {
         };
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/dev/answer.cgi", true);
+        request.open("POST", `${Logging.analyticsPath}/answer.cgi`, true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
@@ -3577,7 +3578,7 @@ const Logging = {
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/dev/usage.cgi", true);
+        request.open("POST", `${Logging.analyticsPath}/usage.cgi`, true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
@@ -3597,7 +3598,7 @@ const Logging = {
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", "/cgi/s1020995/dev/rating.cgi", true);
+        request.open("POST", `${Logging.analyticsPath}/rating.cgi`, true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },

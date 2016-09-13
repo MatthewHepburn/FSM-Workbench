@@ -9,6 +9,7 @@ import sys
 import subprocess
 import shutil
 import platform
+import pdb
 
 addresses = {}
 sourceDir = ""
@@ -18,7 +19,7 @@ startDir = os.path.split(os.path.realpath(__file__))[0] #Don't use os.getcwd() a
 # Keep a dict of questions, with their guid as key
 questionDict = {}
 
-def setAddresses(toDeploy):
+def setAddresses(toDeploy, analyticsPath="None"):
     # Pass in the address of the JS and CSS files
     # Eg if fsm.js is at www.example.com/static/fsm.js then jsAddress would be http://www.example.com/static/
 
@@ -34,7 +35,8 @@ def setAddresses(toDeploy):
             "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/icons/",
             "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/",
             "d3Address": "https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js",
-            "pureCSSAddress": "http://yui.yahooapis.com/pure/0.6.0/pure-min.css"
+            "pureCSSAddress": "http://yui.yahooapis.com/pure/0.6.0/pure-min.css",
+            "analyticsPath": analyticsPath
         }
     else:
         #If not deploying, point to local resources.
@@ -44,7 +46,8 @@ def setAddresses(toDeploy):
             "iconAddress": os.path.join(deployDir, "img", "icons") + os.sep,
             "imgAddress": os.path.join(deployDir, "img") + os.sep,
             "d3Address": os.path.join(startDir, "node_modules", "d3", "build", "d3.js"),
-            "pureCSSAddress": os.path.join(startDir, "node_modules", "purecss", "build", "pure.css")
+            "pureCSSAddress": os.path.join(startDir, "node_modules", "purecss", "build", "pure.css"),
+            "analyticsPath": analyticsPath
         }
 
 def setDirs():
@@ -172,7 +175,9 @@ def buildQuestionSet(jsonFilename, dirName, question_template, end_template, end
         outputTemplate(question_template, variables, questionDir, question["filename"])
 
     # Output end.html
-    variables = {"lastq": lastQuestion + ".html", "pageID": endPageID}
+    variables = {"lastq": lastQuestion + ".html",
+                 "pageID": endPageID,
+                 "addresses": addresses}
     outputTemplate(end_template, variables, questionDir, "end")
 
 def writeQuestionDict():
@@ -213,6 +218,22 @@ def outputTemplate(template, variables, path, filename):
     f.close()
     print(filename + ".html")
 
+def copyVictorJS():
+    #Copy VictorJS to the deploy directory, renaming it from index.js to victor.js, and commenting out the export statement.
+    victorPath = os.path.join(startDir, "node_modules", "victor", "index.js")
+    outputPath = os.path.join(deployDir, "victor.js")
+    if not os.path.isfile(victorPath):
+        raise FileNotFoundError(victorPath + " not found. Ensure that Victor.js is installed. Try $npm install victor")
+    with open(victorPath, "r") as inFile:
+        with open(outputPath, "w") as outFile:
+            # pdb.set_trace()
+            line1 = "//" + inFile.readline(); #comment out first line.
+            outFile.write(line1)
+            outFile.write("//THIS FILE IS CREATED BY THE BUILD PROCESS. ANY CHANGES MADE WILL BE OVERWRITTEN")
+            for line in inFile:
+                outFile.write(line)
+
+
 
 
 if __name__ == "__main__":
@@ -232,11 +253,19 @@ if __name__ == "__main__":
             toBabel = True
             break
 
+    # Check for analytics path
+    analyticsPath = "None"
+    for i in range(0, len(sys.argv) - 1):
+            if sys.argv[i] in ["-a", "-A", "--analytics-path"]:
+                analyticsPath = sys.argv[i + 1]
+                break
+
     # Set up the local directory globals
     setDirs()
+    os.chdir(startDir)
 
     # Set the address global
-    setAddresses(toDeploy)
+    setAddresses(toDeploy, analyticsPath)
 
     # Create the deploy directory if it doesn't already exist:
     if not os.path.isdir(deployDir):
@@ -246,32 +275,32 @@ if __name__ == "__main__":
     with open('questionFiles.json') as data_file:
         data = json.load(data_file)
 
-    # Setup Jinja
+    # Setup Jinjaf
     templateLoader = jinja2.FileSystemLoader("Source")
     templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True)
     # Also add "lstrip_blocks=True" above if jinja2.7 or greater is available
-    templatesDir = sourceDir  # TODO work out what this does/if it does anything
     question_template = templateEnv.get_template("question.jinja")
     index_template = templateEnv.get_template("index.jinja")
-    create_template = templateEnv.get_template("create.jinja")
-    question_creator_template = templateEnv.get_template("questionCreator.jinja")
     end_template = templateEnv.get_template("end.jinja")
 
     for questionSet in data:
         buildQuestionSet(questionSet["file"], questionSet["directory"], question_template, end_template, questionSet["endPageID"])
 
-    #Return to deploy directory
-    os.chdir(deployDir)
-
     # Output index.html
     variables = {"ex1": "inf1/give-input-intro-to-fsm.html",
-                 "pp1": "inf1-revision/2014-Dec-5-a.html"}
+                 "pp1": "inf1-revision/2014-Dec-5-a.html",
+                 "addresses": addresses}
     outputTemplate(index_template, variables, deployDir, "index")
 
     # Output other templated files
+    os.chdir(startDir)
+    otherTemplates = [f for f in os.listdir(sourceDir) if f[-6:] == ".jinja" and f not in ["question.jinja", "end.jinja", "index.jinja"]]
     variables = {"addresses": addresses}
-    outputTemplate(create_template, variables, deployDir, "create")
-    outputTemplate(question_creator_template, variables, deployDir, "questionCreator")
+    for filename in otherTemplates:
+        name = filename[:-6]
+        template = templateEnv.get_template(filename)
+        outputTemplate(template, variables, deployDir, name)
+
 
     # Return to previous directory.
     os.chdir(startDir)
@@ -299,6 +328,8 @@ if __name__ == "__main__":
     # First, the existing folder must be removed:
     shutil.rmtree(os.path.join(deployDir, "img"), True)
     shutil.copytree(os.path.join(sourceDir, "img"), os.path.join(deployDir, "img"))
+
+    copyVictorJS()
 
 
     writeQuestionDict()
