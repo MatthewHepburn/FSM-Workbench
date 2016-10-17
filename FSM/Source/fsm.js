@@ -2882,22 +2882,43 @@ const Display = {
 
         //Hacky workaround to deal with inconsistent implmentations of vertical text alignment in svg:
         //Moves each nodename down temporarily. No attempt is made to align using css or dy values to avoid double movement
+        const nodenameOffset = Display.nodeNameFontSize * 0.35;
+        const linklabelOffset = 10 * 0.25;
         const nodenames = d3.select("#" + machineID).selectAll(".nodename");
-        nodenames.each(function(elem){
-            elem = d3.select(this);
-            elem.attr("y", Number(elem.attr("y")) + Display.nodeNameFontSize * 0.35);
+        nodenames.each(function(){
+            const elem = d3.select(this);
+            elem.attr("y", Number(elem.attr("y")) + nodenameOffset);
         });
 
-        const nodes = machineSVGelem.querySelector(".nodes").innerHTML;
+
+
+        //Do the same for link labels, which suffer the same problem
+        const linklabels = d3.select("#" + machineID).selectAll(".linklabel");
+        linklabels.each(function(){
+            const elem = d3.select(this);
+            elem.attr("y", Number(elem.attr("y")) + linklabelOffset);
+        });
+
+
+
+        const nodes = machineSVGelem.querySelector(".nodes").outerHTML;
+        const links = machineSVGelem.querySelector(".links").outerHTML;
 
         //Remove offset from nodenames
         nodenames.each(function(elem){
             elem = d3.select(this);
-            elem.attr("y", Number(elem.attr("y")) - Display.nodeNameFontSize * 0.35);
+            elem.attr("y", Number(elem.attr("y")) - nodenameOffset);
         });
 
-        const links = machineSVGelem.querySelector(".links").innerHTML;
-        const defs = machineSVGelem.querySelector("defs").innerHTML;
+        //... and from linklabels
+        linklabels.each(function(){
+            const elem = d3.select(this);
+            elem.attr("y", Number(elem.attr("y")) - linklabelOffset);
+        });
+
+
+
+        const defs = machineSVGelem.querySelector("defs").outerHTML;
         const innerSVG = defs + links + nodes; //NB links should be under node, so links should come first.
 
         let viewBox, height, width;
@@ -2927,7 +2948,7 @@ const Display = {
         }
 
         //Derived from fsm.css
-        const styleString = `circle.node{stroke-width:1px;stroke:#000}.accepting-ring{stroke:#000!important;fill-opacity:0}.linklabel{font-family:'Ek Mukta',sans-serif;dominant-baseline:central;text-anchor:middle}text.nodename{text-anchor:middle;font-family:"Ek Mukta",sans-serif;}.link-padding{stroke-width:15;fill:none;stroke:#000;stroke-opacity:0}.start,path.link{fill:none;stroke:#000}`;
+        const styleString = `circle.node{stroke-width:1px;stroke:#000}.accepting-ring{stroke:#000!important;fill-opacity:0}.linklabel{font-family:'Ek Mukta',sans-serif;text-anchor:middle}text.nodename{text-anchor:middle;font-family:"Ek Mukta",sans-serif;}.link-padding{stroke-width:15;fill:none;stroke:#000;stroke-opacity:0}.start,path.link{fill:none;stroke:#000}`;
         const svg = `<svg version="1.1" baseProfile="full" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${preserveAspectRatio}">
                     <style type="text/css"><![CDATA[${styleString}]]></style>
                     ${innerSVG} </svg>`;
@@ -3166,6 +3187,8 @@ const Controller = {
         labelRotation: {description:"Rotate transition labels", value:"long only", options:["always","long only", "never"]},
         traceAnimation: {description: "Animate trace", value:"on", options:["on", "off"]}
     },
+    //NB settings are persistent and modified by the user. Config is set on a per page basis.
+    config:{},
     addMachine: function(specObj, allowEditing){
         //Adds a machine to the model and displays it on a new canvas
         var newMachine = Model.addMachine(specObj);
@@ -3236,7 +3259,11 @@ const Controller = {
                 this.settings[s].value = settingsObj[s];
             }
         }
-
+    },
+    loadConfig: function(){
+        const pageConfig = JSON.parse(d3.select("body").attr("data-options"));
+        //Use this method so defaults can be specified in the initial declaration of the settings obj
+        Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
     },
     getSettings: function(){
         return jsonCopy(this.settings);
@@ -3432,6 +3459,7 @@ const Controller = {
     init: function(){
         //Init process is somewhat complex as parts of the page are already in the HTML for performance / rendering reasons.
         Controller.loadSettings();
+        Controller.loadConfig()
         m = new Model.Machine("m1");
         Model.machines.push(m);
         var svg = d3.select("#m1")
@@ -3491,24 +3519,30 @@ const Controller = {
         if (body.dataset.question != undefined){
             var questionObj = JSON.parse(body.dataset.question);
             Model.question.setUpQuestion(questionObj);
+        } else {
+            return;
         }
+
         if(Model.question.type === "give-input"){
             Model.machines.forEach(function(m){Controller.startTrace(m, Model.question.currentInput, 0,  true);}); //true param for hideControls option
-            return;
         }
-        if(Model.question.type === "give-list"){
+        else if(Model.question.type === "give-list"){
             d3.select(".qformblock").on("keypress", EventHandler.questionFormKeypress);
-            return;
         }
-        if(Model.question.type === "select-states"){
+        else if(Model.question.type === "select-states"){
             Model.machines.forEach(function(m){
                 var initialSequence = Model.question.initialSequence;
                 var stepsTaken = initialSequence.length;
                 Controller.startTrace(m, initialSequence, stepsTaken, true);
                 Display.makeNodesSelectable(m);
             });
-            return;
         }
+
+        //Perform editable override if needed
+        if(Controller.config["force-editable"]){
+            Model.question.allowEditing = true;
+        }
+
 
     },
     submitLinkRename: function(canvasID, link, formType){
