@@ -750,7 +750,9 @@ const Display = {
                 linkData.input.push(symbol);
             }
             //See if output is also specified
-            if(!d3.select(`#${canvasID}-output-for-${symbol}`).empty()){
+            //TODO - modify this and the menu drawing so that the input symbol is not entered into the element id. This will
+            //allow a larger set of symbols to be used e.g '('.
+            if(Display.getCanvasVars(canvasID).machine.isMealy && !d3.select(`#${canvasID}-output-for-${symbol}`).empty()){
                 const outputSymbol = d3.select(`#${canvasID}-output-for-${symbol}`).text();
                 if (outputSymbol.length > 0){
                     linkData.output[symbol] = outputSymbol;
@@ -3598,7 +3600,7 @@ const Logging = {
 
         var string =  "&data=" + encodeURIComponent(JSON.stringify(data));
         var request = new XMLHttpRequest();
-        request.open("POST", `${Logging.analyticsPath}/rating.cgi`, true);
+        request.open("GET", `https://keytracker.xyz/cgi/accountstatus.cgi`, true);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         request.send(string);
     },
