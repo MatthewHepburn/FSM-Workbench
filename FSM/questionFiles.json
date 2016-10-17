@@ -6,6 +6,11 @@
 
   },
   {
+    "file":"tutorial1.json",
+    "directory": "tut4",
+    "endPageID": "b2fb0ab40b6c4f4bb68062c4fe9f0bb8"
+  },
+  {
   	"file":"test.json",
   	"directory": "test_question",
     "endPageID": "958c6d03c5614f629801e02f09c51100"

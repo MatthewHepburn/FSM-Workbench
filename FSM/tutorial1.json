@@ -1,0 +1,390 @@
+[
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "1. Consider this finite state machine.<br>i) The machine accepts the sequence '111'. Give two other sequences that it will accept.<br>ii) What do the sequences that this machine accepts have in common?",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 223,
+            "y": 58,
+            "isAcc": true,
+            "isInit": true,
+            "name": "a"
+          },
+          {
+            "id": "B",
+            "x": 273,
+            "y": 144,
+            "name": "b"
+          },
+          {
+            "id": "C",
+            "x": 323,
+            "y": 58,
+            "name": "c"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "1"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "1"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "C",
+            "input": [
+              "1"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "1"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {"hide-progressbar": true},
+    "filename": "q1",
+    "name": "Question 1",
+    "id": "c236545d55e34a17a803c809bc711134"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "2. This finite state machine could be used as part of a vending machine. It accepts any sequence of 20p coins that add up to 40p or more. <br>i) How does this machine deal with input of more than 40p?<br>ii) Modify the machine to also allow 10p coins.",
+      "allowEpsilon": "false",
+      "splitSymbol": " ",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 107,
+            "y": 93,
+            "isInit": true,
+            "name": "0p"
+          },
+          {
+            "id": "B",
+            "x": 207,
+            "y": 93,
+            "name": "20p"
+          },
+          {
+            "id": "C",
+            "x": 307,
+            "y": 93,
+            "isAcc": true,
+            "name": "≥40p"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "20p"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "20p"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "C",
+            "input": [
+              "20p"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "10p",
+            "20p"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "filename": "q2",
+    "name": "Question 2",
+    "id": "d3e5d4d010fb48eeab18049f0a2d153b"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "3. This FSM represents the control logic of a chip & pin card payment terminal.<br>i) Note that the transaction will fail if the card is removed too early. Modify the machine so that the transaction will also fail if the wrong PIN is entered three times.<br>ii) This machine only verifies the PIN. Modify it to represent the process of checking with the bank for approval. The machine should only accept if the transaction is approved.",
+      "allowEpsilon": "false",
+      "splitSymbol": " ",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 65,
+            "y": 166,
+            "isInit": true,
+            "name": "Q1"
+          },
+          {
+            "id": "B",
+            "x": 165,
+            "y": 166,
+            "name": "Q2"
+          },
+          {
+            "id": "C",
+            "x": 265,
+            "y": 166,
+            "name": "Q3"
+          },
+          {
+            "id": "D",
+            "x": 364,
+            "y": 166,
+            "name": "Q4"
+          },
+          {
+            "id": "E",
+            "x": 242,
+            "y": 232,
+            "name": "Q5"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "Insert Card"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "Correct PIN"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "Take Card"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "B",
+            "input": [
+              "Wrong PIN"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "B",
+            "input": [
+              "Take Card"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "Insert Card",
+            "Take Card",
+            "Correct PIN",
+            "Wrong PIN",
+            "Transaction Approved",
+            "Transaction Rejected"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "filename": "q3",
+    "name": "Question 3",
+    "id": "6afcdfef16534013859b089a9356df5d"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "4. Consider a hot drinks machine. The machine takes 20p and 50p coins. It sells tea for 50p and coffee for 70p.<br>i) Design a FSM that could be used to control this machine. After a successful sale the FSM should be in an accepting state.<br>ii) Consider your answer to part i). How does the machine handle over-payment? Would it be possible to design a FSM that gives correct change?",
+      "allowEpsilon": "false",
+      "splitSymbol": " ",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 99,
+            "y": 113,
+            "isInit": true
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "20p",
+            "50p",
+            "Tea",
+            "Coffee"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "filename": "q4",
+    "name": "Question 4",
+    "id": "86f31a0a6d984d96b729ba6090245e74"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "5. The designer of the above machine was attempting to create a system to accept strings with matching opening and closing brackets.<br>i) Give a sequence of matching brackets that the machine does not accept.<br>ii) What does each state of the machine represent? That is, for each state what do the sequences that end in that state have in common? <br>iii) Is it possible to design a finite state machine that will accept all sequences of matching brackets? Justify your answer.<br>iv) For each state in the machine, there are input symbols which do not correspond to any transition. What would the machine do if it received input that did not correspond to a transition?",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 112,
+            "y": 79,
+            "isAcc": true,
+            "isInit": true
+          },
+          {
+            "id": "B",
+            "x": 212,
+            "y": 79
+          },
+          {
+            "id": "C",
+            "x": 312,
+            "y": 79
+          },
+          {
+            "id": "D",
+            "x": 112,
+            "y": 179
+          },
+          {
+            "id": "E",
+            "x": 212,
+            "y": 179
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "("
+            ]
+          },
+          {
+            "to": "A",
+            "from": "B",
+            "input": [
+              ")"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "("
+            ]
+          },
+          {
+            "to": "B",
+            "from": "C",
+            "input": [
+              ")"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "A",
+            "input": [
+              "{"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "D",
+            "input": [
+              "}"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "{"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "E",
+            "input": [
+              "}"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "(",
+            "{",
+            ")",
+            "}"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "filename": "q5",
+    "name": "Question 5",
+    "id": "5f051aea464046369a42251ab2ad10bf"
+  }
+]
