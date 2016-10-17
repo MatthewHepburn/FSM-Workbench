@@ -233,6 +233,18 @@ def copyVictorJS():
             for line in inFile:
                 outFile.write(line)
 
+def copyBabelPolyfill():
+#Copy the babel polyfill to the deploy directory
+    polyPath = os.path.join(startDir, "node_modules", "babel-polyfill", "dist", "polyfill.min.js")
+    outputPath = os.path.join(deployDir, "polyfill.min.js")
+    if not os.path.isfile(polyPath):
+        raise FileNotFoundError(polyPath + " not found. Ensure that babel-polyfill is installed. Try $npm install babel-polyfill")
+    with open(polyPath, "r") as inFile:
+        with open(outputPath, "w") as outFile:
+            outFile.write("//THIS FILE IS CREATED BY THE BUILD PROCESS. ANY CHANGES MADE WILL BE OVERWRITTEN\n")
+            for line in inFile:
+                outFile.write(line)
+
 
 
 
@@ -330,6 +342,7 @@ if __name__ == "__main__":
     shutil.copytree(os.path.join(sourceDir, "img"), os.path.join(deployDir, "img"))
 
     copyVictorJS()
+    copyBabelPolyfill()
 
 
     writeQuestionDict()

@@ -3784,7 +3784,7 @@ const Logging = {
             localStorage.setItem("fsmTest001", test001Group);
         }
         Logging.setSessionVar("test001Group", test001Group);
-        if(test001Group === "a"){
+        if(test001Group === "a" && !Controller.config["hide-progressbar"]){
             // group 'a' gets the progress bar
             Display.showProgressBar = true;
         } else {
