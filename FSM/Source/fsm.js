@@ -2833,6 +2833,95 @@ const Display = {
             }
         };
     },
+    tidyMachine: function(machineID){
+        //Moves nodes that are on similar x or y coordinates to be on the same x or y coordinates.
+        //Uses a fairly crude approach, where position is based on first node seen.
+        const machine = Display.getCanvasVars(machineID).machine;
+        const seenXs = [];
+        const seenYs = [];
+        const xWindow = 20;
+        const yWindow = 20;
+        machine.getNodeList().forEach(function(node){
+            const x = node.x;
+            const y = node.y;
+            let added = false;
+            //Align on x axis
+            for(let i = 0; !added && i < seenXs.length; i++){
+                const seenX = seenXs[i];
+                if (Math.abs(seenX - x) < xWindow){
+                    node.x = seenX;
+                    added = true;
+                }
+            }
+            if(!added){
+                seenXs.push(x);
+            }
+
+            //Align on y axis
+            added = false;
+            for(let i = 0; !added && i < seenYs.length; i++){
+                const seenY = seenYs[i];
+                if (Math.abs(seenY - y) < yWindow){
+                    node.y = seenY;
+                    added = true;
+                }
+            }
+            if(!added){
+                seenYs.push(y);
+            }
+        });
+        Display.forceTick(machineID);
+    },
+    exportToSVG: function(machineID, tidy, cropViewBox){
+        if(tidy){
+            Display.tidyMachine(machineID);
+        }
+        const machine = Display.getCanvasVars(machineID).machine;
+        const machineSVGelem = document.querySelector("#" + machineID);
+        const preserveAspectRatio = machineSVGelem.getAttribute("preserveAspectRatio");
+        const nodes = machineSVGelem.querySelector(".nodes").innerHTML;
+        const links = machineSVGelem.querySelector(".links").innerHTML;
+        const defs = machineSVGelem.querySelector("defs").innerHTML;
+        const innerSVG = defs + links + nodes; //NB links should be under node, so links should come first.
+
+        let viewBox;
+        if(cropViewBox){
+            const nodeList = machine.getNodeList();
+            let minX = nodeList[0].x, minY = nodeList[0].y;
+            let maxX = nodeList[0].x, maxY = nodeList[0].y;
+            const margin = 50;
+            nodeList.forEach(function(node){
+                minX = Math.min(minX, node.x);
+                minY = Math.min(minY, node.y);
+                maxX = Math.max(maxX, node.x);
+                maxY = Math.max(maxY, node.y);
+            });
+            minX = minX - margin;
+            minY = minY - margin;
+            maxX = maxX + margin;
+            maxY = maxY + margin;
+            //NB parameters to viewBox are minX, minY, width, height
+            viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`
+        } else {
+            viewBox = machineSVGelem.getAttribute("viewBox");
+        }
+
+        //Derived from fsm.css
+        const styleString = `circle.node{stroke-width:1px;stroke:#000}.accepting-ring{stroke:#000!important;fill-opacity:0}.linklabel{font-family:'Ek Mukta',sans-serif;dominant-baseline:central;text-anchor:middle}text.nodename{text-anchor:middle;font-family:"Ek Mukta",sans-serif;dominant-baseline:middle;alignment-baseline:central}.link-padding{stroke-width:15;fill:none;stroke:#000;stroke-opacity:0}.start,path.link{fill:none;stroke:#000}`;
+        const svg = `<svg version="1.1" baseProfile="full" width="800" height="500" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${preserveAspectRatio}">
+                    <style type="text/css"><![CDATA[${styleString}]]></style>
+                    ${innerSVG} </svg>`;
+
+        //Use the method described here http://stackoverflow.com/a/33542499 to trigger a "download" as if fetching a resource from the server.
+        const blob = new Blob([svg], {type:"image/svg+xml"});
+        const elem = window.document.createElement("a");
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = "fsm.svg"; //TODO - use question name instead
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+
+    },
     dragHandlers:{
         dragstarted: function(node){
             if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
