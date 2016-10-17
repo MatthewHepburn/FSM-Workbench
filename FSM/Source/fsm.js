@@ -2879,12 +2879,28 @@ const Display = {
         const machine = Display.getCanvasVars(machineID).machine;
         const machineSVGelem = document.querySelector("#" + machineID);
         const preserveAspectRatio = machineSVGelem.getAttribute("preserveAspectRatio");
+
+        //Hacky workaround to deal with inconsistent implmentations of vertical text alignment in svg:
+        //Moves each nodename down temporarily. No attempt is made to align using css or dy values to avoid double movement
+        const nodenames = d3.select("#" + machineID).selectAll(".nodename");
+        nodenames.each(function(elem){
+            elem = d3.select(this);
+            elem.attr("y", Number(elem.attr("y")) + Display.nodeNameFontSize * 0.35);
+        });
+
         const nodes = machineSVGelem.querySelector(".nodes").innerHTML;
+
+        //Remove offset from nodenames
+        nodenames.each(function(elem){
+            elem = d3.select(this);
+            elem.attr("y", Number(elem.attr("y")) - Display.nodeNameFontSize * 0.35);
+        });
+
         const links = machineSVGelem.querySelector(".links").innerHTML;
         const defs = machineSVGelem.querySelector("defs").innerHTML;
         const innerSVG = defs + links + nodes; //NB links should be under node, so links should come first.
 
-        let viewBox;
+        let viewBox, height, width;
         if(cropViewBox){
             const nodeList = machine.getNodeList();
             let minX = nodeList[0].x, minY = nodeList[0].y;
@@ -2896,19 +2912,23 @@ const Display = {
                 maxX = Math.max(maxX, node.x);
                 maxY = Math.max(maxY, node.y);
             });
-            minX = minX - margin;
-            minY = minY - margin;
-            maxX = maxX + margin;
-            maxY = maxY + margin;
+            minX -= margin;
+            minY -= margin;
+            maxX += margin;
+            maxY += margin;
+            height = maxY - minY;
+            width = maxX - minX;
             //NB parameters to viewBox are minX, minY, width, height
-            viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`
+            viewBox = `${minX} ${minY} ${width} ${height}`;
         } else {
             viewBox = machineSVGelem.getAttribute("viewBox");
+            width = 800;
+            height = 500;
         }
 
         //Derived from fsm.css
-        const styleString = `circle.node{stroke-width:1px;stroke:#000}.accepting-ring{stroke:#000!important;fill-opacity:0}.linklabel{font-family:'Ek Mukta',sans-serif;dominant-baseline:central;text-anchor:middle}text.nodename{text-anchor:middle;font-family:"Ek Mukta",sans-serif;dominant-baseline:middle;alignment-baseline:central}.link-padding{stroke-width:15;fill:none;stroke:#000;stroke-opacity:0}.start,path.link{fill:none;stroke:#000}`;
-        const svg = `<svg version="1.1" baseProfile="full" width="800" height="500" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${preserveAspectRatio}">
+        const styleString = `circle.node{stroke-width:1px;stroke:#000}.accepting-ring{stroke:#000!important;fill-opacity:0}.linklabel{font-family:'Ek Mukta',sans-serif;dominant-baseline:central;text-anchor:middle}text.nodename{text-anchor:middle;font-family:"Ek Mukta",sans-serif;}.link-padding{stroke-width:15;fill:none;stroke:#000;stroke-opacity:0}.start,path.link{fill:none;stroke:#000}`;
+        const svg = `<svg version="1.1" baseProfile="full" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${preserveAspectRatio}">
                     <style type="text/css"><![CDATA[${styleString}]]></style>
                     ${innerSVG} </svg>`;
 
