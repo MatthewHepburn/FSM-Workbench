@@ -155,31 +155,32 @@
             "x": 65,
             "y": 166,
             "isInit": true,
-            "name": "Q1"
+            "name": "S1"
           },
           {
             "id": "B",
             "x": 165,
             "y": 166,
-            "name": "Q2"
+            "name": "S2"
           },
           {
             "id": "C",
             "x": 265,
             "y": 166,
-            "name": "Q3"
+            "name": "S3"
           },
           {
             "id": "D",
             "x": 364,
             "y": 166,
-            "name": "Q4"
+            "name": "S4",
+            "isAcc": true
           },
           {
             "id": "E",
             "x": 242,
             "y": 232,
-            "name": "Q5"
+            "name": "S5"
           }
         ],
         "links": [
