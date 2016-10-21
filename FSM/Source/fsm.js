@@ -3261,9 +3261,12 @@ const Controller = {
         }
     },
     loadConfig: function(){
-        const pageConfig = JSON.parse(d3.select("body").attr("data-options"));
-        //Use this method so defaults can be specified in the initial declaration of the settings obj
-        Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
+        const configStr = d3.select("body").attr("data-options");
+	const pageConfig = JSON.parse(configStr);
+	if(pageConfig){
+        	//Use this method so defaults can be specified in the initial declaration of the settings obj
+	        Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
+	}
     },
     getSettings: function(){
         return jsonCopy(this.settings);
