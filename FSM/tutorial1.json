@@ -63,7 +63,7 @@
         }
       }
     ],
-    "data-options": {"hide-progressbar": true},
+    "data-options": {"hideProgressBar": true},
     "filename": "q1",
     "name": "Question 1",
     "id": "c236545d55e34a17a803c809bc711134"
@@ -133,7 +133,7 @@
         }
       }
     ],
-    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "data-options": {"forceEditable": true, "hideProgressBar": true, "showExport": true},
     "filename": "q2",
     "name": "Question 2",
     "id": "d3e5d4d010fb48eeab18049f0a2d153b"
@@ -233,7 +233,7 @@
         }
       }
     ],
-    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "data-options": {"forceEditable": true, "hideProgressBar": true, "showExport": true},
     "filename": "q3",
     "name": "Question 3",
     "id": "6afcdfef16534013859b089a9356df5d"
@@ -269,7 +269,7 @@
         }
       }
     ],
-    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "data-options": {"forceEditable": true, "hideProgressBar": true, "showExport": true},
     "filename": "q4",
     "name": "Question 4",
     "id": "86f31a0a6d984d96b729ba6090245e74"
@@ -388,7 +388,7 @@
         }
       }
     ],
-    "data-options": {"force-editable": true, "hide-progressbar": true},
+    "data-options": {"forceEditable": true, "hideProgressBar": true, "showExport": true},
     "filename": "q5",
     "name": "Question 5",
     "id": "5f051aea464046369a42251ab2ad10bf"

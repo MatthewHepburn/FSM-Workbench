@@ -2076,7 +2076,23 @@ const Display = {
                 Display.drawMinimizationTable(true);
             });
         }
-
+        if(Controller.config.showExport){
+            //Display the export as SVG button if specified in the config.
+            if(qType === "give-input"){
+                d3.select(".button-div")
+                    .style("width", "90%")
+                    .append("button")
+                        .text("Save as SVG")
+                        .classed("pure-button", true)
+                        .style("float",  "right")
+                        .on("click", function(){
+                            this.blur();
+                            Display.exportToSVG("m1", true, true);
+                        });
+            } else {
+                throw new Error("showExport not implemented for this question type.");
+            }
+        }
     },
     update: function(canvasID){
         var machine = Display.getCanvasVars(canvasID).machine;
@@ -3262,11 +3278,11 @@ const Controller = {
     },
     loadConfig: function(){
         const configStr = d3.select("body").attr("data-options");
-	const pageConfig = JSON.parse(configStr);
-	if(pageConfig){
-        	//Use this method so defaults can be specified in the initial declaration of the settings obj
-	        Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
-	}
+    const pageConfig = JSON.parse(configStr);
+    if(pageConfig){
+            //Use this method so defaults can be specified in the initial declaration of the settings obj
+            Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
+    }
     },
     getSettings: function(){
         return jsonCopy(this.settings);
@@ -3505,7 +3521,6 @@ const Controller = {
                 Display.drawProgressBar(statsObj);
             }
         }
-
     },
     getQuestionMachineList: function(){
         const body = document.querySelector("body");
@@ -3542,7 +3557,7 @@ const Controller = {
         }
 
         //Perform editable override if needed
-        if(Controller.config["force-editable"]){
+        if(Controller.config.forceEditable){
             Model.question.allowEditing = true;
         }
 
@@ -3787,7 +3802,7 @@ const Logging = {
             localStorage.setItem("fsmTest001", test001Group);
         }
         Logging.setSessionVar("test001Group", test001Group);
-        if(test001Group === "a" && !Controller.config["hide-progressbar"]){
+        if(test001Group === "a" && !Controller.config.hideProgressBar){
             // group 'a' gets the progress bar
             Display.showProgressBar = true;
         } else {

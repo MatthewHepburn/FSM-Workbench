@@ -6,6 +6,7 @@ const create = {
         create.registerDFAbuttonListener();
         create.registerReverseButtonListener();
         create.registerMinimalDFAButtonListener();
+        create.registerExportToSvgButtonListener();
     },
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
@@ -48,6 +49,12 @@ const create = {
             this.blur();
             const machine = Model.machines[0];
             Controller.minimize(machine);
+        });
+    },
+    registerExportToSvgButtonListener: function(){
+        d3.select("#export-svg-button").on("click", function(){
+            this.blur();
+            Display.exportToSVG("m1", true, true);
         });
     },
     setalphabet: function(string){
