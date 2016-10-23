@@ -7,8 +7,13 @@
   },
   {
     "file":"tutorial1.json",
-    "directory": "tut4",
+    "directory": "tut5",
     "endPageID": "b2fb0ab40b6c4f4bb68062c4fe9f0bb8"
+  },
+    {
+    "file":"tutorial2.json",
+    "directory": "tut6",
+    "endPageID": "2815d451c84f43f2b1bae2d3d734a678"
   },
   {
   	"file":"test.json",

@@ -1,0 +1,206 @@
+[
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "Consider the finite state machine below.<br>(a) For each input sequence in the table, record whether it is accepted by the FSM.<br><table style=\"border-style: solid; border-collapse:collapse;border-spacing:0; border-width: thin; border-color: black\">  <tr style=\"border-width: thin;\">    <th style='border-style: solid; border-width:thin'>Input</th>    <th style='border-style: solid; border-width:thin'>Is Accepted?</th></tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>ϵ</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>b</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aa</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>ba</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>abaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>acaca</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>cacba</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  </table><br>(b) Is the FSM deterministic? Justify your answer.",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 80,
+            "y": 143,
+            "isInit": true,
+            "name": "S1"
+          },
+          {
+            "id": "B",
+            "x": 182,
+            "y": 245,
+            "isAcc": true,
+            "isInit": true,
+            "name": "S2"
+          },
+          {
+            "id": "C",
+            "x": 182,
+            "y": 143,
+            "name": "S3"
+          },
+          {
+            "id": "D",
+            "x": 266,
+            "y": 190,
+            "isAcc": true,
+            "name": "S4"
+          },
+          {
+            "id": "E",
+            "x": 266,
+            "y": 89,
+            "name": "S5"
+          }
+        ],
+        "links": [
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "a",
+              "c"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "C",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "A",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "C",
+            "input": [
+              "c"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "D",
+            "input": [
+              "a",
+              "b",
+              "c"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "E",
+            "input": [
+              "a",
+              "b",
+              "c"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "B",
+            "input": [
+              "a",
+              "c"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {
+      "hideProgressBar": true
+    },
+    "filename": "q1",
+    "name": "Question 1",
+    "id": "a72fd7312daf4ab1b9c10901c16f571e"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "2. This NFA over the alphabet {a} uses an ε transition.<br>(a) Describe the language accepted by this machine.<br>(b)",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 111,
+            "y": 136,
+            "isInit": true,
+            "name": "S1"
+          },
+          {
+            "id": "B",
+            "x": 211,
+            "y": 136,
+            "name": "S2"
+          },
+          {
+            "id": "C",
+            "x": 311,
+            "y": 136,
+            "isAcc": true,
+            "name": "S3"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "hasEps": true
+          },
+          {
+            "to": "B",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {
+      "hideProgressBar": true
+    },
+    "filename": "q2",
+    "name": "Question 2",
+    "id": "9f6519c3c0004ecebd1f59ccb8d6cd8f"
+  }
+]
