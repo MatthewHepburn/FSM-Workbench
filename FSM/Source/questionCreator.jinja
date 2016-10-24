@@ -21,14 +21,16 @@
       <div class="questiondata"></div>
       <div class='buttondiv'></div>
       <div class='jsonout'></div>
-      <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
-        <g class="links"></g>
-        <g class="nodes"></g>
-        <defs>
-          <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
-          <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
-        </defs>
-      </svg>
+      <div id="machine-div">
+        <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
+          <g class="links"></g>
+          <g class="nodes"></g>
+          <defs>
+            <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
+            <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
+          </defs>
+        </svg>
+      </div>
     </div>
     <script defer src="{{ addresses.jsAddress }}polyfill.min.js"></script>
     <script defer src="{{ addresses.d3Address }}"></script>
