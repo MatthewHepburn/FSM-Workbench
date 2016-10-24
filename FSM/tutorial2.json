@@ -137,7 +137,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "2. This NFA over the alphabet {a} uses an ε transition.<br>(a) Describe the language accepted by this machine.<br>(b)",
+      "text": "2. This NFA over the alphabet {a} uses an ε transition.<br>(a) Describe the language accepted by this machine in words.<br>(b) Describe the language accepted by this machine using a regular expression.<br>(c) Design a deterministic machine that accepts the same language as this machine.",
       "allowEpsilon": "true",
       "splitSymbol": "",
       "target": "none",
@@ -197,7 +197,9 @@
       }
     ],
     "data-options": {
-      "hideProgressBar": true
+      "hideProgressBar": true,
+      "forceEditable": true,
+      "showExport": true
     },
     "filename": "q2",
     "name": "Question 2",

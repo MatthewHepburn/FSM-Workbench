@@ -2,7 +2,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "1. Consider this finite state machine.<br>i) The machine accepts the sequence '111'. Give two other sequences that it will accept.<br>ii) What do the sequences that this machine accepts have in common?",
+      "text": "1. Consider this finite state machine.<br>(a) The machine accepts the sequence '111'. Give two other sequences that it will accept.<br>(b) What do the sequences that this machine accepts have in common?<br>(c) When will this machine be in state <b>c</b>?",
       "allowEpsilon": "false",
       "splitSymbol": "",
       "target": "none",
@@ -73,7 +73,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "2. Like decimal numbers, binary numbers can be sorted into odd and even by looking at only the least significant digit. For example 12 = 1100 is even, 9 = 1001 is odd.<br>i) Design a finite state machine over the alphabet {0,1} which accepts only those sequences that form an odd binary number.<br><table style=\"border-style: solid; border-collapse:collapse;border-spacing:0; border-width: thin; border-color: black\">  <tr style=\"border-width: thin;\">    <th style='border-style: solid; border-width:thin'>Input</th>    <th style='border-style: solid; border-width:thin'>Is Accepted?</th></tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>'0'</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>'1'</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">   <td style='border-style: solid; border-width:thin'>'0001'</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>'1111'</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>'001010'</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>'110101'</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>''</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr></table>ii) For each input sequence in the table above, record whether the sequence is accepted or rejected by your machine.",
+      "text": "2. Like decimal numbers, binary numbers can be sorted into odd and even by looking at only the least significant digit. For example 12 = 1100 is even, 9 = 1001 is odd.<br>(a) Design a finite state machine over the alphabet {0,1} which accepts only those sequences that form an odd binary number.<br><table style=\"border-style: solid; border-collapse:collapse;border-spacing:0; border-width: thin; border-color: black\">  <tr style=\"border-width: thin;\">    <th style='border-style: solid; border-width:thin'>Input</th>    <th style='border-style: solid; border-width:thin'>Is Accepted?</th></tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>0</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>1</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">   <td style='border-style: solid; border-width:thin'>0001</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>1111</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>001010</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>110101</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>⟨⟩</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr></table>(b) For each input sequence in the table above, record whether the sequence is accepted or rejected by your machine.<br>(c) What changes would you make to your machine to make it recognise even numbers?<br>(d) What changes would you make to your machine to make it recognise the same sets for binary numbers presented in reverse order, with the least significant bit coming first?",
       "allowEpsilon": "false",
       "splitSymbol": "",
       "target": "none",
@@ -118,7 +118,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "3. This finite state machine could be used as part of a vending machine. It accepts any sequence of 20p coins that add up to 40p or more. <br>i) How does this machine deal with input of more than 40p?<br>ii) Modify the machine to also allow 10p coins.",
+      "text": "3. This finite state machine could be used as part of a vending machine. It accepts any sequence of 20p coins that add up to 40p or more. <br>(a) How does this machine deal with input of more than 40p?<br>(b) Modify the machine to also allow 10p coins.",
       "allowEpsilon": "false",
       "splitSymbol": " ",
       "target": "none",
@@ -192,7 +192,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "4. This FSM models the control logic of a chip & PIN card payment terminal. It represents a single transaction, ending in an accepting state if the transaction is successful.<br>i) Note that the transaction will fail if the card is removed too early. Modify the machine so that the transaction will also fail if the wrong PIN is entered three times.<br>ii) This machine only verifies the PIN. Modify it to represent the process of checking with the bank for approval. The machine should only accept if the transaction is approved. The modified machine should take inputs 'Transaction Approved' and 'Transaction Rejected'.",
+      "text": "4. This FSM models the control logic of a chip & PIN card payment terminal. It represents a single transaction, ending in an accepting state if the transaction is successful.<br>(a) Note that the transaction will fail if the card is removed too early. Modify the machine so that the transaction will also fail if the wrong PIN is entered three times.<br>(b) This machine only verifies the PIN. Modify it to represent the process of checking with the bank for approval. The machine should only accept if the transaction is approved. The modified machine should take inputs 'Transaction Approved' and 'Transaction Rejected'.",
       "allowEpsilon": "false",
       "splitSymbol": " ",
       "target": "none",
@@ -296,7 +296,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "5. Consider a hot drinks machine. The machine takes 20p and 50p coins. It sells tea for 50p and coffee for 70p.<br>i) Design a FSM that could be used to control this machine. After a successful sale the FSM should be in an accepting state. The machine only needs to model a single transaction.<br>ii) Consider your answer to part i). How does the machine handle over-payment? Would it be possible to design a FSM that gives correct change?",
+      "text": "5. Consider a hot drinks machine. The machine takes 20p and 50p coins. It sells tea for 50p and coffee for 70p.<br>(a) Design a FSM that could be used to control this machine. After a successful sale the FSM should be in an accepting state. The machine only needs to model a single transaction.<br>(b) Consider your answer to part (a). How does the machine handle over-payment? Would it be possible to design a FSM that gives correct change?",
       "allowEpsilon": "false",
       "splitSymbol": " ",
       "target": "none",
@@ -336,7 +336,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "6. The designer of this machine was attempting to create a system to accept strings with matching opening and closing brackets.<br>i) Give a sequence of matching brackets that the machine does not accept.<br>ii) What does each state of the machine represent? That is, for each state what do the sequences that end in that state have in common? <br>iii) Is it possible to design a finite state machine that will accept all possible sequences of matching brackets? Justify your answer.<br>iv) For each state in the machine, there are input symbols which do not correspond to any transition. What do you think the machine should do if it received input that did not correspond to a transition?",
+      "text": "6. The designer of this machine was attempting to create a system to accept strings with matching opening and closing brackets.<br>(a) Give a sequence of matching brackets that the machine does not accept.<br>(b) What does each state of the machine represent? That is, for each state what do the sequences that end in that state have in common? <br>(c) Is it possible to design a finite state machine that will accept all possible sequences of matching brackets? Justify your answer.<br>(d) For each state in the machine, there are input symbols which do not correspond to any transition. What do you think the machine should do if it received input that did not correspond to a transition?",
       "allowEpsilon": "false",
       "splitSymbol": "",
       "target": "none",
@@ -455,5 +455,56 @@
     "filename": "q6",
     "name": "Question 6",
     "id": "5f051aea464046369a42251ab2ad10bf"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "7. This is a variation on Question <a href='q2.html'>2</a>.<br>(a) Design a finite state machine over the alphabet {0,1} which accepts only those sequences that form a binary number divisible by 3?<br>For example your machine should accept 0, 000, 011, 11, 110, 1001, and 1100, which represent 0, 0, 3, 3, 6, and 12. <br>Hint: design a machine with three states S0, S1, S2, where the machine is in state S2 whenever n mod 3 = 2, i.e. where n, the number represented by the binary sequence seen, is 2 more than some multiple of 3.<br><br>(b) What changes would you make to your machine to make it recognise numbers not divisible by 3?<br><br>(c) What changes would you make to your machine to recognise the numbers divisible by 3 for binary numbers presented in reverse order, i. e. with the least significant bit coming first?",
+      "allowEpsilon": "false",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 104,
+            "y": 125,
+            "isInit": true,
+            "name": "S1"
+          },
+          {
+            "id": "B",
+            "x": 204,
+            "y": 125,
+            "name": "S2"
+          },
+          {
+            "id": "C",
+            "x": 304,
+            "y": 125,
+            "name": "S3"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "0",
+            "1"
+          ],
+          "allowEpsilon": false
+        }
+      }
+    ],
+    "data-options": {
+      "forceEditable": true,
+      "hideProgressBar": true,
+      "showExport": true
+    },
+    "filename": "q7",
+    "name": "Question 7",
+    "id": "6ce4da8e2ec545adb8fdc99f36f18e10"
   }
 ]
