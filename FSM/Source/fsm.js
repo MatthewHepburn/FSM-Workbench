@@ -2093,6 +2093,14 @@ const Display = {
                 throw new Error("showExport not implemented for this question type.");
             }
         }
+	if(Controller.config.showRegexTester){
+		if(qType === "give-input"){
+			const span = d3.select(".button-div")
+					.append("span").attr("id", "regex-test");
+			const input = span.append("input").attr("type", "text").attr("id", "regex-test-input")
+			span.append("button").text("Test Regex").on("click", (() => Controller.testRegex(input.node().value)));			
+		}
+	}
     },
     update: function(canvasID){
         var machine = Display.getCanvasVars(canvasID).machine;
