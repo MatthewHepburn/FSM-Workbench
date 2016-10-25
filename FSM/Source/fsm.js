@@ -2093,14 +2093,16 @@ const Display = {
                 throw new Error("showExport not implemented for this question type.");
             }
         }
-	if(Controller.config.showRegexTester){
-		if(qType === "give-input"){
-			const span = d3.select(".button-div")
-					.append("span").attr("id", "regex-test");
-			const input = span.append("input").attr("type", "text").attr("id", "regex-test-input")
-			span.append("button").text("Test Regex").on("click", (() => Controller.testRegex(input.node().value)));			
-		}
-	}
+        if(Controller.config.showRegexTester){
+            if(qType === "give-input"){
+                const span = d3.select(".button-div")
+                        .append("span").attr("id", "regex-test").style("padding-left", "1em");
+                const input = span.append("input").attr("type", "text").attr("id", "regex-test-input").attr("value", "(a|b)*");
+                const button = span.append("button").text("Test Regex")
+                const output = span.append("span").style("padding-left", "1em");
+                button.on("click", (() => output.text(Controller.testRegex(Model.machines[0], input.node().value))));
+            }
+        }
     },
     update: function(canvasID){
         var machine = Display.getCanvasVars(canvasID).machine;
@@ -3231,6 +3233,10 @@ const Controller = {
         // Called when the user is using the link tool add a link starting from sourceNode
         Display.clearMenus(sourceNode.machine.id);
         Display.beginLink(sourceNode);
+    },
+    testRegex: function(machine, regexStr){
+        return machine.testRegex(regexStr);
+
     },
     checkAnswer: function(){
         //Check if input must be collected

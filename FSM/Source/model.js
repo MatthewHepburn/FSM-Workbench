@@ -991,6 +991,51 @@ const Model = {
             }
             return true;
         };
+
+        this.testRegex = function(str){
+            //Tests the given regex string on the machine, using the inefficient but serviceable approach from v1
+            const m = this;
+            const alphabet = m.alphabet;
+            if(m.getAcceptingNodeCount() === 0){
+                return "Machine has no accepting states.";
+            }
+            var toString = x => x.reduce((x,y) => x + y, "");
+            var nStates = m.getNodeCount();
+            var sequences = [[]];
+            var regex = new RegExp(str);
+            while(sequences[0].length <= 2 * nStates){
+                var newSequences = [];
+                for(var i = 0; i < sequences.length; i++){
+                    var thisSequence = sequences[i];
+                    var string = toString(thisSequence);
+                    let printableString = "'" + string + "'";
+                    if(printableString.length == 2){
+                        printableString = "the empty string";
+                    }
+                    var regexAccepts = true;
+                    if (regex.exec(string) == null || regex.exec(string)[0] != string){
+                        regexAccepts = false;
+                    }
+                    var machineAccepts = m.accepts(thisSequence);
+                    if(regexAccepts && !machineAccepts){
+                        return `Machine rejects ${printableString} which regex accepts.`;
+                    }
+                    if(!regexAccepts && machineAccepts){
+                        return `Regex rejects ${printableString} which machine accepts.`;
+                    }
+
+                    //Populate newSequences
+                    for(var j = 0; j< alphabet.length; j++){
+                        var symbol = alphabet[j];
+                        var newSequence = thisSequence.concat([symbol]);
+                        newSequences.push(newSequence);
+                    }
+                }
+                sequences = newSequences;
+            }
+            return "Regex and FSM are equivalent.";
+
+        };
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){

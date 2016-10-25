@@ -128,7 +128,10 @@
       }
     ],
     "data-options": {
-      "hideProgressBar": true
+      "showRegexTester": true,
+      "forceEditable": true,
+      "hideProgressBar": true,
+      "showExport": true
     },
     "filename": "q1",
     "name": "Question 1",
@@ -197,15 +200,363 @@
       }
     ],
     "data-options": {
-      "hideProgressBar": true,
+      "showRegexTester": true,
       "forceEditable": true,
+      "hideProgressBar": true,
       "showExport": true
     },
     "filename": "q2",
     "name": "Question 2",
     "id": "9f6519c3c0004ecebd1f59ccb8d6cd8f"
   },
-  {"data-question":{"type":"give-input","text":"3. ε-transitions provide a simple way of combining FSMs. The machine below has been composed from two machines A and B, which had initial states A1 and B1.<br>(a) Considering machines A & B separately, give a regular expression which describes the language they accept.<br>(b) Considering the whole machine, give a regular expression which describes the language the machine accepts.<br>(c) L<sub>A</sub> and L<sub>B</sub> are the sets of inputs accepted by machines A and B. Give an expression relating L<sub>A</sub> and L<sub>B</sub> to L, where L is the set of input accepted by the whole machine.<br>","allowEpsilon":"true","splitSymbol":"","target":"none","outputSequence":[]},"data-machinelist":[{"nodes":[{"id":"A","x":76,"y":161,"isInit":true,"name":"S"},{"id":"B","x":156,"y":101,"name":"A1"},{"id":"C","x":256,"y":100,"name":"A2"},{"id":"D","x":356,"y":100,"isAcc":true,"name":"A3"},{"id":"E","x":146,"y":232,"name":"B1"},{"id":"F","x":230,"y":176,"name":"B2"},{"id":"G","x":232,"y":283,"name":"B3"},{"id":"H","x":315,"y":228,"isAcc":true,"name":"B4"}],"links":[{"to":"B","from":"A","hasEps":true},{"to":"C","from":"B","input":["a"]},{"to":"C","from":"C","input":["b"]},{"to":"D","from":"C","input":["a"]},{"to":"D","from":"D","input":["a"]},{"to":"E","from":"A","hasEps":true},{"to":"F","from":"E","input":["b"]},{"to":"E","from":"F","input":["b"]},{"to":"G","from":"E","input":["a"]},{"to":"E","from":"G","input":["a"]},{"to":"H","from":"F","input":["a"]},{"to":"H","from":"G","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true}}],"data-options":{},"filename":"q3","name":"Question 3","id":"4edc71b2600d4ecda0493230be107ccf"},
-  {"data-question":{"type":"give-input","text":"4. Consider the regular expression <tt>ab(a|b)*</tt><br>(a) Describe in words the language the expression matches.<br>(b) Design an equivalent finite state machine that accepts that language.<br>(c) Building on your answer to (b), design a finite state machine that accepts the language <tt>ab(a|b)*bb*(aa)*</tt>","allowEpsilon":"true","splitSymbol":"","target":"none","outputSequence":[]},"data-machinelist":[{"nodes":[{"id":"A","x":100,"y":125,"isInit":true,"name":"S1"}],"links":[],"attributes":{"alphabet":["a","b"],"allowEpsilon":true}}],"data-options":{},"filename":"q4","name":"Question 4","id":"7910554ebd6548f5a1eeb134d97160df"},
-  {"data-question":{"type":"give-input","text":"Consider this NFA over the alphabet {a,b,c}.<br>(a)","allowEpsilon":"true","splitSymbol":"","target":"accept","outputSequence":[]},"data-machinelist":[{"nodes":[{"id":"A","x":76,"y":48,"isInit":true,"name":"A1"},{"id":"B","x":92,"y":223,"isInit":true,"name":"B1"},{"id":"C","x":176,"y":47,"name":"A2"},{"id":"D","x":257,"y":44,"name":"A3"},{"id":"E","x":300,"y":111,"name":"C1"},{"id":"F","x":412,"y":110,"name":"C2"},{"id":"G","x":172,"y":219,"name":"B2"},{"id":"H","x":252,"y":222,"name":"B3"}],"links":[{"to":"C","from":"A"}],"attributes":{"alphabet":["a","b","c"],"allowEpsilon":true}}],"data-options":{},"filename":"filename","name":"Question Title","id":"ddf9c43d870545a99a2e4ba095e75401"}
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "3. ε-transitions provide a simple way of combining FSMs. The machine below has been composed from two machines A and B, which had initial states A1 and B1.<br>(a) Considering machines A & B separately, give a regular expression which describes the language they accept.<br>(b) Considering the whole machine, give a regular expression which describes the language the machine accepts.<br>(c) L<sub>A</sub> and L<sub>B</sub> are the sets of inputs accepted by machines A and B. Give an expression relating L<sub>A</sub> and L<sub>B</sub> to L, where L is the set of input accepted by the whole machine.<br>",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 76,
+            "y": 161,
+            "isInit": true,
+            "name": "S"
+          },
+          {
+            "id": "B",
+            "x": 156,
+            "y": 101,
+            "name": "A1"
+          },
+          {
+            "id": "C",
+            "x": 256,
+            "y": 100,
+            "name": "A2"
+          },
+          {
+            "id": "D",
+            "x": 356,
+            "y": 100,
+            "isAcc": true,
+            "name": "A3"
+          },
+          {
+            "id": "E",
+            "x": 146,
+            "y": 232,
+            "name": "B1"
+          },
+          {
+            "id": "F",
+            "x": 230,
+            "y": 176,
+            "name": "B2"
+          },
+          {
+            "id": "G",
+            "x": 232,
+            "y": 283,
+            "name": "B3"
+          },
+          {
+            "id": "H",
+            "x": 315,
+            "y": 228,
+            "isAcc": true,
+            "name": "B4"
+          }
+        ],
+        "links": [
+          {
+            "to": "B",
+            "from": "A",
+            "hasEps": true
+          },
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "C",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "D",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "A",
+            "hasEps": true
+          },
+          {
+            "to": "F",
+            "from": "E",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "F",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "G",
+            "from": "E",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "E",
+            "from": "G",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "H",
+            "from": "F",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "H",
+            "from": "G",
+            "input": [
+              "b"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {
+      "showRegexTester": true,
+      "forceEditable": true,
+      "hideProgressBar": true,
+      "showExport": true
+    },
+    "filename": "q3",
+    "name": "Question 3",
+    "id": "4edc71b2600d4ecda0493230be107ccf"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "4. Consider the regular expression <tt>ab(a|b)*</tt><br>(a) Describe in words the language the expression matches.<br>(b) Design an equivalent finite state machine that accepts that language.<br>(c) Building on your answer to (b), design a finite state machine that accepts the language <tt>ab(a|b)*bb*(aa)*</tt>",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 100,
+            "y": 125,
+            "isInit": true,
+            "name": "S1"
+          }
+        ],
+        "links": [],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {
+      "showRegexTester": true,
+      "forceEditable": true,
+      "hideProgressBar": true,
+      "showExport": true
+    },
+    "filename": "q4",
+    "name": "Question 4",
+    "id": "7910554ebd6548f5a1eeb134d97160df"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "5. Consider this NFA over the alphabet {a,b,c}.<br>(a) Describe, both in words and with a regular expression, the language accepted by this machine. Hint: think about the sequences<br>that end in A3 and B3.<br>(b) Design a DFA that accepts the same language.<br>(c) Are there any NFAs that cannot be converted into an equivalent DFA?",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 57,
+            "y": 240,
+            "isInit": true,
+            "name": "B1"
+          },
+          {
+            "id": "B",
+            "x": 57,
+            "y": 108,
+            "isInit": true,
+            "name": "A1"
+          },
+          {
+            "id": "C",
+            "x": 157,
+            "y": 108,
+            "name": "A2"
+          },
+          {
+            "id": "D",
+            "x": 257,
+            "y": 108,
+            "name": "A3"
+          },
+          {
+            "id": "E",
+            "x": 157,
+            "y": 240,
+            "name": "B2"
+          },
+          {
+            "id": "F",
+            "x": 257,
+            "y": 240,
+            "name": "B3"
+          },
+          {
+            "id": "G",
+            "x": 334,
+            "y": 173,
+            "name": "C1"
+          },
+          {
+            "id": "H",
+            "x": 434,
+            "y": 173,
+            "isAcc": true,
+            "name": "C2"
+          }
+        ],
+        "links": [
+          {
+            "to": "C",
+            "from": "B",
+            "input": [
+              "c"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "c"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "D",
+            "input": [
+              "c"
+            ]
+          },
+          {
+            "to": "G",
+            "from": "D",
+            "hasEps": true
+          },
+          {
+            "to": "H",
+            "from": "G",
+            "input": [
+              "a"
+            ]
+          },
+          {
+            "to": "G",
+            "from": "F",
+            "hasEps": true
+          },
+          {
+            "to": "E",
+            "from": "A",
+            "input": [
+              "b"
+            ]
+          },
+          {
+            "to": "F",
+            "from": "E",
+            "input": [
+              "c"
+            ]
+          },
+          {
+            "to": "F",
+            "from": "F",
+            "input": [
+              "c"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "a",
+            "b",
+            "c"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {
+      "showRegexTester": true,
+      "forceEditable": true,
+      "hideProgressBar": true,
+      "showExport": true
+    },
+    "filename": "q5",
+    "name": "Question 5",
+    "id": "5d2e7bb5239a41789ca011a559b56a05"
+  }
 ]
