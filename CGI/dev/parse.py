@@ -6,7 +6,7 @@ import json
 import datetime
 import time
 import sys
-import pdb
+import math
 import subprocess #Required to determine directory size
 try:
     from user_agents import parse
@@ -24,7 +24,6 @@ testData = {}
 cutoffTime = 1439447160 # Ignore entries before this timestamp
 maxTimeOnPage = 1800 #30 minutes
 
-logTime = 3 # Number of minutes between logs
 pp = pprint.PrettyPrinter(indent=1)
 crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console", "Google PP Default"]
 ignoredIDs = ["DEBUG", "dev"] #UserIDs to ignore - eg to exclude developer actions from stats
