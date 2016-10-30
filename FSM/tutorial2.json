@@ -2,7 +2,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "Consider the finite state machine below.<br>(a) For each input sequence in the table, record whether it is accepted by the FSM.<br><table style=\"border-style: solid; border-collapse:collapse;border-spacing:0; border-width: thin; border-color: black\">  <tr style=\"border-width: thin;\">    <th style='border-style: solid; border-width:thin'>Input</th>    <th style='border-style: solid; border-width:thin'>Is Accepted?</th></tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>ϵ</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>b</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aa</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>ba</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>abaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>acaca</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>cacba</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  </table><br>(b) Is the FSM deterministic? Justify your answer.",
+      "text": "Consider the finite state machine below.<br>(a) For each input sequence in the table, record whether it is accepted by the FSM.<br><table style=\"border-style: solid; border-collapse:collapse;border-spacing:0; border-width: thin; border-color: black\">  <tr style=\"border-width: thin;\">    <th style='border-style: solid; border-width:thin'>Input</th>    <th style='border-style: solid; border-width:thin'>Is Accepted?</th></tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>⟨⟩</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>b</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aa</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>ba</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>abaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>acaca</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>aaab</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  <tr style=\"border-width: thin;\">    <td style='border-style: solid; border-width:thin'>cacba</td>    <td style='border-style: solid; border-width:thin; text-align: center'><input type='checkbox'></td>  </tr>  </table><br>(b) Is the FSM deterministic? Justify your answer.<br>",
       "allowEpsilon": "true",
       "splitSymbol": "",
       "target": "none",
@@ -377,7 +377,7 @@
   {
     "data-question": {
       "type": "give-input",
-      "text": "4. Consider the regular expression <tt>ab(a|b)*</tt><br>(a) Describe in words the language the expression matches.<br>(b) Design an equivalent finite state machine that accepts that language.<br>(c) Building on your answer to (b), design a finite state machine that accepts the language <tt>ab(a|b)*bb*(aa)*</tt>",
+      "text": "4. Consider the regular expression <tt>ab(a|b)*</tt><br>(a) Describe in words the language that the expression matches. Include two examples of strings that are matched.<br>(b) Design a finite state machine that accepts that language.<br>(c) Building on your answer to (b), design a finite state machine that accepts <tt>ab(a|b)*bb*(aa)*</tt>",
       "allowEpsilon": "true",
       "splitSymbol": "",
       "target": "none",
@@ -558,5 +558,150 @@
     "filename": "q5",
     "name": "Question 5",
     "id": "5d2e7bb5239a41789ca011a559b56a05"
+  },
+  {
+    "data-question": {
+      "type": "give-input",
+      "text": "Consider this DFA over the alphabet {0, 1, 2}. It should be familiar.<br>(a) Describe, in words, the language accepted by this machine. Hint: Your description in words should refer to ternary numbers.<br><br>(b) Replace each transition labelled 0 by a transition labelled ε, between the same two states. The resulting automaton is not a DFA. (Why not?)<br>i. Construct an equivalent DFA.<br>ii. Describe, both in words and with a regular expression, the language accepted by this machine.<br><br>(c) Next, replace each transition (of the original machine) labelled 1 by a transition labelled ε, between the same two states.<br>i. Again, construct an equivalent DFA, and describe the language it accepts.<br><br>(d) Repeat the exercise replacing each transition (of the original machine) labelled 2 by a transition labelled ε, between the same two states.<br>i. Construct an equivalent DFA, and describe the language it accepts.<br><br>(e) BONUS QUESTION: Give a regular expression that describes the language accepted by the original machine. Test your answer using the grep utility.",
+      "allowEpsilon": "true",
+      "splitSymbol": "",
+      "target": "none",
+      "outputSequence": []
+    },
+    "data-machinelist": [
+      {
+        "nodes": [
+          {
+            "id": "A",
+            "x": 133,
+            "y": 73,
+            "isAcc": true,
+            "isInit": true,
+            "name": "s0"
+          },
+          {
+            "id": "B",
+            "x": 233,
+            "y": 73,
+            "name": "s2"
+          },
+          {
+            "id": "C",
+            "x": 133,
+            "y": 173,
+            "name": "s1"
+          },
+          {
+            "id": "D",
+            "x": 233,
+            "y": 173,
+            "name": "s3"
+          }
+        ],
+        "links": [
+          {
+            "to": "A",
+            "from": "A",
+            "input": [
+              "0"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "A",
+            "input": [
+              "2"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "B",
+            "input": [
+              "2"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "B",
+            "input": [
+              "0"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "A",
+            "input": [
+              "1"
+            ]
+          },
+          {
+            "to": "A",
+            "from": "C",
+            "input": [
+              "1"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "C",
+            "input": [
+              "2"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "C",
+            "input": [
+              "0"
+            ]
+          },
+          {
+            "to": "C",
+            "from": "D",
+            "input": [
+              "0"
+            ]
+          },
+          {
+            "to": "B",
+            "from": "D",
+            "input": [
+              "1"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "B",
+            "input": [
+              "1"
+            ]
+          },
+          {
+            "to": "D",
+            "from": "D",
+            "input": [
+              "2"
+            ]
+          }
+        ],
+        "attributes": {
+          "alphabet": [
+            "0",
+            "1",
+            "2"
+          ],
+          "allowEpsilon": true
+        }
+      }
+    ],
+    "data-options": {
+      "showRegexTester": true,
+      "forceEditable": true,
+      "hideProgressBar": true,
+      "showExport": true
+    },
+    "filename": "q6",
+    "name": "Question 6",
+    "id": "c1c54dcbc5ca4210a34702c1837b470f"
   }
 ]
