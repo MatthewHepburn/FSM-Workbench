@@ -226,7 +226,6 @@ def copyVictorJS():
         raise FileNotFoundError(victorPath + " not found. Ensure that Victor.js is installed. Try $npm install victor")
     with open(victorPath, "r") as inFile:
         with open(outputPath, "w") as outFile:
-            # pdb.set_trace()
             line1 = "//" + inFile.readline(); #comment out first line.
             outFile.write(line1)
             outFile.write("//THIS FILE IS CREATED BY THE BUILD PROCESS. ANY CHANGES MADE WILL BE OVERWRITTEN")
@@ -360,7 +359,7 @@ if __name__ == "__main__":
         os.chdir(deployDir)
         useShell = True
 
-        files = [f for f in os.listdir(deployDir) if f[-3:] == ".js"]
+        files = [f for f in os.listdir(deployDir) if f[-3:] == ".js" and f[-7:] != ".min.js"] #Don't minimize files with name ending .min.js
         for f in files:
             path = os.path.join(deployDir, f)
             # "uglifyjs" script is defined in package.json
