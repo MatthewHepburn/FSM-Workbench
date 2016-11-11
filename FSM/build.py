@@ -223,7 +223,8 @@ def copyVictorJS():
     victorPath = os.path.join(startDir, "node_modules", "victor", "index.js")
     outputPath = os.path.join(deployDir, "victor.js")
     if not os.path.isfile(victorPath):
-        raise FileNotFoundError(victorPath + " not found. Ensure that Victor.js is installed. Try $npm install victor")
+        print("ERROR" + victorPath + " not found. Ensure that Victor.js is installed. Try $npm install victor")
+        return
     with open(victorPath, "r") as inFile:
         with open(outputPath, "w") as outFile:
             line1 = "//" + inFile.readline(); #comment out first line.
@@ -237,7 +238,8 @@ def copyBabelPolyfill():
     polyPath = os.path.join(startDir, "node_modules", "babel-polyfill", "dist", "polyfill.min.js")
     outputPath = os.path.join(deployDir, "polyfill.min.js")
     if not os.path.isfile(polyPath):
-        raise FileNotFoundError(polyPath + " not found. Ensure that babel-polyfill is installed. Try $npm install babel-polyfill")
+        print("ERROR:" + polyPath + " not found. Ensure that babel-polyfill is installed. Try $npm install babel-polyfill")
+        return
     with open(polyPath, "r") as inFile:
         with open(outputPath, "w") as outFile:
             outFile.write("//THIS FILE IS CREATED BY THE BUILD PROCESS. ANY CHANGES MADE WILL BE OVERWRITTEN\n")
