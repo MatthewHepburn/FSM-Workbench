@@ -2295,6 +2295,9 @@ const Display = {
 
         Display.forceTick(canvasID);
     },
+    updateAllNodeNames: function(machine){
+    	const nodes = machine.getNodeList().forEach(node => Display.updateNodeName(node));
+    },
     updateAllLinkLabels: function(canvasID){
         var linkList = Object.keys(Display.canvasVars[canvasID].machine.links);
         linkList.forEach(function(id){
@@ -3326,6 +3329,14 @@ const Controller = {
     convertToDFA: function(machine){
         Display.clearMenus(machine.id);
         machine.convertToDFA();
+        Display.resetColours(machine.id);
+        Display.forceTick(machine.id);
+        Display.update(machine.id);
+    },
+    issueNames: function(machine){
+    	Display.clearMenus(machine.id);
+        machine.issueNodeNames();
+        Display.updateAllNodeNames(machine)
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);

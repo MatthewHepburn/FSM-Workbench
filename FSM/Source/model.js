@@ -768,7 +768,7 @@ const Model = {
             //For type = "ignore" all unspecifed input is ignored using reflexive links (ie unspecified input does not change machine state)
 
             if(!["blackhole", "ignore"].includes(type)){
-                throw new Error(`Unexpected type: '${type}'' in Model.Machine.completelySpecify.`);
+                throw new Error(`Unexpected type: '${type}' in Model.Machine.completelySpecify.`);
             }
 
             //Check that action is needed:
@@ -1036,6 +1036,79 @@ const Model = {
             return "Regex and FSM are equivalent.";
 
         };
+
+        this.issueNodeNames = function(){
+            //Give any unnamed nodes a name -- try to be clever and follow any existing naming convention
+            const nodes = this.getNodeList();
+            //Ensure node name is defined.
+            nodes.map(function(node){
+                if(!node.name){
+                    node.name = "";
+                }
+            });
+            const namedNodes = nodes.filter(node => node.name.length > 0);
+            if(namedNodes.length == nodes.length){
+                return; //All nodes are already named.
+            }
+            let namingScheme;
+            // A generator to produce strings A, B,..AA,AB,..
+            // A surprisingly difficult problem!
+            const upperAlphabeticalGen = function*(){
+                yield "A"
+                let i = 1                
+                while(true){
+                    let t = i
+                    let str = ""
+                    str = String.fromCharCode((t % 26) + 65) + str
+                    t = (t / 26) >> 0
+                    while(t > 0){
+                        if(t > 25){
+                            str = String.fromCharCode((t % 25) + 64) + str
+                        }
+                        else{
+                            str = String.fromCharCode((t % 26) + 64) + str
+                        }                        
+                        t = (t / 26) >> 0
+                    }
+                    yield str
+                    i = i + 1;
+                }
+            }();
+
+            //Generate strings in form 1,2,3,...
+            const numericalGen = function*(){
+                let i = 1;
+                while(true){
+                    yield String(i)
+                    i = i + 1
+                }
+            }();
+
+            const names = namedNodes.map(node => String(node.name));
+
+            //Now we chose a naming scheme
+            if(namedNodes.length == 0){
+                //No nodes are named, we can choose a naming scheme:
+                namingScheme = upperAlphabeticalGen;
+            } else if(names.filter(name => /^[0-9]*$/.test(name)).length == names.length){
+                //All names are numeric
+                namingScheme = numericalGen;
+            } else {
+                namingScheme = upperAlphabeticalGen;
+            }
+
+            //Naming scheme chosen, now we must rename nodes.
+            const unnamedNodes = nodes.filter(node => node.name.length == 0)
+            //sort into left-to-right order
+            unnamedNodes.sort((a,b) => a.x - b.x);
+            for(let i = 0; i < unnamedNodes.length; i++){
+                let newName = namingScheme.next().value;
+                while(names.indexOf(newName) !== -1){
+                    newName = namingScheme.next().value;
+                }
+                unnamedNodes[i].name = newName;
+            }
+        }
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
