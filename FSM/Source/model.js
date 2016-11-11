@@ -847,6 +847,12 @@ const Model = {
 
             var newNodeSets = [];
 
+            //Return this object at the end to allow visualisation of the process
+            //Will contain objects of forms
+            //{type: "transitionsAdded", id:"1", transitions: [{id:'1', names:["a"]}, {id:"1-2", names:["a","b"]} for when a row is filled for an existing set
+            //{type: "setAdded", id:"1-2", names:["a", "b"]} for when a new reachable set is found
+            const steps = [];
+
             var addToNewNodeSets = function(nodeSet){
                 //Takes an array of nodes, and add it to the newNodeSets array
                 //Sort the nodeSet, to ensure that each nodeSet has only one ID:
@@ -860,6 +866,7 @@ const Model = {
                     var id = nodeSet.map(node => node.id).reduce((x,y)=> `${x}+${y}`);
                     var obj = {id, nodes:nodeSet};
                     newNodeSets.push(obj);
+                    steps.push({type:"transitionsAdded", id, names:nodeSet.map(node => node.name)})
                     return id;
                 }
 
@@ -903,6 +910,10 @@ const Model = {
                 var name = nameNodeSet(nodeSet.nodes);
                 var x = nodeSet.nodes.map(node => node.x).reduce((x1,x2)=> x1 + x2)/nodeSet.nodes.length; //set x to mean value of nodes in set
                 var y = nodeSet.nodes.map(node => node.y).reduce((y1,y2)=> y1 + y2)/nodeSet.nodes.length; //set x to mean value of nodes in set
+
+                // for each nodeSet, build a transition table for visualisation of the process
+                const transitions = []
+
                 for(var i = 0; i < this.alphabet.length; i++){
                     var symbol = this.alphabet[i];
                     this.setToState(nodeSet.nodes);
@@ -911,11 +922,13 @@ const Model = {
                     if(reachableNodes.length > 0){
                         var id = addToNewNodeSets(reachableNodes);
                         reachable[symbol] = id;
+                        transitions.push({id, names: reachableNodes.map(node => node.name).sort()})
                     } else {
                         reachable[symbol] = "none";
+                        transitions.push([])
                     }
-
                 }
+                steps.push({type:"transitionsAdded", id:nodeSet.id, transitions})
                 var obj = {nodes:nodeSet.nodes, reachable, name, isInitial, isAccepting, x, y};
                 nodeSets[nodeSet.id] = obj;
             }
@@ -948,8 +961,7 @@ const Model = {
 
                 }
             }
-
-
+            return steps;
         };
 
         this.getLinksTo = function(targetNode){
