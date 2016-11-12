@@ -290,6 +290,13 @@ const Model = {
             }
             return spec;
         };
+        this.getInitialState = function(){
+            const savedState = this.currentState;
+            this.setToInitialState();
+            const state = this.currentState;
+            this.currentState = savedState;
+            return state;
+        };
         this.setToInitialState = function(){
             //Set the list of current states to be all initial states
             var context = this;
@@ -310,6 +317,12 @@ const Model = {
             return Object.keys(this.nodes).map(nodeID => this.nodes[nodeID]);
 
         };
+        this.getNodeListNameSorted = function(){
+            const nodeList = this.getNodeList();
+            nodeList.sort((a,b) => a.name.localeCompare(b.name));
+            return nodeList;
+        };
+
         this.getLinkList = function(){
             //returns an array of all links in the machine
             return Object.keys(this.links).map(linkID => this.links[linkID]);
@@ -783,7 +796,7 @@ const Model = {
                     blackholeNode = blackholeCandidates[0];
                 } else{
                     //Add a new node to be the black-hole state
-                    const blackholeName = "🚮"; //Try also 🗑
+                    const blackholeName = "{ }"; //Also 🗑 or 🚮 could work
                     blackholeNode = this.addNode(150, 150, blackholeName, false, false);
                 }
 
@@ -831,6 +844,34 @@ const Model = {
             return true;
         };
 
+        this.getTransitionTable = function(){
+            const m = this;
+            const savedState = this.currentState;
+            const nodes = m.getNodeListNameSorted();
+            const table = [];
+            const alphabet = m.alphabet.sort();
+
+            nodes.forEach(function(node){
+                const tableEntry = {node, transitions:[], id:node.id};
+                for(let i = 0; i < alphabet.length; i++){
+                    m.setToState([node]);
+                    m.followEpsilonTransitions();
+                    m.step(alphabet[i]);
+                    m.followEpsilonTransitions();
+                    const state = m.currentState;
+                    const names = state.map(id => m.nodes[id].name).sort();
+                    let id = null;
+                    if(state.length > 0){
+                        id =  state.sort().reduce((a,b) => `${a}_${b}`);
+                    }
+                    tableEntry.transitions.push({names, id});
+                }
+                table.push(tableEntry);
+            });
+            m.currentState = savedState;
+            return table;
+        };
+
         this.convertToDFA = function(){
             this.enforceAlphabet();
             //Obj of form {"m1-n1+m1-n2":{
@@ -849,9 +890,11 @@ const Model = {
 
             //Return this object at the end to allow visualisation of the process
             //Will contain objects of forms
-            //{type: "transitionsAdded", id:"1", transitions: [{id:'1', names:["a"]}, {id:"1-2", names:["a","b"]} for when a row is filled for an existing set
-            //{type: "setAdded", id:"1-2", names:["a", "b"]} for when a new reachable set is found
+            // TODO - tidy this up, only ended up needing the transitionTable, not the steps.F
+            //{type: "transitionsAdded", id:"1", transitions: [{id:'1', names:["a"]}, {id:"1_2", names:["a","b"]} for when a row is filled for an existing set
+            //{type: "setAdded", id:"1_2", names:["a", "b"]} for when a new reachable set is found
             const steps = [];
+            const transitionTable = {}; //maps stateIDs to transition step objects.
 
             var addToNewNodeSets = function(nodeSet){
                 //Takes an array of nodes, and add it to the newNodeSets array
@@ -863,10 +906,12 @@ const Model = {
                     return 1;
                 });
                 if(nodeSet.length > 0){
-                    var id = nodeSet.map(node => node.id).reduce((x,y)=> `${x}+${y}`);
+                    var id = nodeSet.map(node => node.id).reduce((x,y)=> `${x}_${y}`);
                     var obj = {id, nodes:nodeSet};
                     newNodeSets.push(obj);
-                    steps.push({type:"transitionsAdded", id, names:nodeSet.map(node => node.name)})
+                    if(nodeSet.length > 1){
+                        steps.push({type:"setAdded", id, names:nodeSet.map(node => node.name)});
+                    }
                     return id;
                 }
 
@@ -881,7 +926,7 @@ const Model = {
                     //if any node is unnamed, return ""
                     return "";
                 }
-                return "{" + nodeSet.map(node=>node.name).reduce((x,y) => `${x}, ${y}`) + "}";
+                return "{" + nodeSet.map(node=>node.name).sort().reduce((x,y) => `${x}, ${y}`) + "}";
             };
 
             //Start with the initial nodeSet of the machine
@@ -912,7 +957,13 @@ const Model = {
                 var y = nodeSet.nodes.map(node => node.y).reduce((y1,y2)=> y1 + y2)/nodeSet.nodes.length; //set x to mean value of nodes in set
 
                 // for each nodeSet, build a transition table for visualisation of the process
-                const transitions = []
+                // NB: the transitions list is added to steps BEFORE it is populated
+                // This is done as we want the transition to be before any setAdded events that it generates.
+                const transitions = [];
+                const stepObj = {type: "transitionsAdded", id:nodeSet.id, transitions}
+                transitionTable[nodeSet.id] = stepObj;
+                steps.push(stepObj);
+
 
                 for(var i = 0; i < this.alphabet.length; i++){
                     var symbol = this.alphabet[i];
@@ -922,13 +973,12 @@ const Model = {
                     if(reachableNodes.length > 0){
                         var id = addToNewNodeSets(reachableNodes);
                         reachable[symbol] = id;
-                        transitions.push({id, names: reachableNodes.map(node => node.name).sort()})
+                        transitions.push({id, names: reachableNodes.map(node => node.name).sort()});
                     } else {
                         reachable[symbol] = "none";
-                        transitions.push([])
+                        transitions.push({id:null, names:[]});
                     }
                 }
-                steps.push({type:"transitionsAdded", id:nodeSet.id, transitions})
                 var obj = {nodes:nodeSet.nodes, reachable, name, isInitial, isAccepting, x, y};
                 nodeSets[nodeSet.id] = obj;
             }
@@ -961,7 +1011,7 @@ const Model = {
 
                 }
             }
-            return steps;
+            return {steps, transitionTable};
         };
 
         this.getLinksTo = function(targetNode){
@@ -1067,7 +1117,7 @@ const Model = {
             // A surprisingly difficult problem!
             const upperAlphabeticalGen = function*(){
                 yield "A"
-                let i = 1                
+                let i = 1
                 while(true){
                     let t = i
                     let str = ""
@@ -1079,7 +1129,7 @@ const Model = {
                         }
                         else{
                             str = String.fromCharCode((t % 26) + 64) + str
-                        }                        
+                        }
                         t = (t / 26) >> 0
                     }
                     yield str
@@ -1120,7 +1170,20 @@ const Model = {
                 }
                 unnamedNodes[i].name = newName;
             }
-        }
+        };
+
+        this.clone = function(newID){
+            //Return a copy of this machine
+            if(!newID){
+                newID = this.id;
+            }
+            const spec = this.getSpec();
+            const newMachine = new Model.Machine(newID);
+            newMachine.build(spec);
+            return newMachine;
+        };
+
+
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){

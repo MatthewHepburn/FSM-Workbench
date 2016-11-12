@@ -216,6 +216,13 @@ td.state-pair {
     text-align: center;
 }
 
+.subset td{
+    border: #444444;
+    border-style: solid;
+    border-width: thin;
+    text-align: center;
+}
+
 
 svg:not(.active):not(.ctrl) {
   cursor: crosshair;
@@ -713,3 +720,4 @@ input[type=checkbox]{
   border-color: black;
   margin-bottom: 0.5em;
 }
+

@@ -3332,11 +3332,20 @@ const Controller = {
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
+        Display.reheatSimulation(machine.id)
+    },
+    showBlackholeState: function(machine){
+        Display.clearMenus(machine.id);
+        machine.completelySpecify("blackhole");
+        Display.resetColours(machine.id);
+        Display.forceTick(machine.id);
+        Display.update(machine.id);
+        Display.reheatSimulation(machine.id)
     },
     issueNames: function(machine){
-    	Display.clearMenus(machine.id);
+        Display.clearMenus(machine.id);
         machine.issueNodeNames();
-        Display.updateAllNodeNames(machine)
+        Display.updateAllNodeNames(machine);
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
@@ -3347,6 +3356,7 @@ const Controller = {
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
+        Display.reheatSimulation(machine.id)
     },
     reverseMachine: function(machine){
         Display.clearMenus(machine.id);

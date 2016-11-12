@@ -8,19 +8,18 @@
     <link rel="stylesheet" href="{{ addresses.cssAddress }}fsm.css">
     <link rel="shortcut icon" href="{{ addresses.iconAddress }}linetool.png" />
   </head>
-
   <body class="canvas"
-  data-machinelist= '[{"nodes":[{"id":"A","x":91,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],                       "links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}}]'
-  data-iconaddress = 'img/icons/'
-  data-analytics-path = "{{ addresses.analyticsPath }}">
+    data-machinelist= '[{"nodes":[{"id":"A","x":91,"y":120,"isInit":true},{"id":"B","x":190,"y":123},{"id":"C","x":290,"y":119,"isAcc":true}],                       "links":[{"to":"B","from":"A","input":["a"]},{"to":"C","from":"B","input":["b"]}],"attributes":{"alphabet":["a","b"],"allowEpsilon":true,"isTransducer":false}}]'
+    data-iconaddress = 'img/icons/'
+    data-analytics-path = "{{ addresses.analyticsPath }}">
     <div class="maindiv" style="width:85%">
-        <div class="menu">
-      	<a href='index.html' class='pure-button'>Home</a>
-      	<a href="about.html" class='pure-button'>About</a>
-      	<a href="help.html" class='pure-button'>Help</a>
+      <div class="menu">
+        <a href='index.html' class='pure-button'>Home</a>
+        <a href="about.html" class='pure-button'>About</a>
+        <a href="help.html" class='pure-button'>Help</a>
         <a href="privacy.html" class="pure-button">Privacy</a>
-        </div>
-    	<div class="createtools pure-form-aligned" style="margin-top:10px;">
+      </div>
+      <div class="createtools pure-form-aligned" style="margin-top:10px;">
         <fieldset style="border-style:none;">
           <div class="pure-control-group">
             <label for="setalphabet">Alphabet</label>
@@ -28,34 +27,35 @@
             <button id="setalphabet-button" class="pure-button" type="submit" style="margin-left:5px;" >Set</button>
             <p id="alphabeterror" style="display:inline; margin-left:10px"></p>
           </div>
-
           <div class="pure-control-group">
-      	  	<label for="traceform">Input</label>
-        		<input type="text" class="qform" id="traceform" value="aab">
-        		<button id="traceform-button" class="pure-button" type="submit" style="margin-left:5px;">Test</button>
+            <label for="traceform">Input</label>
+            <input type="text" class="qform" id="traceform" value="aab">
+            <button id="traceform-button" class="pure-button" type="submit" style="margin-left:5px;">Test</button>
           </div>
         </fieldset>
         <div>
           <button class="pure-button create-row" type="submit" id="dfa-button">Convert to DFA</button>
           <button class="pure-button create-row" type="submit" id="reverse-button">Reverse</button>
-           <button class="pure-button create-row" type="submit" id="minimal-dfa-button">Convert to Minimal DFA</button>
-    	   <button class="pure-button create-row" type="submit" id="export-svg-button">Save as .svg</button>
-	</div>
-      <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
+          <button class="pure-button create-row" type="submit" id="minimal-dfa-button">Convert to Minimal DFA</button>
+          <button class="pure-button create-row" type="submit" id="subset-button">Subset Procedure</button>
+          <button class="pure-button create-row" type="submit" id="export-svg-button">Save as .svg</button>
+        </div>
+      </div>
+      <div id="machine-div">
+        <svg id="m1" width="500" height="300" viewBox="0 0 500 300" preserveAspectRatio="xMinYMin meet">
         <g class="links"></g>
-        <g class="nodes"></g>
-        <defs>
-          <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
-          <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
-        </defs>
-      </svg>
-    </div>
-    <script defer src="{{ addresses.jsAddress }}polyfill.min.js"></script>
-    <script defer src="{{ addresses.d3Address }}"></script>
-    <script defer src="{{ addresses.jsAddress }}model.js"></script>
-    <script defer src="{{ addresses.jsAddress }}victor.js"></script>
-    <script defer src="{{ addresses.jsAddress }}fsm.js"></script>
-    <script defer src="{{ addresses.jsAddress }}create.js"></script>
-
-  </body>
+      <g class="nodes"></g>
+      <defs>
+    <marker id="end-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="#000"></path></marker>
+  <marker id="highlight-arrow" viewBox="0 -10 20 20" refX="7" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,-10L20,0L0,10" fill="green"></path></marker>
+  </defs>
+</svg>
+</div>
+<script defer src="{{ addresses.jsAddress }}polyfill.min.js"></script>
+<script defer src="{{ addresses.d3Address }}"></script>
+<script defer src="{{ addresses.jsAddress }}model.js"></script>
+<script defer src="{{ addresses.jsAddress }}victor.js"></script>
+<script defer src="{{ addresses.jsAddress }}fsm.js"></script>
+<script defer src="{{ addresses.jsAddress }}create.js"></script>
+</body>
 </html>
