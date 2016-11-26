@@ -78,16 +78,16 @@ const create = {
     drawSubsetTable: function(machine){
         d3.selectAll(".subset").remove();
         //Add the div and table
-        const table = d3.select("body").append("div")
+        const subsetDiv = d3.select("body").append("div")
                         .classed("subset", true)
                         .style("width", "15%")
                         .style("float", "right")
-                            .append("table")
-                            .classed("minimize-table", true)
-                            .style("table-layout", "fixed")
-                            .style("width", "140%")
-                            .style("margin-left", "-50%")
-                            .style("margin-top", "12.45em");
+        const table = subsetDiv.append("table")
+                        .classed("minimize-table", true)
+                        .style("table-layout", "fixed")
+                        .style("width", "140%")
+                        .style("margin-left", "-50%")
+                        .style("margin-top", "12.45em");
 
         //Add the table headers
         const alphabet = machine.alphabet;
@@ -137,7 +137,7 @@ const create = {
             .text("Reachable States")
 
 
-        //Add a blank lines
+        //Add a blank line
         const blankRow = body.append("tr")
         blankRow.append("td").text("\u00A0")
         for(var i = 0; i < alphabet.length; i++){
@@ -145,11 +145,68 @@ const create = {
                 .classed("alphabet-" + i, true)
                 .text("\u00A0"); //non-breaking-space
         }
+
+        //Add a dialogue box
+        subsetDiv.append("div")
+            .classed("minimize-dialogue", true)
+            .style("width", "136%")
+            .style("padding-left", "2%")
+            .style("padding-right", "2%")
+            .style("padding-top", "0.2em")
+            .style("padding-bottom", "0.2em")
+            .style("margin-left", "-50%")
+            .style("margin-top", "1em")
+            .style("border-style", "solid")
+            .style("border-color", "black")
+            .style("border-width", "thin")
+            .text("\u00A0");
     },
+
     showSubset: function(){
+        const m = Model.machines[0];
+        Controller.issueNames(m);
+        const copy = m.clone();
+        create.drawSubsetTable(copy);
+        const alphabet = copy.alphabet;
+
+        // array of the ids of all nodes in the base machine
+        const nfaNodeIDs = copy.getNodeList().map(node => node.id);
+
+        const eventQueue = [];
+
+        // First step – populate the base machine transition table
+        // Either in one go or line-by-line
+        const baseLineByLine = true;
+
+        const initialTransitionTable = copy.getTransitionTable();
+        // Add a type to each transition object
+        initialTransitionTable.forEach(obj => obj.type = "baseNode");
+        // Add a message for each
+        initialTransitionTable.forEach(obj => obj.message = `Added transitions for node <b id="ref-${obj.node.id}">${obj.node.name}</b>.`);
+        // Add the transitions to the queue
+        initialTransitionTable.forEach(event => eventQueue.push(event));
+
+        // Next event after base transition table – add the inital state
+        const initialStateIDs = copy.getInitialState().sort();
+        let initialStateID;
+        if(initialStateIDs.length > 0){
+            initialStateID = initialStateIDs.reduce((a,b) => `${a}_${b}`);
+        } else {
+            initialStateID = null;
+        }
+        const initialStateNames = initialStateIDs.map(id => copy.nodes[id].name).sort();
+        const initialState = {"type": "setAdded",
+                              "id": initialStateID,
+                              "names": initialStateNames};
+
+
+    },
+
+    showSubsetOld: function(){
         //Process from users POV:
-        // Add initial state to reachable states,
         // Add transition table row by row for states
+        // Add initial state to reachable states,
+        // From initial state, build up all reachable states
 
         const m = Model.machines[0];
         Controller.issueNames(m);
@@ -176,7 +233,8 @@ const create = {
 
         const initialTransitionTable = copy.getTransitionTable();
         //Add a type to each transition object
-        initialTransitionTable.forEach(obj => obj.type = "transitionsAdded");
+        initialTransitionTable.forEach(obj => obj.type = "baseNode");
+
         const conversionObj = copy.convertToDFA();
 
         const transitionTable = conversionObj.transitionTable;
