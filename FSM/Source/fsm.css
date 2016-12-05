@@ -721,3 +721,19 @@ input[type=checkbox]{
   margin-bottom: 0.5em;
 }
 
+.load-arrow{
+  stroke: #777777;
+  fill: white;
+}
+
+.can-scroll.load-arrow{
+  stroke: #555555;
+  fill: #777777 ;
+}
+
+.load-arrow.can-scroll:hover{
+  cursor: pointer;
+  stroke: black;
+  fill: #222222;
+}
+

@@ -1589,10 +1589,8 @@ const Display = {
                 Controller.setSettings(settings);
                 g.remove();
             });
-
-
-
     },
+
     forceTick: function(canvasID){
         // Update the display after the force layout acts. Should be called at least once to initialise positions, even if
         // force is not used.
@@ -2901,10 +2899,7 @@ const Display = {
         });
         Display.forceTick(machineID);
     },
-    exportToSVG: function(machineID, tidy, cropViewBox){
-        if(tidy){
-            Display.tidyMachine(machineID);
-        }
+    getMachineSVG(machineID, cropViewBox){
         const machine = Display.getCanvasVars(machineID).machine;
         const machineSVGelem = document.querySelector("#" + machineID);
         const preserveAspectRatio = machineSVGelem.getAttribute("preserveAspectRatio");
@@ -2981,6 +2976,15 @@ const Display = {
         const svg = `<svg version="1.1" baseProfile="full" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${preserveAspectRatio}">
                     <style type="text/css"><![CDATA[${styleString}]]></style>
                     ${innerSVG} </svg>`;
+
+        return svg;
+
+    },
+    exportToSVG: function(machineID, tidy, cropViewBox){
+        if(tidy){
+            Display.tidyMachine(machineID);
+        }
+        const svg = Display.getMachineSVG(machineID, cropViewBox);
 
         //Use the method described here http://stackoverflow.com/a/33542499 to trigger a "download" as if fetching a resource from the server.
         const blob = new Blob([svg], {type:"image/svg+xml"});
@@ -3340,7 +3344,7 @@ const Controller = {
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
-        Display.reheatSimulation(machine.id)
+        Display.reheatSimulation(machine.id);
     },
     issueNames: function(machine){
         Display.clearMenus(machine.id);
@@ -3356,7 +3360,7 @@ const Controller = {
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
-        Display.reheatSimulation(machine.id)
+        Display.reheatSimulation(machine.id);
     },
     reverseMachine: function(machine){
         Display.clearMenus(machine.id);
