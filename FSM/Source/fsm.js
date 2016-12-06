@@ -2002,6 +2002,9 @@ const Display = {
             //Can't dissmiss trace on give-input or select-states questions.
             Display.dismissTrace(svg);
         }
+        if(Create){
+            Create.clearMenus();
+        }
         Display.dismissSettingsMenu(svg);
         Display.dismissContextMenu();
         d3.selectAll(".clearable-menu").remove();
@@ -3002,14 +3005,17 @@ const Display = {
         if(!(svg instanceof d3.selection)){
             svg = d3.select("#" + svg);
         }
+        d3.select(".alert").remove();
         const g = svg.append("g")
                      .classed("alert", true)
                      .classed("clearable-menu", true);
 
-        const width = 0.4 * svg.attr("width");
-        const height = 0.2 * svg.attr("height");
         const fontSize = 10;
         const xBorder = 15;
+        // Don't do text wrap, just display one long line.
+        const width = Display.getTextLength(svg, body, fontSize, "settings-button-text") + 2 * xBorder;
+        const height = 0.25 * svg.attr("height");
+
 
         const x = (svg.attr("width") - width)/2;
         const y = 0.1 * svg.attr("height");
@@ -3956,6 +3962,7 @@ const jsonCopy = function(x){
 /*global d3*/
 /*global Model*/
 /*global Victor*/
+/*global Create*/
 
 var m; //Holds the first machine. Primarily for debugging convenience.
 

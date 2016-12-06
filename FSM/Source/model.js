@@ -859,12 +859,13 @@ const Model = {
                     m.step(alphabet[i]);
                     m.followEpsilonTransitions();
                     const state = m.currentState;
-                    const names = state.map(id => m.nodes[id].name).sort();
+                    const nodeObjs = state.map(id => m.nodes[id]);
+                    const names = nodeObjs.map(node => node.name).sort();
                     let id = null;
                     if(state.length > 0){
                         id =  state.sort().reduce((a,b) => `${a}_${b}`);
                     }
-                    tableEntry.transitions.push({names, id});
+                    tableEntry.transitions.push({names, id, nodes: nodeObjs});
                 }
                 table.push(tableEntry);
             });

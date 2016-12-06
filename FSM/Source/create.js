@@ -1,18 +1,18 @@
-const create = {
+const Create = {
     setup: function() {
         // Setup the creation environment.
-        create.registerTraceButtonListener();
-        create.registerAlphabetButtonListener();
-        create.registerDFAbuttonListener();
-        create.registerReverseButtonListener();
-        create.registerMinimalDFAButtonListener();
-        create.registerExportToSvgButtonListener();
-        create.registerSubsetButtonListener();
-        create.registerSaveLoadButtonListener();
+        Create.registerTraceButtonListener();
+        Create.registerAlphabetButtonListener();
+        Create.registerDFAbuttonListener();
+        Create.registerReverseButtonListener();
+        Create.registerMinimalDFAButtonListener();
+        Create.registerExportToSvgButtonListener();
+        Create.registerSubsetButtonListener();
+        Create.registerSaveLoadButtonListener();
     },
     registerSubsetButtonListener: function(){
         d3.select("#subset-button")
-            .on("click", create.showSubset);
+            .on("click", Create.showSubset);
     },
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
@@ -33,7 +33,7 @@ const create = {
             .on("click", function(){
                 this.blur();
                 const alphabet = document.querySelector("#setalphabet").value;
-                create.setalphabet(alphabet);
+                Create.setalphabet(alphabet);
             });
     },
     registerDFAbuttonListener: function(){
@@ -66,7 +66,7 @@ const create = {
     registerSaveLoadButtonListener: function(){
         d3.select("#save-button").on("click", function(){
             this.blur();
-            const success = create.saveMachine();
+            const success = Create.saveMachine();
             const buttonContainer = d3.select(this.parentNode);
             d3.select("#save-feedback").remove();
             const feedback = buttonContainer.append("span").attr("id", "save-feedback");
@@ -79,7 +79,7 @@ const create = {
         });
         d3.select("#load-button").on("click", function(){
             this.blur();
-            create.drawLoadMenu();
+            Create.drawLoadMenu();
         });
 
     },
@@ -96,13 +96,16 @@ const create = {
             document.querySelector("#alphabeterror").innerHTML = 'Parse error - enter alphabet in form ["a", "b"]';
         }
     },
+    clearMenus: function(){
+        d3.selectAll(".subset").remove();
+    },
     drawSubsetTable: function(machine){
         d3.selectAll(".subset").remove();
         //Add the div and table
         const subsetDiv = d3.select("body").append("div")
                         .classed("subset", true)
                         .style("width", "15%")
-                        .style("float", "right")
+                        .style("float", "right");
         const table = subsetDiv.append("table")
                         .classed("minimize-table", true)
                         .style("table-layout", "fixed")
@@ -149,18 +152,18 @@ const create = {
             .style("border-style", "none")
             .append("td")
             .text("\u00A0")
-            .style("border-style", "none")
+            .style("border-style", "none");
 
         //Add new heading
         body.append("tr")
             .append("th")
             .attr("colspan", 1 + alphabet.length)
-            .text("Reachable States")
+            .text("Reachable States");
 
 
         //Add a blank line
-        const blankRow = body.append("tr")
-        blankRow.append("td").text("\u00A0")
+        const blankRow = body.append("tr");
+        blankRow.append("td").text("\u00A0");
         for(var i = 0; i < alphabet.length; i++){
             blankRow.append("td")
                 .classed("alphabet-" + i, true)
@@ -185,9 +188,17 @@ const create = {
 
     showSubset: function(){
         const m = Model.machines[0];
+        //Check that the machine has an initial state, as we need that.
+        if(m.getInitialNodeCount() === 0){
+            Display.alert("m1", "Error", "Machine must have at least one inital state.");
+            return;
+        }
         Controller.issueNames(m);
         const copy = m.clone();
-        create.drawSubsetTable(copy);
+        Create.drawSubsetTable(copy);
+
+        const svg = d3.select("#m1");
+        const messageHolder = d3.select(".minimize-dialogue");
         const alphabet = copy.alphabet;
 
         // array of the ids of all nodes in the base machine
@@ -199,11 +210,13 @@ const create = {
         // Either in one go or line-by-line
         const baseLineByLine = true;
 
-        const initialTransitionTable = copy.getTransitionTable();
+        const initialTransitionTable = m.getTransitionTable();
         // Add a type to each transition object
         initialTransitionTable.forEach(obj => obj.type = "baseNode");
         // Add a message for each
-        initialTransitionTable.forEach(obj => obj.message = `Added transitions for node <b id="ref-${obj.node.id}">${obj.node.name}</b>.`);
+        initialTransitionTable.forEach(obj => obj.message = `Added transitions for state <b id="ref-${obj.node.id}">${obj.node.name}</b>.`);
+        // Add the nodes field:
+        initialTransitionTable.forEach(obj => obj.nodes = [obj.node]);
         // Add the transitions to the queue
         initialTransitionTable.forEach(event => eventQueue.push(event));
 
@@ -215,12 +228,63 @@ const create = {
         } else {
             initialStateID = null;
         }
+        const initialStates = initialStateIDs.map(id => m.nodes[id]);
         const initialStateNames = initialStateIDs.map(id => copy.nodes[id].name).sort();
+
         const initialState = {"type": "setAdded",
                               "id": initialStateID,
-                              "names": initialStateNames};
+                              "names": initialStateNames,
+                              "nodes": initialStates};
+        eventQueue.push(initialState);
+
+        const finish = function(){
+            console.log("DONE");
+        };
+
+        const setName = function(names){
+            if(names.length == 0){
+                return "{ }";
+            } else {
+                return names.reduce((a,b) => `${a}, ${b}`);
+            }
+        }
 
 
+        //This function will be called when the user clicks the advance button
+        const advance = function(){
+            if(eventQueue.length === 0){
+                finish();
+                return;
+            }
+            const event = eventQueue.shift();
+            messageHolder.html(event.message);
+            if(event.type === "baseNode"){
+                // This is the transition table for the initial machine
+                const tableRow = d3.select(`#subset-nfa-${event.id}`)
+                event.transitions.forEach(function(transition, i){
+                    tableRow.select(`.alphabet-${i}`)
+                        .text(setName(transition.names))
+                        .on("mouseover", function(){
+                            Display.highlightNodes(svg, transition.nodes, "#43a047", true);
+                        })
+                        .on("mouseout", function(){
+                            Display.unhighlightNodes(svg);
+                        });
+                })
+            }
+        };
+
+
+
+        // Add Advance Button
+        d3.select("div.subset")
+            .append("button")
+            .attr("id", "subset-advance")
+            .text("Advance")
+            .classed("pure-button", true)
+            .style("margin-left", "-50%")
+            .style("margin-top", ".5em")
+            .on("click", advance);
     },
 
     showSubsetOld: function(){
@@ -232,7 +296,7 @@ const create = {
         const m = Model.machines[0];
         Controller.issueNames(m);
         const copy = m.clone();
-        create.drawSubsetTable(copy);
+        Create.drawSubsetTable(copy);
         const alphabet = copy.alphabet;
 
         //array of the ids of all nodes in the base machine
@@ -465,6 +529,8 @@ const create = {
             return;
         }
 
+        Display.clearMenus(d3.select("#m1"));
+
         // Get the list of saved machines
         let savedMachines;
         let storageObj;
@@ -472,9 +538,9 @@ const create = {
             savedMachines = [];
         } else {
             storageObj = JSON.parse(localStorage.getItem("savedFiniteStateMachines"));
-            const machineNames = Object.keys(storageObj).filter(name => name !== "__meta__")
+            const machineNames = Object.keys(storageObj).filter(name => name !== "__meta__");
             // Tell each machineObj its own name
-            machineNames.forEach(name => storageObj[name].name = name)
+            machineNames.forEach(name => storageObj[name].name = name);
             savedMachines = machineNames.map(name => storageObj[name]);
             savedMachines.sort((a,b) => b.timeSaved - a.timeSaved);
         }
@@ -508,7 +574,7 @@ const create = {
             .attr("y", textY)
             .attr("font-size", 1.5 * fontSize);
 
-        textY = textY + 4 * fontSize
+        textY = textY + 4 * fontSize;
 
         if(savedMachines.length == 0){
             // No machines saved
@@ -546,7 +612,7 @@ const create = {
 
             const scroll = function(steps){
                 g.remove();
-                create.drawLoadMenu(pageN + steps);
+                Create.drawLoadMenu(pageN + steps);
             };
 
             selection.append("path")
@@ -602,7 +668,7 @@ const create = {
                         .attr("width", selectWidth / machinesPerPage)
                         .attr("height", selectHeight)
                         .style("stroke", "#555555")
-                        .style("fill-opacity", "0")
+                        .style("fill-opacity", "0");
 
                     // Add a rect over the thumbnail, and make it clickable
                     machineG.append("rect")
@@ -615,7 +681,7 @@ const create = {
                         .style("cursor", "pointer")
                         .on("click", function(){
                             g.remove();
-                            create.loadMachine(machineObj.name);
+                            Create.loadMachine(machineObj.name);
                         });
 
                     // Add the name of the saved machine
@@ -651,7 +717,7 @@ const create = {
                                 machineObj.name = newName;
                                 localStorage.setItem("savedFiniteStateMachines", JSON.stringify(storageObj));
                                 g.remove();
-                                create.drawLoadMenu(pageN);
+                                Create.drawLoadMenu(pageN);
                             }
                         });
 
@@ -671,7 +737,7 @@ const create = {
                                 delete storageObj[machineObj.name];
                                 localStorage.setItem("savedFiniteStateMachines", JSON.stringify(storageObj));
                                 g.remove();
-                                create.drawLoadMenu(pageN);
+                                Create.drawLoadMenu(pageN);
                             }
                         });
                 }
@@ -747,8 +813,8 @@ const create = {
     }
 };
 
-// Start create mode here
-create.setup();
+// Start Create mode here
+Create.setup();
 
 //Declare global variables for ESlint
 /*global d3*/
