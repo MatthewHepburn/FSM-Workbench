@@ -345,7 +345,7 @@ const Display = {
         };
         const feedbackFunction = feedbackFunctions[Model.question.type];
         if(feedbackFunction){
-            feedbackFunction(feedbackObj)
+            feedbackFunction(feedbackObj);
         } else{
             throw new Error("No method for question type " + Model.question.type + " in Display.giveFeedback");
         }
@@ -2097,7 +2097,7 @@ const Display = {
                 const span = d3.select(".button-div")
                         .append("span").attr("id", "regex-test").style("padding-left", "1em");
                 const input = span.append("input").attr("type", "text").attr("id", "regex-test-input").attr("value", "(a|b)*");
-                const button = span.append("button").text("Test Regex")
+                const button = span.append("button").text("Test Regex");
                 const output = span.append("span").style("padding-left", "1em");
                 button.on("click", (() => output.text(Controller.testRegex(Model.machines[0], input.node().value))));
             }
@@ -2295,7 +2295,7 @@ const Display = {
         Display.forceTick(canvasID);
     },
     updateAllNodeNames: function(machine){
-    	const nodes = machine.getNodeList().forEach(node => Display.updateNodeName(node));
+    	    const nodes = machine.getNodeList().forEach(node => Display.updateNodeName(node));
     },
     updateAllLinkLabels: function(canvasID){
         var linkList = Object.keys(Display.canvasVars[canvasID].machine.links);
@@ -2997,6 +2997,74 @@ const Display = {
         document.body.removeChild(elem);
 
     },
+    alert: function(svg, header, body){
+        // Creates a dialogue box to communicate errors
+        if(!(svg instanceof d3.selection)){
+            svg = d3.select("#" + svg);
+        }
+        const g = svg.append("g")
+                     .classed("alert", true)
+                     .classed("clearable-menu", true);
+
+        const width = 0.4 * svg.attr("width");
+        const height = 0.2 * svg.attr("height");
+        const fontSize = 10;
+        const xBorder = 15;
+
+        const x = (svg.attr("width") - width)/2;
+        const y = 0.1 * svg.attr("height");
+
+        g.append("rect")
+            .style("fill", "white")
+            .style("stroke", "#555555")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", width)
+            .attr("height", height);
+
+        g.append("text")
+            .text(header)
+            .style("font-size", 1.3 * fontSize)
+            .attr("x", x + xBorder)
+            .attr("y", y + 1.5 * fontSize);
+
+        g.append("text")
+            .text(body)
+            .style("font-size", 1 * fontSize)
+            .attr("x", x + xBorder)
+            .attr("y", y + 3.5 * fontSize);
+
+        //Add the OK button
+        var textWidth = Display.getTextLength(svg, "OK", fontSize, "settings-button-text");
+        var buttonWidth = 2 * textWidth;
+        var buttonHeight = 1.5 * fontSize;
+        var buttonX = x + width - buttonWidth - xBorder;
+        var buttonY = y + height - fontSize - 15;
+
+        //Background
+        g.append("rect")
+            .attr("x", buttonX)
+            .attr("y", buttonY)
+            .attr("height", buttonHeight)
+            .attr("width", buttonWidth)
+            .attr("fill", "#BBBBBB")
+            .classed("settings-button-background", true)
+            .attr("stroke", "#444444");
+
+        //text
+        g.append("text")
+            .text("OK")
+            .attr("x", buttonX + 0.5 * buttonWidth - 0.5 * textWidth)
+            .attr("y", buttonY + buttonHeight - (0.5 * fontSize))
+            .attr("font-size", fontSize)
+            .classed("settings-button-text", true)
+            .on("click", function(){
+                g.remove();
+            });
+
+
+
+    },
     dragHandlers:{
         dragstarted: function(node){
             if(!Global.toolsWithDragAllowed.includes(Display.getCanvasVars(node.machine.id).toolMode)){
@@ -3300,10 +3368,10 @@ const Controller = {
     },
     loadConfig: function(){
         const configStr = d3.select("body").attr("data-options");
-    const pageConfig = JSON.parse(configStr);
-    if(pageConfig){
+        const pageConfig = JSON.parse(configStr);
+        if(pageConfig){
             //Use this method so defaults can be specified in the initial declaration of the settings obj
-            Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
+        Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
     }
     },
     getSettings: function(){
@@ -3337,7 +3405,7 @@ const Controller = {
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
-        Display.reheatSimulation(machine.id)
+        Display.reheatSimulation(machine.id);
     },
     showBlackholeState: function(machine){
         Display.clearMenus(machine.id);
@@ -3518,7 +3586,7 @@ const Controller = {
     init: function(){
         //Init process is somewhat complex as parts of the page are already in the HTML for performance / rendering reasons.
         Controller.loadSettings();
-        Controller.loadConfig()
+        Controller.loadConfig();
         m = new Model.Machine("m1");
         Model.machines.push(m);
         var svg = d3.select("#m1")
