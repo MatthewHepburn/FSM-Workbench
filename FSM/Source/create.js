@@ -8,6 +8,7 @@ const create = {
         create.registerMinimalDFAButtonListener();
         create.registerExportToSvgButtonListener();
         create.registerSubsetButtonListener();
+        create.registerSaveLoadButtonListener();
     },
     registerSubsetButtonListener: function(){
         d3.select("#subset-button")
@@ -61,6 +62,26 @@ const create = {
             this.blur();
             Display.exportToSVG("m1", true, true);
         });
+    },
+    registerSaveLoadButtonListener: function(){
+        d3.select("#save-button").on("click", function(){
+            this.blur();
+            const success = create.saveMachine();
+            const buttonContainer = d3.select(this.parentNode);
+            d3.select("#save-feedback").remove();
+            const feedback = buttonContainer.append("span").attr("id", "save-feedback");
+            if(success){
+                feedback.text("Machine saved to local storage.");
+            } else {
+                feedback.text("An error occured – machine not saved.");
+            }
+            setTimeout(() => feedback.remove(), 2750);
+        });
+        d3.select("#load-button").on("click", function(){
+            this.blur();
+            create.drawLoadMenu();
+        });
+
     },
     setalphabet: function(string){
         try{
@@ -368,6 +389,11 @@ const create = {
     },
 
     saveMachine: function(){
+        // Tests that localStorage is enabled
+        if(!localStorage){
+            return false;
+        }
+
         // Saves the current machine to local storage.
         const m = Model.machines[0];
         const thumbnail = Display.getMachineSVG(m.id, true);
@@ -392,7 +418,18 @@ const create = {
             specification
         };
 
-        localStorage.setItem("savedFiniteStateMachines", JSON.stringify(savedMachines));
+        // Save the new string to local storage, then verify that the operation was successful
+        // (Do this as some platforms will only pretend if out of memory) [citation needed]
+        const newString = JSON.stringify(savedMachines);
+
+        localStorage.setItem("savedFiniteStateMachines", newString);
+
+        if(localStorage.getItem("savedFiniteStateMachines") === newString){
+            return true;
+        } else {
+            return false;
+        }
+
     },
 
     loadMachine: function(name){
@@ -449,7 +486,9 @@ const create = {
 
         const x = (svg.attr("width") - menuWidth)/2;
         const y = 0.1 * svg.attr("height");
-        const g = svg.append("g").classed("load-menu", true);
+        const g = svg.append("g")
+                    .classed("load-menu", true)
+                    .classed("clearable-menu", true);
 
         g.append("rect")
          .attr("x", x)

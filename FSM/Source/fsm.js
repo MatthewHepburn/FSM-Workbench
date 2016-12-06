@@ -2004,6 +2004,7 @@ const Display = {
         }
         Display.dismissSettingsMenu(svg);
         Display.dismissContextMenu();
+        d3.selectAll(".clearable-menu").remove();
 
     },
     setUpQuestion: function(){
