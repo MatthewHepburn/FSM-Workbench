@@ -182,11 +182,42 @@ const Model = {
                 traceObj.output = [[]];
             }
 
-            var linksUsedThisStep = [];
-            var machine = this;
-            var inputSymbol = undefined;
 
-            //Used to create an object for traceObj.links that also includes the transition used;
+
+
+            //Run loop once with no input to get initial state
+            let inputSymbol = null;
+            let i = 0;
+            do{
+                // Step machine
+                const stepObj = this.getTraceStep(inputSymbol, this.currentState);
+
+                //Record new state and links used to get there
+                traceObj.states.push(stepObj.states);
+                traceObj.links.push(stepObj.links);
+
+                if(this.isMealy){
+                    traceObj.output.push(traceObj.stepObj);
+                }
+
+                // Advance input
+                inputSymbol = sequence[i];
+                i = i + 1;
+
+
+            } while(i <= sequence.length && this.currentState.length > 0);
+
+            traceObj.doesAccept = this.isInAcceptingState();
+
+            return traceObj;
+        };
+        this.getTraceStep = function(inputSymbol, state){
+            // Pull out the trace functionality for a single step here, as it is useful for other things
+            // such as visualising the subset procedure.
+
+            // Helper functions. TODO: unfactor these perhaps?
+            // Used to create an object for traceObj.links that also includes the transition used;
+            const machine = this;
             const getLinkUsedObj = function(linkID){
                 const link = machine.links[linkID];
                 return {
@@ -209,34 +240,26 @@ const Model = {
                 return machine.nodes[nodeID];
             };
 
-            this.setToInitialState();
-            traceObj.states.push(this.currentState.map(getNode));
-            traceObj.links.push(this.epsilonLinksUsed.map(getEpsLinkUsedObj));
-
-            let i = 0;
-            while(i < sequence.length && this.currentState.length > 0){
-                //Advance machine
-                inputSymbol = sequence[i];
+            this.currentState = state;
+            if(inputSymbol){
                 this.step(inputSymbol);
+            } else {
+                this.setToInitialState();
+            }
+            const stepObj = {states: this.currentState.map(getNode), links: undefined, output: undefined};
 
-                //Record new state and links used to get there
-                traceObj.states.push(this.currentState.map(getNode));
-                linksUsedThisStep = [];
-                linksUsedThisStep = linksUsedThisStep.concat(this.epsilonLinksUsed.map(getEpsLinkUsedObj));
-                linksUsedThisStep = linksUsedThisStep.concat(this.nonEpsLinksUsed.map(getLinkUsedObj));
-                traceObj.links.push(linksUsedThisStep);
+            let linksUsedThisStep = [];
+            linksUsedThisStep = linksUsedThisStep.concat(this.epsilonLinksUsed.map(getEpsLinkUsedObj));
+            linksUsedThisStep = linksUsedThisStep.concat(this.nonEpsLinksUsed.map(getLinkUsedObj));
 
-                if(this.isMealy){
-                    const currentOutput = this.currentOutput.map(x => x); //copy
-                    traceObj.output.push(currentOutput);
-                }
+            stepObj.links = (linksUsedThisStep);
 
-                i = i + 1;
+            if(this.isMealy){
+                const currentOutput = this.currentOutput.map(x => x); //copy
+                stepObj.output = currentOutput;
             }
 
-            traceObj.doesAccept = this.isInAcceptingState();
-
-            return traceObj;
+            return stepObj;
 
 
         };
@@ -861,11 +884,12 @@ const Model = {
                     const state = m.currentState;
                     const nodeObjs = state.map(id => m.nodes[id]);
                     const names = nodeObjs.map(node => node.name).sort();
+                    const linksUsed = this.linksUsed.map(id => this.links[id]);
                     let id = null;
                     if(state.length > 0){
                         id =  state.sort().reduce((a,b) => `${a}_${b}`);
                     }
-                    tableEntry.transitions.push({names, id, nodes: nodeObjs});
+                    tableEntry.transitions.push({names, id, nodes: nodeObjs, linksUsed});
                 }
                 table.push(tableEntry);
             });
@@ -961,7 +985,7 @@ const Model = {
                 // NB: the transitions list is added to steps BEFORE it is populated
                 // This is done as we want the transition to be before any setAdded events that it generates.
                 const transitions = [];
-                const stepObj = {type: "transitionsAdded", id:nodeSet.id, transitions}
+                const stepObj = {type: "transitionsAdded", id:nodeSet.id, transitions};
                 transitionTable[nodeSet.id] = stepObj;
                 steps.push(stepObj);
 
@@ -1117,23 +1141,23 @@ const Model = {
             // A generator to produce strings A, B,..AA,AB,..
             // A surprisingly difficult problem!
             const upperAlphabeticalGen = function*(){
-                yield "A"
-                let i = 1
+                yield "A";
+                let i = 1;
                 while(true){
-                    let t = i
-                    let str = ""
-                    str = String.fromCharCode((t % 26) + 65) + str
-                    t = (t / 26) >> 0
+                    let t = i;
+                    let str = "";
+                    str = String.fromCharCode((t % 26) + 65) + str;
+                    t = (t / 26) >> 0;
                     while(t > 0){
                         if(t > 25){
-                            str = String.fromCharCode((t % 25) + 64) + str
+                            str = String.fromCharCode((t % 25) + 64) + str;
                         }
                         else{
-                            str = String.fromCharCode((t % 26) + 64) + str
+                            str = String.fromCharCode((t % 26) + 64) + str;
                         }
-                        t = (t / 26) >> 0
+                        t = (t / 26) >> 0;
                     }
-                    yield str
+                    yield str;
                     i = i + 1;
                 }
             }();
@@ -1142,8 +1166,8 @@ const Model = {
             const numericalGen = function*(){
                 let i = 1;
                 while(true){
-                    yield String(i)
-                    i = i + 1
+                    yield String(i);
+                    i = i + 1;
                 }
             }();
 
@@ -1161,7 +1185,7 @@ const Model = {
             }
 
             //Naming scheme chosen, now we must rename nodes.
-            const unnamedNodes = nodes.filter(node => node.name.length == 0)
+            const unnamedNodes = nodes.filter(node => node.name.length == 0);
             //sort into left-to-right order
             unnamedNodes.sort((a,b) => a.x - b.x);
             for(let i = 0; i < unnamedNodes.length; i++){
@@ -1183,8 +1207,6 @@ const Model = {
             newMachine.build(spec);
             return newMachine;
         };
-
-
     },
     // Constructor for a node object
     Node: function(machine, nodeID, x, y, name, isInitial, isAccepting){
