@@ -216,12 +216,6 @@ td.state-pair {
     text-align: center;
 }
 
-.subset td{
-    border: #444444;
-    border-style: solid;
-    border-width: thin;
-    text-align: center;
-}
 
 
 svg:not(.active):not(.ctrl) {
@@ -737,3 +731,35 @@ input[type=checkbox]{
   fill: #222222;
 }
 
+/*CSS for the subset prcedure*/
+
+.subset td{
+    border: #444444;
+    border-style: solid;
+    border-width: thin;
+    text-align: center;
+}
+
+tr.highlight{
+  background: #66bb6a;
+}
+
+td.highlight{
+  background: #66bb6a;
+}
+
+tr.highlight td{
+  border-top-width: medium;
+  border-bottom-width: medium;
+}
+
+td.to-fill{
+  cursor: pointer;
+  border-width: medium;
+}
+
+.to-add {
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -2002,7 +2002,7 @@ const Display = {
             //Can't dissmiss trace on give-input or select-states questions.
             Display.dismissTrace(svg);
         }
-        if(Create){
+        if(typeof Create !== "undefined" ){
             Create.clearMenus();
         }
         Display.dismissSettingsMenu(svg);
@@ -2123,8 +2123,8 @@ const Display = {
                                 .attr("id", function(d){return d.id;})
                                 .classed("node", true)
                                 .attr("r", Display.nodeRadius)
-                                .on("contextmenu", function(node){EventHandler.nodeContextClick(node);})
-                                .on("mousedown", function(node){EventHandler.nodeClick(node);});
+                                .on("contextmenu", node => EventHandler.nodeContextClick(node))
+                                .on("mousedown", node => EventHandler.nodeClick(node));
 
         //Enforce physics setting on new nodes
         const newNodeObjs = newNodes.data();
@@ -2415,26 +2415,44 @@ const Display = {
                        .style("stroke", "#000000");
     },
     makeNodesSelectable: function(machine){
+        let machineID;
         if (machine instanceof Model.Machine === true){
-            var machineID = machine.id;
+            machineID = machine.id;
         } else{
             machineID = machine;
             machine = Display.getCanvasVars(machineID).machine;
         }
-        var getOnClickFunction = function(node){
+        const getOnClickFunction = function(node){
             return function(){
                 node.toggleSelected();
-                var nodeDisplay = d3.select(`#${node.id}`);
+                const nodeDisplay = d3.select(`#${node.id}`);
                 nodeDisplay.classed("selected", !nodeDisplay.classed("selected"));
             };
         };
-        var svg = d3.select(`#${machineID}`);
+        const svg = d3.select(`#${machineID}`);
         svg.selectAll(".node")
            .classed("selected", false)
            .each(function(node){
                d3.select(this).on("mousedown", getOnClickFunction(node));
                node.selected = false;
            });
+    },
+    makeNodesUnSelectable(machine){
+        if (machine instanceof Model.Machine === true){
+            var machineID = machine.id;
+        } else{
+            machineID = machine;
+            machine = Display.getCanvasVars(machineID).machine;
+        }
+        const svg = d3.select(`#${machineID}`);
+        svg.selectAll(".node")
+           .classed("selected", false)
+           .each(function(node){
+               //Restore the default mousedown listener.
+               d3.select(this).on("mousedown", node => EventHandler.nodeClick(node));
+               node.selected = false;
+           });
+
     },
     setLinkMarker(link, urlString){
         //Expect urlString to be in form "url(#end-arrow)"
@@ -3405,8 +3423,10 @@ const Controller = {
             localStorage.setItem("settings", JSON.stringify(saveObj));
         }
     },
-    convertToDFA: function(machine){
-        Display.clearMenus(machine.id);
+    convertToDFA: function(machine, keepMenus){
+        if(!keepMenus){
+            Display.clearMenus(machine.id);
+        }
         machine.convertToDFA();
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
@@ -3596,7 +3616,7 @@ const Controller = {
         m = new Model.Machine("m1");
         Model.machines.push(m);
         var svg = d3.select("#m1")
-            .on("mousedown", function(){EventHandler.backgroundClick(m, true);})
+            .on("mousedown", () => EventHandler.backgroundClick(m, true))
             .on("contextmenu", function(){EventHandler.backgroundContextClick(m);});
         const machineList = Controller.getQuestionMachineList();
         let width = 500;

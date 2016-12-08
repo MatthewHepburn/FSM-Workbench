@@ -218,6 +218,9 @@ const Model = {
             // Helper functions. TODO: unfactor these perhaps?
             // Used to create an object for traceObj.links that also includes the transition used;
             const machine = this;
+            if(!state){
+                state = this.currentState;
+            }
             const getLinkUsedObj = function(linkID){
                 const link = machine.links[linkID];
                 return {
@@ -244,6 +247,10 @@ const Model = {
             if(inputSymbol){
                 this.step(inputSymbol);
             } else {
+                // TODO - properly clear these in a systematic way.
+                this.linksUsed = [];
+                this.nonEpsLinksUsed = [];
+                this.epsilonLinksUsed = [];
                 this.setToInitialState();
             }
             const stepObj = {states: this.currentState.map(getNode), links: undefined, output: undefined};
@@ -868,10 +875,10 @@ const Model = {
         };
 
         this.getTransitionTable = function(){
-            const m = this;
+            const m = this; // Save this so we can refer to it from within the forEach function.
             const savedState = this.currentState;
             const nodes = m.getNodeListNameSorted();
-            const table = [];
+            const table = {};
             const alphabet = m.alphabet.sort();
 
             nodes.forEach(function(node){
@@ -884,14 +891,14 @@ const Model = {
                     const state = m.currentState;
                     const nodeObjs = state.map(id => m.nodes[id]);
                     const names = nodeObjs.map(node => node.name).sort();
-                    const linksUsed = this.linksUsed.map(id => this.links[id]);
+                    const linksUsed = m.linksUsed.map(id => m.links[id]);
                     let id = null;
                     if(state.length > 0){
                         id =  state.sort().reduce((a,b) => `${a}_${b}`);
                     }
                     tableEntry.transitions.push({names, id, nodes: nodeObjs, linksUsed});
                 }
-                table.push(tableEntry);
+                table[node.id] = tableEntry;
             });
             m.currentState = savedState;
             return table;
@@ -913,11 +920,11 @@ const Model = {
 
             var newNodeSets = [];
 
-            //Return this object at the end to allow visualisation of the process
-            //Will contain objects of forms
-            // TODO - tidy this up, only ended up needing the transitionTable, not the steps.F
-            //{type: "transitionsAdded", id:"1", transitions: [{id:'1', names:["a"]}, {id:"1_2", names:["a","b"]} for when a row is filled for an existing set
-            //{type: "setAdded", id:"1_2", names:["a", "b"]} for when a new reachable set is found
+            // Return this object at the end to allow visualisation of the process
+            // Will an obj which maps reachable state-set IDs to
+            // {ID, nodes:[Node, Node,..],
+            //  transitions:{"a": {nodes:[Node, Node,...], ID, linkUsageObj}}
+            // }
             const steps = [];
             const transitionTable = {}; //maps stateIDs to transition step objects.
 
@@ -962,7 +969,7 @@ const Model = {
 
             //Populate nodeSets, adding to newNodeSets as new reachable combinations are discovered.
             while(newNodeSets.length > 0){
-                var nodeSet = newNodeSets.pop();
+                const nodeSet = newNodeSets.pop();
                 if(nodeSets[nodeSet.id]){
                     continue;
                 }
@@ -981,30 +988,28 @@ const Model = {
                 var x = nodeSet.nodes.map(node => node.x).reduce((x1,x2)=> x1 + x2)/nodeSet.nodes.length; //set x to mean value of nodes in set
                 var y = nodeSet.nodes.map(node => node.y).reduce((y1,y2)=> y1 + y2)/nodeSet.nodes.length; //set x to mean value of nodes in set
 
-                // for each nodeSet, build a transition table for visualisation of the process
-                // NB: the transitions list is added to steps BEFORE it is populated
-                // This is done as we want the transition to be before any setAdded events that it generates.
                 const transitions = [];
-                const stepObj = {type: "transitionsAdded", id:nodeSet.id, transitions};
-                transitionTable[nodeSet.id] = stepObj;
-                steps.push(stepObj);
 
+                //Add this nodeSet to the transition table
+                transitionTable[nodeSet.id] = {id: nodeSet.id, nodes: nodeSet.nodes, transitions:{}};
 
                 for(var i = 0; i < this.alphabet.length; i++){
-                    var symbol = this.alphabet[i];
+                    const symbol = this.alphabet[i];
                     this.setToState(nodeSet.nodes);
-                    this.step(symbol);
-                    var reachableNodes = this.getCurrentNodeList();
+                    const stepObj = this.getTraceStep(symbol);
+                    const reachableNodes = this.getCurrentNodeList();
                     if(reachableNodes.length > 0){
-                        var id = addToNewNodeSets(reachableNodes);
+                        const id = addToNewNodeSets(reachableNodes);
                         reachable[symbol] = id;
                         transitions.push({id, names: reachableNodes.map(node => node.name).sort()});
+                        transitionTable[nodeSet.id].transitions[symbol] = {nodes: reachableNodes, id, linkUsageObj: stepObj.links};
                     } else {
                         reachable[symbol] = "none";
                         transitions.push({id:null, names:[]});
+                        transitionTable[nodeSet.id].transitions[symbol] = {nodes: [], id: null};
                     }
                 }
-                var obj = {nodes:nodeSet.nodes, reachable, name, isInitial, isAccepting, x, y};
+                const obj = {nodes:nodeSet.nodes, reachable, name, isInitial, isAccepting, x, y};
                 nodeSets[nodeSet.id] = obj;
             }
 
@@ -1020,7 +1025,7 @@ const Model = {
             for(let nodeSetID in nodeSets){
                 const nodeSet = nodeSets[nodeSetID];
                 const sourceNode = nodeSet.newNode;
-                for(symbol in nodeSet.reachable){
+                for(let symbol in nodeSet.reachable){
                     const targetNodeID = nodeSet.reachable[symbol];
                     if(targetNodeID === "none"){
                         continue;
@@ -1033,10 +1038,9 @@ const Model = {
                     } else {
                         this.addLink(sourceNode, targetNode, [symbol], undefined, false);
                     }
-
                 }
             }
-            return {steps, transitionTable};
+            return transitionTable;
         };
 
         this.getLinksTo = function(targetNode){
