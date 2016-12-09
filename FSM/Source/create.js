@@ -461,7 +461,7 @@ const Create = {
 
                         if(currentCell){
                             // Clear any partially complete cell.
-                            currentCell.text("")
+                            currentCell.text("");
                         }
                         currentCell = cell;
 
@@ -489,6 +489,28 @@ const Create = {
 
                                     emptyCellsLeft--;
                                     currentCell = null;
+
+                                    // Animate
+                                    if(solutionNodes.length > 0){
+                                        // Step obj to animate the links
+                                        const stepObj = m.getTraceStep(symbol, nodes.map(node => node.id));
+                                        // but first highlight the initial nodes
+                                        const beginObj = {links:[], states:nodes};
+
+                                        // Highlight source Nodes
+                                        Display.traceHighlight(m.id, beginObj, false);
+
+
+                                        // Then highlight links + target nodes
+                                        window.setTimeout(function(){
+                                            Display.resetTraceStyling(d3.select("#m1"));
+                                            Display.traceHighlight(m.id, stepObj, true);
+                                        }, 500);
+
+                                        // Then clear the highlights.
+                                        window.setTimeout(() => Display.resetTraceStyling(d3.select("#m1")), 1700);
+                                    }
+
 
                                     // Clear the user's selection
                                     Display.makeNodesUnSelectable(m);
@@ -528,11 +550,11 @@ const Create = {
                         Display.makeNodesSelectable(m, function(node){
                             // Callback function is executed when a node is selected/deselected
                             // This is used to update the cell while nodes are being selected/
-                            const selectedNodes = node.machine.getNodeList().filter(node => node.selected)
+                            const selectedNodes = node.machine.getNodeList().filter(node => node.selected);
                             let selectedNodesName;
                             if (selectedNodes.length === 0){
                                 // Want empty list name to be "" rather than
-                                selectedNodesName = ""
+                                selectedNodesName = "";
                             } else {
                                 selectedNodesName = getSetName(selectedNodes);
                             }
@@ -545,272 +567,6 @@ const Create = {
         const initialStateID = m.getInitialState().sort().reduce((a,b) => `${a}_${b}`);
         addNodeSet(initialStateID);
         messageHolder.html("Started the reachable states table with the initial state.<br><br> Click an empty cell to fill it.");
-    },
-    showSubset: function(){
-        const m = Model.machines[0];
-        //Check that the machine has an initial state, as we need that.
-        if(m.getInitialNodeCount() === 0){
-            Display.alert("m1", "Error", "Machine must have at least one inital state.");
-            return;
-        }
-        Controller.issueNames(m);
-        const copy = m.clone();
-        Create.drawSubsetTable(copy);
-
-        const svg = d3.select("#m1");
-        const messageHolder = d3.select(".minimize-dialogue");
-        const alphabet = copy.alphabet;
-
-        // array of the ids of all nodes in the base machine
-        const nfaNodeIDs = copy.getNodeList().map(node => node.id);
-
-        const eventQueue = [];
-
-        // First step – populate the base machine transition table
-        // Either in one go or line-by-line
-        const baseLineByLine = true;
-
-        const initialTransitionTable = m.getTransitionTable();
-        // Add a type to each transition object
-        initialTransitionTable.forEach(obj => obj.type = "baseNode");
-        // Add a message for each
-        initialTransitionTable.forEach(obj => obj.message = `Added transitions for state <b id="ref-${obj.node.id}">${obj.node.name}</b>.`);
-        // Add the nodes field:
-        initialTransitionTable.forEach(obj => obj.nodes = [obj.node]);
-        // Add the transitions to the queue
-        initialTransitionTable.forEach(event => eventQueue.push(event));
-
-        // Next event after base transition table – add the inital state
-        const initialStateIDs = copy.getInitialState().sort();
-        let initialStateID;
-        if(initialStateIDs.length > 0){
-            initialStateID = initialStateIDs.reduce((a,b) => `${a}_${b}`);
-        } else {
-            initialStateID = null;
-        }
-        const initialStates = initialStateIDs.map(id => m.nodes[id]);
-        const initialStateNames = initialStateIDs.map(id => copy.nodes[id].name).sort();
-
-        const initialState = {"type": "setAdded",
-                              "id": initialStateID,
-                              "names": initialStateNames,
-                              "nodes": initialStates};
-        eventQueue.push(initialState);
-
-        const finish = function(){
-            console.log("DONE");
-        };
-
-        const setName = function(names){
-            if(names.length == 0){
-                return "{ }";
-            } else {
-                return names.reduce((a,b) => `${a}, ${b}`);
-            }
-        };
-
-
-        //This function will be called when the user clicks the advance button
-        const advance = function(){
-            if(eventQueue.length === 0){
-                finish();
-                return;
-            }
-            const event = eventQueue.shift();
-            messageHolder.html(event.message);
-            if(event.type === "baseNode"){
-                // This is the transition table for the initial machine
-                const tableRow = d3.select(`#subset-nfa-${event.id}`);
-                event.transitions.forEach(function(transition, i){
-                    tableRow.select(`.alphabet-${i}`)
-                        .text(setName(transition.names))
-                        .on("mouseover", function(){
-                            // TODO: Also highlight rows in the reachable table (if they exist).
-                            Display.highlightNodes(svg, transition.nodes, "#43a047", true);
-                        })
-                        .on("mouseout", function(){
-                            Display.unhighlightNodes(svg);
-                        });
-                });
-            }
-        };
-
-
-
-        // Add Advance Button
-        d3.select("div.subset")
-            .append("button")
-            .attr("id", "subset-advance")
-            .text("Advance")
-            .classed("pure-button", true)
-            .style("margin-left", "-50%")
-            .style("margin-top", ".5em")
-            .on("click", advance);
-    },
-
-    showSubsetOld: function(){
-        //Process from users POV:
-        // Add transition table row by row for states
-        // Add initial state to reachable states,
-        // From initial state, build up all reachable states
-
-        const m = Model.machines[0];
-        Controller.issueNames(m);
-        const copy = m.clone();
-        Create.drawSubsetTable(copy);
-        const alphabet = copy.alphabet;
-
-        //array of the ids of all nodes in the base machine
-        const nfaNodeIDs = copy.getNodeList().map(node => node.id);
-
-        //Create a initial state task to add to the top of the queue
-        const initialStateIDs = copy.getInitialState().sort();
-        let initialStateID;
-        if(initialStateIDs.length > 0){
-            initialStateID = initialStateIDs.reduce((a,b) => `${a}_${b}`);
-        } else {
-            initialStateID = null;
-        }
-        const initialStateNames = initialStateIDs.map(id => copy.nodes[id].name).sort();
-        const initialState = {"type": "setAdded",
-                              "id": initialStateID,
-                              "names": initialStateNames};
-        let subsetSteps = [initialState];
-
-        const initialTransitionTable = copy.getTransitionTable();
-        //Add a type to each transition object
-        initialTransitionTable.forEach(obj => obj.type = "transitionsAdded");
-
-        const conversionObj = copy.convertToDFA();
-
-        const transitionTable = conversionObj.transitionTable;
-
-
-        //Steps should be Initial state, then orginal transition table. Composite states will be added as they are found.
-        subsetSteps = subsetSteps.concat(initialTransitionTable);
-
-        //Keep track of state here
-        const statesAdded = {};
-        const transitionsAdded = {};
-
-
-
-
-        //This function will be called when the user clicks the advance button
-        const advance = function(){
-            if(subsetSteps.length === 0){
-                finish();
-                return;
-            }
-            const step = subsetSteps.shift();
-            if(step.type == "transitionsAdded"){
-                // Add transitions to table
-                // step object in form: {type: "transitionsAdded", id:"1", transitions: [{id:'1', names:["a"]}, {id:"1+2", names:["a","b"]}
-                const rowID = step.id;
-                const row = d3.selectAll(".subset-" + rowID); //Potentially select two rows here - one in the original listing, one in the reachable states listing
-                if(rowID in transitionsAdded){
-                    advance();
-                    return;
-                }
-
-                const newStatesObj = {};  // record any new composite states. Obj just holds true
-                const newStatesList = [];  // states stored in array to maintain order.
-
-                //Draw the row
-                for(let i = 0; i < alphabet.length; i++){
-                    const cell = row.select(".alphabet-" + i);
-                    const stateID = step.transitions[i].id;
-                    let reachableNames = step.transitions[i].names.sort();
-                    if(reachableNames.length == 0){
-                        reachableNames = "{ }";
-                    } else {
-                        reachableNames = reachableNames.reduce((a,b) => `${a}, ${b}`);
-                    }
-                    cell.text(reachableNames);
-
-                    //StateID not in states added or in newStates (and not null)
-                    if(stateID && !(stateID in statesAdded) && !(stateID in newStatesObj)){
-                        newStatesObj[stateID] = true;
-                        newStatesList.push({type: "setAdded", id:stateID, names: step.transitions[i].names});
-                    }
-                }
-                // Store id
-                transitionsAdded[rowID] = step;
-                // Add any new sets to the front of the queue
-                newStatesList.forEach(stepObj => subsetSteps.unshift(stepObj));
-                // Add filling each of those rows to the end of the queue (if the node is not in the base machine)
-                newStatesList.map(step => step.id).filter(stateID => nfaNodeIDs.indexOf(stateID) == -1).forEach(stateID => subsetSteps.push(transitionTable[stateID]));
-            } else{
-                // Type must be "setAdded"
-                // Step object in form: {type: "setAdded", id:"1_2", names:["a", "b"]}
-                if(step.id in statesAdded){
-                    advance();
-                    return;
-                }
-
-                const name = step.names.sort().reduce((a,b) => `${a}, ${b}`);
-
-                const row = d3.select(document.querySelector("tbody.subset").lastChild)
-                                .attr("id", "subset-" + step.id)
-                                .classed("subset-" + step.id, true);
-                const cell = d3.select(row.node().firstChild);
-                cell.text(name);
-
-                //Check if this row has been written out already (ie it is one of the initial rows)
-                if(step.id in transitionsAdded){
-                    //Copy from above
-                    const origRow = d3.select("#subset-nfa-" + step.id);
-                    for(let i = 0; i < alphabet.length; i++){
-                        const text = origRow.select(".alphabet-" + i).text();
-                        row.select(".alphabet-" + i).text(text);
-                    }
-                }
-
-                //Add a new empty row (TODO: only do this if the extra row will be needed(?))
-                const newRow = d3.select("tbody.subset").append("tr");
-                newRow.append("td").text("\u00A0");
-                for(var i = 0; i < alphabet.length; i++){
-                    newRow.append("td")
-                        .text("\u00A0") //non-breaking-space
-                        .classed("alphabet-" + i, true);
-                }
-
-                statesAdded[step.id] = true;
-
-            }
-        };
-
-        //Add the initial state on first draw
-        advance();
-
-        const finish = function(){
-            d3.select("#subset-advance").remove();
-            Controller.convertToDFA(m);
-            Controller.showBlackholeState(m);
-            d3.select("#subset-cancel")
-                .text("Done");
-        };
-
-        // Add Advance Button
-        d3.select("div.subset")
-            .append("button")
-            .attr("id", "subset-advance")
-            .text("Advance")
-            .classed("pure-button", true)
-            .style("margin-left", "-50%")
-            .style("margin-top", ".5em")
-            .on("click", advance);
-
-        // Add cancel button
-        d3.select("div.subset")
-            .append("button")
-            .attr("id", "subset-cancel")
-            .text("Cancel")
-            .classed("pure-button", true)
-            .style("float", "right")
-            .style("margin-top", ".5em")
-            .style("margin-right", "10%")
-            .on("click", () => d3.selectAll(".subset").remove());
     },
 
     saveMachine: function(){

@@ -1000,13 +1000,14 @@ const Display = {
         const traceObj = canvasVars.traceObj;
         const isTransducer = traceObj.output !== undefined;
 
-        //Cancel any animation in progress
-        if(canvasVars.cancelTraceAnimation){
-            canvasVars.cancelTraceAnimation();
-        }
-
         //reset all trace styling
         Display.resetTraceStyling(svg);
+
+        // Construct a stepObj to pass to traceHighlight
+        const stepObj = {links: traceObj.links[step], states: traceObj.states[step]};
+        Display.traceHighlight(canvasID, stepObj, animate);
+
+        // Draw input/output:
 
         //Class next input element
         svg.select(`#${canvasID}-trace-input-${step}`).classed("trace-next", true);
@@ -1033,98 +1034,6 @@ const Display = {
                 svg.select(`#${canvasID}-trace-output-separator-${i}`).classed("trace-not-emitted", true);
             }
         }
-
-
-        //Class all nodes as not current
-        svg.selectAll(".node").classed("trace-not-current", true);
-
-
-        //Enclose the final steps in a function so that it can be called after animation if necessary
-        const applyFinalStyle = function(){
-            //Class current states
-            const currentNodes = traceObj.states[step];
-            for(let i = 0; i < currentNodes.length; i++){
-                const nodeID = currentNodes[i].id;
-                d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false);
-            }
-
-            //Class used links and link inputs
-            const usedLinks = traceObj.links[step];
-            for(let i = 0; i < usedLinks.length; i++){
-                const linkUsageObj = usedLinks[i];
-                const link = linkUsageObj.link;
-                d3.select(`#${link.id}`).classed("trace-used-link", true);
-                Display.setLinkMarker(link, "url(#highlight-arrow)");
-                if(linkUsageObj.epsUsed){
-                    //Handle case of epsilon link
-                    d3.select(`#${link.id}-input-eps`).classed("trace-used-link-input", true);
-                } else {
-                    const inputIndex = linkUsageObj.inputIndex;
-                    d3.select(`#${link.id}-input-${inputIndex}`).classed("trace-used-link-input", true);
-                }
-            }
-        };
-
-        if(!animate){
-            //Finish here if no animation is needed
-            applyFinalStyle();
-            return;
-        }
-
-        //Animate the transition
-        const usedLinks = traceObj.links[step];
-        //Add a temporary path to each link group
-        usedLinks.forEach(function(linkUsageObj){
-            const linkG = d3.select(`#linkg-${linkUsageObj.link.id}`);
-            const animPath = linkG.append("path")
-                                .classed("trace-animation", true)
-                                .style("marker-end", "url(#highlight-arrow)");
-
-            linkUsageObj.animPath = animPath; //Save path to usageObj
-
-
-        });
-        let startTime;
-        const duration = 400; //ms
-
-        //Register a function to cancel this animation (e.g if the next animation is activated)
-        canvasVars.cancelTraceAnimation = function(){
-            if(canvasVars.traceAnimCallbackID){
-                window.cancelAnimationFrame(canvasVars.traceAnimCallbackID);
-                canvasVars.traceAnimCallbackID = null;
-            }
-            d3.selectAll(".trace-animation").remove();
-            applyFinalStyle();
-            canvasVars.cancelTraceAnimation = null;
-        };
-
-        //TODO handle chains of epsilon links
-
-        const drawFrame = function(timeStamp){
-            //Takes a DOMHighResTimeStamp, provided by window.requestAnimationFrame
-            if(!startTime){
-                startTime = timeStamp;
-                // endTime = startTime + duration;
-            }
-            const tRaw = (timeStamp - startTime) / duration; // 0 <= t <= 1
-            const t = d3.easePolyIn(tRaw, 1.1); //Apply easing function to make animation look more natural.
-
-            if(1 <= t){
-                //End animation. Remove temporary elements and apply final style.
-                d3.selectAll(".trace-animation").remove();
-                applyFinalStyle();
-                canvasVars.traceAnimCallbackID = null;
-                return;
-            }
-
-            usedLinks.forEach(function(linkUsageObj){
-                Display.animateLink(linkUsageObj.link, t);
-
-            });
-            canvasVars.traceAnimCallbackID = window.requestAnimationFrame(drawFrame);
-        };
-
-        canvasVars.traceAnimCallbackID = window.requestAnimationFrame(drawFrame);
 
 
     },
@@ -1225,6 +1134,107 @@ const Display = {
         const endAtT = pathStart.clone().add(pathStartToEnd.clone().multiplyScalar(t));
 
         animPath.attr("d", `M${pathStart.x},${pathStart.y} L${endAtT.x},${endAtT.y}`);
+    },
+    traceHighlight(canvasID, stepObj, animate){
+        //  Cancel any animation in progress
+        const canvasVars = Display.getCanvasVars(canvasID);
+        const svg = d3.select("#" + canvasID);
+        if(canvasVars.cancelTraceAnimation){
+            canvasVars.cancelTraceAnimation();
+            Display.resetTraceStyling(svg);
+        }
+
+        //  Class all nodes as not current
+        svg.selectAll(".node").classed("trace-not-current", true);
+
+        //  Enclose the final steps in a function so that it can be called after animation if necessary
+        // This function applys style information to links, link labels, and nodes.
+        const applyFinalStyle = function(){
+            //Class current states
+            const currentNodes = stepObj.states;
+            for(let i = 0; i < currentNodes.length; i++){
+                const nodeID = currentNodes[i].id;
+                d3.select(`#${nodeID}`).classed("trace-current", true).classed("trace-not-current", false);
+            }
+
+            //Class used links and link inputs
+            const usedLinks = stepObj.links;
+            for(let i = 0; i < usedLinks.length; i++){
+                const linkUsageObj = usedLinks[i];
+                const link = linkUsageObj.link;
+                d3.select(`#${link.id}`).classed("trace-used-link", true);
+                Display.setLinkMarker(link, "url(#highlight-arrow)");
+                if(linkUsageObj.epsUsed){
+                    //Handle case of epsilon link
+                    d3.select(`#${link.id}-input-eps`).classed("trace-used-link-input", true);
+                } else {
+                    const inputIndex = linkUsageObj.inputIndex;
+                    d3.select(`#${link.id}-input-${inputIndex}`).classed("trace-used-link-input", true);
+                }
+            }
+        };
+
+        if(!animate){
+            //Finish here if no animation is needed
+            applyFinalStyle();
+            return;
+        }
+
+        //Animate the transition
+        const usedLinks = stepObj.links;
+        //Add a temporary path to each link group
+        usedLinks.forEach(function(linkUsageObj){
+            const linkG = d3.select(`#linkg-${linkUsageObj.link.id}`);
+            const animPath = linkG.append("path")
+                                .classed("trace-animation", true)
+                                .style("marker-end", "url(#highlight-arrow)");
+
+            linkUsageObj.animPath = animPath; //Save path to usageObj
+
+
+        });
+        let startTime;
+        const duration = 400; //ms
+
+        //Register a function to cancel this animation (e.g if the next animation is activated)
+        canvasVars.cancelTraceAnimation = function(){
+            if(canvasVars.traceAnimCallbackID){
+                window.cancelAnimationFrame(canvasVars.traceAnimCallbackID);
+                canvasVars.traceAnimCallbackID = null;
+            }
+            d3.selectAll(".trace-animation").remove();
+            applyFinalStyle();
+            canvasVars.cancelTraceAnimation = null;
+        };
+
+        //TODO handle chains of epsilon links
+
+        const drawFrame = function(timeStamp){
+            //Takes a DOMHighResTimeStamp, provided by window.requestAnimationFrame
+            if(!startTime){
+                startTime = timeStamp;
+                // endTime = startTime + duration;
+            }
+            const tRaw = (timeStamp - startTime) / duration; // 0 <= t <= 1
+            const t = d3.easePolyIn(tRaw, 1.1); //Apply easing function to make animation look more natural.
+
+            if(1 <= t){
+                //End animation. Remove temporary elements and apply final style.
+                d3.selectAll(".trace-animation").remove();
+                applyFinalStyle();
+                canvasVars.traceAnimCallbackID = null;
+                return;
+            }
+
+            usedLinks.forEach(function(linkUsageObj){
+                Display.animateLink(linkUsageObj.link, t);
+
+            });
+            canvasVars.traceAnimCallbackID = window.requestAnimationFrame(drawFrame);
+        };
+
+        canvasVars.traceAnimCallbackID = window.requestAnimationFrame(drawFrame);
+
     },
     highlightNodes: function(svg, nodeArray, hexColour, overwritePrevious){
         //Accept either a selection of a machineID
