@@ -816,7 +816,7 @@ const Model = {
 
             //Check that action is needed:
             if(this.isCompletelySpecified()){
-                return;
+                return null;
             }
             let blackholeNode;
             if(type === "blackhole"){
@@ -851,6 +851,10 @@ const Model = {
                     var targetNode = type === "blackhole"? blackholeNode : node; //Add link to either blackhole or current node as needed
                     this.addLink(node, targetNode, unspecifiedInput, undefined, false);
                 }
+            }
+
+            if(type === "blackhole"){
+                return blackholeNode;
             }
 
 
@@ -1016,10 +1020,20 @@ const Model = {
             //Now, clear the current machine
             this.deleteAllNodes();
             //And recreate from nodeSets, first create nodes for each nodeSet;
+            const nodeSetMap = {}; // Maps nodeSetIDs to the new nodes
+            const nfaNodeMap = {}; // Maps nodeIDs from the original machine to a list of nodes in the new machine.
             for(let nodeSetID in nodeSets){
                 const nodeSet = nodeSets[nodeSetID];
                 const newNode = this.addNode(nodeSet.x, nodeSet.y, nodeSet.name, nodeSet.isInitial, nodeSet.isAccepting);
+                nodeSetMap[nodeSetID] = newNode;
                 nodeSet.newNode = newNode;
+                nodeSet.nodes.forEach(function(node){
+                    if(nfaNodeMap[node.id]){
+                        nfaNodeMap[node.id].push(newNode);
+                    } else {
+                        nfaNodeMap[node.id] = [newNode];
+                    }
+                });
             }
             //And then create links as needed
             for(let nodeSetID in nodeSets){
@@ -1040,7 +1054,7 @@ const Model = {
                     }
                 }
             }
-            return transitionTable;
+            return [transitionTable, nodeSetMap, nfaNodeMap];
         };
 
         this.getLinksTo = function(targetNode){

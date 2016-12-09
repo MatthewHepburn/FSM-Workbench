@@ -101,7 +101,7 @@ const Create = {
         Display.makeNodesUnSelectable(Model.machines[0]);
         d3.select(".controls").style("display", "block");
         // Restore background event listener.
-        d3.select("#m1").on("mousedown", () => EventHandler.backgroundClick(m, true));
+        d3.select("#m1").on("mousedown", () => EventHandler.backgroundClick(Model.machines[0], true));
     },
     drawSubsetTable: function(machine){
         d3.selectAll(".subset").remove();
@@ -140,7 +140,7 @@ const Create = {
                             .classed("subset", true);
         const nodes = machine.getNodeListNameSorted();
         nodes.forEach(function(node){
-            const tableEntry = transitionTable[node.id].transitions
+            const tableEntry = transitionTable[node.id].transitions;
             const row = body.append("tr")
                 .attr("id", "subset-nfa-" + node.id)
                 .classed("subset-" + node.id, true)
@@ -171,6 +171,13 @@ const Create = {
             .append("th")
             .attr("colspan", 1 + alphabet.length)
             .text("Reachable States");
+
+        //Repeat the alphabet
+        const alphabetHeader2 = body.append("tr");
+
+        alphabetHeader2.append("th").text(""); //Header for left column
+
+        alphabet.forEach(symbol => alphabetHeader2.append("th").text(symbol));
 
         //Add a dialogue box
         subsetDiv.append("div")
@@ -210,12 +217,37 @@ const Create = {
         const messageHolder = d3.select(".minimize-dialogue");
         const alphabet = copy.alphabet;
 
-        const transitionTable = copy.convertToDFA()
+        const conversionObj = copy.convertToDFA();
+        const transitionTable = conversionObj[0];
+        let oldToNewMap; //Will map nodeSetIDs to nodes in the new machine.
+
         //Keep track of what is left to be done
-        const rowsToAdd = {} // Maps stateIDs to the cells linking to them
+        const rowsToAdd = {}; // Maps stateIDs to the cells linking to them
                              // This allows clicking on one to clear them all.
-        Object.keys(transitionTable).forEach(id => rowsToAdd[id] = [])
+        Object.keys(transitionTable).forEach(id => rowsToAdd[id] = []);
         let emptyCellsLeft = 0;
+        // Track the cell currently being filled:
+        let currentCell = null;
+
+        const highlightNodeSet = function(row, nodeArray, forceState){
+            if(row.classed("temp-highlight") || forceState === "off"){
+                row.classed("temp-highlight", false);
+                Display.highlightNodes(svg,[],"#43a047",true);
+            } else {
+                row.classed("temp-highlight", true);
+                Display.highlightNodes(svg,nodeArray,"#43a047",true);
+            }
+        };
+
+        //Make all rows in the NFA table highlight on click/mouseover
+        m.getNodeList().forEach(function(node){
+            const row = d3.select("#subset-nfa-" + node.id);
+            const cell = d3.select(row.node().firstChild);
+
+            cell.on("mousedown", () => highlightNodeSet(row, [node], false))
+                .on("mouseover", () => highlightNodeSet(row, [node], false))
+                .on("mouseout", () => highlightNodeSet(row, [node], "off"));
+        });
 
         const getSetName = function(nodes){
             // Takes an array of nodes and returns a display name of form "A, B, C"
@@ -271,10 +303,74 @@ const Create = {
         };
 
         const performConversion = function(){
-            Controller.convertToDFA(m, true);
+            const nfaNodes = m.getNodeList();
+            const conversionObj = Controller.convertToDFA(m, true);
+            oldToNewMap = conversionObj[1]; //Maps the nodeSetIDs of reachable states in the old machine to nodes in the new one.
+            const nfaNodeMap = conversionObj[2]; //Maps the nodeIDs of nodes in the old machine to an array of nodes in the new one.
+            const nodeSetIDs = Object.keys(oldToNewMap);
+
+            // Now we need to replace the highlight listeners, as they
+            // are pointing at the old machine
+            nfaNodes.forEach(function(node){
+                // Do the NFA table first
+                const row = d3.select("#subset-nfa-" + node.id);
+                const cell = d3.select(row.node().firstChild);
+                const dfaNodes = nfaNodeMap[node.id];
+
+                cell.on("mousedown", () => highlightNodeSet(row, dfaNodes, false))
+                    .on("mouseover", () => highlightNodeSet(row, dfaNodes, false))
+                    .on("mouseout", () => highlightNodeSet(row, dfaNodes, "off"));
+            });
+
+            nodeSetIDs.forEach(function(nodeSetID){
+                // Then do the reachable states table
+                const row = d3.select("#subset-" + nodeSetID);
+                const cell = d3.select(row.node().firstChild);
+                const dfaNode = oldToNewMap[nodeSetID];
+
+                cell.on("mousedown", () => highlightNodeSet(row, [dfaNode], false))
+                    .on("mouseover", () => highlightNodeSet(row, [dfaNode], false))
+                    .on("mouseout", () => highlightNodeSet(row, [dfaNode], "off"));
+            });
+
+            //Clear any highlights
+            d3.selectAll("tr.highlight").classed("highlight", false);
+            d3.selectAll("td.highlight").classed("highlight", false);
+
+            // Clear the message box
             messageHolder.html("");
+
+            // Give an option to toggle the blackhole state (if needed);
+            if(!m.isCompletelySpecified()){
+                const toggleBHButton = messageHolder.append("button")
+                                                    .classed("pure-button", true)
+                                                    .style("margin-right", "5%");
+                const getHideFunction = function(node){
+                    return function(){
+                        toggleBHButton
+                            .text("Show { }")
+                            .on("click", showFunction);
+                        Controller.deleteNode(node, true);
+                    };
+                };
+
+                const showFunction = function(){
+                    toggleBHButton
+                        .text("Hide {}");
+                    const bhNode = Controller.showBlackholeState(m, true);
+                    toggleBHButton.on("click", getHideFunction(bhNode));
+                };
+
+                toggleBHButton
+                    .text("Show { }")
+                    .on("click", showFunction);
+            }
+
+            // Add a Finish button to dismiss the menu;
+
             messageHolder.append("button")
                 .text("Finish")
+                .classed("pure-button", true)
                 .on("click", function(){
                     Create.clearMenus();
                 });
@@ -285,11 +381,11 @@ const Create = {
             // If there is nothing left, prompt them to transfrom the machine
             let hint;
             if(emptyCellsLeft > 0){
-                hint = "<br><b>Hint</b>: Click on an empty cell to fill it."
+                hint = "<br><b>Hint</b>: Click on an empty cell to fill it.";
                 messageHolder.append("div").html(hint);
                 return;
             } else if(Object.keys(rowsToAdd).length > 0) {
-                hint = "<br><b>Hint</b>: Click on a cell with a new state to add a row for it."
+                hint = "<br><b>Hint</b>: Click on a cell with a new state to add a row for it.";
                 messageHolder.append("div").html(hint);
                 return;
             } else {
@@ -309,12 +405,12 @@ const Create = {
             const name = getSetName(nodes);
 
             if(!rowsToAdd[nodeSetID]){
-                Display.alert("Row Exists", "The set " + name + " has already been added to the table.")
+                Display.alert("Row Exists", "The set " + name + " has already been added to the table.");
             } else {
                 rowsToAdd[nodeSetID].forEach(function(cell){
                     cell.classed("to-add", false)
                         .on("click", null);
-                })
+                });
                 delete rowsToAdd[nodeSetID];
             }
 
@@ -331,6 +427,7 @@ const Create = {
             d3.selectAll("tr.highlight").classed("highlight", false);
             d3.selectAll("td.highlight").classed("highlight", false);
 
+            // Fill first cell
             const row = d3.select(document.querySelector("tbody.subset").lastChild)
                             .attr("id", "subset-" + rowObj.id)
                             .classed("subset-" + rowObj.id, true)
@@ -338,9 +435,17 @@ const Create = {
             const cell = d3.select(row.node().firstChild);
             cell.text(name);
 
+            // Add listener to highlight nodes on mouseover/click
+            const diagramNodes = nodes.map(node => m.nodes[node.id]);
+
+            cell.on("mousedown", () => highlightNodeSet(row, diagramNodes, false))
+                .on("mouseover", () => highlightNodeSet(row, diagramNodes, false))
+                .on("mouseout", () => highlightNodeSet(row, diagramNodes, "off"));
+
             //Set a message explaining what we are doing
             messageHolder.html("Added a row for the reachable state <b>" + name + "</b>.");
             emptyCellsLeft += alphabet.length;
+
             setContextHint();
 
             // Make the other cells clickable
@@ -353,11 +458,18 @@ const Create = {
                         d3.selectAll("tr.highlight").classed("highlight", false);
                         d3.selectAll("td.highlight").classed("highlight", false);
                         cell.classed("highlight", true);
+
+                        if(currentCell){
+                            // Clear any partially complete cell.
+                            currentCell.text("")
+                        }
+                        currentCell = cell;
+
                         nodes.forEach(node => d3.select(`#subset-nfa-${node.id}`).classed("highlight", true));
                         messageHolder.html("");
                         messageHolder.append("span")
                             .attr("id", "select-prompt")
-                            .html("On the NFA to the left, select the states reachable from <b>" + name + "</b> for input <b>" + symbol + "</b>.<br>");
+                            .html("On the NFA to the left, select the states reachable from <b>" + name + "</b> for input <b>" + symbol + "</b>.<br><br>");
                         messageHolder.append("span")
                             .attr("id", "select-feedback");
 
@@ -376,19 +488,20 @@ const Create = {
                                         .classed("to-fill", false);
 
                                     emptyCellsLeft--;
+                                    currentCell = null;
 
                                     // Clear the user's selection
                                     Display.makeNodesUnSelectable(m);
 
                                     // If this cell's value has not been added to the table, register a new click listener
-                                    const targetID = rowObj.transitions[symbol].id // The id the nodeSet this cell points to.
+                                    const targetID = rowObj.transitions[symbol].id; // The id the nodeSet this cell points to.
                                     if(rowsToAdd[targetID]){
                                         cell.classed("to-add", true)
                                             .on("click", function(){
-                                                addNodeSet(targetID)
+                                                addNodeSet(targetID);
                                                 cell.on("click", null)
-                                                    .classed("to-add", false)
-                                            })
+                                                    .classed("to-add", false);
+                                            });
                                         rowsToAdd[targetID].push(cell);
                                     } else {
                                         // clear event listener, as nothing left to do
@@ -396,7 +509,7 @@ const Create = {
 
                                     }
                                     d3.selectAll("tr.highlight").classed("highlight", false);
-                                    messageHolder.html(`Correct. Added the transition(s) from state <b>${name}</b> for input <b>${symbol}</b>.`);
+                                    messageHolder.html(`Correct. Added the transition(s) from state <b>${name}</b> for input <b>${symbol}</b>.<br><br>`);
                                     setContextHint();
                                 } else {
                                     // Answer is incorrect, give feedback.
@@ -404,26 +517,34 @@ const Create = {
                                     if(setDifference[0] === "missing"){
                                         const missingNodeName = setDifference[1].name;
                                         d3.select("#select-feedback")
-                                            .html(`The state <b>${missingNodeName}</b> is <b>also</b> reachable, try again.<br>`)
+                                            .html(`The state <b>${missingNodeName}</b> is <b>also</b> reachable, try again.<br>`);
                                     } else {
                                         const extraNodeName = setDifference[1].name;
                                         d3.select("#select-feedback")
-                                            .html(`The state <b>${extraNodeName}</b> is <b>not</b> reachable, try again.<br>`)
+                                            .html(`The state <b>${extraNodeName}</b> is <b>not</b> reachable, try again.<br>`);
                                     }
                                 }
-
                             });
-                        Display.makeNodesSelectable(m);
-                    })
-            })
-        }
+                        Display.makeNodesSelectable(m, function(node){
+                            // Callback function is executed when a node is selected/deselected
+                            // This is used to update the cell while nodes are being selected/
+                            const selectedNodes = node.machine.getNodeList().filter(node => node.selected)
+                            let selectedNodesName;
+                            if (selectedNodes.length === 0){
+                                // Want empty list name to be "" rather than
+                                selectedNodesName = ""
+                            } else {
+                                selectedNodesName = getSetName(selectedNodes);
+                            }
+                            cell.text(selectedNodesName);
+                        });
+                    });
+            });
+        };
 
         const initialStateID = m.getInitialState().sort().reduce((a,b) => `${a}_${b}`);
         addNodeSet(initialStateID);
-        messageHolder.text("Start the reachable states table with the initial state. Click an empty cell to fill it.")
-
-
-
+        messageHolder.html("Started the reachable states table with the initial state.<br><br> Click an empty cell to fill it.");
     },
     showSubset: function(){
         const m = Model.machines[0];
@@ -914,6 +1035,7 @@ const Create = {
                     machineG.append("rect")
                         .attr("x", selectX + i * (selectWidth/machinesPerPage))
                         .attr("y", selectY)
+                        .attr("id", "saved-machine-" + (i + 1))
                         .attr("width", selectWidth / machinesPerPage)
                         .attr("height", selectHeight * 0.8)
                         .style("stroke", "#555555")
@@ -986,42 +1108,6 @@ const Create = {
 
             drawSavedMachines(pageN);
         }
-
-
-
-        // for(let s in settings){
-        //     // Add the setting description.
-        //     g.append("text")
-        //      .text(settings[s].description)
-        //      .attr("x", textX)
-        //      .attr("y", textY)
-        //      .attr("font-size", fontSize);
-
-        //     // Add the text for the currently set option
-        //     var optionText = g.append("text")
-        //                       .text(settings[s].value)
-        //                       .attr("id", `settings-${s}-option`)
-        //                       .classed("option", true)
-        //                       .attr("x", x + menuWidth - longestOption - xBorder)
-        //                       .attr("y", textY)
-        //                       .attr("font-size", fontSize);
-
-        //     // Add a box around the text to show that it is a dropdown menu
-        //     var boxX = x + menuWidth - longestOption - xBorder - optionBorder;
-        //     var boxY = textY - fontSize;
-        //     const boxWidth = longestOption + 2 * optionBorder;
-        //     g.append("rect")
-        //      .attr("x", boxX)
-        //      .attr("y", textY - fontSize)
-        //      .attr("width", boxWidth)
-        //      .attr("height", fontSize + 2 * optionBorder)
-        //      .attr("fill", "#FFFFFF")
-        //      .attr("fill-opacity", 0)
-        //      .attr("stroke", "#444444")
-        //      .on("click", Display.getDropdownOnClickFunction(svg, g, optionText, s, settings[s].options, 10,  boxX, boxY + fontSize + 2 * optionBorder, boxWidth));
-
-        //     textY = textY  + 2 * fontSize;
-        // }
 
         //Add the cancel button
         const buttonText = "Cancel";

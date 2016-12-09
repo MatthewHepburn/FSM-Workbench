@@ -748,6 +748,10 @@ td.highlight{
   background: #66bb6a;
 }
 
+tr.temp-highlight{
+  background: #66bb6a;
+}
+
 tr.highlight td{
   border-top-width: medium;
   border-bottom-width: medium;

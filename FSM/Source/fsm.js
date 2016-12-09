@@ -2414,7 +2414,7 @@ const Display = {
         circleSelection.style("fill","#FFFFFF")
                        .style("stroke", "#000000");
     },
-    makeNodesSelectable: function(machine){
+    makeNodesSelectable: function(machine, callback){
         let machineID;
         if (machine instanceof Model.Machine === true){
             machineID = machine.id;
@@ -2427,6 +2427,7 @@ const Display = {
                 node.toggleSelected();
                 const nodeDisplay = d3.select(`#${node.id}`);
                 nodeDisplay.classed("selected", !nodeDisplay.classed("selected"));
+                callback(node);
             };
         };
         const svg = d3.select(`#${machineID}`);
@@ -3427,19 +3428,23 @@ const Controller = {
         if(!keepMenus){
             Display.clearMenus(machine.id);
         }
-        machine.convertToDFA();
+        const conversionObj = machine.convertToDFA();
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
         Display.reheatSimulation(machine.id);
+        return conversionObj;
     },
-    showBlackholeState: function(machine){
-        Display.clearMenus(machine.id);
-        machine.completelySpecify("blackhole");
+    showBlackholeState: function(machine, keepMenus){
+        if(!keepMenus){
+            Display.clearMenus(machine.id);
+        }
+        const bhNode = machine.completelySpecify("blackhole");
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
         Display.update(machine.id);
         Display.reheatSimulation(machine.id);
+        return bhNode;
     },
     issueNames: function(machine){
         Display.clearMenus(machine.id);
@@ -3503,8 +3508,10 @@ const Controller = {
         Display.update(machine.id);
         Display.reheatSimulation(machine.id);
     },
-    deleteNode: function(node){
-        Display.clearMenus(node.machine.id);
+    deleteNode: function(node, keepMenus){
+        if(!keepMenus){
+            Display.clearMenus(machine.id);
+        }
         node.machine.deleteNode(node);
         Display.update(node.machine.id);
         Display.reheatSimulation(node.machine.id);
