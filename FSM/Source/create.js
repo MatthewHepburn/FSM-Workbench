@@ -12,7 +12,10 @@ const Create = {
     },
     registerSubsetButtonListener: function(){
         d3.select("#subset-button")
-            .on("click", Create.showSubset3);
+            .on("click",function(){
+                Create.showSubset();
+                Logging.incrementSessionCounter("create-opened-subset");
+            });
     },
     registerTraceButtonListener:function(){
         d3.select("#traceform-button")
@@ -26,6 +29,7 @@ const Create = {
                 const input = Model.parseInput(document.querySelector("#traceform").value, splitSymbol);
 
                 Controller.startTrace(machine, input);
+                Logging.incrementSessionCounter("create-opened-trace");
             });
     },
     registerAlphabetButtonListener:function(){
@@ -34,6 +38,7 @@ const Create = {
                 this.blur();
                 const alphabet = document.querySelector("#setalphabet").value;
                 Create.setalphabet(alphabet);
+                Logging.incrementSessionCounter("create-set-alphabet");
             });
     },
     registerDFAbuttonListener: function(){
@@ -41,6 +46,7 @@ const Create = {
             this.blur();
             const machine = Model.machines[0];
             Controller.convertToDFA(machine);
+            Logging.incrementSessionCounter("create-ran-dfa-conversion");
         });
     },
     registerReverseButtonListener: function(){
@@ -48,6 +54,7 @@ const Create = {
             this.blur();
             const machine = Model.machines[0];
             Controller.reverseMachine(machine);
+            Logging.incrementSessionCounter("create-ran-reverse");
         });
     },
     registerMinimalDFAButtonListener: function(){
@@ -55,12 +62,14 @@ const Create = {
             this.blur();
             const machine = Model.machines[0];
             Controller.minimize(machine);
+            Logging.incrementSessionCounter("create-ran-minimize");
         });
     },
     registerExportToSvgButtonListener: function(){
         d3.select("#export-svg-button").on("click", function(){
             this.blur();
             Display.exportToSVG("m1", true, true);
+            Logging.incrementSessionCounter("create-exported-to-svg");
         });
     },
     registerSaveLoadButtonListener: function(){
@@ -76,10 +85,12 @@ const Create = {
                 feedback.text("An error occured – machine not saved.");
             }
             setTimeout(() => feedback.remove(), 2750);
+            Logging.incrementSessionCounter("create-saved-machine");
         });
         d3.select("#load-button").on("click", function(){
             this.blur();
             Create.drawLoadMenu();
+            Logging.incrementSessionCounter("create-opened-load-menu");
         });
 
     },
@@ -195,7 +206,7 @@ const Create = {
             .text("\u00A0");
     },
 
-    showSubset3(){
+    showSubset(){
         const m = Model.machines[0];
         //Check that the machine has an initial state, as we need that.
         if(m.getInitialNodeCount() === 0){
@@ -303,6 +314,7 @@ const Create = {
         };
 
         const performConversion = function(){
+            Logging.incrementSessionCounter("create-completed-subset");
             const nfaNodes = m.getNodeList();
             const conversionObj = Controller.convertToDFA(m, true);
             oldToNewMap = conversionObj[1]; //Maps the nodeSetIDs of reachable states in the old machine to nodes in the new one.
@@ -350,6 +362,7 @@ const Create = {
                         toggleBHButton
                             .text("Show { }")
                             .on("click", showFunction);
+                        Logging.incrementSessionCounter("create-subset-hid-blackhole");
                         Controller.deleteNode(node, true);
                     };
                 };
@@ -358,6 +371,7 @@ const Create = {
                     toggleBHButton
                         .text("Hide {}");
                     const bhNode = Controller.showBlackholeState(m, true);
+                    Logging.incrementSessionCounter("create-subset-showed-blackhole");
                     toggleBHButton.on("click", getHideFunction(bhNode));
                 };
 
@@ -490,6 +504,8 @@ const Create = {
                                     emptyCellsLeft--;
                                     currentCell = null;
 
+                                    Logging.setSessionVar("create-filled-subset-cell", true);
+
                                     // Animate
                                     if(solutionNodes.length > 0){
                                         // Step obj to animate the links
@@ -520,6 +536,7 @@ const Create = {
                                     if(rowsToAdd[targetID]){
                                         cell.classed("to-add", true)
                                             .on("click", function(){
+                                                Logging.setSessionVar("create-added-subset-row", true);
                                                 addNodeSet(targetID);
                                                 cell.on("click", null)
                                                     .classed("to-add", false);
