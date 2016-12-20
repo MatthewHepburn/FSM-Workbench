@@ -3,8 +3,8 @@ import os
 import pprint
 import re
 import json
-import datetime
 import time
+from datetime import datetime, timezone, date
 import sys
 import math
 import subprocess #Required to determine directory size
@@ -346,7 +346,7 @@ def readAnswers(filename):
                 isCorrect = answer["isCorrect"]
                 assert type(isCorrect) is bool
 
-                datestamp = str(datetime.date.today())
+                datestamp = datetime.fromtimestamp(timeRecorded, tz=timezone.utc).date().isoformat()
                 userID = str(answer["userID"])
 
                 # Record data in users:
@@ -413,7 +413,7 @@ def readUsage(filename):
                 pageID = str(usage["pageID"])
                 assert pageID in pageDict, "Invalid pageID of :" + pageID
 
-                datestamp = str(datetime.date.today())
+                datestamp = datetime.fromtimestamp(timeRecorded, tz=timezone.utc).date().isoformat()
                 userID = str(usage["userID"])
                 # Record data in dates
                 if datestamp not in dates:
@@ -541,7 +541,7 @@ def writePublicJSON():
         dates[date]["uniqueVisitors"] = getVisitors(dates[date]["dailyUniquesList"])
         del dates[date]["dailyUniquesList"]
     # Calculate Timestamp:
-    now = datetime.datetime.now()
+    now = datetime.now()
     timeStamp = now.strftime('%Y-%m-%d %H:%M:%S')
     logSize = getLogSize()
     out = {"pages":pages, "dates":dates, "tests": testData, "meta":{"timeStamp":timeStamp, "logSize": logSize}}
