@@ -1,0 +1,16 @@
+----- Cleanup Steps -----
+    Amend the usage logs so that the create page has an ID.
+
+
+
+----- Assessing test001 -----
+    Consider only users with a standard userID (to exclude entries that result from testing)
+    Consider only users who have visted at least one question in the inf1 question set.
+    Consider only users who have been assigned to a test group.
+
+    For users in each group, determine how many questions in the inf1 question set they answered correctly.
+
+    Use a one tailed t test as our hypothesis is that the group with the progress bar will answer more questions.
+    Number of participents was not fixed in advance, used all eligable users in semester 1.
+
+    Results in t-score of 0.26 and p-value of 0.40 – not statistically significant.
