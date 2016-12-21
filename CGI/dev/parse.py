@@ -22,7 +22,7 @@ users = {}
 pageDict = {}
 testData = {}
 cutoffTime = 1439447160 # Ignore entries before this timestamp
-maxTimeOnPage = 1800 #30 minutes
+maxTimeOnPage = 4 * 60 * 60 # 4 hours
 
 pp = pprint.PrettyPrinter(indent=1)
 crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console", "Google PP Default"]
@@ -442,14 +442,27 @@ def readUsage(filename):
 
                 counters = ["context-click-node-toggleInitial", "context-click-node-allItems", "context-click-node-toggleAccepting",
                             "context-click-node-renameState", "context-click-node-deleteState", "context-click-link-changeConditions",
-                            "context-click-link-allItems", "context-click-link-deleteLink", "context-click-link-reverseLink"];
+                            "context-click-link-allItems", "context-click-link-deleteLink", "context-click-link-reverseLink",
+                            "create-opened-subset", "create-opened-trace", "create-set-alphabet","create-ran-dfa-conversion",
+                            "create-ran-reverse", "create-ran-minimize","create-exported-to-svg","create-saved-machine",
+                            "create-opened-load-menu", "create-completed-subset", "create-subset-hid-blackhole",
+                            "create-subset-showed-blackhole"];
                 for counterName in counters:
+                    # Increment counters, so that user objs have lifetime totals
                     if counterName in usage["sessionData"]:
                         counterValue = int(usage["sessionData"][counterName])
                         if counterName not in users[userID]["sessionData"]:
                             users[userID]["sessionData"][counterName] = counterValue
                         else:
                             users[userID]["sessionData"][counterName] += counterValue
+
+
+                sessionVars = ["create-filled-subset-cell","create-added-subset-row"]
+                for varName in sessionVars:
+                    # Overwrite sessionVars, so user objs have last value
+                    if varName in usage["sessionData"]:
+                        varValue = usage["sessionData"][varName]
+                        users[userID]["sessionData"][varName] = varValue
 
                 tests = ["test001"]
                 for testName in tests:
@@ -513,6 +526,17 @@ def getVisitors(userIDList):
         if userID not in ignoredIDs:
             count += 1
     return count
+
+def getCreateUsers():
+    # returns an array of userIDs for all users how have used the create tool for 30 or more seconds
+    createUsers = []
+    createPageID = "3534ba18adb84dc4bd6d94b9d2110cd1"
+    for userID in users:
+        if createPageID in users[userID]["totalTimeOnPage"] and users[userID]["totalTimeOnPage"][createPageID] >= 30:
+            createUsers.append(userID)
+    return createUsers
+
+
 
 def getLogSize():
     # Return a string representing the size of the log directory

@@ -128,6 +128,22 @@ var data = {
         }
         return pageData;
     },
+    getMeanTimeData(){
+        const pageList = data.pageList;
+        const timeData = []; // will be in form [[pagename, mean]]
+        pageList.forEach(function(pageID){
+            const pageData = data.json.pages[pageID];
+            if(!pageData){
+                return;
+            }
+            if (pageData.hasOwnProperty("uniqueVisitors") && pageData.hasOwnProperty("totalTime")){
+                const meanTime = pageData["totalTime"] / pageData["uniqueVisitors"];
+                const pageName = data.getName(pageID)
+                timeData.push([pageName, meanTime]);
+            }
+        });
+        return timeData;
+    },
     getMaxAnswersPerPage:function(){
         var max = 0;
         for (var url in data.json.pages){
@@ -231,8 +247,31 @@ var data = {
 data.getData();
 
 var display = {
-    width: 900,
-    height: 600,
+    get width(){
+        //Width and height functions based on http://stackoverflow.com/a/1038781
+        const fraction = 0.8
+        if (self.innerWidth) {
+            return self.innerWidth * fraction;
+        }
+        if (document.documentElement && document.documentElement.clientWidth) {
+            return document.documentElement.clientWidth * fraction;
+        }
+        if (document.body) {
+            return document.body.clientWidth * fraction;
+        }
+    },
+    get height(){
+        const fraction = 0.9
+        if (self.innerHeight) {
+            return self.innerHeight * fraction;
+        }
+        if (document.documentElement && document.documentElement.clientHeight) {
+            return document.documentElement.clientHeight * fraction;
+        }
+        if (document.body) {
+            return document.body.clientHeight * fraction;
+        }
+    },
     setupCanvas: function(){
         d3.select("#canvas-div").append("svg")
             .attr("width", display.width)
@@ -542,6 +581,31 @@ var display = {
             .attr("style", "width: " + (display.width - 200) + "px;");
         d3.selectAll(".y .axis");
     },
+    drawMeanTimeBarChart: function(){
+        const chartData = data.getMeanTimeData();
+        const barLabels = chartData.map(x => x[0]);
+        const barValuesFull = chartData.map(x => x[1]/60);
+
+        const valueDisplayFunction = function(time){
+            if(time > 1){
+                return String(time.toFixed(1)) + " min";
+            } else {
+                return Math.round(time * 60) + " sec";
+            }
+        };
+
+        const chartObj = {
+            chartTitle: "Mean Time spent per page",
+            barLabels,
+            barValuesFull,
+            xAxisLabel: "Mean total time (minutes)",
+            yAxisLabel: "Page name",
+            valueDisplayFunction,
+            minHeight: 950
+        };
+
+        display.drawHorizontalBarChart(chartObj);
+    },
     drawTest001BarChart: function(){
         const testData = data.json.tests.test001;
 
@@ -550,7 +614,9 @@ var display = {
             barLabels: ["A", "B"],
             barValuesFull: [testData.aMean, testData.bMean],
             xAxisLabel: "Test group",
-            yAxisLabel: "Mean number of questions answered correctly"
+            yAxisLabel: "Mean number of questions answered correctly",
+            maxWidth: 600,
+            maxHeight: 500
         };
 
         display.drawVerticalBarChart(chartObj);
@@ -586,23 +652,167 @@ var display = {
                 .style("padding", "0px 7px 0px 7px");
 
     },
-    drawVerticalBarChart: function(chartObj) {
+    drawHorizontalBarChart(chartObj){
         // Expect chartObj to include properties (* denotes optional):
         // chartTitle, barLabels, barValuesFull, barValuesSplit*,  xAxisLabel, yAxisLabel,
+        // maxWidth*, maxHeight*, minWidth*, minHeight*, valueDisplayFunction
+
+        //Configure width/height
+        let width = display.width;
+        let height = display.height;
+        if(chartObj.maxWidth){
+            width = Math.min(chartObj.maxWidth, width);
+        }
+        if(chartObj.minWidth){
+            width = Math.max(chartObj.minWidth, width);
+        }
+
+        if(chartObj.maxHeight){
+            height = Math.min(chartObj.maxHeight, height);
+        }
+        if(chartObj.minHeight){
+            height = Math.max(chartObj.minHeight, height);
+        }
 
         //Clear existing chart;
         d3.selectAll(".removable").remove();
         const chart = d3.select("#canvas");
         chart.html("")
-            .attr("width", display.width)
-            .attr("height", display.height);
+            .attr("width", width)
+            .attr("height", height);
         d3.select("#x-axis-title").html("").text("");
 
 
         // Draw title
         d3.select("#title")
             .text(chartObj.chartTitle)
-            .attr("style", "width: " + (display.width) + "px;");
+            .attr("style", "width: " + (width) + "px;");
+
+        // Calculate highest value
+        const maxVal = chartObj.barValuesFull.reduce((x,y)=>Math.max(x, y));
+
+        // Define constants
+        const nValues = chartObj.barValuesFull.length;
+        const yMargin = 100 / (nValues + 1);
+        const x0 = 20;
+        const xMax = width - 150;
+        const y0 = 80; // y of top of chart
+        const barHeight = (height - y0 - 100) / nValues;
+
+        const scale = d3.scaleLinear()
+                        .clamp(true)
+                        .nice()
+                        .domain([0, maxVal])
+                        .range([0, xMax]);
+
+
+        // Adds the bars
+        const bars = d3.select("#canvas").selectAll("g")
+                        .data(chartObj.barValuesFull)
+                        .enter()
+                            .append("g")
+                            .classed("bar", true)
+                            .attr("id", (d,i) => "bar-" + i);
+        bars.append("rect")
+            .attr("x", x0)
+            .attr("y", (d, i) => y0 + i * (barHeight + yMargin))
+            .attr("width", d => scale(d))
+            .attr("height", barHeight);
+
+        // Label the bars
+        const fontSize = Math.min(barHeight - 4, 18);
+
+        for(let i = 0; i < chartObj.barLabels.length; i++){
+            const label = chartObj.barLabels[i];
+            const value = chartObj.barValuesFull[i];
+            let valueLabel = value;
+            if(chartObj.valueDisplayFunction){
+                valueLabel = chartObj.valueDisplayFunction(value);
+            }
+            const barEndX = scale(value) + x0;
+            const barMidY = (y0 + i * (barHeight + yMargin)) + barHeight/2;
+            const g = d3.select("#bar-" + i);
+            // Add the name
+            g.append("text")
+                .text(label)
+                .style("fill", "#000000")
+                .attr("x", barEndX + 5)
+                .attr("y", barMidY)
+                .style("text-anchor", "start")
+                .style("dominant-baseline", "central")
+                .style("font", "sans-serif")
+                .style("font-size", fontSize);
+
+            // Add the value
+            if(barEndX > (x0 + 60)){
+                g.append("text")
+                    .text(valueLabel)
+                    .style("fill", "#FFFFFF")
+                    .attr("x", barEndX - 5)
+                    .attr("y", barMidY)
+                    .style("text-anchor", "end")
+                    .style("dominant-baseline", "central")
+                    .style("font", "sans-serif")
+                    .style("font-size", fontSize);
+            }
+
+        }
+
+        //Add the xAxis
+        const xAxisGenerator = d3.axisTop(scale);
+        const yGap = 10; //Gap between xAxis and first bar
+        const labelX = (x0 + xMax)/2;
+        const labelY = - y0 / 2;
+
+        chart.append("g")
+            .attr("transform", `translate(${x0},${y0-yGap})`)
+            .attr("class", "x axis")
+            .call(xAxisGenerator)
+            .append("text") //Add the axis label
+                .text(chartObj.xAxisLabel)
+                .style("fill", "#000000")
+                .attr("x", labelX)
+                .attr("y", labelY)
+                .style("text-anchor", "middle")
+                .style("dominant-baseline", "central")
+                .style("font", "sans-serif")
+                .style("font-size", 18);
+    },
+    drawVerticalBarChart(chartObj) {
+        // Expect chartObj to include properties (* denotes optional):
+        // chartTitle, barLabels, barValuesFull, barValuesSplit*,  xAxisLabel, yAxisLabel,
+        // maxWidth*, maxHeight*, minWidth*, minHeight*
+
+        //Configure width/height
+        let width = display.width;
+        let height = display.height;
+        if(chartObj.maxWidth){
+            width = Math.min(chartObj.maxWidth, width);
+        }
+        if(chartObj.minWidth){
+            width = Math.max(chartObj.minWidth, width);
+        }
+
+        if(chartObj.maxHeight){
+            height = Math.min(chartObj.maxHeight, height);
+        }
+        if(chartObj.minHeight){
+            height = Math.max(chartObj.minHeight, height);
+        }
+
+        //Clear existing chart;
+        d3.selectAll(".removable").remove();
+        const chart = d3.select("#canvas");
+        chart.html("")
+            .attr("width", width)
+            .attr("height", height);
+        d3.select("#x-axis-title").html("").text("");
+
+
+        // Draw title
+        d3.select("#title")
+            .text(chartObj.chartTitle)
+            .attr("style", "width: " + (width) + "px;");
 
 
 
@@ -612,9 +822,9 @@ var display = {
         // Define constants
         const nValues = chartObj.barValuesFull.length;
         const xMargin = 100 / (nValues + 1);
-        const barWidth = (display.width - 200) / nValues;
+        const barWidth = (width - 200) / nValues;
         const x0 = 80;
-        const y0 = display.height - 80; //y of bottom of chart
+        const y0 = height - 80; //y of bottom of chart
         const yTop = 10; //y of top of axis. NB yTop is lower than y0
 
 
@@ -632,13 +842,15 @@ var display = {
             .data(chartObj.barValuesFull)
             .enter()
                 .append("g")
+                .classed("bar", true)
+                .attr("id", (d,i) => "bar" + i)
                     .append("rect")
                         .attr("x", (d, i) => x0 + i * (barWidth + xMargin))
                         .attr("y", d => scale(d))
                         .attr("width", barWidth)
                         .attr("height", d => y0 - scale(d))
-                        .each(function(){barCentreXs.push(Number(d3.select(this).attr("x")) + barWidth/2);}) //record x-coord of centre
-                        .classed("bar", true);
+                        .each(function(){barCentreXs.push(Number(d3.select(this).attr("x")) + barWidth/2);}); //record x-coord of centre
+
 
         //Add the yAxis
         const yAxisGenerator = d3.axisLeft(scale);
