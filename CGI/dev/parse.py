@@ -1,3 +1,4 @@
+#!/bin/python3
 #coding: utf-8
 import os
 import pprint
@@ -21,8 +22,10 @@ questions = {}
 users = {}
 pageDict = {}
 testData = {}
+usageStats = {  #Catch all for stats that are not specific to a date, user, or page. Not read from file, recalculated every run.
+    "remoteIPs":{}
+}
 cutoffTime = 1439447160 # Ignore entries before this timestamp
-maxTimeOnPage = 4 * 60 * 60 # 4 hours
 
 pp = pprint.PrettyPrinter(indent=1)
 crawlerAgents = ["Googlebot", "Google Page Speed Insights", "Google Search Console", "Google PP Default"]
@@ -40,7 +43,7 @@ def main():
     addPageData()
     analyseTestData()
     writePublicJSON()
-    archiveLogs()
+    # archiveLogs()
 
 def addIfNotPresent(list, item):
     # Can't use sets as they cannot be stored as JSON
@@ -88,14 +91,37 @@ def addPageData():
 def isQuestion(pageID):
     return "set" in pageDict[pageID]
 
+def isActive(userID):
+    # user is considered "active" if they have spent >30 sec on any question or the create tool.
+    u = users[userID]
+    createPageID = "3534ba18adb84dc4bd6d94b9d2110cd1"
+    for pageID in u["totalTimeOnPage"]:
+        if isQuestion(pageID) and u["totalTimeOnPage"][pageID] > 30:
+            return True
+        if pageID == createPageID and u["totalTimeOnPage"][createPageID] > 30:
+            return True
+    return False
+
+
 def analyseUsage():
     # First, set to zero all stats that are calculated here:
+
+    # Stats for the subset tool
+    usageStats["subsetUsers"] = 0 # n users who have opened the subset procedure in create once or more
+    usageStats["subsetFinishers"] = 0 # n users who have completed the subset procedure
+    usageStats["subsetRowAdders"] = 0 # n users who have added at least one row in the subset procedure tool
+    usageStats["subsetCellFillers"] = 0 # n users who have filled at least one cell in the subset procedure tool
+
+    usageStats["activeUsers"] = 0 # n users who are "active" – have >30 s on a question or the create tool.
+    usageStats["activeContextUsers"] = 0 # n of active users who have opened the context menu >= times
+
     for pageID in pages:
         if pageID not in pageDict:
             # pageID may not by in pageDict if the page has been removed.
             continue
         pages[pageID]["uniqueVisitors"] = 0
         pages[pageID]["totalTime"] = 0
+        pages[pageID]["timeEntries"] = [] # Use this to find the median time – probably a more useful measure than mean.
         if pages[pageID]["isQuestion"]:
             pages[pageID]["yesRatings"] = 0
             pages[pageID]["totalRatings"] = 0
@@ -105,13 +131,34 @@ def analyseUsage():
         if userID in ignoredIDs:
             continue
         u = users[userID]
+
+        if isActive(userID):
+            thisUserActive = True
+            usageStats["activeUsers"] += 1
+
+        if "sessionData" in u:
+            sessionData = u["sessionData"]
+            if "create-opened-subset" in sessionData and sessionData["create-opened-subset"] > 1:
+                usageStats["subsetUsers"] += 1
+            if "create-completed-subset" in sessionData and sessionData["create-completed-subset"] > 1:
+                usageStats["subsetFinishers"] += 1
+            if "create-filled-subset-cell" in sessionData and sessionData["create-filled-subset-cell"] is True:
+                usageStats["subsetCellFillers"] += 1
+            if "create-added-subset-row" in sessionData and sessionData["create-added-subset-row"] is True:
+                usageStats["subsetRowAdders"] += 1
+            if thisUserActive and "context-click-link-allItems" in sessionData and sessionData["context-click-link-allItems"] >= 10:
+                usageStats["activeContextUsers"] += 1
+
         for pageID in u["totalTimeOnPage"]:
             if pageID not in pageDict:
                 continue
             if pageID not in pages:
                 addPage(pageID)
-            pages[pageID]["totalTime"] += u["totalTimeOnPage"][pageID]
+            timeOnPage = u["totalTimeOnPage"][pageID]
+            pages[pageID]["totalTime"] += timeOnPage
             pages[pageID]["uniqueVisitors"] += 1
+            pages[pageID]["timeEntries"].append(timeOnPage)
+
         for pageID in u["questionRatings"]:
             if pageID not in pageDict:
                 continue
@@ -120,18 +167,36 @@ def analyseUsage():
             pages[pageID]["totalRatings"] += 1
             if u["questionRatings"][pageID] == True:
                 pages[pageID]["yesRatings"] += 1
+
         for pageID in u["questionsAttempted"]:
             if pageID not in pageDict:
                 continue
             if pageID not in pages:
                     addPage(pageID)
             pages[pageID]["usersAttempted"] += 1
+
         for pageID in u["questionsCorrect"]:
             if pageID not in pageDict:
                 continue
             if pageID not in pages:
                     addPage(pageID)
             pages[pageID]["usersCorrect"] += 1
+
+    # Find median total times for each page
+    for pageID in pages:
+        pageTimes = sorted(pages[pageID]["timeEntries"])
+        nTimes = len(pageTimes)
+        if nTimes % 2 != 0:
+            # Take middle value if it exists
+            pages[pageID]["medianTotalTime"] = pageTimes[math.floor(nTimes/2)]
+        else:
+            # If not, take the mean of the middle pair (and round to an int)
+            mid1 = pageTimes[(nTimes//2) - 1]
+            mid2 = pageTimes[(nTimes//2)]
+            pages[pageID]["medianTotalTime"] = int(round((mid1 + mid2)/2))
+        # Remove the entries, as they do not need to be written to JSON.
+        del pages[pageID]["timeEntries"]
+
 
 def analyseTestData():
     # Analyse test001 - the test of the progress bar
@@ -329,11 +394,8 @@ def readAnswers(filename):
                 timeRecorded = int(answer["timeEpoch"])
                 assert cutoffTime < timeRecorded and timeRecorded < currentTime, "Time out of range in " + line
 
-                # Enfore bound of [0 - maxTimeOnPage] on timeElapsed
                 timeElapsed = int(answer["timeElapsed"])
                 assert 0 <= timeElapsed, "Time on page cannot be negative"
-                if timeElapsed > maxTimeOnPage:
-                    timeElapsed = maxTimeOnPage
 
                 #Ensure that pageID is valid
                 pageID = str(answer["pageID"])
@@ -386,7 +448,7 @@ def readUsage(filename):
     global pages
     global users
     currentTime = int((time.time()))
-    requiredFields = ["userID", "pageID", "timeOnPage", "url", "agentString", "timeEpoch"]
+    requiredFields = ["userID", "pageID", "timeOnPage", "url", "agentString", "timeEpoch", "remoteIp"]
     with open(filename, "r") as datafile:
         for line in datafile:
             try:
@@ -406,8 +468,6 @@ def readUsage(filename):
 
                 timeOnPage = int(usage["timeOnPage"])
                 assert 0 <= timeOnPage, "Time on page cannot be negative"
-                if timeOnPage > maxTimeOnPage:
-                    timeOnPage = maxTimeOnPage
 
                 #Ensure that pageID is valid
                 pageID = str(usage["pageID"])
@@ -428,6 +488,13 @@ def readUsage(filename):
                     users[userID]["totalTimeOnPage"][pageID] = timeOnPage
                 else:
                     users[userID]["totalTimeOnPage"][pageID] += timeOnPage
+
+                # Record remoteIP
+                remoteIP = usage["remoteIP"]
+                if remoteIP  in usageStats["remoteIPs"]:
+                    usageStats["remoteIPs"][remoteIP]["count"] ++
+                else:
+                    usageStats["remoteIP"][remoteIP] = {"count": 1, "city": "unknown"}
 
                 if users[userID]["browser"] is None:
                     agentString = str(usage["agentString"])
@@ -568,12 +635,12 @@ def writePublicJSON():
     now = datetime.now()
     timeStamp = now.strftime('%Y-%m-%d %H:%M:%S')
     logSize = getLogSize()
-    out = {"pages":pages, "dates":dates, "tests": testData, "meta":{"timeStamp":timeStamp, "logSize": logSize}}
+    out = {"pages":pages, "dates":dates, "tests": testData, "usage": usageStats, "meta":{"timeStamp":timeStamp, "logSize": logSize}}
     with open('stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 
 def writeFullJSON():
-    out = {"pages":pages, "dates":dates, "users":users}
+    out = {"pages":pages, "dates":dates, "users":users, "usage": usageStats}
     with open('full_stats.json', 'w') as outfile:
         json.dump(out, outfile, indent=4, separators=(',', ': '))
 

@@ -138,8 +138,24 @@ var data = {
             }
             if (pageData.hasOwnProperty("uniqueVisitors") && pageData.hasOwnProperty("totalTime")){
                 const meanTime = pageData["totalTime"] / pageData["uniqueVisitors"];
-                const pageName = data.getName(pageID)
+                const pageName = data.getName(pageID);
                 timeData.push([pageName, meanTime]);
+            }
+        });
+        return timeData;
+    },
+    getMedianTimeData(){
+        const pageList = data.pageList;
+        const timeData = []; // will be in form [[pagename, mean]]
+        pageList.forEach(function(pageID){
+            const pageData = data.json.pages[pageID];
+            if(!pageData){
+                return;
+            }
+            if (pageData.hasOwnProperty("medianTotalTime")){
+                const medianTime = pageData["medianTotalTime"];
+                const pageName = data.getName(pageID);
+                timeData.push([pageName, medianTime]);
             }
         });
         return timeData;
@@ -587,18 +603,51 @@ var display = {
         const barValuesFull = chartData.map(x => x[1]/60);
 
         const valueDisplayFunction = function(time){
-            if(time > 1){
-                return String(time.toFixed(1)) + " min";
-            } else {
+            if(time < 1){
                 return Math.round(time * 60) + " sec";
+            } else if (time < 60){
+                return String(time.toFixed(1)) + " min";
+            } else if (time < 24 * 60){
+                return String((time/60).toFixed(1)) + " hour"
+            } else{
+                return String((time/(60 * 24)).toFixed(1)) + " day"
             }
         };
 
         const chartObj = {
-            chartTitle: "Mean Time spent per page",
+            chartTitle: "Mean Total Time Spent per Page",
             barLabels,
             barValuesFull,
             xAxisLabel: "Mean total time (minutes)",
+            yAxisLabel: "Page name",
+            valueDisplayFunction,
+            minHeight: 950
+        };
+
+        display.drawHorizontalBarChart(chartObj);
+    },
+    drawMedianTimeBarChart(){
+        const chartData = data.getMedianTimeData();
+        const barLabels = chartData.map(x => x[0]);
+        const barValuesFull = chartData.map(x => x[1]/60);
+
+        const valueDisplayFunction = function(time){
+             if(time < 1){
+                 return Math.round(time * 60) + " sec";
+             } else if (time < 60){
+                 return String(time.toFixed(1)) + " min";
+             } else if (time < 24 * 60){
+                 return String((time/60).toFixed(1)) + " hour"
+             } else{
+                 return String((time/(60 * 24)).toFixed(1)) + " day"
+             }
+         };
+
+        const chartObj = {
+            chartTitle: "Median Total Time Spent per Page",
+            barLabels,
+            barValuesFull,
+            xAxisLabel: "Median total time (minutes)",
             yAxisLabel: "Page name",
             valueDisplayFunction,
             minHeight: 950
