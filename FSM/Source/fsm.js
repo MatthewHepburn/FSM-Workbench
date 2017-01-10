@@ -3318,6 +3318,8 @@ const EventHandler = {
 };
 
 const Controller = {
+    undoState: [],
+    redoState: [],
     settings:{
         colourScheme: {description: "Colour scheme", value:"monochrome", options:["colour", "monochrome"]},
         forceLayout: {description:"Node physics", value:"on", options:["on", "off"]},
@@ -3406,8 +3408,8 @@ const Controller = {
         const pageConfig = JSON.parse(configStr);
         if(pageConfig){
             //Use this method so defaults can be specified in the initial declaration of the settings obj
-        Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
-    }
+            Object.keys(pageConfig).forEach(key => Controller.config[key] = pageConfig[key]);
+        }
     },
     getSettings: function(){
         return jsonCopy(this.settings);
@@ -3438,6 +3440,7 @@ const Controller = {
         if(!keepMenus){
             Display.clearMenus(machine.id);
         }
+        Controller.saveStateForUndo();
         const conversionObj = machine.convertToDFA();
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
@@ -3458,6 +3461,7 @@ const Controller = {
     },
     issueNames: function(machine){
         Display.clearMenus(machine.id);
+        Controller.saveStateForUndo();
         machine.issueNodeNames();
         Display.updateAllNodeNames(machine);
         Display.resetColours(machine.id);
@@ -3466,6 +3470,7 @@ const Controller = {
     },
     minimize: function(machine){
         Display.clearMenus(machine.id);
+        Controller.saveStateForUndo();
         machine.minimize();
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
@@ -3474,6 +3479,7 @@ const Controller = {
     },
     reverseMachine: function(machine){
         Display.clearMenus(machine.id);
+        Controller.saveStateForUndo();
         machine.reverse();
         Display.resetColours(machine.id);
         Display.forceTick(machine.id);
@@ -3494,6 +3500,7 @@ const Controller = {
             Controller.endLink(sourceNode.machine.id);
             return;
         }
+        Controller.saveStateForUndo();
         var newLink = sourceNode.machine.addLink(sourceNode, targetNode);
         Controller.endLink(sourceNode.machine.id);
         Display.update(sourceNode.machine.id);
@@ -3505,23 +3512,29 @@ const Controller = {
     deleteMachine: function(machineID){
         Model.deleteMachine(machineID);
         Display.deleteCanvas(machineID);
+        Controller.redoState = [];
+        Controller.undoState = [];
+
     },
     deleteLink: function(link){
         Display.clearMenus(link.machine.id);
+        Controller.saveStateForUndo();
         link.machine.deleteLink(link);
         Display.update(link.machine.id);
         Display.reheatSimulation(link.machine.id);
     },
     createNode: function(machine, x, y, isInitial, isAccepting){
         Display.clearMenus(machine.id);
+        Controller.saveStateForUndo();
         machine.addNode(x, y, "", isInitial, isAccepting);
         Display.update(machine.id);
         Display.reheatSimulation(machine.id);
     },
     deleteNode: function(node, keepMenus){
         if(!keepMenus){
-            Display.clearMenus(machine.id);
+            Display.clearMenus(node.machine.id);
         }
+        Controller.saveStateForUndo();
         node.machine.deleteNode(node);
         Display.update(node.machine.id);
         Display.reheatSimulation(node.machine.id);
@@ -3537,6 +3550,7 @@ const Controller = {
     },
     reverseLink: function(link){
         Display.clearMenus(link.machine.id);
+        Controller.saveStateForUndo();
         link.reverse();
         Display.update(link.machine.id);
         Display.updateAllLinkLabels(link.machine.id);
@@ -3562,11 +3576,13 @@ const Controller = {
 
     setAlphabet: function(machine, alphabetArray, allowEpsilon){
         Display.clearMenus(machine.id);
+        Controller.saveStateForUndo();
         machine.setAlphabet(alphabetArray, allowEpsilon);
         Display.updateAllLinkLabels(machine.id);
     },
     setOutputAlphabet: function(machine, outputAlphabet){
         Display.clearMenus(machine.id);
+        Controller.saveStateForUndo();
         machine.setOutputAlphabet(outputAlphabet);
         Display.updateAllLinkLabels(machine.id);
 
@@ -3583,6 +3599,47 @@ const Controller = {
         }
     },
 
+    undo(){
+        if(Model.question.allowEditing && Controller.undoState.length > 0){
+            Controller.redoState.push(Model.getMachineList());
+            const prevState = Controller.undoState.pop();
+            Controller.restoreState(prevState);
+            Logging.incrementSessionCounter("undo-count");
+        }
+    },
+    redo(){
+        if(Model.question.allowEditing && Controller.redoState.length > 0){
+            Controller.undoState.push(Model.getMachineList());
+            const prevState = Controller.redoState.pop();
+            Controller.restoreState(prevState);
+            Logging.incrementSessionCounter("redo-count");
+        }
+    },
+    saveStateForUndo(){
+        Controller.undoState.push(Model.getMachineList());
+        Controller.redoState = [];
+    },
+    restoreState(machineList){
+        Model.machines.forEach(function(machine){
+            Display.clearMenus(machine.id);
+            // Clear the current machine, and update the display.
+            machine.deleteAllNodes();
+            Display.forceTick(machine.id);
+            Display.update(machine.id);
+        });
+
+        Model.setMachineList(machineList);
+
+        Model.machines.forEach(function(machine){
+            // And update the display.
+            Display.resetColours(machine.id);
+            Display.forceTick(machine.id);
+            Display.update(machine.id);
+            Display.reheatSimulation(machine.id);
+        });
+
+
+    },
     getColourScheme: function(){
         return this.settings.colourScheme.value;
     },
@@ -3718,6 +3775,7 @@ const Controller = {
         var inputObj = Display.getLinkRenameResult(canvasID, formType);
         var input = inputObj.input;
         var hasEpsilon = inputObj.hasEpsilon;
+        Controller.saveStateForUndo();
         link.setInput(input, hasEpsilon);
         if(link.machine.isMealy){
             link.setOutput(inputObj.output);
@@ -3727,17 +3785,22 @@ const Controller = {
         Display.clearMenus(canvasID);
     },
     submitNodeRename: function(node, newName){
-        node.name = newName;
-        Display.updateNodeName(node);
+        if(newName != node.name){
+            Controller.saveStateForUndo();
+            node.name = newName;
+            Display.updateNodeName(node);
+        }
         Display.dismissRenameMenu(node.machine.id);
         Display.clearMenus(node.machine.id);
     },
     toggleAccepting: function(node){
+        Controller.saveStateForUndo();
         node.toggleAccepting();
         Display.update(node.machine.id);
         Display.clearMenus(node.machine.id);
     },
     toggleInitial: function(node){
+        Controller.saveStateForUndo();
         node.toggleInitial();
         Display.update(node.machine.id);
         Display.clearMenus(node.machine.id);

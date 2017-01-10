@@ -4,7 +4,7 @@
 // it should not require d3.
 const Model = {
     machines: [], // This may be better as an object, with machine IDs as keys.
-    addMachine: function(specificationObj){
+    addMachine(specificationObj){
         //Creates a new machine as specified by specificationObj, adds it to the machinelist and returns the new machine.
         const newID = "m" + (this.machines.length + 1);
         const newMachine = new Model.Machine(newID);
@@ -12,16 +12,20 @@ const Model = {
         this.machines.push(newMachine);
         return newMachine;
     },
-    deleteMachine: function(machineID){
+    deleteMachine(machineID){
         this.machines = this.machines.filter(m => m.id !== machineID);
     },
-    getMachineList: function(){
-        //Returns a list of specifications for the current machine(s)
+    getMachineList(){
+        // Returns a list of specifications for the current machine(s)
         const list = [];
         for(let i = 0; i < Model.machines.length; i++){
             list.push(Model.machines[i].getSpec());
         }
         return list;
+    },
+    setMachineList(savedMachineList){
+        // Restores the model to the state it was in when getMachineList() was called.
+        savedMachineList.forEach((spec, i) => Model.machines[i].build(spec))
     },
     parseInput(inputString, splitSymbol){
         //Takes an input string (e.g. "abbbc") and returns a sequence based on the split symbol (e.g. ["a", "b", "b", "b", "c"])
