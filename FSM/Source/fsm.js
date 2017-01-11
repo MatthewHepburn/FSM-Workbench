@@ -75,14 +75,16 @@ const Display = {
         var margin = 6;
         var g = d3.select("#" + canvasID).append("g")
                     .classed("controls", true);
-        var tools = ["nodetool", "linetool","texttool","initialtool", "acceptingtool", "deletetool"];
+        var tools = ["nodetool", "linetool","texttool","initialtool", "acceptingtool", "deletetool", "__gap__", "undo", "redo"];
         var tooltips = {
             nodetool:"Create new states",
             linetool:"Link states together",
             texttool:"Change link inputs and rename states",
             initialtool: "Toggle start states",
             acceptingtool:"Toggle accepting states",
-            deletetool: "Delete links and states"
+            deletetool: "Delete links and states",
+            undo: "Undo",
+            redo: "Redo"
         };
 
         var mouseoverFunction = function(){
@@ -97,7 +99,10 @@ const Display = {
 
         // create a button for each tool in tools
         tools.forEach(function(toolName, i){
-            var thisG = g.append("g");
+            if(toolName === "__gap__"){
+                return;
+            }
+            const thisG = g.append("g");
             thisG.append("rect") // White rectangle at the bottom - to prevent the button being transparent
                 .attr("width", bwidth)
                 .attr("height", bwidth)
@@ -105,30 +110,50 @@ const Display = {
                 .attr("y", i * bwidth)
                 .attr("fill", "#FFFFFF")
                 .attr("fill-opacity", 1);
-            thisG.append("rect") // control rect in the middle - ensures that all of the button is clickable
-                .attr("width", bwidth)
-                .attr("height", bwidth)
-                .attr("x", 0)
-                .attr("y", i * bwidth)
-                .attr("fill", "#010101")
-                .attr("fill-opacity", 0)
-                .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
-                .classed("control-rect", true)
-                .attr("id", canvasID + "-" + toolName)
-                .on("click", function(){EventHandler.toolSelect(canvasID, toolName);})
-                .on("mouseover", mouseoverFunction)
-                .on("mouseout", mouseoutFunction)
-                .append("svg:title").text(tooltips[tools[i]]);
-            thisG.append("image") // Button on top
+            const controlRect = thisG.append("rect") // control rect in the middle - ensures that all of the button is clickable
+                    .attr("width", bwidth)
+                    .attr("height", bwidth)
+                    .attr("x", 0)
+                    .attr("y", i * bwidth)
+                    .attr("fill", "#010101")
+                    .attr("fill-opacity", 0)
+                    .attr("style", "stroke-width:" + strokeWidth +";stroke:rgb(0,0,0)")
+                    .classed("control-rect", true)
+                    .attr("id", canvasID + "-" + toolName)
+
+                    .on("mouseover", mouseoverFunction)
+                    .on("mouseout", mouseoutFunction);
+
+            const button = thisG.append("image") // Button on top
                 .attr("x", 0.5 * margin)
                 .attr("y", 0.5 * margin + (i * bwidth))
                 .attr("width", bwidth - margin)
                 .attr("height", bwidth - margin)
                 .attr("xlink:href", iconAddress + toolName +".svg")
                 .attr("class", "control-img")
-                .on("click", function(){EventHandler.toolSelect(canvasID, toolName);});
+                .attr("id", canvasID + "-" + toolName + "-image")
+                .append("svg:title").text(tooltips[tools[i]]);
 
+            if (toolName !== "undo" && toolName !== "redo"){
+                controlRect.on("click", () => EventHandler.toolSelect(canvasID, toolName));
+                button.on("click", () => EventHandler.toolSelect(canvasID, toolName));
+            } else if(toolName === "undo"){
+                controlRect.on("click", Controller.undo);
+                button.on("click", Controller.undo);
+            } else if(toolName === "redo"){
+                controlRect.on("click", Controller.redo);
+                button.on("click", Controller.redo);
+            }
         });
+
+        // Undo and Redo should start greyed out.
+        d3.select("#" + canvasID + "-undo-image")
+            .attr("xlink:href", iconAddress  +"undo-grey.svg");
+
+        d3.select("#" + canvasID + "-redo-image")
+            .attr("xlink:href", iconAddress  +"redo-grey.svg")
+
+
         // Define a gradient to be applied when a button is selected:
         var grad = d3.select("defs").append("svg:linearGradient")
             .attr("id", "Gradient1")
@@ -147,6 +172,21 @@ const Display = {
             .attr("stop-color", "black")
             .attr("stop-opacity", 0.1);
     },
+    setUndoAvailability(canUndo){
+        const imageName = canUndo? "undo.svg" : "undo-grey.svg";
+        Model.machines.forEach(function(machine){
+            d3.select("#" + machine.id + "-undo-image")
+                .attr("xlink:href", Global.iconAddress  + imageName);
+        });
+    },
+    setRedoAvailability(canRedo){
+        const imageName = canRedo? "redo.svg" : "redo-grey.svg";
+        Model.machines.forEach(function(machine){
+            d3.select("#" + machine.id + "-redo-image")
+                .attr("xlink:href", Global.iconAddress  + imageName);
+        });
+    },
+
     beginLink: function(node){
         var canvasID = node.machine.id;
         var canvasVars = Display.canvasVars[canvasID];
@@ -3602,22 +3642,33 @@ const Controller = {
     undo(){
         if(Model.question.allowEditing && Controller.undoState.length > 0){
             Controller.redoState.push(Model.getMachineList());
+            Display.setRedoAvailability(true);
             const prevState = Controller.undoState.pop();
             Controller.restoreState(prevState);
             Logging.incrementSessionCounter("undo-count");
+            if(Controller.undoState.length == 0){
+                Display.setUndoAvailability(false);
+            }
         }
     },
     redo(){
         if(Model.question.allowEditing && Controller.redoState.length > 0){
             Controller.undoState.push(Model.getMachineList());
+            Display.setUndoAvailability(true);
             const prevState = Controller.redoState.pop();
             Controller.restoreState(prevState);
             Logging.incrementSessionCounter("redo-count");
+            if(Controller.redoState.length == 0){
+                Display.setRedoAvailability(false);
+            }
         }
     },
     saveStateForUndo(){
         Controller.undoState.push(Model.getMachineList());
         Controller.redoState = [];
+        Display.setUndoAvailability(true);
+        Display.setRedoAvailability(false);
+
     },
     restoreState(machineList){
         Model.machines.forEach(function(machine){
