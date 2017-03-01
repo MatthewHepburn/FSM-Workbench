@@ -722,7 +722,7 @@ const Display = {
             toggleInitial: {text: "Toggle Initial", fn: function(){Controller.toggleInitial(node);}},
             toggleAccepting: {text: "Toggle Accepting", fn: function(){Controller.toggleAccepting(node);}},
             renameState: {text: "Rename State", fn: function(){Controller.requestNodeRename(node);}},
-            deleteState: {text: "DeleteState", fn: function(){Controller.deleteNode(node);}}
+            deleteState: {text: "Delete State", fn: function(){Controller.deleteNode(node);}}
         };
         const getAction = function(name){
             return [menuItems[name].text, function(){
@@ -2348,7 +2348,7 @@ const Display = {
         Display.forceTick(canvasID);
     },
     updateAllNodeNames: function(machine){
-    	    const nodes = machine.getNodeList().forEach(node => Display.updateNodeName(node));
+        machine.getNodeList().forEach(node => Display.updateNodeName(node));
     },
     updateAllLinkLabels: function(canvasID){
         var linkList = Object.keys(Display.canvasVars[canvasID].machine.links);
