@@ -1,26 +1,24 @@
-==== Prequisites: ====
+==== Prerequisites: ====
 ==Python 3==
 --Jinja2--
-Install under python3 (details will depend on your system)
-	$pip install jinja2
+Install for python3 (details will depend on your system).
 
-==Node==
+Either as root to install globally
+	$ pip3 install jinja2
+Or without root to install for your user account
+    $ pip3 install --user jinja2
+
+==Node Package Manager==
 From the FSM directory running
-	$sudo npm install --unsafe-perm
-should fulfill all dependencies. Note the unsafe-perm is required as the current setup requires UglifyJS and UglifyCSS to be installed globally.
-They are:
-UglifyJS2
-UglifyCSS
-Babel
-Babel ES2015 preset
+	$npm install
+should fulfil all other dependencies.
 
-To build: $python build.py OR $python3 build.py
+To build:  $ python3 build.py
 
-build.py arguements:
--b use babel to convert ES6 code
--m use UglifyJS2 and UglifyCSS to minify the JS and CSS files
--d point resources to the absolute addresses specified in build.py rather than using relative addresses
+build.py arguments:
+-b Babel - use babel to convert ES6 code to ES5
+-m Minify - convert to ES5 using babel and then use UglifyJS2 and UglifyCSS to minify the JS and CSS files
+-d Deploy - point resources to the absolute addresses specified in build.py rather than using relative addresses
+-a Analytics Path - used to give a path to the web address of the analytics scripts.
 
-eg: $python3 build.py -b -m -d
-
-NOTE: it is not currently possible to use both -m and -b at the same time
+eg: $ python3 build.py -m -d -a http://example.com/cgi/
