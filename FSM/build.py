@@ -361,11 +361,21 @@ if __name__ == "__main__":
         os.chdir(deployDir)
         useShell = True
 
-        files = [f for f in os.listdir(deployDir) if f[-3:] == ".js" and f[-7:] != ".min.js"] #Don't minimize files with name ending .min.js
-        for f in files:
+        jsFiles = [f for f in os.listdir(deployDir) if f[-3:] == ".js" and f[-7:] != ".min.js"] #Don't minimize files with name ending .min.js
+        # Overwrite js and css files in the deploy directory with minified versions.
+        for f in jsFiles:
             path = os.path.join(deployDir, f)
             # "uglifyjs" script is defined in package.json
-            subprocess.call(["npm run-script uglifyjs -- -o '" + path +"' '" + path + "'"], shell=useShell)
+            subprocess.call(["npm run-script uglifyjs -- -o '{0}' '{0}'".format(path)], shell=useShell)
+
+        cssFiles = [f for f in os.listdir(deployDir) if f[-4:] == ".css"]
+        for f in cssFiles:
+            path = os.path.join(deployDir, f)
+            # Get the location of the uglifycss binary using npm bin
+            # Do it this way, as uglifycss does not have an option to output to file
+            command = "cat '{0}' | `npm bin`/uglifycss > '{0}'".format(path)
+            print(command)
+            subprocess.call([command], shell=useShell)
 
 
     # Return to original directory.

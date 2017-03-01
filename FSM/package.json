@@ -27,6 +27,7 @@
     "purecss": "^0.6.0",
     "selenium-webdriver": "^2.53.3",
     "uglify-js": "^2.7.0",
+    "uglifycss": "0.0.25",
     "victor": "^1.1.0",
     "webpack": "~1.13.1"
   },
