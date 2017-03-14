@@ -490,11 +490,11 @@ def readUsage(filename):
                     users[userID]["totalTimeOnPage"][pageID] += timeOnPage
 
                 # Record remoteIP
-                remoteIP = usage["remoteIP"]
+                remoteIP = usage["remoteIp"]
                 if remoteIP  in usageStats["remoteIPs"]:
-                    usageStats["remoteIPs"][remoteIP]["count"] ++
+                    usageStats["remoteIPs"][remoteIP]["count"] += 1
                 else:
-                    usageStats["remoteIP"][remoteIP] = {"count": 1, "city": "unknown"}
+                    usageStats["remoteIPs"][remoteIP] = {"count": 1, "city": "unknown"}
 
                 if users[userID]["browser"] is None:
                     agentString = str(usage["agentString"])
@@ -631,6 +631,7 @@ def writePublicJSON():
     for date in dates:
         dates[date]["uniqueVisitors"] = getVisitors(dates[date]["dailyUniquesList"])
         del dates[date]["dailyUniquesList"]
+    del usageStats["remoteIPs"]
     # Calculate Timestamp:
     now = datetime.now()
     timeStamp = now.strftime('%Y-%m-%d %H:%M:%S')
