@@ -135,6 +135,8 @@ def analyseUsage():
         if isActive(userID):
             thisUserActive = True
             usageStats["activeUsers"] += 1
+        else:
+            thisUserActive = False
 
         if "sessionData" in u:
             sessionData = u["sessionData"]
@@ -186,7 +188,11 @@ def analyseUsage():
     for pageID in pages:
         pageTimes = sorted(pages[pageID]["timeEntries"])
         nTimes = len(pageTimes)
-        if nTimes % 2 != 0:
+        if nTimes == 0:
+            pages[pageID]["medianTotalTime"] = 0
+        elif nTimes == 1:
+            pages[pageID]["medianTotalTime"] = pageTimes[0]
+        elif nTimes % 2 != 0:
             # Take middle value if it exists
             pages[pageID]["medianTotalTime"] = pageTimes[math.floor(nTimes/2)]
         else:
@@ -490,11 +496,11 @@ def readUsage(filename):
                     users[userID]["totalTimeOnPage"][pageID] += timeOnPage
 
                 # Record remoteIP
-                remoteIP = usage["remoteIP"]
+                remoteIP = usage["remoteIp"]
                 if remoteIP  in usageStats["remoteIPs"]:
-                    usageStats["remoteIPs"][remoteIP]["count"] ++
+                    usageStats["remoteIPs"][remoteIP]["count"] += 1
                 else:
-                    usageStats["remoteIP"][remoteIP] = {"count": 1, "city": "unknown"}
+                    usageStats["remoteIPs"][remoteIP] = {"count": 1, "city": "unknown"}
 
                 if users[userID]["browser"] is None:
                     agentString = str(usage["agentString"])
