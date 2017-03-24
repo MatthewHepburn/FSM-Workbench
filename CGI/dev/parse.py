@@ -637,6 +637,7 @@ def writePublicJSON():
     for date in dates:
         dates[date]["uniqueVisitors"] = getVisitors(dates[date]["dailyUniquesList"])
         del dates[date]["dailyUniquesList"]
+    del usageStats["remoteIPs"]
     # Calculate Timestamp:
     now = datetime.now()
     timeStamp = now.strftime('%Y-%m-%d %H:%M:%S')
