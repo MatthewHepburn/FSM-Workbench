@@ -68,11 +68,42 @@ const Privacy = {
         const keys = Object.keys(localStorage).sort();
         let str = "<table>";
         keys.forEach(function(key){
-            str += `<tr><td> ${key}</td><td>${JSON.stringify(localStorage.getItem(key))}</td></tr>`;
+            let itemString;
+            if(key === "savedFiniteStateMachines"){
+                // Handle this separately as the thumbnail does not display nicely.
+                itemString = Privacy.getSavedMachineStr()
+            } else {
+                itemString = localStorage.getItem(key);
+            }
+            str += `<tr><td> ${key}</td><td>${itemString}</td></tr>`;
         });
         str += "</table>";
         return str;
 
+    },
+    formatMachineSpec(str){
+        // escape html
+        str = str.replace(/\&/g, "&amp");
+        str = str.replace(/\</g, "&lt");
+        str = str.replace(/\>/g, "&gt");
+        // unescape quotes
+        return str.replace(/\\"/g, '"');
+    },
+    getSavedMachineStr(){
+        const obj = JSON.parse(localStorage.getItem("savedFiniteStateMachines"));
+        let str = "{";
+        Object.keys(obj).forEach(function(key){
+            if(key == "__meta__"){
+                return; // handle separately
+            }
+            str += '"' + key + '":<br>';
+            str += Privacy.formatMachineSpec(JSON.stringify(obj[key]));
+            str += "<br><br>";
+        });
+        const metaObj = obj["__meta__"];
+        str += '"__meta__": ' + JSON.stringify(metaObj) + " }";
+
+        return str;
     },
     init(){
         Privacy.addButtons();
