@@ -376,6 +376,7 @@ var display = {
             .attr("style", "width: " + (display.width - 200) + "px;");
     },
     drawPageVisitsBarChart:function(){
+        control.resetCanvas();
         // Draw title
         d3.select("#title")
             .html("Total Unique Visitors per Page")
@@ -440,6 +441,7 @@ var display = {
 
     },
     drawPageAnswersBarChart:function(){
+        control.resetCanvas();
         // Draw title
         d3.select("#title")
             .html("Correct vs Total Answers by Question")
@@ -498,6 +500,7 @@ var display = {
             .attr("style", "width: " + (display.width - 200) + "px;");
     },
     drawPageRatingBarChart:function(){
+        control.resetCanvas();
         // Draw title
         d3.select("#title")
             .html("Positive vs Total Ratings by Question")
@@ -559,6 +562,8 @@ var display = {
 
     },
     drawPageUserOutcomesBarChart:function(){
+        control.resetCanvas();
+
         // Draw title
         d3.select("#title")
             .html("User Outcomes by Question")
@@ -616,6 +621,7 @@ var display = {
         d3.selectAll(".y .axis");
     },
     drawMeanTimeBarChart: function(){
+        control.resetCanvas();
         const chartData = data.getMeanTimeData();
         const barLabels = chartData.map(x => x[0]);
         const barValuesFull = chartData.map(x => x[1]/60);
@@ -645,21 +651,22 @@ var display = {
         display.drawHorizontalBarChart(chartObj);
     },
     drawMedianTimeBarChart(){
+        control.resetCanvas();
         const chartData = data.getMedianTimeData();
         const barLabels = chartData.map(x => x[0]);
         const barValuesFull = chartData.map(x => x[1]/60);
 
         const valueDisplayFunction = function(time){
-             if(time < 1){
-                 return Math.round(time * 60) + " sec";
-             } else if (time < 60){
-                 return String(time.toFixed(1)) + " min";
-             } else if (time < 24 * 60){
-                 return String((time/60).toFixed(1)) + " hour"
-             } else{
-                 return String((time/(60 * 24)).toFixed(1)) + " day"
-             }
-         };
+            if(time < 1){
+                return Math.round(time * 60) + " sec";
+            } else if (time < 60){
+                return String(time.toFixed(1)) + " min";
+            } else if (time < 24 * 60){
+                return String((time/60).toFixed(1)) + " hour"
+            } else{
+                return String((time/(60 * 24)).toFixed(1)) + " day"
+            }
+        };
 
         const chartObj = {
             chartTitle: "Median Total Time Spent per Page",
@@ -704,8 +711,8 @@ var display = {
             const row = tBody.append("tr");
             row.append("td").text(group.toUpperCase());
             row.append("td").text(testData[group+"Users"]);
-            row.append("td").text(testData[group+"Mean"]);
-            row.append("td").text(testData[group+"SD"]);
+            row.append("td").text(testData[group+"Mean"].toPrecision(3));
+            row.append("td").text(testData[group+"SD"].toPrecision(3));
         });
 
         //style the table
@@ -723,6 +730,8 @@ var display = {
         // Expect chartObj to include properties (* denotes optional):
         // chartTitle, barLabels, barValuesFull, barValuesSplit*,  xAxisLabel, yAxisLabel,
         // maxWidth*, maxHeight*, minWidth*, minHeight*, valueDisplayFunction
+
+        control.resetCanvas();
 
         //Configure width/height
         let width = display.width;
@@ -742,12 +751,10 @@ var display = {
         }
 
         //Clear existing chart;
-        d3.selectAll(".removable").remove();
         const chart = d3.select("#canvas");
         chart.html("")
             .attr("width", width)
             .attr("height", height);
-        d3.select("#x-axis-title").html("").text("");
 
 
         // Draw title
@@ -850,6 +857,8 @@ var display = {
         // chartTitle, barLabels, barValuesFull, barValuesSplit*,  xAxisLabel, yAxisLabel,
         // maxWidth*, maxHeight*, minWidth*, minHeight*
 
+        control.resetCanvas();
+
         //Configure width/height
         let width = display.width;
         let height = display.height;
@@ -868,13 +877,10 @@ var display = {
         }
 
         //Clear existing chart;
-        d3.selectAll(".removable").remove();
         const chart = d3.select("#canvas");
         chart.html("")
             .attr("width", width)
             .attr("height", height);
-        d3.select("#x-axis-title").html("").text("");
-
 
         // Draw title
         d3.select("#title")
@@ -998,6 +1004,15 @@ var control = {
         display.drawDateBarChart();
         display.writeTimeStamp();
         display.writeLogSize();
+    },
+
+    resetCanvas(){
+        d3.selectAll(".removable").remove();
+        const chart = d3.select("#canvas");
+        chart.html("")
+            .attr("width", display.width)
+            .attr("height", display.height);
+        d3.select("#x-axis-title").html("").text("");
     }
 };
 

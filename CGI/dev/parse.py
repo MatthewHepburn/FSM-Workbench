@@ -43,7 +43,7 @@ def main():
     addPageData()
     analyseTestData()
     writePublicJSON()
-    # archiveLogs()
+    archiveLogs()
 
 def addIfNotPresent(list, item):
     # Can't use sets as they cannot be stored as JSON
