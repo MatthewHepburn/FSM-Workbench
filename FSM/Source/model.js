@@ -118,7 +118,10 @@ const Model = {
             this.alphabet = spec.attributes.alphabet;
             this.allowEpsilon = spec.attributes.allowEpsilon;
             this.isMealy = spec.attributes.isMealy;
-            this.lastNodeID = -1;
+
+            this._nodeIDGenerator = undefined; //Reset identifiers
+            this._linkIDGenerator = undefined;
+
             if(spec.attributes.outputAlphabet){
                 this.outputAlphabet = spec.attributes.outputAlphabet;
             } else {
@@ -139,20 +142,36 @@ const Model = {
             }
         };
         this.getNextNodeID = function(){
-            // Returns a sequential node id that incorporates the machine id
-            if (this.lastNodeID === undefined){
-                this.lastNodeID = -1;
+            // Uses a generator function to returns a sequential node id that incorporates the machine id
+
+            const thisMachine = this;
+
+            // Initialise the generator function if it does not exist.
+            if(! this._nodeIDGenerator){
+                this._nodeIDGenerator = function*(){
+                    let i = 0;
+                    while(true){
+                        yield thisMachine.id + "-N" + String(i);
+                        i += 1;
+                    }
+                }();
             }
-            this.lastNodeID += 1;
-            return this.id + "-N" + String(this.lastNodeID);
+            return this._nodeIDGenerator.next().value;
         };
         this.getNextLinkID = function(){
-            // Returns a sequential node id that incorporates the machine id
-            if (this.lastLinkID === undefined){
-                this.lastLinkID = -1;
+            const thisMachine = this;
+
+            // Initialise the generator function if it does not exist.
+            if(! this._linkIDGenerator){
+                this._linkIDGenerator = function*(){
+                    let i = 0;
+                    while(true){
+                        yield thisMachine.id + "-L" + String(i);
+                        i += 1;
+                    }
+                }();
             }
-            this.lastLinkID += 1;
-            return this.id + "-L" + String(this.lastLinkID);
+            return this._linkIDGenerator.next().value;
         };
         this.getAcceptingNodeCount = function(){
             var acceptingNodes = Object.keys(this.nodes).map(nodeID => this.nodes[nodeID]).filter(node => node.isAccepting);
