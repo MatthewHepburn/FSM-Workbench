@@ -202,7 +202,7 @@ const Model = {
                 if(!this.isDeterministic()){
                     throw new Error("Mealy machines must be deterministic");
                 }
-                traceObj.output = [[]];
+                traceObj.output = [];
             }
 
 
@@ -220,7 +220,7 @@ const Model = {
                 traceObj.links.push(stepObj.links);
 
                 if(this.isMealy){
-                    traceObj.output.push(traceObj.stepObj);
+                    traceObj.output.push(stepObj.output);
                 }
 
                 // Advance input
