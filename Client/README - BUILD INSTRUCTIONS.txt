@@ -9,7 +9,7 @@ Or without root to install for your user account
     $ pip3 install --user jinja2
 
 ==Node Package Manager==
-From the FSM directory running
+From the Client directory running
 	$npm install
 should fulfil all other dependencies.
 

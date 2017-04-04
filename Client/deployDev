@@ -1,0 +1,7 @@
+#!/bin/bash
+python3 build.py -b -d -m --analytics-path http://homepages.inf.ed.ac.uk/cgi/s1020995/dev/
+scp -r Deploy/* s1020995@ssh.inf.ed.ac.uk:/public/homepages/s1020995/web/dev
+scp -r ../Server/*.py s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/dev
+scp -r ../Server/*.cgi s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/dev
+scp ../Server/questionlist.json s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/dev
+scp ../Server/pagelist.json s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/dev

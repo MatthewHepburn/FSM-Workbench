@@ -1,6 +1,6 @@
 {
-  "name": "CAL-FSM",
-  "version": "1.0.0",
+  "name": "FSM-Workbench",
+  "version": "2.0.0",
   "scripts": {
     "build": "python build.py",
     "test": "npm run test-model && npm run test-selenium",

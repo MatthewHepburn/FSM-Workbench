@@ -3,13 +3,13 @@
 full_stats.json
 stats.json
 Deploy/
-FSM/coverage
-FSM/.nyc_output
+Client/coverage
+Client/.nyc_output
 questionlist.json
 
 # Node Files #
 ##############
-FSM/node_modules/
+Client/node_modules/
 
 
 # Compiled source #

@@ -1,7 +1,0 @@
-#!/bin/bash
-python3 build.py -b -d -m --analytics-path http://homepages.inf.ed.ac.uk/cgi/s1020995/fsmworkbench/
-scp -r Deploy/* s1020995@ssh.inf.ed.ac.uk:/public/homepages/s1020995/web/fsmworkbench
-scp -r ../CGI/dev/*.py s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/fsmworkbench
-scp -r ../CGI/dev/*.cgi s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/fsmworkbench
-scp ../CGI/dev/questionlist.json s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/fsmworkbench
-scp ../CGI/dev/pagelist.json s1020995@ssh.inf.ed.ac.uk://public/homepages/s1020995/cgi/fsmworkbench

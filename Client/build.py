@@ -31,7 +31,7 @@ addresses = {}
 sourceDir = ""
 deployDir = ""
 startDir = os.path.split(os.path.realpath(__file__))[0] #Don't use os.getcwd() as script may be invoked from a different directory.
-                                                        #This gets the path where this file is located (should be "../CAL/FSM")
+                                                        #This gets the path where this file is located (should be "../FSM-Workbench/Client")
 # Keep a dict of questions, with their guid as key
 questionDict = {}
 
@@ -201,10 +201,9 @@ def writeQuestionDict():
     global deployDir
 
     os.chdir(deployDir)
-    os.chdir("..") #/CAL/FSM
-    os.chdir("..") #/CAL
-    os.chdir("CGI")
-    os.chdir("dev")
+    os.chdir("..") #/FSM-Workbench/Client
+    os.chdir("..") #/FSM-Workbench
+    os.chdir("Server") #/FSM-Workbench/Server
     with open('questionlist.json', 'w') as outfile:
         json.dump(questionDict, outfile, indent=4, separators=(',', ': '))
 
