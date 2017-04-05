@@ -22,3 +22,23 @@ build.py arguments:
 -a Analytics Path - used to give a path to the web address of the analytics scripts.
 
 eg: $ python3 build.py -m -d -a http://example.com/cgi/
+
+
+==== Adding a Question Set ====
+
+Each set of questions is declared in questionFiles.json. 
+
+To add a new set of questions, create a json file in this directory.
+Then, add an object to questionFiles.json.
+
+eg:
+{
+  	"file":"example.json",
+  	"directory": "example_directory",
+    "endPageID": "f0fccea0d9914b689ea6f3454288a7a5
+}
+
+where:
+file is the json file you created
+directory is the name you want to use for the question directory
+endPageID is a unique UUID4 identifier for the end page of the question set.

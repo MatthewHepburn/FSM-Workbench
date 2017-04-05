@@ -1,0 +1,1 @@
+This directory contains miscellaneous data analysis scripts. The primary data analysis is performed by ../Server/parse.py
