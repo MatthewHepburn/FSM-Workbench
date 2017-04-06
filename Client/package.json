@@ -1,6 +1,11 @@
 {
   "name": "FSM-Workbench",
   "version": "2.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MatthewHepburn/FSM-Workbench.git"
+  },
+  "license": "GPL-3.0",
   "scripts": {
     "build": "python build.py",
     "test": "npm run test-model && npm run test-selenium",
@@ -24,6 +29,7 @@
     "istanbul": "^0.4.3",
     "jsdom": "~9.2.0",
     "mocha": "~2.5.3",
+    "nyc": "^10.2.0",
     "purecss": "^0.6.0",
     "selenium-webdriver": "^2.53.3",
     "uglify-js": "^2.7.0",
