@@ -1,4 +1,6 @@
+#!/bin/python3
 # -*- coding: utf-8 -*-
+
 # FSM Workbench - a graphical finite state machine editor and simulator
 # Copyright (C) 2017  Matthew Hepburn
 

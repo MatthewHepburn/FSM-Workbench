@@ -71,7 +71,7 @@ const Privacy = {
             let itemString;
             if(key === "savedFiniteStateMachines"){
                 // Handle this separately as the thumbnail does not display nicely.
-                itemString = Privacy.getSavedMachineStr()
+                itemString = Privacy.getSavedMachineStr();
             } else {
                 itemString = localStorage.getItem(key);
             }

@@ -283,7 +283,7 @@ data.getData();
 var display = {
     get width(){
         //Width and height functions based on http://stackoverflow.com/a/1038781
-        const fraction = 0.8
+        const fraction = 0.8;
         if (self.innerWidth) {
             return self.innerWidth * fraction;
         }
@@ -295,7 +295,7 @@ var display = {
         }
     },
     get height(){
-        const fraction = 0.9
+        const fraction = 0.9;
         if (self.innerHeight) {
             return self.innerHeight * fraction;
         }
@@ -632,9 +632,9 @@ var display = {
             } else if (time < 60){
                 return String(time.toFixed(1)) + " min";
             } else if (time < 24 * 60){
-                return String((time/60).toFixed(1)) + " hour"
+                return String((time/60).toFixed(1)) + " hour";
             } else{
-                return String((time/(60 * 24)).toFixed(1)) + " day"
+                return String((time/(60 * 24)).toFixed(1)) + " day";
             }
         };
 
@@ -662,9 +662,9 @@ var display = {
             } else if (time < 60){
                 return String(time.toFixed(1)) + " min";
             } else if (time < 24 * 60){
-                return String((time/60).toFixed(1)) + " hour"
+                return String((time/60).toFixed(1)) + " hour";
             } else{
-                return String((time/(60 * 24)).toFixed(1)) + " day"
+                return String((time/(60 * 24)).toFixed(1)) + " day";
             }
         };
 

@@ -25,7 +25,7 @@ const Model = {
     },
     setMachineList(savedMachineList){
         // Restores the model to the state it was in when getMachineList() was called.
-        savedMachineList.forEach((spec, i) => Model.machines[i].build(spec))
+        savedMachineList.forEach((spec, i) => Model.machines[i].build(spec));
     },
     parseInput(inputString, splitSymbol){
         //Takes an input string (e.g. "abbbc") and returns a sequence based on the split symbol (e.g. ["a", "b", "b", "b", "c"])

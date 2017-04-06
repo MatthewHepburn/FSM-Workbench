@@ -12,7 +12,7 @@ var fs = require("fs");
 var by = webdriver.By;
 var until = webdriver.until;
 var ActionSequence = webdriver.ActionSequence;
-var Key = webdriver.Key
+var Key = webdriver.Key;
 
 
 

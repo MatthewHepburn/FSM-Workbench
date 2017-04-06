@@ -327,7 +327,7 @@ const edit = {
     },
     setOutputAlphabet: function(){
         const outputAlphabet = JSON.parse(d3.select("#outputAlphabet").node().value);
-        Model.machines.forEach(m => Controller.setOutputAlphabet(m, outputAlphabet))
+        Model.machines.forEach(m => Controller.setOutputAlphabet(m, outputAlphabet));
     },
     setAlphabet:function(){
         var alphabet = JSON.parse(document.querySelector("#alphabet").value);

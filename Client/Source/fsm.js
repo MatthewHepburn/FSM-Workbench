@@ -167,7 +167,7 @@ const Display = {
             .attr("xlink:href", iconAddress  +"undo-grey.svg");
 
         d3.select("#" + canvasID + "-redo-image")
-            .attr("xlink:href", iconAddress  +"redo-grey.svg")
+            .attr("xlink:href", iconAddress  +"redo-grey.svg");
 
 
         // Define a gradient to be applied when a button is selected:
