@@ -1,11 +1,18 @@
 # Generated files #
-############
+###################
 full_stats.json
 stats.json
 Deploy/
 Client/coverage
 Client/.nyc_output
 questionlist.json
+
+
+# Deployment Scripts #
+######################
+Client/deploy*
+Client/buildDev*
+Client/buildProd*
 
 # Node Files #
 ##############

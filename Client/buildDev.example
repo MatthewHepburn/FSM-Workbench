@@ -1,0 +1,4 @@
+#!/bin/bash
+python3 build.py -b -d -m --analytics-path https://example.com/fsm-workbench/analytics-dev
+
+
