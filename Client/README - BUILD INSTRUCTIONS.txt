@@ -26,7 +26,7 @@ eg: $ python3 build.py -m -d -a http://example.com/cgi/
 
 ==== Adding a Question Set ====
 
-Each set of questions is declared in questionFiles.json. 
+Each set of questions is declared in questionFiles.json.
 
 To add a new set of questions, create a json file in this directory.
 Then, add an object to questionFiles.json.
@@ -42,3 +42,17 @@ where:
 file is the json file you created
 directory is the name you want to use for the question directory
 endPageID is a unique UUID4 identifier for the end page of the question set.
+
+==== Setting up Analytics ====
+The exact details of this process will vary greatly depending on the webserver you are using,
+but here are some issues I have encountered:
+
+The log scripts must have permission to write to the log files.
+
+This can be done by creating the files:
+    $ touch {YOUR-CGI-DIRECTORY}/usage.cgi
+    $ touch {YOUR-CGI-DIRECTORY}/answers.cgi
+
+And making the webserver the owner. With an Apache server on Fedora, this can done as:
+    $ chown -R apache {YOUR-CGI-DIRECTORY}/usage.log
+    $ chown -R apache {YOUR-CGI-DIRECTORY}/answers.log
