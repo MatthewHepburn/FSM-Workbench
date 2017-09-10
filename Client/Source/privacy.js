@@ -22,7 +22,7 @@ const Privacy = {
         Privacy.addClearDataButton();
     },
     addShowDataButton(){
-        const html = "Click <a href='#' id='show-data-here'>here</a> to show the data that is currently stored from this domain (which includes other websites on the homepages server).";
+        const html = "Click <a href='#' id='show-data-here'>here</a> to show the data that is currently stored from this domain.";
         const pElem = document.querySelector("#show-data");
         pElem.innerHTML = html;
         pElem.innerHTML += "<br><code id='data-area'></code>";
