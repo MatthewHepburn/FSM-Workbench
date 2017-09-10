@@ -46,14 +46,15 @@ def setAddresses(toDeploy, analyticsPath="None"):
     # Different addresses are set if the files are being built for deployment
     global addresses
     if toDeploy:
-        #If deploying, point to web addresses
+        # TODO: Read these in from a config file:
+        # If deploying, point to web addresses
         addresses = {
             "jsAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "cssAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/",
             "iconAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/icons/",
             "imgAddress": "http://homepages.inf.ed.ac.uk/s1020995/dev/img/",
             "d3Address": "https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js",
-            "pureCSSAddress": "http://yui.yahooapis.com/pure/0.6.0/pure-min.css",
+            "pureCSSAddress": "https://unpkg.com/purecss@1.0.0/build/pure-min.css",
             "analyticsPath": analyticsPath
         }
     else:
