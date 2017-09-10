@@ -30,7 +30,7 @@ const Privacy = {
         document.querySelector("#show-data-here").addEventListener("click", Privacy.showData);
     },
     addClearDataButton(){
-        const html = "Click <a href='#' id='clear-data-here'>here</a> to clear all data stored on this device by this domain (including data from other websites on the homepages server).";
+        const html = "Click <a href='#' id='clear-data-here'>here</a> to clear all data stored on this device by this domain.";
         const pElem = document.querySelector("#clear-data");
         pElem.innerHTML = html;
         pElem.style.display = "";
